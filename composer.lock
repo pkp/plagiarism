@@ -1,0 +1,114 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "446fad6b0e9d7d5e4e58f9e668d25c15",
+    "packages": [
+        {
+            "name": "bsobbe/ithenticate",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bsobbe/iThenticate.git",
+                "reference": "e23b12c587b74e7bbd9d287ffcc7d571dc98329c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bsobbe/iThenticate/zipball/e23b12c587b74e7bbd9d287ffcc7d571dc98329c",
+                "reference": "e23b12c587b74e7bbd9d287ffcc7d571dc98329c",
+                "shasum": ""
+            },
+            "require": {
+                "phpxmlrpc/phpxmlrpc": "4.0"
+            },
+            "type": "php-library",
+            "autoload": {
+                "psr-4": {
+                    "bsobbe\\ithenticate\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sobhan Bagheri (A.K.A sobbe)",
+                    "email": "b.sobhanbagheri@gmail.com"
+                }
+            ],
+            "description": "A library to use Ithenticate API easier and faster, to check and prevent plagiarism",
+            "keywords": [
+                "api",
+                "crossref",
+                "ithenticate",
+                "library",
+                "php",
+                "plagiarism",
+                "plagiarism-prevention"
+            ],
+            "time": "2017-03-29T05:57:29+00:00"
+        },
+        {
+            "name": "phpxmlrpc/phpxmlrpc",
+            "version": "4.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gggeek/phpxmlrpc.git",
+                "reference": "679eacd661962f353a809ab66e83a86233f28bcc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gggeek/phpxmlrpc/zipball/679eacd661962f353a809ab66e83a86233f28bcc",
+                "reference": "679eacd661962f353a809ab66e83a86233f28bcc",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "dev-master",
+                "docbook/docbook-xsl": "~1.78",
+                "ext-curl": "*",
+                "ext-mbstring": "*",
+                "indeyets/pake": "~1.99",
+                "phpdocumentor/phpdocumentor": "2.*",
+                "phpunit/phpunit": ">=4.0.0",
+                "phpunit/phpunit-selenium": "*"
+            },
+            "suggest": {
+                "ext-curl": "Needed for HTTPS and HTTP 1.1 support, NTLM Auth etc...",
+                "ext-mbstring": "Needed to allow reception of requests/responses in character sets other than ASCII,LATIN-1,UTF-8",
+                "ext-zlib": "Needed for sending compressed requests and receiving compressed responses, if cURL is not available"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpXmlRpc\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "A php library for building xmlrpc clients and servers",
+            "homepage": "http://gggeek.github.io/phpxmlrpc/",
+            "keywords": [
+                "webservices",
+                "xmlrpc"
+            ],
+            "time": "2016-01-20T23:28:09+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
