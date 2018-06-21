@@ -5,4 +5,6 @@ plagiarism/vendor/phpxmlrpc/phpxmlrpc/tests
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/doc
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/pakefile.php
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/debugger
+plagiarism/vendor/phpxmlrpc/phpxmlrpc/.gitignore
+plagiarism/vendor/phpxmlrpc/phpxmlrpc/.travis.yml
 plagiarism/vendor/bsobbe/ithenticate/.git
