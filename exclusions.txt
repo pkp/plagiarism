@@ -2,6 +2,5 @@ plagiarism/xclusions.txt
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/demo
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/extras
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/tests
-plagiarism/vendor/phpxmlrpc/phpxmlrpc
 plagiarism/vendor/phpxmlrpc/phpxmlrpc/debugger
 plagiarism/vendor/bsobbe/ithenticate/.git
