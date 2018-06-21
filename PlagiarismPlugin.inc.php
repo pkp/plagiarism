@@ -104,8 +104,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		foreach ($submissionFiles as $submissionFile) {
 			if (!$ithenticate->submitDocument(
 				$submission->getLocalizedTitle(),
-				$author->getLocalizedGivenName(),
-				$author->getLocalizedFamilyName(),
+				$author->getFirstName(),
+				$author->getLastName(),
 				$submissionFile->getOriginalFileName(),
 				file_get_contents($submissionFile->getFilePath()),
 				$folderId
