@@ -37,7 +37,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @copydoc Plugin::getDescription()
 	 */
 	public function getDescription() {
-		return __('plugins.generic.plagiarism.description');
+		return Config::getVar('ithenticate', 'ithenticate')?__('plugins.generic.plagiarism.description'):__('plugins.generic.plagiarism.description.seeReadme');
 	}
 
 	/**
@@ -103,7 +103,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$author = array_shift($authors);
 		foreach ($submissionFiles as $submissionFile) {
 			if (!$ithenticate->submitDocument(
-				$submission->getLocalizedTitle(),
+				$submissionFile->getLocalizedName(),
 				$author->getLocalizedGivenName(),
 				$author->getLocalizedFamilyName(),
 				$submissionFile->getOriginalFileName(),
