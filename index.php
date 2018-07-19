@@ -12,7 +12,7 @@
  * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
  *
  * @ingroup plugins_generic_plagiarism
- * @brief Wrapper for books for review plugin.
+ * @brief Wrapper for plagiarism checking plugin.
  *
  */
 require_once('PlagiarismPlugin.inc.php');
