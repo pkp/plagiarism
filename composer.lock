@@ -1,23 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "82a870a41ae039ab839a3fc42c87030b",
+    "content-hash": "446fad6b0e9d7d5e4e58f9e668d25c15",
     "packages": [
         {
             "name": "bsobbe/ithenticate",
-            "version": "dev-add_folder_group_ops",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/asmecher/iThenticate.git",
-                "reference": "9d54b1bccca7fd34c2f47a01e9eaa0bd3c67837f"
+                "url": "https://github.com/bsobbe/iThenticate.git",
+                "reference": "e23b12c587b74e7bbd9d287ffcc7d571dc98329c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/asmecher/iThenticate/zipball/9d54b1bccca7fd34c2f47a01e9eaa0bd3c67837f",
-                "reference": "9d54b1bccca7fd34c2f47a01e9eaa0bd3c67837f",
+                "url": "https://api.github.com/repos/bsobbe/iThenticate/zipball/e23b12c587b74e7bbd9d287ffcc7d571dc98329c",
+                "reference": "e23b12c587b74e7bbd9d287ffcc7d571dc98329c",
                 "shasum": ""
             },
             "require": {
@@ -29,6 +29,7 @@
                     "bsobbe\\ithenticate\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -48,10 +49,7 @@
                 "plagiarism",
                 "plagiarism-prevention"
             ],
-            "support": {
-                "source": "https://github.com/asmecher/iThenticate/tree/add_folder_group_ops"
-            },
-            "time": "2018-06-20T23:47:23+00:00"
+            "time": "2017-03-29T05:57:29+00:00"
         },
         {
             "name": "phpxmlrpc/phpxmlrpc",
@@ -108,9 +106,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "bsobbe/ithenticate": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

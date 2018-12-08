@@ -80,21 +80,25 @@ class PlagiarismPlugin extends GenericPlugin {
 		if (!($groupId = array_search($contextName, $groupList))) {
 			// No folder group found for the context; create one.
 			$groupId = $ithenticate->createGroup($contextName);
-                        if (!$groupId) {
+			if (!$groupId) {
 				error_log('Could not create folder group for context ' . $contextName . ' on iThenticate.');
 				return false;
 			}
 		}
 
-		// Create a folder for this submission.
-		if (!($folderId = $ithenticate->createFolder(
-			'Submission_' . $submission->getId(),
-			'Submission_' . $submission->getId() . ': ' . $submission->getLocalizedTitle($submission->getLocale()),
-			$groupId,
-			1
-		))) {
-			error_log('Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
-			return false;
+		$folderName = 'Submission_' . $submission->getId();
+		$folderList = $ithenticate->fetchFolderList();
+		if (!($folderId = array_search($folderName, $folderList))) {
+			// Create a folder for this submission.
+			if (!($folderId = $ithenticate->createFolder(
+				$folderName,
+				'Submission_' . $submission->getId() . ': ' . $submission->getLocalizedTitle($submission->getLocale()),
+				$groupId,
+				1
+			))) {
+				error_log('Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
+				return false;
+			}
 		}
 
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
