@@ -16,8 +16,8 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * @copydoc Plugin::register()
 	 */
-	public function register($category, $path) {
-		$success = parent::register($category, $path);
+	public function register($category, $path, $mainContextId = null) {
+		$success = parent::register($category, $path, $mainContextId);
 		$this->addLocaleData();
 
 		if ($success && Config::getVar('ithenticate', 'ithenticate') && $this->getEnabled()) {
