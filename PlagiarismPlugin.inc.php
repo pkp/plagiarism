@@ -49,10 +49,10 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * @copydoc Plugin::getEnabled()
+	 * @copydoc LazyLoadPlugin::getEnabled()
 	 */
-	function getEnabled() {
-		if (!parent::getEnabled()) return false;
+	function getEnabled($contextId = null) {
+		if (!parent::getEnabled($contextId)) return false;
 		return Config::getVar('ithenticate', 'ithenticate');
 	}
 
