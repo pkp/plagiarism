@@ -12,7 +12,7 @@
   -->
 
 <locale name="es_ES" full_name="Español (España)">
-	<message key="plugins.generic.plagiarism.displayName">Plugin de Detección de Plagio de iThenticate</message>
+	<message key="plugins.generic.plagiarism.displayName">Módulo de Detección de Plagio de iThenticate</message>
 	<message key="plugins.generic.plagiarism.description">Permite enviar artículos a iThenticate para verificar posibles plagios.</message>
 	<message key="plugins.generic.plagiarism.description.seeReadme"><![CDATA[Permite enviar artículos a iThenticate para verificar posibles plagios. <strong>Vea el archivo README para instrucciones de instalación.</strong>]]></message>
 </locale>
