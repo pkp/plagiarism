@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/index.php
+ * @file index.php
  *
  * Copyright (c) 2003-2020 Simon Fraser University
  * Copyright (c) 2003-2020 John Willinsky
