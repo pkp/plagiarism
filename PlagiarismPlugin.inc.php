@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/PlagiarismPlugin.inc.php
+ * @file PlagiarismPlugin.inc.php
  *
  * Copyright (c) 2003-2020 Simon Fraser University
  * Copyright (c) 2003-2020 John Willinsky
- * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @brief Plagiarism plugin
  */
