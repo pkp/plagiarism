@@ -66,6 +66,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$context = $request->getContext();
 		$submissionDao = Application::getSubmissionDAO();
 		$submission = $submissionDao->getById($request->getUserVar('submissionId'));
+		$publication = $submission->getCurrentPublication();
 
 		require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
@@ -89,7 +90,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		// Create a folder for this submission.
 		if (!($folderId = $ithenticate->createFolder(
 			'Submission_' . $submission->getId(),
-			'Submission_' . $submission->getId() . ': ' . $submission->getLocalizedTitle($submission->getLocale()),
+			'Submission_' . $submission->getId() . ': ' . $publication->getLocalizedTitle($publication->getData('locale')),
 			$groupId,
 			1
 		))) {
@@ -99,7 +100,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
 		$submissionFiles = $submissionFileDao->getBySubmissionId($submission->getId());
-		$authors = $submission->getAuthors();
+		$authors = $publication->getData('authors');
 		$author = array_shift($authors);
 		foreach ($submissionFiles as $submissionFile) {
 			if (!$ithenticate->submitDocument(
@@ -115,5 +116,36 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 
 		return false;
+	}
+}
+
+/**
+ * Low-budget mock class for \bsobbe\ithenticate\Ithenticate -- Replace the
+ * constructor above with this class name to log API usage instead of
+ * interacting with the iThenticate service.
+ */
+class TestIthenticate {
+	public function __construct($username, $password) {
+		error_log("Constructing iThenticate: $username $password");
+	}
+
+	public function fetchGroupList() {
+		error_log('Fetching iThenticate group list');
+		return array();
+	}
+
+	public function createGroup($group_name) {
+		error_log("Creating group named \"$group_name\"");
+		return 1;
+	}
+
+	public function createFolder($folder_name, $folder_description, $group_id, $exclude_quotes) {
+		error_log("Creating folder:\n\t$folder_name\n\t$folder_description\n\t$group_id\n\t$exclude_quotes");
+		return true;
+	}
+
+	public function submitDocument($essay_title, $author_firstname, $author_lastname, $filename, $document_content, $folder_number) {
+		error_log("Submitting document:\n\t$essay_title\n\t$author_firstname\n\t$author_lastname\n\t$filename\n\t" . strlen($document_content) . " bytes of content\n\t$folder_number");
+		return true;
 	}
 }
