@@ -81,7 +81,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		if (!($groupId = array_search($contextName, $groupList))) {
 			// No folder group found for the context; create one.
 			$groupId = $ithenticate->createGroup($contextName);
-                        if (!$groupId) {
+			if (!$groupId) {
 				error_log('Could not create folder group for context ' . $contextName . ' on iThenticate.');
 				return false;
 			}
@@ -98,17 +98,21 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
-		$submissionFiles = $submissionFileDao->getBySubmissionId($submission->getId());
+		$submissionFiles = Services::get('submissionFile')->getMany([
+			'submissionIds' => [$submission->getId()],
+		]);
+
 		$authors = $publication->getData('authors');
 		$author = array_shift($authors);
 		foreach ($submissionFiles as $submissionFile) {
+			$file = Services::get('file')->get($submissionFile->getData('fileId'));
+			error_log('Name: ' . $submissionFile->getLocalizedData('name'));
 			if (!$ithenticate->submitDocument(
-				$submissionFile->getLocalizedName(),
+				$submissionFile->getLocalizedData('name'),
 				$author->getLocalizedGivenName(),
 				$author->getLocalizedFamilyName(),
-				$submissionFile->getOriginalFileName(),
-				file_get_contents($submissionFile->getFilePath()),
+				$submissionFile->getLocalizedData('name'),
+				Services::get('file')->fs->read($file->path),
 				$folderId
 			)) {
 				error_log('Could not submit ' . $submissionFile->getFilePath() . ' to iThenticate.');
