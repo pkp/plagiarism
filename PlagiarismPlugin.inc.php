@@ -92,7 +92,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			'Submission_' . $submission->getId(),
 			'Submission_' . $submission->getId() . ': ' . $publication->getLocalizedTitle($publication->getData('locale')),
 			$groupId,
-			1
+			true,
+			true
 		))) {
 			error_log('Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
 			return false;
