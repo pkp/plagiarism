@@ -1,34 +1,36 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "82a870a41ae039ab839a3fc42c87030b",
+    "content-hash": "80bb207be22274306acfdd1ed833f68e",
     "packages": [
         {
             "name": "bsobbe/ithenticate",
-            "version": "dev-add_folder_group_ops",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/asmecher/iThenticate.git",
-                "reference": "9d54b1bccca7fd34c2f47a01e9eaa0bd3c67837f"
+                "url": "https://github.com/bsobbe/iThenticate.git",
+                "reference": "8440a85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/asmecher/iThenticate/zipball/9d54b1bccca7fd34c2f47a01e9eaa0bd3c67837f",
-                "reference": "9d54b1bccca7fd34c2f47a01e9eaa0bd3c67837f",
+                "url": "https://api.github.com/repos/bsobbe/iThenticate/zipball/8440a85",
+                "reference": "8440a85",
                 "shasum": ""
             },
             "require": {
                 "phpxmlrpc/phpxmlrpc": "4.0"
             },
+            "default-branch": true,
             "type": "php-library",
             "autoload": {
                 "psr-4": {
                     "bsobbe\\ithenticate\\": ""
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -49,9 +51,10 @@
                 "plagiarism-prevention"
             ],
             "support": {
-                "source": "https://github.com/asmecher/iThenticate/tree/add_folder_group_ops"
+                "issues": "https://github.com/bsobbe/iThenticate/issues",
+                "source": "https://github.com/bsobbe/iThenticate/tree/master"
             },
-            "time": "2018-06-20T23:47:23+00:00"
+            "time": "2021-06-04T12:29:15+00:00"
         },
         {
             "name": "phpxmlrpc/phpxmlrpc",
@@ -102,6 +105,10 @@
                 "webservices",
                 "xmlrpc"
             ],
+            "support": {
+                "issues": "https://github.com/gggeek/phpxmlrpc/issues",
+                "source": "https://github.com/gggeek/phpxmlrpc/tree/master"
+            },
             "time": "2016-01-20T23:28:09+00:00"
         }
     ],
@@ -114,5 +121,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.1.0"
 }

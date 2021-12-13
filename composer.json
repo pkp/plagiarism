@@ -1,11 +1,5 @@
 {
-	"repositories": [
-		{
-			"type": "vcs",
-			"url": "https://github.com/asmecher/ithenticate"
-		}
-	],
 	"require": {
-		"bsobbe/ithenticate": "dev-add_folder_group_ops"
+		"bsobbe/ithenticate": "dev-master#8440a85"
 	}
 }
