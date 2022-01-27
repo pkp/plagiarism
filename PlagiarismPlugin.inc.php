@@ -21,7 +21,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$this->addLocaleData();
 
 		if ($success && Config::getVar('ithenticate', 'ithenticate') && $this->getEnabled()) {
-			HookRegistry::register('submissionsubmitstep4form::display', array($this, 'callback'));
+			HookRegistry::register('submissionsubmitstep4form::execute', array($this, 'callback'));
 		}
 		return $success;
 	}
