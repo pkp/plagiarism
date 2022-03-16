@@ -9,8 +9,9 @@ For this plugin to work, the following must be added to your config.inc.php file
 ; Enable iThenticate to submit manuscripts after submit step 4
 ithenticate = On
 
+; Credentials are set by context : specify journal path
 ; The username to access the API (usually an email address)
-username = "user@email.com"
+username[MyJournal_path] = "user@email.com"
 
 ; The password to access the API
-password = "password"
+password[MyJournal_path] = "password"
