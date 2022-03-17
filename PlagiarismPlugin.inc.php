@@ -71,11 +71,16 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
-                $username = Config::getVar('ithenticate', 'username['.$contextPath.']');
-                $password = Config::getVar('ithenticate', 'password['.$contextPath.']');
-
-                $ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
-
+		// try to get credentials for current context otherwise use default config
+		$username = Config::getVar('ithenticate', 'username['.$contextPath.']');
+		if (!$username) {
+			$username = Config::getVar('ithenticate', 'username');
+		}
+		$password = Config::getVar('ithenticate', 'password['.$contextPath.']');
+		if (!$password) {
+			$password = Config::getVar('ithenticate', 'password');
+		}
+		$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
 		// Make sure there's a group list for this context, creating if necessary.
 		$groupList = $ithenticate->fetchGroupList();
 		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
