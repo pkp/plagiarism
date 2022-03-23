@@ -64,17 +64,19 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function callback($hookName, $args) {
 		$request = Application::getRequest();
 		$context = $request->getContext();
+		$contextPath = $context->getPath();
 		$submissionDao = Application::getSubmissionDAO();
 		$submission = $submissionDao->getById($request->getUserVar('submissionId'));
 		$publication = $submission->getCurrentPublication();
 
 		require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
-		$ithenticate = new \bsobbe\ithenticate\Ithenticate(
-			Config::getVar('ithenticate', 'username'),
-			Config::getVar('ithenticate', 'password')
-		);
-
+		// try to get credentials for current context otherwise use default config
+		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
+				Config::getVar('ithenticate', 'username'));
+		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
+				Config::getVar('ithenticate', 'password'));
+		$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
 		// Make sure there's a group list for this context, creating if necessary.
 		$groupList = $ithenticate->fetchGroupList();
 		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
