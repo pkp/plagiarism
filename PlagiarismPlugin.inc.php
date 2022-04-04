@@ -118,7 +118,7 @@ class PlagiarismPlugin extends GenericPlugin {
 				Services::get('file')->fs->read($file->path),
 				$folderId
 			)) {
-				error_log('Could not submit "' . $submissionFile->->getData('path') . '" to iThenticate.');
+				error_log('Could not submit "' . $submissionFile->getData('path') . '" to iThenticate.');
 			}
 		}
 
