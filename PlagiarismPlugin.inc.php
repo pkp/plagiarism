@@ -109,7 +109,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		$author = array_shift($authors);
 		foreach ($submissionFiles as $submissionFile) {
 			$file = Services::get('file')->get($submissionFile->getData('fileId'));
-			error_log('Name: ' . $submissionFile->getLocalizedData('name'));
 			if (!$ithenticate->submitDocument(
 				$submissionFile->getLocalizedData('name'),
 				$author->getLocalizedGivenName(),
