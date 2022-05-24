@@ -1,0 +1,11 @@
+--- src/Helper/XMLParser_patched.php    2022-05-24 13:15:28.159700424 -0300
++++ src/Helper/XMLParser.php	2016-01-20 19:28:09.000000000 -0400
+@@ -270,7 +270,7 @@
+                     if ($name == 'STRING') {
+                         $this->_xh['value'] = $this->_xh['ac'];
+                     } elseif ($name == 'DATETIME.ISO8601') {
+-                        if (!preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac'])) {
++                        if (!preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac']) || !preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac'])) {
+                             error_log('XML-RPC: ' . __METHOD__ . ': invalid value received in DATETIME: ' . $this->_xh['ac']);
+                         }
+                         $this->_xh['vt'] = Value::$xmlrpcDateTime;
