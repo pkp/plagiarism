@@ -84,12 +84,11 @@ class PlagiarismPlugin extends GenericPlugin {
 		require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 		// try to get credentials for current context otherwise use default config
-		$journal = & $request->getJournal();
-        	$journalId = $journal->getId();
+        	$contextId = $context->getId();
 		($username, $password) = $this->getForcedCredentials(); 
 		if (!isset($username) || !isset($password)) {
-			$username = $this->getSetting($journalId, 'ithenticate_user');
-			$password = $this->getSetting($journalId, 'ithenticate_pass');
+			$username = $this->getSetting($contextId, 'ithenticate_user');
+			$password = $this->getSetting($contextId, 'ithenticate_pass');
 		}
 
 		$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
