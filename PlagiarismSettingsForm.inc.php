@@ -1,3 +1,5 @@
+<?php
+
 import('lib.pkp.classes.form.Form');
 
 class PlagiarismSettingsForm extends Form {
