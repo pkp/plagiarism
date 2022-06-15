@@ -17,7 +17,10 @@ ithenticate = On
 
 ; default credentials
 ; The username to access the API (usually an email address)
-username = "user@email.com"
+;username = "user@email.com"
 
 ; The password to access the API
-password = "password"
+;password = "password"
+
+
+You may set the credentials in config.inc.php, or you may set the credentials per-journal in the plugin settings.  If credentials are present in config.inc.php, they will override those entered in the plugin settings form.

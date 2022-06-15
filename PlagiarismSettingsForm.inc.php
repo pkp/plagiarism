@@ -32,11 +32,13 @@ class PlagiarismSettingsForm extends Form {
 	 * Initialize form data.
 	 */
 	function initData() {
-		($username, $password) = $this->_plugin->getForcedCredentials();
+		$credentials = $this->_plugin->getForcedCredentials();
+		$username = $credentials[0];
+		$password = $credentials[1];
 		$this->_data = array(
                         'ithenticate_user' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_user'),
 			'ithenticate_pass' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_pass'),
-			'ithenticate_forced' => isset($username) && isset($password);
+			'ithenticate_forced' => isset($username) && isset($password)
 		);
 	}
 
