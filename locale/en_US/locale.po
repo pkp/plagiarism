@@ -28,3 +28,9 @@ msgstr "iThenticate Usename"
 
 msgid "plugins.generic.plagiarism.manager.settings.password"
 msgstr "iThenticate Password"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate Usename is required"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate Password is required"
