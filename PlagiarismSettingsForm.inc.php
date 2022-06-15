@@ -10,7 +10,7 @@ class PlagiarismSettingsForm extends Form {
 
 	/**
 	 * Constructor
-	 * @param $plugin CitedByPlugin
+	 * @param $plugin PlagiarismPlugin
 	 * @param $journalId int
 	 */
 	function __construct($plugin, $journalId) {
@@ -30,9 +30,11 @@ class PlagiarismSettingsForm extends Form {
 	 * Initialize form data.
 	 */
 	function initData() {
+		($username, $password) = $this->_plugin->getForcedCredentials();
 		$this->_data = array(
                         'ithenticate_user' => $this->_plugin->getSetting($this->_journalId, 'ithenticate_user'),
 			'ithenticate_pass' => $this->_plugin->getSetting($this->_journalId, 'ithenticate_pass'),
+			'ithenticate_forced' => isset($username) && isset($password);
 		);
 	}
 

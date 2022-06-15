@@ -19,3 +19,12 @@ msgstr "Send all submissions to iThenticate to be checked for possible plagiaris
 
 msgid "plugins.generic.plagiarism.description.seeReadme"
 msgstr "Send all submissions to iThenticate to be checked for possible plagiarism. <strong>See the README document for this plugin for installation instructions.</strong>"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr "Settings for the account used to upload submissions to iThenticate.  Contact your iThenticate administrator for details."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate Usename"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate Password"

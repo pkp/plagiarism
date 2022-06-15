@@ -57,6 +57,18 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Fetch credentials from config.inc.php, if available
+	 * @return array username and password, or null(s)
+	**/
+	function getForcedCredentials() {
+		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
+				Config::getVar('ithenticate', 'username'));
+		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
+				Config::getVar('ithenticate', 'password'));
+		return array($username, $password);
+	}
+	
+	/**
 	 * Send submission files to iThenticate.
 	 * @param $hookName string
 	 * @param $args array
@@ -74,8 +86,11 @@ class PlagiarismPlugin extends GenericPlugin {
 		// try to get credentials for current context otherwise use default config
 		$journal = & $request->getJournal();
         	$journalId = $journal->getId();
-		$username = $this->getSetting($journalId, 'ithenticate_user');
-		$password = $this->getSetting($journalId, 'ithenticate_pass');
+		($username, $password) = $this->getForcedCredentials(); 
+		if (!isset($username) || !isset($password)) {
+			$username = $this->getSetting($journalId, 'ithenticate_user');
+			$password = $this->getSetting($journalId, 'ithenticate_pass');
+		}
 
 		$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
 		// Make sure there's a group list for this context, creating if necessary.

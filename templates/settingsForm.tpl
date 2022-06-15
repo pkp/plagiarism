@@ -10,6 +10,9 @@
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="plagiarismSettingsFormNotification"}
 
 	<div id="description">{translate key="plugins.generic.plagiarism.manager.settings.description"}</div>
+	{if $ithenticate_forced}
+	<div id="ithenticate_notice">{translate key="plugins.generic.plagiarism.manager.settings.areForced"}</div>
+	{/if}
 
 	{fbvFormArea id="webFeedSettingsFormArea"}
             {fbvElement type="text" id="ithenticate_user" value=$ithenticate_user label="plugins.generic.plagiarism.manager.settings.username"}
