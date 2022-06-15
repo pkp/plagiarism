@@ -10,7 +10,7 @@ class PlagiarismSettingsForm extends Form {
 
 	/**
 	 * Constructor
-	 * @param $plugin CitedByPlugin
+	 * @param $plugin PlagiarismPlugin
 	 * @param $journalId int
 	 */
 	function __construct($plugin, $journalId) {
