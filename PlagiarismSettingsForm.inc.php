@@ -3,7 +3,7 @@ import('lib.pkp.classes.form.Form');
 class PlagiarismSettingsForm extends Form {
 
 	/** @var int */
-	var $_journalId;
+	var $_contextId;
 
 	/** @var object */
 	var $_plugin;
@@ -11,10 +11,10 @@ class PlagiarismSettingsForm extends Form {
 	/**
 	 * Constructor
 	 * @param $plugin PlagiarismPlugin
-	 * @param $journalId int
+	 * @param $contextId int
 	 */
-	function __construct($plugin, $journalId) {
-		$this->_journalId = $journalId;
+	function __construct($plugin, $contextId) {
+		$this->_contextId = $contextId;
 		$this->_plugin = $plugin;
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
@@ -32,8 +32,8 @@ class PlagiarismSettingsForm extends Form {
 	function initData() {
 		($username, $password) = $this->_plugin->getForcedCredentials();
 		$this->_data = array(
-                        'ithenticate_user' => $this->_plugin->getSetting($this->_journalId, 'ithenticate_user'),
-			'ithenticate_pass' => $this->_plugin->getSetting($this->_journalId, 'ithenticate_pass'),
+                        'ithenticate_user' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_user'),
+			'ithenticate_pass' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_pass'),
 			'ithenticate_forced' => isset($username) && isset($password);
 		);
 	}
@@ -59,8 +59,8 @@ class PlagiarismSettingsForm extends Form {
 	 * @copydoc Form::execute()
 	 */
 	function execute(...$functionArgs) {
-                $this->_plugin->updateSetting($this->_journalId, 'ithenticate_user', trim($this->getData('ithenticate_user'), "\"\';"), 'string');
-		$this->_plugin->updateSetting($this->_journalId, 'ithenticate_pass', trim($this->getData('ithenticate_pass'), "\"\';"), 'string');
+                $this->_plugin->updateSetting($this->_contextId, 'ithenticate_user', trim($this->getData('ithenticate_user'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticate_pass', trim($this->getData('ithenticate_pass'), "\"\';"), 'string');
 		parent::execute(...$functionArgs);
 	}
 }
