@@ -85,7 +85,9 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// try to get credentials for current context otherwise use default config
         	$contextId = $context->getId();
-		($username, $password) = $this->getForcedCredentials(); 
+		$credentials = $this->getForcedCredentials(); 
+		$username = $credentials[0];
+		$password = $credentials[1];
 		if (!isset($username) || !isset($password)) {
 			$username = $this->getSetting($contextId, 'ithenticate_user');
 			$password = $this->getSetting($contextId, 'ithenticate_pass');

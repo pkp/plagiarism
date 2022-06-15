@@ -16,7 +16,7 @@
 
 	{fbvFormArea id="webFeedSettingsFormArea"}
             {fbvElement type="text" id="ithenticate_user" value=$ithenticate_user label="plugins.generic.plagiarism.manager.settings.username"}
-            {fbvElement type="text" id="ithenticate_pass" value=$ithenticate_pass label="plugins.generic.plagiarism.manager.settings.password"}
+            {fbvElement type="password" id="ithenticate_pass" value=$ithenticate_pass label="plugins.generic.plagiarism.manager.settings.password"}
                 
 	{/fbvFormArea}
 
