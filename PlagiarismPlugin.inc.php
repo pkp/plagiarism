@@ -85,7 +85,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::getRequest();
 		$context = $request->getContext();
 		$contextPath = $context->getPath();
-		$submissionDao = Application::getSubmissionDAO();
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /* @var $submissionDao SubmissionDAO */
 		$submission = $submissionDao->getById($request->getUserVar('submissionId'));
 		$publication = $submission->getCurrentPublication();
 
