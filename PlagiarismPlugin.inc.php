@@ -96,7 +96,13 @@ class PlagiarismPlugin extends GenericPlugin {
 			$password = $this->getSetting($contextId, 'ithenticate_pass');
 		}
 
-		$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+		$ithenticate = null;
+		try {
+			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+		} catch (Exception $e) {
+			error_log('Could not login to iThenticate: '.$e->getMessage());
+			return false;
+		}
 		// Make sure there's a group list for this context, creating if necessary.
 		$groupList = $ithenticate->fetchGroupList();
 		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
