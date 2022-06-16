@@ -78,11 +78,11 @@ class PlagiarismPlugin extends GenericPlugin {
 
 	/**
 	 * Send the editor an error message
-	 * @param $message string
 	 * @param $submissionid int
+	 * @param $message string
 	 * @return void
 	**/
-	public function sendErrorMessage($message, $submissionid) {
+	public function sendErrorMessage($submissionid, $message) {
 		$request = Application::getRequest();
 		$context = $request->getContext();
 		import('classes.notification.NotificationManager');
@@ -93,8 +93,9 @@ class PlagiarismPlugin extends GenericPlugin {
 		$managersArray = $managers->toAssociativeArray();
 		$allUserIds = array_keys($managersArray);
 		foreach ($allUserIds as $userId) {
-			$notificationManager->createTrivialNotification($userId, NOTIFICATION_TYPE_ERROR, array('contents' => __('', array('submissionId' => $submissionid, 'errorMessage' => $message))));
+			$notificationManager->createTrivialNotification($userId, NOTIFICATION_TYPE_ERROR, array('contents' => __('plugins.generic.plagiarism.errorMessage', array('submissionId' => $submissionid, 'errorMessage' => $message))));
 		}
+		error_log('iThenticate submission '.$submissionid.' failed: '.$message);
 	}
 	
 	/**
