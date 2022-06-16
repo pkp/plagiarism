@@ -75,6 +75,27 @@ class PlagiarismPlugin extends GenericPlugin {
 				Config::getVar('ithenticate', 'password'));
 		return array($username, $password);
 	}
+
+	/**
+	 * Send the editor an error message
+	 * @param $message string
+	 * @param $submissionid int
+	 * @return void
+	**/
+	public function sendErrorMessage($message, $submissionid) {
+		$request = Application::getRequest();
+		$context = $request->getContext();
+		import('classes.notification.NotificationManager');
+		$notificationManager = new NotificationManager();
+		$roleDao = DAORegistry::getDAO('RoleDAO'); /* @var $roleDao RoleDAO */
+		// Get the managers.
+		$managers = $roleDao->getUsersByRoleId(ROLE_ID_MANAGER, $context->getId());
+		$managersArray = $managers->toAssociativeArray();
+		$allUserIds = array_keys($managersArray);
+		foreach ($allUserIds as $userId) {
+			$notificationMgr->createTrivialNotification($userId, NOTIFICATION_TYPE_ERROR, array('contents' => __('', array('submissionId' => $submissionid, 'errorMessage' => $message))));
+		}
+	}
 	
 	/**
 	 * Send submission files to iThenticate.
@@ -105,7 +126,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		try {
 			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
 		} catch (Exception $e) {
-			error_log('Could not login to iThenticate: '.$e->getMessage());
+			$this->sendErrorMessage($submission->getId(), $e->getMessage());
 			return false;
 		}
 		// Make sure there's a group list for this context, creating if necessary.
@@ -115,7 +136,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			// No folder group found for the context; create one.
 			$groupId = $ithenticate->createGroup($contextName);
 			if (!$groupId) {
-				error_log('Could not create folder group for context ' . $contextName . ' on iThenticate.');
+				$this->sendErrorMessage($submission->getId(), 'Could not create folder group for context ' . $contextName . ' on iThenticate.');
 				return false;
 			}
 		}
@@ -128,7 +149,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			true,
 			true
 		))) {
-			error_log('Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
+			$this->sendErrorMessage($submission->getId(), 'Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
 			return false;
 		}
 
@@ -148,7 +169,7 @@ class PlagiarismPlugin extends GenericPlugin {
 				Services::get('file')->fs->read($file->path),
 				$folderId
 			)) {
-				error_log('Could not submit "' . $submissionFile->getData('path') . '" to iThenticate.');
+				$this->sendErrorMessage($submission->getId(), 'Could not submit "' . $submissionFile->getData('path') . '" to iThenticate.');
 			}
 		}
 
