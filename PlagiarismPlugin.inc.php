@@ -91,7 +91,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$credentials = $this->getForcedCredentials(); 
 		$username = $credentials[0];
 		$password = $credentials[1];
-		if (empty($username) && empty($password)) {
+		if (empty($username) || empty($password)) {
 			$username = $this->getSetting($contextId, 'ithenticate_user');
 			$password = $this->getSetting($contextId, 'ithenticate_pass');
 		}
