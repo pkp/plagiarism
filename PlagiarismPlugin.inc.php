@@ -20,7 +20,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$success = parent::register($category, $path, $mainContextId);
 		$this->addLocaleData();
 
-		if ($success && Config::getVar('ithenticate', 'ithenticate') && $this->getEnabled()) {
+		if ($success && $this->getEnabled()) {
 			HookRegistry::register('submissionsubmitstep4form::execute', array($this, 'callback'));
 		}
 		return $success;
@@ -37,23 +37,28 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @copydoc Plugin::getDescription()
 	 */
 	public function getDescription() {
-		return Config::getVar('ithenticate', 'ithenticate')?__('plugins.generic.plagiarism.description'):__('plugins.generic.plagiarism.description.seeReadme');
+		return __('plugins.generic.plagiarism.description');
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanEnable()
 	 */
-	function getCanEnable() {
-		if (!parent::getCanEnable()) return false;
-		return Config::getVar('ithenticate', 'ithenticate');
+	function getCanEnable($contextId = null) {
+		return !Config::getVar('ithenticate', 'ithenticate');
+	}
+
+	/**
+	 * @copydoc LazyLoadPlugin::getCanDisable()
+	 */
+	function getCanDisable($contextId = null) {
+		return !Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getEnabled()
 	 */
 	function getEnabled($contextId = null) {
-		if (!parent::getEnabled($contextId)) return false;
-		return Config::getVar('ithenticate', 'ithenticate');
+		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**
