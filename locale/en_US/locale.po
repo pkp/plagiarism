@@ -33,7 +33,7 @@ msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "iThenticate Password is required"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
-msgstr "iThenticate settings are in config.inc.php and changes here will not be used."
+msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr "Upload of submission {$submissionId} to iThenticate failed with error: {$errorMessage}"

@@ -11,7 +11,7 @@
 
 	<div id="description">{translate key="plugins.generic.plagiarism.manager.settings.description"}</div>
 	{if $ithenticate_forced}
-	<div id="ithenticate_notice">{translate key="plugins.generic.plagiarism.manager.settings.areForced"}</div>
+	<div id="ithenticate_notice"><b>{translate key="plugins.generic.plagiarism.manager.settings.areForced"}</b></div>
 	{/if}
 
 	{fbvFormArea id="webFeedSettingsFormArea"}
