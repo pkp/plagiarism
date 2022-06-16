@@ -38,7 +38,7 @@ class PlagiarismSettingsForm extends Form {
 		$this->_data = array(
                         'ithenticate_user' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_user'),
 			'ithenticate_pass' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_pass'),
-			'ithenticate_forced' => Empty($username) || Empty($password)
+			'ithenticate_forced' => !empty($username) && !empty($password)
 		);
 	}
 

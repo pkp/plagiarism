@@ -17,9 +17,6 @@ msgstr "iThenticate Plagiarism Detector Plugin"
 msgid "plugins.generic.plagiarism.description"
 msgstr "Send all submissions to iThenticate to be checked for possible plagiarism."
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr "Send all submissions to iThenticate to be checked for possible plagiarism. <strong>See the README document for this plugin for installation instructions.</strong>"
-
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr "Settings for the account used to upload submissions to iThenticate.  Contact your iThenticate administrator for details."
 
