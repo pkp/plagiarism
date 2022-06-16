@@ -1,4 +1,6 @@
-For this plugin to work, the following must be added to your config.inc.php file:
+You may set the credentials in config.inc.php, or you may set the credentials per-journal in the plugin settings.  If credentials are present in config.inc.php, they will override those entered in the plugin settings form.
+
+The config.inc.php settings format is:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; iThenticate Plugin Settings ;
@@ -7,7 +9,7 @@ For this plugin to work, the following must be added to your config.inc.php file
 [ithenticate]
 
 ; Enable iThenticate to submit manuscripts after submit step 4
-ithenticate = On
+;ithenticate = On
 
 ; Credentials can be set by context : specify journal path
 ; The username to access the API (usually an email address)
@@ -23,4 +25,3 @@ ithenticate = On
 ;password = "password"
 
 
-You may set the credentials in config.inc.php, or you may set the credentials per-journal in the plugin settings.  If credentials are present in config.inc.php, they will override those entered in the plugin settings form.
