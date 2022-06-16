@@ -61,6 +61,9 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return array username and password, or null(s)
 	**/
 	function getForcedCredentials() {
+		$request = Application::getRequest();
+		$context = $request->getContext();
+		$contextPath = $context->getPath();
 		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
 				Config::getVar('ithenticate', 'username'));
 		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
@@ -88,7 +91,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$credentials = $this->getForcedCredentials(); 
 		$username = $credentials[0];
 		$password = $credentials[1];
-		if (!isset($username) || !isset($password)) {
+		if (empty($username) && empty($password)) {
 			$username = $this->getSetting($contextId, 'ithenticate_user');
 			$password = $this->getSetting($contextId, 'ithenticate_pass');
 		}
