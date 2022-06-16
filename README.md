@@ -4,18 +4,21 @@ For OJS/OMP/OPS 3.x
 
 ## Overview
 
-This plugin permits automatic submission of uploaded manuscripts to the iThenticate service for plagiarism checking.
+This plugin permits automatic submission of uploaded manuscripts to the [iThenticate service](http://www.ithenticate.com/) for plagiarism checking.
 1. You need an account of ithenticate.com (costs involved)
-  * paid via Crossref Similarity Check
-  * or, paid directly to iThenticate
+   * paid via Crossref Similarity Check
+   * or, paid directly to iThenticate
 2. Install the plugin via the Plugin Gallery in the Dashboard
 3. Configure the plugin (see below)
-  * Enable the plugin via config.inc.php or in a specific journal/press/preprint context
-  * Configure the plugin with the username and password you get from ithenticate.com
+   * Enable the plugin via config.inc.php or in a specific journal/press/preprint context
+   * Configure the plugin with the username and password you get from ithenticate.com
 4. The author logs in and makes a submission
-  * The submission files will be sent to iThenticate in Step 4 of the submission process
+   * The submission files will be sent to iThenticate in Step 4 of the submission process
 5. The Editor logs in to ithenticate.com to see the submission
-  * The submission will be found in a folder named by the Submission ID
+   * The submission will be found in a folder named by the Submission ID
+   * Click to see the report
+
+Watch [the demo](https://www.ithenticate.com/demo) to know more about the features of iThenticate.
 
 ## Configuration
 
