@@ -93,7 +93,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$managersArray = $managers->toAssociativeArray();
 		$allUserIds = array_keys($managersArray);
 		foreach ($allUserIds as $userId) {
-			$notificationMgr->createTrivialNotification($userId, NOTIFICATION_TYPE_ERROR, array('contents' => __('', array('submissionId' => $submissionid, 'errorMessage' => $message))));
+			$notificationManager->createTrivialNotification($userId, NOTIFICATION_TYPE_ERROR, array('contents' => __('', array('submissionId' => $submissionid, 'errorMessage' => $message))));
 		}
 	}
 	
