@@ -73,7 +73,7 @@ class PlagiarismPlugin extends GenericPlugin {
 				Config::getVar('ithenticate', 'username'));
 		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
 				Config::getVar('ithenticate', 'password'));
-		return array($username, $password);
+		return [$username, $password];
 	}
 
 	/**
@@ -90,10 +90,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		$roleDao = DAORegistry::getDAO('RoleDAO'); /* @var $roleDao RoleDAO */
 		// Get the managers.
 		$managers = $roleDao->getUsersByRoleId(ROLE_ID_MANAGER, $context->getId());
-		$managersArray = $managers->toAssociativeArray();
-		$allUserIds = array_keys($managersArray);
-		foreach ($allUserIds as $userId) {
-			$notificationManager->createTrivialNotification($userId, NOTIFICATION_TYPE_ERROR, array('contents' => __('plugins.generic.plagiarism.errorMessage', array('submissionId' => $submissionid, 'errorMessage' => $message))));
+		while ($manager = $managers->next()) {
+			$notificationManager->createTrivialNotification($manager->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => __('plugins.generic.plagiarism.errorMessage', array('submissionId' => $submissionid, 'errorMessage' => $message))));
 		}
 		error_log('iThenticate submission '.$submissionid.' failed: '.$message);
 	}
@@ -115,12 +113,10 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// try to get credentials for current context otherwise use default config
         	$contextId = $context->getId();
-		$credentials = $this->getForcedCredentials(); 
-		$username = $credentials[0];
-		$password = $credentials[1];
+		list($username, $password) = $this->getForcedCredentials(); 
 		if (empty($username) || empty($password)) {
-			$username = $this->getSetting($contextId, 'ithenticate_user');
-			$password = $this->getSetting($contextId, 'ithenticate_pass');
+			$username = $this->getSetting($contextId, 'ithenticateUser');
+			$password = $this->getSetting($contextId, 'ithenticatePass');
 		}
 
 		$ithenticate = null;

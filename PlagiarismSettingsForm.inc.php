@@ -21,8 +21,8 @@ class PlagiarismSettingsForm extends Form {
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
                 
-                $this->addCheck(new FormValidator($this, 'ithenticate_user', 'required', 'plugins.generic.plagiarism.manager.settings.usernameRequired'));
-		$this->addCheck(new FormValidator($this, 'ithenticate_pass', 'required', 'plugins.generic.plagiarism.manager.settings.passwordRequired'));
+		$this->addCheck(new FormValidator($this, 'ithenticateUser', 'required', 'plugins.generic.plagiarism.manager.settings.usernameRequired'));
+		$this->addCheck(new FormValidator($this, 'ithenticatePass', 'required', 'plugins.generic.plagiarism.manager.settings.passwordRequired'));
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -32,13 +32,11 @@ class PlagiarismSettingsForm extends Form {
 	 * Initialize form data.
 	 */
 	function initData() {
-		$credentials = $this->_plugin->getForcedCredentials();
-		$username = $credentials[0];
-		$password = $credentials[1];
+		list($username, $password) = $this->_plugin->getForcedCredentials();
 		$this->_data = array(
-                        'ithenticate_user' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_user'),
-			'ithenticate_pass' => $this->_plugin->getSetting($this->_contextId, 'ithenticate_pass'),
-			'ithenticate_forced' => !empty($username) && !empty($password)
+                        'ithenticateUser' => $this->_plugin->getSetting($this->_contextId, 'ithenticateUser'),
+			'ithenticatePass' => $this->_plugin->getSetting($this->_contextId, 'ithenticatePass'),
+			'ithenticateForced' => !empty($username) && !empty($password)
 		);
 	}
 
@@ -46,8 +44,7 @@ class PlagiarismSettingsForm extends Form {
 	 * Assign form data to user-submitted data.
 	 */
 	function readInputData() {
-                $this->readUserVars(array('ithenticate_user'));
-		$this->readUserVars(array('ithenticate_pass'));
+                $this->readUserVars(array('ithenticateUser', 'ithenticatePass'));
 	}
 
 	/**
@@ -63,8 +60,8 @@ class PlagiarismSettingsForm extends Form {
 	 * @copydoc Form::execute()
 	 */
 	function execute(...$functionArgs) {
-                $this->_plugin->updateSetting($this->_contextId, 'ithenticate_user', trim($this->getData('ithenticate_user'), "\"\';"), 'string');
-		$this->_plugin->updateSetting($this->_contextId, 'ithenticate_pass', trim($this->getData('ithenticate_pass'), "\"\';"), 'string');
+                $this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatepass'), "\"\';"), 'string');
 		parent::execute(...$functionArgs);
 	}
 }

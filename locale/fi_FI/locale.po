@@ -14,12 +14,6 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate, lisäosa plagiaatin tunnistamiseksi"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Lähetä kaikki käsikirjoitukset iThenticate-palveluun tarkistettavaksi "
-"plagioinnin varalta. <strong>Katso README -tiedostosta asennusohjeet tämän "
-"lisäosan asentamiseksi.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Lähetä kaikki käsikirjoitukset iThenticate-palveluun tarkistettavaksi "

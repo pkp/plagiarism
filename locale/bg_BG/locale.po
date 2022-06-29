@@ -12,12 +12,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Изпращане на всички материали на iThenticate, за да бъдат проверени за "
-"възможно плагиатство. <strong>Вижте документа README за тази добовка за "
-"инструкции за инсталиране.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Изпращане на всички материали на iThenticate, за да бъдат проверени за "
