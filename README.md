@@ -16,7 +16,7 @@ This plugin permits automatic submission of uploaded manuscripts to the [iThenti
 4. The author logs in and makes a submission
    * The submission files will be sent to iThenticate in Step 4 of the submission process
 5. The Editor logs in to ithenticate.com to see the submission
-   * The submission will be found in a folder named by the Submission ID
+   * The submission will be found in a folder named by the Submission ID, under a Group named by the journal/press/preprint context
    * Click to see the report
    * ![Example report review](ithenticate-report.png)
 

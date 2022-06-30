@@ -12,12 +12,6 @@ msgstr ""
 "4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Отправляет все материалы в iThenticate для проверки на возможный плагиат. "
-"<strong>Смотрите документ README этого плагина для получения инструкций по "
-"установке.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Отправляет все материалы в iThenticate для проверки на возможный плагиат."
