@@ -16,6 +16,3 @@ msgstr "iThenticate Plagiarism Detector Plugin"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "Invia tutte le proposte a iThenticate per un controllo di possibile plagio."
-
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr "Invia tutte le proposte a iThenticate per un controllo di possibile plagio. <strong>Vedi il documento README di questo plugin per le istruzioni di installazione.</strong>"

@@ -12,12 +12,6 @@ msgstr ""
 "n%100==4 ? 2 : 3;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Pošlje vse prispevke na iThenticate, da se preverijo za plagiatorstvo.  "
-"<strong>Poglejte README dokument tega vtičnika za namestitvena "
-"navodila.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr "Pošlje vse prispevke na iThenticate, da se preverijo za plagiatorstvo."
 

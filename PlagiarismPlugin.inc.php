@@ -20,7 +20,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$success = parent::register($category, $path, $mainContextId);
 		$this->addLocaleData();
 
-		if ($success && Config::getVar('ithenticate', 'ithenticate') && $this->getEnabled()) {
+		if ($success && $this->getEnabled()) {
 			HookRegistry::register('submissionsubmitstep4form::execute', array($this, 'callback'));
 		}
 		return $success;
@@ -37,25 +37,65 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @copydoc Plugin::getDescription()
 	 */
 	public function getDescription() {
-		return Config::getVar('ithenticate', 'ithenticate')?__('plugins.generic.plagiarism.description'):__('plugins.generic.plagiarism.description.seeReadme');
+		return __('plugins.generic.plagiarism.description');
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanEnable()
 	 */
-	function getCanEnable() {
-		if (!parent::getCanEnable()) return false;
-		return Config::getVar('ithenticate', 'ithenticate');
+	function getCanEnable($contextId = null) {
+		return !Config::getVar('ithenticate', 'ithenticate');
+	}
+
+	/**
+	 * @copydoc LazyLoadPlugin::getCanDisable()
+	 */
+	function getCanDisable($contextId = null) {
+		return !Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getEnabled()
 	 */
 	function getEnabled($contextId = null) {
-		if (!parent::getEnabled($contextId)) return false;
-		return Config::getVar('ithenticate', 'ithenticate');
+		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
 	}
 
+	/**
+	 * Fetch credentials from config.inc.php, if available
+	 * @return array username and password, or null(s)
+	**/
+	function getForcedCredentials() {
+		$request = Application::getRequest();
+		$context = $request->getContext();
+		$contextPath = $context->getPath();
+		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
+				Config::getVar('ithenticate', 'username'));
+		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
+				Config::getVar('ithenticate', 'password'));
+		return [$username, $password];
+	}
+
+	/**
+	 * Send the editor an error message
+	 * @param $submissionid int
+	 * @param $message string
+	 * @return void
+	**/
+	public function sendErrorMessage($submissionid, $message) {
+		$request = Application::getRequest();
+		$context = $request->getContext();
+		import('classes.notification.NotificationManager');
+		$notificationManager = new NotificationManager();
+		$roleDao = DAORegistry::getDAO('RoleDAO'); /* @var $roleDao RoleDAO */
+		// Get the managers.
+		$managers = $roleDao->getUsersByRoleId(ROLE_ID_MANAGER, $context->getId());
+		while ($manager = $managers->next()) {
+			$notificationManager->createTrivialNotification($manager->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => __('plugins.generic.plagiarism.errorMessage', array('submissionId' => $submissionid, 'errorMessage' => $message))));
+		}
+		error_log('iThenticate submission '.$submissionid.' failed: '.$message);
+	}
+	
 	/**
 	 * Send submission files to iThenticate.
 	 * @param $hookName string
@@ -65,18 +105,27 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::getRequest();
 		$context = $request->getContext();
 		$contextPath = $context->getPath();
-		$submissionDao = Application::getSubmissionDAO();
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /* @var $submissionDao SubmissionDAO */
 		$submission = $submissionDao->getById($request->getUserVar('submissionId'));
 		$publication = $submission->getCurrentPublication();
 
 		require_once(dirname(__FILE__) . '/vendor/autoload.php');
 
 		// try to get credentials for current context otherwise use default config
-		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
-				Config::getVar('ithenticate', 'username'));
-		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
-				Config::getVar('ithenticate', 'password'));
-		$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+        	$contextId = $context->getId();
+		list($username, $password) = $this->getForcedCredentials(); 
+		if (empty($username) || empty($password)) {
+			$username = $this->getSetting($contextId, 'ithenticateUser');
+			$password = $this->getSetting($contextId, 'ithenticatePass');
+		}
+
+		$ithenticate = null;
+		try {
+			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+		} catch (Exception $e) {
+			$this->sendErrorMessage($submission->getId(), $e->getMessage());
+			return false;
+		}
 		// Make sure there's a group list for this context, creating if necessary.
 		$groupList = $ithenticate->fetchGroupList();
 		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
@@ -84,7 +133,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			// No folder group found for the context; create one.
 			$groupId = $ithenticate->createGroup($contextName);
 			if (!$groupId) {
-				error_log('Could not create folder group for context ' . $contextName . ' on iThenticate.');
+				$this->sendErrorMessage($submission->getId(), 'Could not create folder group for context ' . $contextName . ' on iThenticate.');
 				return false;
 			}
 		}
@@ -97,7 +146,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			true,
 			true
 		))) {
-			error_log('Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
+			$this->sendErrorMessage($submission->getId(), 'Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.');
 			return false;
 		}
 
@@ -117,12 +166,63 @@ class PlagiarismPlugin extends GenericPlugin {
 				Services::get('file')->fs->read($file->path),
 				$folderId
 			)) {
-				error_log('Could not submit "' . $submissionFile->getData('path') . '" to iThenticate.');
+				$this->sendErrorMessage($submission->getId(), 'Could not submit "' . $submissionFile->getData('path') . '" to iThenticate.');
 			}
 		}
 
 		return false;
 	}
+	
+	/**
+     * @copydoc Plugin::getActions()
+     */
+    function getActions($request, $verb) {
+        $router = $request->getRouter();
+        import('lib.pkp.classes.linkAction.request.AjaxModal');
+        return array_merge(
+                $this->getEnabled() ? array(
+            new LinkAction(
+                    'settings',
+                    new AjaxModal(
+                            $router->url($request, null, null, 'manage', null, array('verb' => 'settings', 'plugin' => $this->getName(), 'category' => 'generic')),
+                            $this->getDisplayName()
+                    ),
+                    __('manager.plugins.settings'),
+                    null
+            ),
+                ) : array(),
+                parent::getActions($request, $verb)
+        );
+    }
+
+    /**
+     * @copydoc Plugin::manage()
+     */
+    function manage($args, $request) {
+        switch ($request->getUserVar('verb')) {
+            case 'settings':
+                $context = $request->getContext();
+
+                AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
+                $templateMgr = TemplateManager::getManager($request);
+                $templateMgr->registerPlugin('function', 'plugin_url', array($this, 'smartyPluginUrl'));
+
+                $this->import('PlagiarismSettingsForm');
+                $form = new PlagiarismSettingsForm($this, $context->getId());
+
+                if ($request->getUserVar('save')) {
+                    $form->readInputData();
+                    if ($form->validate()) {
+                        $form->execute();
+                        return new JSONMessage(true);
+                    }
+                } else {
+                    $form->initData();
+                }
+                return new JSONMessage(true, $form->fetch($request));
+        }
+        return parent::manage($args, $request);
+    }
 }
 
 /**

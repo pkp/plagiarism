@@ -11,12 +11,6 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Poslat všechny příspěvky do iThenicate, aby byly zkntrolovány případné "
-"plagiáty. <strong>Přečtěte si dokument README, kde jsou pokyny pro "
-"instalaci.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Odeslat všechny příspěvky do iThenticate ke kontrole možného plagiarismu."
