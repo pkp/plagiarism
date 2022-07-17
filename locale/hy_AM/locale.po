@@ -2,7 +2,7 @@
 # Tigran Zargaryan <tigran@flib.sci.am>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-07-03 06:31+0000\n"
+"PO-Revision-Date: 2022-07-17 06:32+0000\n"
 "Last-Translator: Tigran Zargaryan <tigran@flib.sci.am>\n"
 "Language-Team: Armenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/hy_AM/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.4.2\n"
 
 msgid "plugins.generic.plagiarism.description.seeReadme"
 msgstr ""
@@ -25,4 +25,31 @@ msgstr ""
 "գրագողության համար:"
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "iThenticate գրագողության  դետեկտորի փլագին"
+msgstr "iThenticate գրագողության դետեկտորի փլագին"
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"{$submissionId} ներկայացման վերբեռնումը iThenticate ձախողվեց այս սխալով՝ "
+"{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate-ի կարգավորումները հայտնաբերվել են config.inc.php-ում, և այստեղի "
+"կարգավորումները չեն օգտագործվի:"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate գաղտնաբառը պահանջվում է"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate օգտվողի անունը պահանջվում է"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate գաղտնաբառ"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate օգտանուն"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Հաշվի կարգավորումներ, որոնք օգտագործվում են iThenticate-ում ներկայացումներ "
+"ներբեռնելու համար: Մանրամասների համար կապվեք ձեր iThenticateկառավարչի հետ:"
