@@ -95,6 +95,36 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 		error_log('iThenticate submission '.$submissionid.' failed: '.$message);
 	}
+		
+	/**
+	 * Connects to iThenticate and validates interop prerequisites
+	 * @param $username string iThenticate username
+	 * @param $password string iThenticate password
+	 * @param $groupname string An iThenticate folder group which will be created if not already existing
+	 * @return Ithenticate iThenticate connection object
+	 * @throws PlagiarismIthenticateException
+	 */
+	public function ithenticateConnect($username, $password, $groupname) {
+		require_once(dirname(__FILE__) . '/vendor/autoload.php');
+		import('plugins.generic.plagiarism.PlagiarismIthenticateException');
+
+		$ithenticate = null;
+		try {
+			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+		} catch (Exception $e) {
+			throw new PlagiarismIthenticateException($e->getMessage(), 0, $e, null);
+		}
+		// Make sure there's a group list for this context, creating if necessary.
+		$groupList = $ithenticate->fetchGroupList();
+		if (!($groupId = array_search($groupname, $groupList))) {
+			// No folder group found for the context; create one.
+			$groupId = $ithenticate->createGroup($groupname);
+			if (!$groupId) {
+				throw new PlagiarismIthenticateException('Could not create folder group for context ' . $contextName . ' on iThenticate.', 0, null, $ithenticate);
+			}
+		}
+		return $ithenticate;
+	}
 
 	/**
 	 * Send submission files to iThenticate.
@@ -109,8 +139,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submission = $submissionDao->getById($request->getUserVar('submissionId'));
 		$publication = $submission->getCurrentPublication();
 
-		require_once(dirname(__FILE__) . '/vendor/autoload.php');
-
 		// try to get credentials for current context otherwise use default config
         	$contextId = $context->getId();
 		list($username, $password) = $this->getForcedCredentials();
@@ -119,23 +147,14 @@ class PlagiarismPlugin extends GenericPlugin {
 			$password = $this->getSetting($contextId, 'ithenticatePass');
 		}
 
+		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
+
 		$ithenticate = null;
 		try {
-			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+			$ithenticate = $this->ithenticateConnect($username, $password, $contextName);
 		} catch (Exception $e) {
 			$this->sendErrorMessage($submission->getId(), $e->getMessage());
 			return false;
-		}
-		// Make sure there's a group list for this context, creating if necessary.
-		$groupList = $ithenticate->fetchGroupList();
-		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
-		if (!($groupId = array_search($contextName, $groupList))) {
-			// No folder group found for the context; create one.
-			$groupId = $ithenticate->createGroup($contextName);
-			if (!$groupId) {
-				$this->sendErrorMessage($submission->getId(), 'Could not create folder group for context ' . $contextName . ' on iThenticate.');
-				return false;
-			}
 		}
 
 		// Create a folder for this submission.
@@ -255,3 +274,4 @@ class TestIthenticate {
 		return true;
 	}
 }
+
