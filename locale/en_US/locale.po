@@ -38,6 +38,9 @@ msgstr "iThenticate Usename is required"
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "iThenticate Password is required"
 
+msgid "plugins.generic.plagiarism.manager.settings.loginFailed"
+msgstr "iThenticate login failed."
+
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."
 

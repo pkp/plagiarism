@@ -13,6 +13,7 @@
 
 /**
  * Define an exception class for iThenticate via this plugin
+ * This Exception will include the failed iThenticate connection, when possible.
  */
 class PlagiarismIthenticateException extends Exception
 {

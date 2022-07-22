@@ -23,7 +23,7 @@ class PlagiarismSettingsForm extends Form {
                 
 		$this->addCheck(new FormValidator($this, 'ithenticateUser', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.usernameRequired'));
 		$this->addCheck(new FormValidator($this, 'ithenticatePass', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.passwordRequired'));
-		$this->addCheck(new FormValidatorCustom($this, 'ithenticatePass', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.loginTestFailed', array(&$this, '_checkConnection'), array(&$this), true));
+		$this->addCheck(new FormValidatorCustom($this, 'ithenticatePass', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.loginFailed', array(&$this, '_checkConnection'), array(&$this), true));
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
