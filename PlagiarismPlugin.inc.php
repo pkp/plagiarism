@@ -102,7 +102,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @param $args array
 	 */
 	public function callback($hookName, $args) {
-		$request = Application::getRequest();
+		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 		$contextPath = $context->getPath();
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /* @var $submissionDao SubmissionDAO */
