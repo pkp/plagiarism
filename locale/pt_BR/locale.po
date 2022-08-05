@@ -1,6 +1,7 @@
+# Diego José Macêdo <diegojmacedo@gmail.com>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-03-02 16:54+0000\n"
+"PO-Revision-Date: 2022-08-05 23:36+0000\n"
 "Last-Translator: Diego José Macêdo <diegojmacedo@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <http://translate.pkp.sfu.ca/projects/"
 "plugins/plagiarism/pt_BR/>\n"
@@ -9,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -18,3 +19,31 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugin Detector de Plágio iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Configurações da conta usada para fazer upload de submissões para o "
+"iThenticate. Entre em contato com o administrador do iThenticate para obter "
+"detalhes."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Nome de usuário iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Senha iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "O nome de usuário iThenticate é obrigatório"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "A senha iThenticate é obrigatória"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"As configurações do iThenticate foram encontradas em config.inc.php e as "
+"configurações aqui não serão usadas."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"O upload da submissão {$submissionId} para iThenticate falhou com o erro: "
+"{$errorMessage}"
