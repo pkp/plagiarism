@@ -1,15 +1,16 @@
+# Alexandra Fogtmann-Schulz <alfo@kb.dk>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-07-21 12:28+0000\n"
-"Last-Translator: Niels Erik Frederiksen <nef@kb.dk>\n"
+"PO-Revision-Date: 2022-08-05 23:36+0000\n"
+"Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/da/>\n"
-"Language: da\n"
+"plagiarism/da_DK/>\n"
+"Language: da_DK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -18,3 +19,30 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate Plagiarism Detector Plugin"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Indstillinger for kontoen, der bruges til at uploade indsendelser til "
+"iThenticate. Kontakt din iThenticate administrator for detaljer."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate brugernavn"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate kodeord"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate brugernavn er påkrævet"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate password er påkrævet"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate indstillinger blev fundet i config.inc.php, og indstillingerne "
+"her vil ikke blive anvendt."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Upload af indsendelsen {$submissionId} til iThenticate mislykkedes pga. "
+"følgende fejl: {$errorMessage}"
