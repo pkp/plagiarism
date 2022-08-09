@@ -1,7 +1,7 @@
 # Alexandra Fogtmann-Schulz <alfo@kb.dk>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-08-05 23:36+0000\n"
+"PO-Revision-Date: 2022-08-10 03:22+0000\n"
 "Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/da_DK/>\n"
