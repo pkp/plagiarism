@@ -1,7 +1,7 @@
 # Primož Svetek <primoz.svetek@gmail.com>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-07-17 10:12+0000\n"
+"PO-Revision-Date: 2022-08-14 09:25+0000\n"
 "Last-Translator: Primož Svetek <primoz.svetek@gmail.com>\n"
 "Language-Team: Slovenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/sl_SI/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n"
 "%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 4.4.2\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "Pošlje vse prispevke na iThenticate, da se preverijo za plagiatorstvo."
