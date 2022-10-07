@@ -1,7 +1,7 @@
 # Hüseyin Körpeoğlu <yoruyenturk@hotmail.com>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-09-06 13:50+0000\n"
+"PO-Revision-Date: 2022-10-08 03:58+0000\n"
 "Last-Translator: Hüseyin Körpeoğlu <yoruyenturk@hotmail.com>\n"
 "Language-Team: Turkish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/tr_TR/>\n"
@@ -41,3 +41,8 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "{$submissionId} id'li aday makale iThenticate yüklenmesi sırasında hata "
 "oluştu: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Aday makaleleri iThenticate'e yüklemek için kullanılan hesabın ayarları. "
+"Ayrıntılar için lütfen iThenticate yöneticinize başvurun."
