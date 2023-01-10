@@ -66,7 +66,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return array username and password, or null(s)
 	**/
 	function getForcedCredentials() {
-		$request = Application::getRequest();
+		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 		$contextPath = $context->getPath();
 		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
@@ -83,7 +83,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return void
 	**/
 	public function sendErrorMessage($submissionid, $message) {
-		$request = Application::getRequest();
+		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 		import('classes.notification.NotificationManager');
 		$notificationManager = new NotificationManager();
@@ -95,7 +95,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 		error_log('iThenticate submission '.$submissionid.' failed: '.$message);
 	}
-	
+
 	/**
 	 * Send submission files to iThenticate.
 	 * @param $hookName string
@@ -113,7 +113,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// try to get credentials for current context otherwise use default config
         	$contextId = $context->getId();
-		list($username, $password) = $this->getForcedCredentials(); 
+		list($username, $password) = $this->getForcedCredentials();
 		if (empty($username) || empty($password)) {
 			$username = $this->getSetting($contextId, 'ithenticateUser');
 			$password = $this->getSetting($contextId, 'ithenticatePass');
@@ -172,7 +172,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		return false;
 	}
-	
+
 	/**
      * @copydoc Plugin::getActions()
      */
