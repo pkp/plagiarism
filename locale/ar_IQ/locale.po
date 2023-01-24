@@ -16,6 +16,3 @@ msgstr "إضافة كشف السرقة الأدبية iThenticate"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "أرسل كل طلبات التقديم إلى iThenticate للتحقق من إحتمالية وجود سرقات أدبية."
-
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr "أرسل كل طلبات التقديم إلى iThenticate للتحقق من إحتمالية وجود سرقات أدبية. <strong>أنظر ملف README الخاص بهذه الإضافة لمعرفة إرشادات التنصيب.</strong>"

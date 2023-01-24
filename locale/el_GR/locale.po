@@ -11,12 +11,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Στείλτε όλες τις υποβολές στο iThenticate για να ελεγχθούν για πιθανή "
-"λογοκλοπή. <strong>Ανατρέξτε στο README αυτού του πρόσθετου για οδηγίες "
-"εγκατάστασης.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Στείλτε όλες τις υποβολές στο iThenticate για να ελεγχθούν για πιθανή "

@@ -11,11 +11,6 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Kirim semua naskah ke iThenticate untuk pengecekan plagiarisme. <strong>Buka "
-"dokumen README plugin ini untuk melihat petunjuk instalasinya.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Kirim semua naskah ke iThenticate untuk diperiksa kemungkinan plagiarismenya."

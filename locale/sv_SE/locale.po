@@ -14,10 +14,5 @@ msgstr ""
 msgid "plugins.generic.plagiarism.description"
 msgstr "Skicka alla bidrag för plagiatkontroll till iThenticate."
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Skicka alla bidrag för plagiatkontroll till iThenticate. <strong>Se "
-"pluginets README för installationsinstruktioner.</strong>"
-
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate, plugin för plagiatkontroll"

@@ -11,12 +11,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 3.9.1\n"
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr ""
-"Tüm gelen aday makaleleri intihal olup olmadığını kontrol etmek için "
-"iThenticate'e gönderin. <strong>Eklenti kurulum için README belgesine "
-"bakın.</strong>"
-
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Tüm gelen aday makaleleri intihal olup olmadığını kontrol etmek için "

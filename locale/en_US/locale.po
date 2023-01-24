@@ -17,5 +17,23 @@ msgstr "iThenticate Plagiarism Detector Plugin"
 msgid "plugins.generic.plagiarism.description"
 msgstr "Send all submissions to iThenticate to be checked for possible plagiarism."
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr "Send all submissions to iThenticate to be checked for possible plagiarism. <strong>See the README document for this plugin for installation instructions.</strong>"
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr "Settings for the account used to upload submissions to iThenticate.  Contact your iThenticate administrator for details."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate Usename"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate Password"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate Usename is required"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate Password is required"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Upload of submission {$submissionId} to iThenticate failed with error: {$errorMessage}"

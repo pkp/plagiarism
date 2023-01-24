@@ -1,5 +1,13 @@
 {
 	"require": {
-		"bsobbe/ithenticate": "dev-master#8440a85"
+		"bsobbe/ithenticate": "dev-master#8440a85",
+		"cweagans/composer-patches": "^1.7"
+	},
+	"extra": {
+		"patches": {
+			"phpxmlrpc/phpxmlrpc": {
+				"Allow other datetime possibility": "lib/phpxmlrpc-datetime.diff"
+			}
+		}
 	}
 }

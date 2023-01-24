@@ -14,6 +14,9 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate Plagiarism Detector Plugin"
 
+msgid "plugins.generic.plagiarism.description"
+msgstr "Invia tutte le proposte a iThenticate per un controllo di possibile plagio."
+
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr "Impostazioni per l'account usato per inviare proposte a iThenticate.  Contatta il tuo amministratore iThenticate per maggiori informazioni."
 
