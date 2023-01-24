@@ -14,8 +14,23 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate Plagiarism Detector Plugin"
 
-msgid "plugins.generic.plagiarism.description"
-msgstr "Invia tutte le proposte a iThenticate per un controllo di possibile plagio."
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr "Impostazioni per l'account usato per inviare proposte a iThenticate.  Contatta il tuo amministratore iThenticate per maggiori informazioni."
 
-msgid "plugins.generic.plagiarism.description.seeReadme"
-msgstr "Invia tutte le proposte a iThenticate per un controllo di possibile plagio. <strong>Vedi il documento README di questo plugin per le istruzioni di installazione.</strong>"
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate Usename"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate Password"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "L'Usename iThenticate è obbligatorio"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "La Password iThenticate è obbligatoria"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr "Configurazioni iThenticate sono state trovate nel file config.inc.php e le impostazioni qui non saranno utilizzate."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Il caricamento delle proposte {$submissionId} a iThenticate è fallito con errore: {$errorMessage}"
