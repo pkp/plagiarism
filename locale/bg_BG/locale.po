@@ -1,7 +1,7 @@
 # Cyril Kamburov <cc@intermedia.bg>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-03-27 16:56+0000\n"
+"PO-Revision-Date: 2022-08-18 17:33+0000\n"
 "Last-Translator: Cyril Kamburov <cc@intermedia.bg>\n"
 "Language-Team: Bulgarian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/bg_BG/>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -19,3 +19,30 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Добавка за определяне на плагиатство iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Потребителско име за iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Парола за iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Изиксва се потребителско име за iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "Изиксва се парола за iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Настройките на iThenticate бяха намерени в config.inc.php и настройките тук "
+"няма да бъдат използвани."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Качването на материали {$submissionId} в iThenticate не бе успешно с грешка: "
+"{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Настройки за акаунта, използван за качване на материали в iThenticate. "
+"Свържете се с вашия iThenticate администратор за подробности."

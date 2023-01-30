@@ -1,16 +1,17 @@
+# Pavel Pisklakov <ppv1979@mail.ru>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-12-18 05:52+0000\n"
+"PO-Revision-Date: 2022-11-05 03:42+0000\n"
 "Last-Translator: Pavel Pisklakov <ppv1979@mail.ru>\n"
 "Language-Team: Russian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/ru_RU/>\n"
-"Language: ru\n"
+"Language: ru_RU\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
-"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.9.1\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -18,3 +19,31 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Плагин «Определитель плагиата iThenticate»"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Настройки для учетной записи, используемой для загрузки материалов в "
+"iThenticate. Свяжитесь с Вашим администратором iThenticate для получения "
+"дополнительной информации."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Имя пользователя iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Пароль iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Имя пользователя iThenticate обязательно"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "Пароль iThenticate обязателен"
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Загрузка материала «{$submissionId}» в iThenticate потерпела неудачу со "
+"следующей ошибкой: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Настройки iThenticate найдены в файле config.inc.php, поэтому заданные здесь "
+"настройки не будут использованы."

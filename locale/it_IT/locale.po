@@ -1,39 +1,50 @@
+# Stefano Bolelli Gallevi <stefano.bolelli@unimi.it>, 2022.
+# Fulvio Delle Donne <fulviodelledonne@libero.it>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
+"PO-Revision-Date: 2022-08-10 03:22+0000\n"
+"Last-Translator: Fulvio Delle Donne <fulviodelledonne@libero.it>\n"
+"Language-Team: Italian <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/it_IT/>\n"
+"Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2020-02-13T00:58:11+00:00\n"
-"Language: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "iThenticate Plagiarism Detector Plugin"
+msgstr "Plugin iThenticate Plagiarism Detector"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "Invia tutte le proposte a iThenticate per un controllo di possibile plagio."
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
-msgstr "Impostazioni per l'account usato per inviare proposte a iThenticate.  Contatta il tuo amministratore iThenticate per maggiori informazioni."
-
-msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "iThenticate Usename"
+msgstr ""
+"Impostazioni dell'account utilizzato per caricare i contributi in "
+"iThenticate. Contattare l'amministratore di iThenticate per i dettagli."
 
 msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "iThenticate Password"
+msgstr "Password di iThenticate"
 
-msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "L'Usename iThenticate è obbligatorio"
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Nome utente di iThenticate"
 
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "La Password iThenticate è obbligatoria"
+msgstr "Occorre una password di iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Occorre un nome utente di iThenticate"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
-msgstr "Configurazioni iThenticate sono state trovate nel file config.inc.php e le impostazioni qui non saranno utilizzate."
+msgstr ""
+"Le impostazioni di iThenticate sono state trovate in config.inc.php e le "
+"impostazioni qui non saranno usate."
 
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr "Il caricamento delle proposte {$submissionId} a iThenticate è fallito con errore: {$errorMessage}"
+msgstr ""
+"Il caricamento della proposta {$submissionId} in iThenticate è fallito con "
+"l'errore: {$errorMessage}"

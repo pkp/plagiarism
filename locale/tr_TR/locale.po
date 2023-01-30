@@ -1,6 +1,7 @@
+# Hüseyin Körpeoğlu <yoruyenturk@hotmail.com>, 2022.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-20 15:39+0000\n"
+"PO-Revision-Date: 2022-10-08 03:58+0000\n"
 "Last-Translator: Hüseyin Körpeoğlu <yoruyenturk@hotmail.com>\n"
 "Language-Team: Turkish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/tr_TR/>\n"
@@ -9,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -18,3 +19,30 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate İntihal Denetim Eklentisi"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate Kullanıcı adı"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate Şifre"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate Kullanıcı adı gerekli"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate Şifre gerekli"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate ayarları config.inc.php içinde bulundu ve buradaki ayarlar "
+"kullanılmayacak."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"{$submissionId} id'li aday makale iThenticate yüklenmesi sırasında hata "
+"oluştu: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Aday makaleleri iThenticate'e yüklemek için kullanılan hesabın ayarları. "
+"Ayrıntılar için lütfen iThenticate yöneticinize başvurun."

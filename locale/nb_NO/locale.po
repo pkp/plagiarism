@@ -1,8 +1,8 @@
+# Huw Robert Grange <huw.r.grange@uit.no>, 2023.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-01-28 11:53+0000\n"
-"Last-Translator: FRITT, University of Oslo Library <fritt-"
-"info@journals.uio.no>\n"
+"PO-Revision-Date: 2023-01-25 14:02+0000\n"
+"Last-Translator: Huw Robert Grange <huw.r.grange@uit.no>\n"
 "Language-Team: Norwegian Bokmål <http://translate.pkp.sfu.ca/projects/"
 "plugins/plagiarism/nb_NO/>\n"
 "Language: nb_NO\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -19,3 +19,33 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate Plagiarism Detector-programtillegg"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate brukernavn"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate passord"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate brukernavn er påkrevd"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate passord er påkrevd"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate-innstillinger ble funnet i config.inc.php, og innstillingene her "
+"vil ikke bli brukt."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Innstillinger for kontoen som brukes til å laste opp manuskript til "
+"iThenticate. Kontakt iThenticate-administratoren din for detaljer."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Opplasting av manuskriptet {$submissionId} til iThenticate mislyktes pga. "
+"følgende feil: {$errorMessage}"
