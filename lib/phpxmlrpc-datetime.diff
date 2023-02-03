@@ -5,7 +5,7 @@
                          $this->_xh['value'] = $this->_xh['ac'];
                      } elseif ($name == 'DATETIME.ISO8601') {
 -                        if (!preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac'])) {
-+                        if (!preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac']) || !preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac'])) {
++                        if (!preg_match('/^[0-9]{8}T[0-9]{2}:[0-9]{2}:[0-9]{2}$/', $this->_xh['ac']) || !preg_match('/^[0-9\-]{10}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/', $this->_xh['ac'])) {
                              error_log('XML-RPC: ' . __METHOD__ . ': invalid value received in DATETIME: ' . $this->_xh['ac']);
                          }
                          $this->_xh['vt'] = Value::$xmlrpcDateTime;

@@ -9,5 +9,10 @@
 				"Allow other datetime possibility": "lib/phpxmlrpc-datetime.diff"
 			}
 		}
+	},
+	"config": {
+		"allow-plugins": {
+			"cweagans/composer-patches": true
+		}
 	}
 }
