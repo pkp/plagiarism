@@ -1,6 +1,7 @@
 {
 	"require": {
-		"bsobbe/ithenticate": "dev-master#8440a85",
+		"bsobbe/ithenticate": "dev-dependabot/composer/phpxmlrpc/phpxmlrpc-4.9.2",
+		"phpxmlrpc/phpxmlrpc": "^4.9",
 		"cweagans/composer-patches": "^1.7"
 	},
 	"extra": {
