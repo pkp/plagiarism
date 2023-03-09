@@ -4,26 +4,25 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f66a864bb4f2aff1802114fc85909a5d",
+    "content-hash": "1841d3e30deba0c3223aa19c5a18c7b8",
     "packages": [
         {
             "name": "bsobbe/ithenticate",
-            "version": "dev-master",
+            "version": "dev-dependabot/composer/phpxmlrpc/phpxmlrpc-4.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bsobbe/iThenticate.git",
-                "reference": "8440a85"
+                "reference": "1266a0435143bc7a627be3a7dda98b690ba6bb47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bsobbe/iThenticate/zipball/8440a85",
-                "reference": "8440a85",
+                "url": "https://api.github.com/repos/bsobbe/iThenticate/zipball/1266a0435143bc7a627be3a7dda98b690ba6bb47",
+                "reference": "1266a0435143bc7a627be3a7dda98b690ba6bb47",
                 "shasum": ""
             },
             "require": {
-                "phpxmlrpc/phpxmlrpc": "4.0"
+                "phpxmlrpc/phpxmlrpc": "4.9.2"
             },
-            "default-branch": true,
             "type": "php-library",
             "autoload": {
                 "psr-4": {
@@ -52,9 +51,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bsobbe/iThenticate/issues",
-                "source": "https://github.com/bsobbe/iThenticate/tree/master"
+                "source": "https://github.com/bsobbe/iThenticate/tree/dependabot/composer/phpxmlrpc/phpxmlrpc-4.9.2"
             },
-            "time": "2021-12-12T09:19:44+00:00"
+            "time": "2023-01-11T23:51:36+00:00"
         },
         {
             "name": "cweagans/composer-patches",
@@ -106,36 +105,39 @@
         },
         {
             "name": "phpxmlrpc/phpxmlrpc",
-            "version": "4.0.0",
+            "version": "4.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gggeek/phpxmlrpc.git",
-                "reference": "679eacd661962f353a809ab66e83a86233f28bcc"
+                "reference": "805d727670b7a7c08c9f129327482f13a4c1ea11"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gggeek/phpxmlrpc/zipball/679eacd661962f353a809ab66e83a86233f28bcc",
-                "reference": "679eacd661962f353a809ab66e83a86233f28bcc",
+                "url": "https://api.github.com/repos/gggeek/phpxmlrpc/zipball/805d727670b7a7c08c9f129327482f13a4c1ea11",
+                "reference": "805d727670b7a7c08c9f129327482f13a4c1ea11",
                 "shasum": ""
             },
             "require": {
                 "ext-xml": "*",
-                "php": ">=5.3.0"
+                "php": "^5.3.0 || ^7.0 || ^8.0"
+            },
+            "conflict": {
+                "phpxmlrpc/extras": "<= 0.6.3"
             },
             "require-dev": {
-                "codeclimate/php-test-reporter": "dev-master",
-                "docbook/docbook-xsl": "~1.78",
                 "ext-curl": "*",
+                "ext-dom": "*",
                 "ext-mbstring": "*",
-                "indeyets/pake": "~1.99",
-                "phpdocumentor/phpdocumentor": "2.*",
-                "phpunit/phpunit": ">=4.0.0",
-                "phpunit/phpunit-selenium": "*"
+                "phpunit/phpunit": "^4.8 || ^5.0 || ^8.5.14",
+                "phpunit/phpunit-selenium": "*",
+                "yoast/phpunit-polyfills": "*"
             },
             "suggest": {
                 "ext-curl": "Needed for HTTPS and HTTP 1.1 support, NTLM Auth etc...",
                 "ext-mbstring": "Needed to allow reception of requests/responses in character sets other than ASCII,LATIN-1,UTF-8",
-                "ext-zlib": "Needed for sending compressed requests and receiving compressed responses, if cURL is not available"
+                "ext-zlib": "Needed for sending compressed requests and receiving compressed responses, if cURL is not available",
+                "phpxmlrpc/extras": "Adds more featured Server classes and other useful bits",
+                "phpxmlrpc/jsonrpc": "Adds support for the JSON-RPC protocol"
             },
             "type": "library",
             "autoload": {
@@ -148,16 +150,17 @@
                 "BSD-3-Clause"
             ],
             "description": "A php library for building xmlrpc clients and servers",
-            "homepage": "http://gggeek.github.io/phpxmlrpc/",
+            "homepage": "https://gggeek.github.io/phpxmlrpc/",
             "keywords": [
                 "webservices",
+                "xml-rpc",
                 "xmlrpc"
             ],
             "support": {
                 "issues": "https://github.com/gggeek/phpxmlrpc/issues",
-                "source": "https://github.com/gggeek/phpxmlrpc/tree/master"
+                "source": "https://github.com/gggeek/phpxmlrpc/tree/4.9.2"
             },
-            "time": "2016-01-20T23:28:09+00:00"
+            "time": "2022-12-18T21:47:48+00:00"
         }
     ],
     "packages-dev": [],
