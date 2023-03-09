@@ -42,23 +42,28 @@ class PlagiarismPlugin extends GenericPlugin {
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanEnable()
+	 * If credentials are stored in config.inc.php, these force the plugin to enabled.
 	 */
 	function getCanEnable($contextId = null) {
-		return !Config::getVar('ithenticate', 'ithenticate');
+		list($user, $pass) = $this->getForcedCredentials($contextId);
+		// if config.inc.php supplies both user and password, the journal cannot enable/disable
+		return !($user && $pass);
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanDisable()
+	 * If credentials are stored in config.inc.php, these force the plugin to enabled.
 	 */
 	function getCanDisable($contextId = null) {
-		return !Config::getVar('ithenticate', 'ithenticate');
+		return $this->getCanEnable($contextId);
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getEnabled()
+	 * If credentials are stored in config.inc.php, these force the plugin to enabled.
 	 */
 	function getEnabled($contextId = null) {
-		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
+		return parent::getEnabled($contextId) || !$this->getCanEnable($contextId);
 	}
 
 	/**
