@@ -33,7 +33,7 @@ class PlagiarismSettingsForm extends Form {
 	 * Initialize form data.
 	 */
 	function initData() {
-		list($username, $password) = $this->_plugin->getForcedCredentials();
+		list($username, $password) = $this->_plugin->getForcedCredentials($this->_contextId);
 		$this->_data = array(
                         'ithenticateUser' => $this->_plugin->getSetting($this->_contextId, 'ithenticateUser'),
 			'ithenticatePass' => $this->_plugin->getSetting($this->_contextId, 'ithenticatePass'),
@@ -82,7 +82,7 @@ class PlagiarismSettingsForm extends Form {
 		$contextDao = Application::getContextDAO();
 		$context = $contextDao->getById($this->_contextId);
 		// if credentials are forced, don't bother testing them.  The user can't do anything about a failure on this form.
-		list($username, $password) = $this->_plugin->getForcedCredentials(); 
+		list($username, $password) = $this->_plugin->getForcedCredentials($this->_contextId); 
 		if (!empty($username) && !empty($password)) {
 			return false;
 		}

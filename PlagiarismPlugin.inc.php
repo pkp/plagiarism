@@ -63,16 +63,26 @@ class PlagiarismPlugin extends GenericPlugin {
 
 	/**
 	 * Fetch credentials from config.inc.php, if available
+	 * @param $contextId int Optional Context Id, autodetect from Request if not supplied, but existing site-wide settings will override any context
 	 * @return array username and password, or null(s)
 	**/
-	function getForcedCredentials() {
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-		$contextPath = $context->getPath();
-		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
-				Config::getVar('ithenticate', 'username'));
-		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
-				Config::getVar('ithenticate', 'password'));
+	function getForcedCredentials($contextId) {
+		$username = Config::getVar('ithenticate', 'username');
+		$password = Config::getVar('ithenticate', 'password');
+		if (!$username || !$password) {
+			if (!$contextId) {
+				$request = Application::get()->getRequest();
+				$context = $request->getContext();
+			} else {
+				$contextDao = Application::getContextDAO();
+				$context = $contextDao->getById($contextId);
+			}
+			if ($context) {
+				$contextPath = $context->getPath();
+				$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']');
+				$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']');
+			}
+		}
 		return [$username, $password];
 	}
 
@@ -141,7 +151,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// try to get credentials for current context otherwise use default config
         	$contextId = $context->getId();
-		list($username, $password) = $this->getForcedCredentials();
+		list($username, $password) = $this->getForcedCredentials($context->getId());
 		if (empty($username) || empty($password)) {
 			$username = $this->getSetting($contextId, 'ithenticateUser');
 			$password = $this->getSetting($contextId, 'ithenticatePass');
