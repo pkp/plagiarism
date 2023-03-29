@@ -61,7 +61,7 @@ class PlagiarismSettingsForm extends Form {
 	 */
 	function execute(...$functionArgs) {
                 $this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
-		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatepass'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatePass'), "\"\';"), 'string');
 		parent::execute(...$functionArgs);
 	}
 }
