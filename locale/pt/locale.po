@@ -1,8 +1,48 @@
-# Carla Marques <carla.marques@usdb.uminho.pt>, 2022.
+# Carla Marques <carla.marques@usdb.uminho.pt>, 2022, 2023.
 msgid ""
 msgstr ""
+"PO-Revision-Date: 2023-04-18 10:48+0000\n"
+"Last-Translator: Carla Marques <carla.marques@usdb.uminho.pt>\n"
+"Language-Team: Portuguese <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/pt/>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Weblate\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.13.1\n"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Nome de utilizador iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Password iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "É necessário inserir um nome de utilizador iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "A senha iThenticate é obrigatória"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Foram encontradas configurações do iThenticate em config.inc.php e as "
+"configurações aqui não serão usadas."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"O upload da submissão {$submissionId} para o iThenticate falhou com o erro: "
+"{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.displayName"
+msgstr "Plugin de Deteção de Plágio iThenticate"
+
+msgid "plugins.generic.plagiarism.description"
+msgstr ""
+"Envie todas as asubmissões para o iThenticate para serem verificadas "
+"possíveis plágios."
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Configurações da conta usada para fazer upload das submissões para o "
+"iThenticate. Contacte o seu administrador de iThenticate para mais detalhes."
