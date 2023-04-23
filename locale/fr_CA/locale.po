@@ -1,8 +1,10 @@
 # Pierre Lasou <pierre.lasou@bibl.ulaval.ca>, 2023.
+# Marie-Hélène Vézina [UdeMontréal] <marie-helene.vezina@umontreal.ca>, 2023.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-04-22 13:49+0000\n"
-"Last-Translator: Pierre Lasou <pierre.lasou@bibl.ulaval.ca>\n"
+"PO-Revision-Date: 2023-04-24 10:30+0000\n"
+"Last-Translator: Marie-Hélène Vézina [UdeMontréal] <marie-helene."
+"vezina@umontreal.ca>\n"
 "Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/fr_CA/>\n"
 "Language: fr_CA\n"
@@ -38,10 +40,9 @@ msgstr ""
 "Des paramètres iThenticate ont été trouvés dans le fichier config.inc.php, "
 "les paramètres de cette page ne seront pas utilisés."
 
-#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
-"L'envoi de la soumission {$submissionId} vers iThenticate a échoué: "
+"L'envoi de la soumission {$submissionId} vers iThenticate a échoué : "
 "{$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
