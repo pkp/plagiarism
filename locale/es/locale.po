@@ -1,18 +1,49 @@
+# Marc Bria <marc.bria@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
+"PO-Revision-Date: 2023-04-26 13:49+0000\n"
+"Last-Translator: Marc Bria <marc.bria@gmail.com>\n"
+"Language-Team: Spanish <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/es/>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2020-02-13T00:58:11+00:00\n"
-"Language: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Módulo de Detección de Plagio de iThenticate"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "Permite enviar artículos a iThenticate para verificar posibles plagios."
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Configuración de la cuenta usada para cargar envíos a iThenticate. Póngase "
+"en contacto con su administrador de iThenticate para obtener más detalles."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Usuario de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Contraseña en iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Es necesario el usuario (username) de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "Es necesaria la contraseña de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Los ajustes indicados aquí no se van a usar porque se han encontrado ajustes "
+"alternativos para iThenticate en el fichero config.inc.php."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"El envío {$submissionId} a iThenticate ha fallado con el error: "
+"{$errorMessage}"
