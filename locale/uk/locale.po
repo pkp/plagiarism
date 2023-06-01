@@ -1,7 +1,7 @@
 # Petro Bilous <petrobilous@ukr.net>, 2023.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-04-26 13:49+0000\n"
+"PO-Revision-Date: 2023-06-02 05:49+0000\n"
 "Last-Translator: Petro Bilous <petrobilous@ukr.net>\n"
 "Language-Team: Ukrainian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/uk/>\n"
@@ -21,7 +21,7 @@ msgstr "Надішліть усі подання до iThenticate для пер�
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
-"Налаштування облікового запису, який використовується для завантаження "
+"Налаштування облікового запису, який використовується для вивантаження "
 "матеріалів до iThenticate. Зверніться до адміністратора iThenticate для "
 "отримання детальної інформації."
 
@@ -44,5 +44,5 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
-"Не вдалося завантажити подання {$submissionId} до iThenticate із помилкою: "
+"Не вдалося вивантажити подання {$submissionId} до iThenticate із помилкою: "
 "{$errorMessage}"
