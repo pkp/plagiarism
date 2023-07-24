@@ -1,11 +1,12 @@
 # Marc Bria <marc.bria@gmail.com>, 2023.
+# Jordi LC <jordi.lacruz@uab.cat>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2023-04-26 13:49+0000\n"
-"Last-Translator: Marc Bria <marc.bria@gmail.com>\n"
+"PO-Revision-Date: 2023-07-25 10:58+0000\n"
+"Last-Translator: Jordi LC <jordi.lacruz@uab.cat>\n"
 "Language-Team: Spanish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/es/>\n"
 "Language: es\n"
@@ -24,26 +25,26 @@ msgstr "Permite enviar artículos a iThenticate para verificar posibles plagios.
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
 "Configuración de la cuenta usada para cargar envíos a iThenticate. Póngase "
-"en contacto con su administrador de iThenticate para obtener más detalles."
+"en contacto con su administrador/a de iThenticate para obtener más detalles."
 
 msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "Usuario de iThenticate"
+msgstr "Nombre de usuario/a de iThenticate"
 
 msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "Contraseña en iThenticate"
+msgstr "Contraseña de iThenticate"
 
 msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "Es necesario el usuario (username) de iThenticate"
+msgstr "El nombre de usuario/a de iThenticate es obligatorio"
 
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "Es necesaria la contraseña de iThenticate"
+msgstr "La contraseña de iThenticate es obligatoria"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
-"Los ajustes indicados aquí no se van a usar porque se han encontrado ajustes "
-"alternativos para iThenticate en el fichero config.inc.php."
+"Se han encontrado los ajustes de iThenticate en config.inc.php y, por tanto, "
+"no se utilizarán estos ajustes."
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
-"El envío {$submissionId} a iThenticate ha fallado con el error: "
+"La carga del envío {$submissionId} a iThenticate ha fallado con el error: "
 "{$errorMessage}"
