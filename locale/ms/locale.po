@@ -1,8 +1,9 @@
 # Studiorimau <studiorimau@gmail.com>, 2021.
+# Ahmad Irdha Mokhtar <airdham@icloud.com>, 2023.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-10-26 08:07+0000\n"
-"Last-Translator: Studiorimau <studiorimau@gmail.com>\n"
+"PO-Revision-Date: 2023-08-03 16:58+0000\n"
+"Last-Translator: Ahmad Irdha Mokhtar <airdham@icloud.com>\n"
 "Language-Team: Malay <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/ms/>\n"
 "Language: ms\n"
@@ -10,12 +11,39 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
-"Hantar semua penyerahan ke iThenticate untuk diperiksa kemungkinan "
+"Hantar semua serahan ke iThenticate untuk diperiksa bagi kemungkinan "
 "plagiarisme."
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "Plugin iThenticate Plagiarism Detector"
+msgstr "Pemalam Pengesan Plagiarisme iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Tetapan bagi akaun yang digunakan untuk memuat naik serahan ke iThenticate. "
+"Hubungi pentadbir iThenticate anda untuk mendapatkan butiran."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Nama Pengguna iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Kata Laluan iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Nama Pengguna iThenticate diperlukan"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Tetapan iThenticate ditemui dalam config.inc.php dan tetapan di sini tidak "
+"akan digunakan."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Muat naik serahan {$submissionId} ke iThenticate gagal dengan ralat: "
+"{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "Kata Laluan iThenticate diperlukan"
