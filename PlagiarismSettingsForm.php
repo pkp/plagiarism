@@ -1,6 +1,12 @@
 <?php
 
-import('lib.pkp.classes.form.Form');
+namespace APP\plugins\generic\plagiarism;
+
+use APP\template\TemplateManager;
+use PKP\form\Form;
+use PKP\form\validation\FormValidator;
+use PKP\form\validation\FormValidatorCSRF;
+use PKP\form\validation\FormValidatorPost;
 
 class PlagiarismSettingsForm extends Form {
 
@@ -33,18 +39,18 @@ class PlagiarismSettingsForm extends Form {
 	 */
 	function initData() {
 		list($username, $password) = $this->_plugin->getForcedCredentials();
-		$this->_data = array(
-                        'ithenticateUser' => $this->_plugin->getSetting($this->_contextId, 'ithenticateUser'),
+		$this->_data = [
+			'ithenticateUser' => $this->_plugin->getSetting($this->_contextId, 'ithenticateUser'),
 			'ithenticatePass' => $this->_plugin->getSetting($this->_contextId, 'ithenticatePass'),
 			'ithenticateForced' => !empty($username) && !empty($password)
-		);
+		];
 	}
 
 	/**
 	 * Assign form data to user-submitted data.
 	 */
 	function readInputData() {
-                $this->readUserVars(array('ithenticateUser', 'ithenticatePass'));
+		$this->readUserVars(['ithenticateUser', 'ithenticatePass']);
 	}
 
 	/**
@@ -60,8 +66,8 @@ class PlagiarismSettingsForm extends Form {
 	 * @copydoc Form::execute()
 	 */
 	function execute(...$functionArgs) {
-                $this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
-		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatePass'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatepass'), "\"\';"), 'string');
 		parent::execute(...$functionArgs);
 	}
 }
