@@ -35,14 +35,11 @@ The config.inc.php settings format is:
 
 [ithenticate]
 
-; Enable iThenticate to submit manuscripts after submit step 4
-;ithenticate = On
-
 ; Credentials can be set by context : specify journal path
 ; The username to access the API (usually an email address)
-;username[MyJournal_path] = "user@email.com"
+;username[journal_path] = "user@email.com"
 ; The password to access the API
-;password[MyJournal_path] = "password"
+;password[journal_path] = "password"
 
 ; default credentials
 ; The username to access the API (usually an email address)
@@ -52,3 +49,6 @@ The config.inc.php settings format is:
 ;password = "password"
 ```
 
+Here, the `journal_path` follows the same convention as the `base_url[journal_path]` settings in config.inc.php.
+
+There was previously a setting `ithenticate` which would indicate whether the plugin was enabled, but this has been removed.  If both the username and password are present in config.inc.php, the plugin will be assumed to be enabled.

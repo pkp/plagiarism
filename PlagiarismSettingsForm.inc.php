@@ -21,8 +21,9 @@ class PlagiarismSettingsForm extends Form {
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
                 
-		$this->addCheck(new FormValidator($this, 'ithenticateUser', 'required', 'plugins.generic.plagiarism.manager.settings.usernameRequired'));
-		$this->addCheck(new FormValidator($this, 'ithenticatePass', 'required', 'plugins.generic.plagiarism.manager.settings.passwordRequired'));
+		$this->addCheck(new FormValidator($this, 'ithenticateUser', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.usernameRequired'));
+		$this->addCheck(new FormValidator($this, 'ithenticatePass', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.passwordRequired'));
+		$this->addCheck(new FormValidatorCustom($this, 'ithenticatePass', FORM_VALIDATOR_REQUIRED_VALUE, 'plugins.generic.plagiarism.manager.settings.loginFailed', array(&$this, '_checkConnection'), array(&$this), true));
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -32,7 +33,7 @@ class PlagiarismSettingsForm extends Form {
 	 * Initialize form data.
 	 */
 	function initData() {
-		list($username, $password) = $this->_plugin->getForcedCredentials();
+		list($username, $password) = $this->_plugin->getForcedCredentials($this->_contextId);
 		$this->_data = array(
                         'ithenticateUser' => $this->_plugin->getSetting($this->_contextId, 'ithenticateUser'),
 			'ithenticatePass' => $this->_plugin->getSetting($this->_contextId, 'ithenticatePass'),
@@ -64,4 +65,39 @@ class PlagiarismSettingsForm extends Form {
 		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatePass'), "\"\';"), 'string');
 		parent::execute(...$functionArgs);
 	}
+
+	/**
+	 * Check the username and password for the service
+	 * @param $formPassword string the value of the field being checked
+	 * @param $form object a reference to this form
+	 * @return boolean Is there a problem with the form?
+	 */
+	function _checkConnection($formPassword, $form) {
+		$username = $form->getData('ithenticateUser');
+		// bypass testing if login is not present
+		if (empty($username) || empty($formPassword)) {
+			return false;
+		}
+
+		$contextDao = Application::getContextDAO();
+		$context = $contextDao->getById($this->_contextId);
+		// if credentials are forced, don't bother testing them.  The user can't do anything about a failure on this form.
+		list($username, $password) = $this->_plugin->getForcedCredentials($this->_contextId); 
+		if (!empty($username) && !empty($password)) {
+			return false;
+		}
+		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
+		$username = $username = $form->getData('ithenticateUser');
+		$password = $formPassword;
+
+		$ithenticate = null;
+		try {
+			$ithenticate = $this->_plugin->ithenticateConnect($username, $password, $contextName);
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+			return true;
+		}
+		return false;
+	}
+
 }
