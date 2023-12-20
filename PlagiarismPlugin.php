@@ -147,7 +147,7 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Send submission files to iThenticate.
 	 */
-	public function sendSubmissionFiles(Context $context, Submission $submission): void
+    public function sendSubmissionFiles(Context $context, Submission $submission): void
 	{
 		$publication = $submission->getCurrentPublication();
 
@@ -199,8 +199,7 @@ class PlagiarismPlugin extends GenericPlugin
 			$this->sendErrorMessage(
 				$submission->getId(), 
 				'Could not create folder for submission ID ' . $submission->getId() . ' on iThenticate.'
-			)
-			;
+            );
 			return;
 		}
 
@@ -233,9 +232,9 @@ class PlagiarismPlugin extends GenericPlugin
 		return;
 	}
 
-	/**
-	 * @copydoc Plugin::getActions()
-	 */
+    /**
+     * @copydoc Plugin::getActions()
+     */
     function getActions($request, $verb)
 	{
         $router = $request->getRouter();
@@ -244,27 +243,27 @@ class PlagiarismPlugin extends GenericPlugin
 			$this->getEnabled() 
 				? [
             		new LinkAction(
-						'settings',
-						new AjaxModal(
-							$router->url(
-								$request, 
-								null, 
-								null, 
-								'manage', 
-								null, 
-								[
-									'verb' 		=> 'settings', 
-									'plugin' 	=> $this->getName(), 
-									'category' 	=> 'generic'
-								]
-							),
-							$this->getDisplayName()
-						),
-						__('manager.plugins.settings'),
-						null
-            		),
-			 	] : [],
-                parent::getActions($request, $verb)
+                        'settings',
+                        new AjaxModal(
+                            $router->url(
+                                $request,
+                                null,
+                                null,
+                                'manage',
+                                null,
+                                [
+                                    'verb'      => 'settings',
+                                    'plugin'    => $this->getName(),
+                                    'category'  => 'generic'
+                                ]
+                            ),
+                            $this->getDisplayName()
+                        ),
+                        __('manager.plugins.settings'),
+                        null
+                    ),
+                ] : [],
+            parent::getActions($request, $verb)
         );
     }
 
@@ -295,4 +294,8 @@ class PlagiarismPlugin extends GenericPlugin
 
         return parent::manage($args, $request);
     }
+}
+
+if (!PKP_STRICT_MODE) {
+    class_alias('\APP\plugins\generic\plagiarism\PlagiarismPlugin', '\PlagiarismPlugin');
 }

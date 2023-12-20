@@ -18,7 +18,7 @@ namespace APP\plugins\generic\plagiarism;
 
 class TestIthenticate 
 {
-	public function __construct(string $username, string $password) 
+    public function __construct(string $username, string $password) 
     {
         error_log("Constructing iThenticate: $username $password");
     }
