@@ -89,11 +89,11 @@ class PlagiarismPlugin extends GenericPlugin
 		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
 	}
 
-	/**
-	 * Fetch credentials from config.inc.php, if available
-	 */
-	function getForcedCredentials(): array
-	{
+    /**
+     * Fetch credentials from config.inc.php, if available
+     */
+    function getForcedCredentials(): array
+    {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 		$contextPath = $context->getPath();
@@ -110,13 +110,13 @@ class PlagiarismPlugin extends GenericPlugin
 		);
 
 		return [$username, $password];
-	}
+    }
 
-	/**
-	 * Send the editor an error message
-	 */
-	public function sendErrorMessage(int $submissionId, string $message): void
-	{
+    /**
+     * Send the editor an error message
+     */
+    public function sendErrorMessage(int $submissionId, string $message): void
+    {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 		$notificationManager = new NotificationManager();
@@ -142,13 +142,13 @@ class PlagiarismPlugin extends GenericPlugin
 		}
 
 		error_log('iThenticate submission '.$submissionId.' failed: '.$message);
-	}
+    }
 
-	/**
-	 * Send submission files to iThenticate.
-	 */
+    /**
+     * Send submission files to iThenticate.
+     */
     public function sendSubmissionFiles(Context $context, Submission $submission): void
-	{
+    {
 		$publication = $submission->getCurrentPublication();
 
 		require_once(dirname(__FILE__) . '/vendor/autoload.php');
@@ -230,19 +230,19 @@ class PlagiarismPlugin extends GenericPlugin
 		}
 
 		return;
-	}
+    }
 
     /**
      * @copydoc Plugin::getActions()
      */
     function getActions($request, $verb)
-	{
+    {
         $router = $request->getRouter();
 
         return array_merge(
-			$this->getEnabled() 
-				? [
-            		new LinkAction(
+            $this->getEnabled() 
+                ? [
+                    new LinkAction(
                         'settings',
                         new AjaxModal(
                             $router->url(
@@ -271,7 +271,7 @@ class PlagiarismPlugin extends GenericPlugin
      * @copydoc Plugin::manage()
      */
     function manage($args, $request) 
-	{
+    {
         switch ($request->getUserVar('verb')) {
             case 'settings':
                 $context = $request->getContext();

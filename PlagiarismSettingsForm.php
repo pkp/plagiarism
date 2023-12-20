@@ -58,13 +58,13 @@ class PlagiarismSettingsForm extends Form
 		];
 	}
 
-    /**
-     * @copydoc \PKP\form\Form::readInputData()
-     */
-    function readInputData()
-    {
-        $this->readUserVars(['ithenticateUser', 'ithenticatePass']);
-    }
+	/**
+	 * @copydoc \PKP\form\Form::readInputData()
+	 */
+	function readInputData()
+	{
+		$this->readUserVars(['ithenticateUser', 'ithenticatePass']);
+	}
 
 	/**
 	 * @copydoc \PKP\form\Form::fetch()
@@ -80,11 +80,11 @@ class PlagiarismSettingsForm extends Form
 	/**
 	 * @copydoc \PKP\form\Form::execute()
 	 */
-    function execute(...$functionArgs)
-    {
-        $this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
-        $this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatePass'), "\"\';"), 'string');
+	function execute(...$functionArgs)
+	{
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatePass'), "\"\';"), 'string');
 
-        parent::execute(...$functionArgs);
-    }
+		parent::execute(...$functionArgs);
+	}	
 }
