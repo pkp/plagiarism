@@ -26,17 +26,17 @@ msgstr ""
 "Settings for the account used to upload submissions to iThenticate. Contact "
 "your iThenticate administrator for details."
 
-msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "iThenticate Usename"
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API URL"
 
-msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "iThenticate Password"
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API KEY"
 
-msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "iThenticate Usename is required"
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "iThenticate API URL is required"
 
-msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "iThenticate Password is required"
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "iThenticate API KEY is required"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."

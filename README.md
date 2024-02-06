@@ -11,7 +11,7 @@ This plugin permits automatic submission of uploaded manuscripts to the [iThenti
 2. Install the plugin via the Plugin Gallery in the Dashboard
 3. Configure the plugin (see below)
    * Enable the plugin via config.inc.php or in a specific journal/press/preprint context
-   * Configure the plugin with the username and password you get from ithenticate.com
+   * Configure the plugin with the **API URL** and **API KEY** you get from ithenticate.com
    * ![Example Settings configuration](ithenticate-settings.png)
 4. The author logs in and makes a submission
    * The submission files will be sent to iThenticate in Step 4 of the submission process
@@ -36,19 +36,19 @@ The config.inc.php settings format is:
 [ithenticate]
 
 ; Enable iThenticate to submit manuscripts after submit step 4
-;ithenticate = On
+; ithenticate = On
 
 ; Credentials can be set by context : specify journal path
-; The username to access the API (usually an email address)
-;username[MyJournal_path] = "user@email.com"
-; The password to access the API
-;password[MyJournal_path] = "password"
+; Unique turnitin api url
+; api_url[MyJournal_path] = ""
+; The API key to authorize the api calls
+; api_key[MyJournal_path] = ""
 
-; default credentials
-; The username to access the API (usually an email address)
-;username = "user@email.com"
+; Unique ithenticate api url
+; Make sure to provice the schema(http:// or https://) with the url and no trailing slash
+; api_url = "https://some-ithenticate-account.com"
 
-; The password to access the API
-;password = "password"
+; The API key to authorize the api calls
+; api_key = "YOUR_API_KEY"
 ```
 

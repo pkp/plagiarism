@@ -1,13 +1,22 @@
 <?php
 
 import('lib.pkp.classes.form.Form');
+import('plugins.generic.plagiarism.PlagiarismPlugin');
 
 class PlagiarismSettingsForm extends Form {
 
-	/** @var int */
+	/**
+	 * The context id
+	 * 
+	 * @var int
+	 */
 	var $_contextId;
 
-	/** @var object */
+	/**
+	 * The PlagiarismPlugin instance
+	 * 
+	 * @var PlagiarismPlugin
+	 */
 	var $_plugin;
 
 	/**
@@ -21,8 +30,8 @@ class PlagiarismSettingsForm extends Form {
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
                 
-		$this->addCheck(new FormValidator($this, 'ithenticateUser', 'required', 'plugins.generic.plagiarism.manager.settings.usernameRequired'));
-		$this->addCheck(new FormValidator($this, 'ithenticatePass', 'required', 'plugins.generic.plagiarism.manager.settings.passwordRequired'));
+		$this->addCheck(new FormValidator($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlRequired'));
+		$this->addCheck(new FormValidator($this, 'ithenticateApiKey', 'required', 'plugins.generic.plagiarism.manager.settings.apiKeyRequired'));
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -31,26 +40,25 @@ class PlagiarismSettingsForm extends Form {
 	/**
 	 * Initialize form data.
 	 */
-	function initData() {
-		list($username, $password) = $this->_plugin->getForcedCredentials();
-		$this->_data = array(
-                        'ithenticateUser' => $this->_plugin->getSetting($this->_contextId, 'ithenticateUser'),
-			'ithenticatePass' => $this->_plugin->getSetting($this->_contextId, 'ithenticatePass'),
-			'ithenticateForced' => !empty($username) && !empty($password)
-		);
+	public function initData() {
+		$this->_data = [
+            'ithenticateApiUrl' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiUrl'),
+			'ithenticateApiKey' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiKey'),
+			'ithenticateForced' => $this->_plugin->hasForcedCredentials(),
+		];
 	}
 
 	/**
 	 * Assign form data to user-submitted data.
 	 */
-	function readInputData() {
-                $this->readUserVars(array('ithenticateUser', 'ithenticatePass'));
+	public function readInputData() {
+		$this->readUserVars(['ithenticateApiUrl', 'ithenticateApiKey']);
 	}
 
 	/**
 	 * @copydoc Form::fetch()
 	 */
-	function fetch($request, $template = null, $display = false) {
+	public function fetch($request, $template = null, $display = false) {
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign('pluginName', $this->_plugin->getName());
 		return parent::fetch($request, $template, $display);
@@ -59,9 +67,9 @@ class PlagiarismSettingsForm extends Form {
 	/**
 	 * @copydoc Form::execute()
 	 */
-	function execute(...$functionArgs) {
-                $this->_plugin->updateSetting($this->_contextId, 'ithenticateUser', trim($this->getData('ithenticateUser'), "\"\';"), 'string');
-		$this->_plugin->updateSetting($this->_contextId, 'ithenticatePass', trim($this->getData('ithenticatePass'), "\"\';"), 'string');
+	public function execute(...$functionArgs) {
+        $this->_plugin->updateSetting($this->_contextId, 'ithenticateApiUrl', trim($this->getData('ithenticateApiUrl'), "\"\';"), 'string');
+		$this->_plugin->updateSetting($this->_contextId, 'ithenticateApiKey', trim($this->getData('ithenticateApiKey'), "\"\';"), 'string');
 		parent::execute(...$functionArgs);
 	}
 }

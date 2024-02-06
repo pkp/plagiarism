@@ -1,0 +1,431 @@
+<?php
+
+/**
+ * @file IThenticate.inc.php
+ *
+ * Copyright (c) 2003-2024 Simon Fraser University
+ * Copyright (c) 2003-2024 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
+ *
+ * @brief Service class to handle API communication with iThenticate service
+ */
+
+class IThenticate
+{
+    /** 
+     * The base api url in the format of schems://host
+     * 
+     * @var string
+     */
+    protected $apiUrl;
+
+    /**
+     * The required API Key to make the request
+     * @see https://developers.turnitin.com/docs/tca#required-headers
+     * 
+     * @var string
+     */
+    protected $apiKey;
+
+    /**
+     * Describes the platform/plugin integrating with TCA
+     * @see https://developers.turnitin.com/docs/tca#required-headers
+     * 
+     * @var string
+     */
+    protected $integrationName;
+
+    /**
+     * The version of the code that is integrating with TCA
+     * @see https://developers.turnitin.com/docs/tca#required-headers
+     * 
+     * @var string
+     */
+    protected $integrationVersion;
+    
+    /**
+     * The EULA(end user license agreement) that user need to confrim before making request
+     * 
+     * @var string|null
+     */
+    protected $eulaVersion = null;
+
+    /**
+     * The EULA details for a specific version
+     * 
+     * @var array|null
+     */
+    protected $eualVersionDetails = null;
+
+    /**
+     * Base API path
+     * The string `API_URL` need to be replaced with provided api url to generarte fully qualified base url
+     * 
+     * @var string
+     */
+    protected $apiBasePath = "API_URL/api/v1/";
+
+    /**
+     * The default EULA version placeholder to retrieve the current latest version
+     * 
+     * @var string
+     */
+    public const DEFAULT_EULA_VERSION = 'latest';
+    
+    /**
+     * The default EULA confirming language
+     * 
+     * @var string
+     */
+    public const DEFAULT_EULA_LANGUAGE = 'en-US';
+
+    /**
+     * The default webhook events for which webhook request will be received
+     * @see https://developers.turnitin.com/docs/tca#event-types
+     * 
+     * @var string
+     */
+    public const DEFAULT_WEBHOOK_EVENTS = [
+        'SUBMISSION_COMPLETE',
+        'SIMILARITY_COMPLETE',
+        'SIMILARITY_UPDATED',
+        'PDF_STATUS',
+        'GROUP_ATTACHMENT_COMPLETE',
+    ];
+
+    /**
+     * Create a new instance
+     * 
+     * @param string        $apiUrl
+     * @param string        $apiKey
+     * @param string        $integrationName
+     * @param string        $integrationVersion
+     * @param string|null   eulaVersion
+     */
+    public function __construct($apiUrl, $apiKey, $integrationName, $integrationVersion, $eulaVersion = null) {
+        $this->apiUrl               = rtrim(trim($apiUrl), '/\\');
+        $this->apiKey               = $apiKey;
+        $this->integrationName      = $integrationName;
+        $this->integrationVersion   = $integrationVersion;
+        $this->eulaVersion          = $eulaVersion;
+    }
+
+    /**
+     * Confirm the EUAL on the user's behalf for given version
+     * @see https://developers.turnitin.com/docs/tca#accept-eula-version
+     * 
+     * @param User      $user
+     * @param Context   $context
+     * @param string    $version
+     *
+     * @return bool
+     */
+    public function confirmEula($user, $context, $version = self::DEFAULT_EULA_VERSION) {
+        
+        // Validate the EULA version
+        if (!$this->validateEulaVersion($this->eulaVersion ?? $version)) {
+            return false;
+        }
+
+        // if user has already accepted/confirm this EULA, no need to go further to reconfirm
+        if ($this->verifyUserEulaAcceptance($user, $this->getApplicationEulaVersion())) {
+            return true;
+        }
+        
+        $response = Application::get()->getHttpClient()->request(
+            'POST',
+            $this->getApiPath("eula/{$this->getApplicationEulaVersion()}/accept"),
+            [
+                'headers' => array_merge($this->getRequiredHeaders(), [
+                    'Content-Type' => 'application/json'
+                ]),
+                'json' => [
+                    'user_id' => $user->getId(),
+                    'accepted_timestamp' => \Carbon\Carbon::now()->toIso8601String(),
+                    'language' => $this->getEualConfirmationLocale($context->getPrimaryLocale()),
+                ],
+                'verify' => false,
+                'exceptions' => false,
+            ]
+        );
+
+        return $response->getStatusCode() === 200;
+    }
+    
+    /**
+     * Create a new submission at service's end
+     * @see https://developers.turnitin.com/docs/tca#create-a-submission
+     * 
+     * @param Submission    $submission
+     * @param User          $user
+     * @param Author|null   $author
+     *
+     * @return string|null  if succeed, it will return the created submission UUID at service's end and 
+     *                      at failure, will return null
+     */
+    public function submitSubmission($submission, $user, $author = null) {
+
+        $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
+        $author ??= $publication->getPrimaryAuthor();
+
+        $response = Application::get()->getHttpClient()->request(
+            'POST',
+            $this->getApiPath("submissions"),
+            [
+                'headers' => array_merge($this->getRequiredHeaders(), [
+                    'Content-Type' => 'application/json'
+                ]),
+                'json' => [
+                    'owner' => $author->getId(),
+                    'title' => $publication->getLocalizedTitle($publication->getData('locale')),
+                    'submitter' => $user->getId(),
+                    'metadata' => [
+                        'owners' => [
+                            [
+                                'id' => $author->getId(),
+                                'given_name' => $author->getLocalizedGivenName(),
+                                'family_name' => $author->getLocalizedFamilyName(),
+                                'email' => $author->getEmail(),
+                            ]
+                        ],
+                        'submitter' => [
+                            'id' => $user->getId(),
+                            'given_name' => $user->getLocalizedGivenName(),
+                            'family_name' => $user->getLocalizedFamilyName(),
+                            'email' => $user->getEmail(),
+                        ],
+                        'original_submitted_time' => \Carbon\Carbon::now()->toIso8601String(),
+                    ],
+
+                ],
+                'verify' => false,
+                'exceptions' => false,
+            ]
+        );
+
+        if ($response->getStatusCode() === 201) {
+            $result = json_decode($response->getBody()->getContents());
+            return $result->id;
+        }
+
+        return null;
+    }
+
+    /**
+     * Upload all submission files to the service's end
+     *
+     * @param string        $submissionTacId The submission UUID return back from service
+     * @param Submission    $submission
+     *
+     * @return bool         If all submission files uploaded successfully, only then it will 
+     *                      return TRUE and return FALSE on a single failure
+     */
+    public function uploadSubmissionFile($submissionTacId, $submission)
+    {
+        $submissionFiles = Services::get('submissionFile')->getMany([
+			'submissionIds' => [$submission->getId()],
+		]);
+        
+        $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
+
+        foreach($submissionFiles as $submissionFile) {
+            $file = Services::get('file')->get($submissionFile->getData('fileId'));
+            $uploadStatus = $this->uploadFile(
+                $submissionTacId, 
+                $submissionFile->getData("name", $publication->getData("locale")),
+                Services::get('file')->fs->read($file->path),
+            );
+
+            if (!$uploadStatus) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Upload single submission file to the service's end
+     * @see https://developers.turnitin.com/docs/tca#upload-submission-file-contents
+     *
+     * @param string $submissionTacId The submission UUID return back from service
+     * @param string $fileName
+     * @param mixed  fileContent   
+     *
+     * @return bool
+     */
+    public function uploadFile($submissionTacId, $fileName, $fileContent) {
+        
+        $response = Application::get()->getHttpClient()->request(
+            'PUT',
+            $this->getApiPath("submissions/{$submissionTacId}/original"),
+            [
+                'headers' => array_merge($this->getRequiredHeaders(), [
+                    'Content-Type' => 'binary/octet-stream',
+                    'Content-Disposition' => urlencode('inline; filename="'.$fileName.'"'),
+                ]),
+                'body' => $fileContent,
+                'verify' => false,
+                'exceptions' => true,
+            ]
+        );
+
+        return $response->getStatusCode() === 202;
+    }
+
+    /**
+     * Verify if user has already confirmed the given EUAL version
+     * @see https://developers.turnitin.com/docs/tca#get-eula-acceptance-info
+     *
+     * @param Author|User   $user
+     * @param string        $version
+     *
+     * @return bool
+     */
+    public function verifyUserEulaAcceptance($user, $version)
+    {
+        $response = Application::get()->getHttpClient()->request(
+            'GET',
+            $this->getApiPath("eula/{$version}/accept/{$user->getId()}"),
+            [
+                'headers' => $this->getRequiredHeaders(),
+                'exceptions' => false,
+            ]
+        );
+        
+        return $response->getStatusCode() === 200;
+    }
+
+    /**
+     * Validate/Retrieve the given EUAL version
+     * @see https://developers.turnitin.com/docs/tca#get-eula-version-info
+     *
+     * @param string $version
+     * @return bool
+     */
+    public function validateEulaVersion($version) {
+
+        $response = Application::get()->getHttpClient()->request(
+            'GET',
+            $this->getApiPath("eula/{$version}"),
+            [
+                'headers' => $this->getRequiredHeaders(),
+                'exceptions' => false,
+            ]
+        );
+        
+        if ($response->getStatusCode() === 200) {
+            $this->eualVersionDetails = json_decode($response->getBody()->getContents(), true);
+            
+            if (!$this->eulaVersion) {
+                $this->eulaVersion = $this->eualVersionDetails['version'];
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Register webhook end point
+     * @see https://developers.turnitin.com/docs/tca#create-webhook
+     *
+     * @param string $signingSecret
+     * @param string $url
+     * @param array  $events
+     * 
+     * @return string|null The UUID of register webhook if succeed or null if failed
+     */
+    public function registerWebhook($signingSecret, $url, $events = self::DEFAULT_WEBHOOK_EVENTS) {
+
+        $response = Application::get()->getHttpClient()->request(
+            'POST',
+            $this->getApiPath('webhooks'),
+            [
+                'headers' => array_merge($this->getRequiredHeaders(), [
+                    'Content-Type' => ' application/json',
+                ]),
+                'json' => [
+                    'signing_secret' => base64_encode($signingSecret),
+                    'url' => $url,
+                    'event_types' => $events,
+                    'allow_insecure' => true,
+                ],
+                'verify' => false,
+                'exceptions' => false,
+            ]
+        );
+
+        if ($response->getStatusCode() === 201) {
+            $result = json_decode($response->getBody()->getContents());
+            return $result->id;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get the stored EULA details
+     * 
+     * @return array|null
+     */
+    public function getEualDetails() {
+        return $this->eualVersionDetails;
+    }
+
+    /**
+     * Get the applicable EULA version
+     * 
+     * @return string
+     * @throws \Exception
+     */
+    public function getApplicationEulaVersion() {
+        if (!$this->eulaVersion) {
+            throw new \Exception('No EULA version set yet');
+        }
+
+        return $this->eulaVersion;
+    }
+
+    /**
+     * Convert given submission/context locale to service compatible and acceptable locale format
+     * @see https://developers.turnitin.com/docs/tca#eula
+     * 
+     * @param string $locale
+     * @return string
+     */
+    protected function getEualConfirmationLocale($locale) {
+        if (!$this->getEualDetails()) {
+            return static::DEFAULT_EULA_LANGUAGE;
+        }
+
+        $euleLangs = $this->getEualDetails()['available_languages'];
+        $locale = str_replace("_", "-", substr($locale, 0, 5));
+
+        return in_array($locale, $euleLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * Get the required headers that need to be sent with every request at service's end
+     * @see https://developers.turnitin.com/docs/tca#required-headers
+     * 
+     * @return array
+     */
+    protected function getRequiredHeaders(){
+        return [
+            'X-Turnitin-Integration-Name'       => $this->integrationName,
+            'X-Turnitin-Integration-Version'    => $this->integrationVersion,
+            'Authorization'                     => 'Bearer ' . $this->apiKey,
+        ];
+    }
+
+    /**
+     * Generate and return the final API end point to make request
+     * 
+     * @return string
+     */
+    protected function getApiPath($apiPathSegment) {
+        return str_replace('API_URL', $this->apiUrl, $this->apiBasePath) . $apiPathSegment;
+    }
+}
