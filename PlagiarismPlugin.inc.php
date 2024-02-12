@@ -11,6 +11,7 @@
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
+import('lib.pkp.classes.db.DAORegistry');
 
 class PlagiarismPlugin extends GenericPlugin {
 
@@ -83,7 +84,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @param string $hookName `Schema::get::submission`
 	 * @param array $params
 	 * 
-	 * @return void
+	 * @return bool
 	 */
 	public function addPlagiarismCheckDataToSubmissionSchema($hookName, $params) {
 		$schema =& $params[0];
@@ -94,6 +95,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
+
+		return false;
 	}
 
 	/**
@@ -103,7 +106,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @param string $hookName `Schema::get::context` or `Schema::get::site`
 	 * @param array $params
 	 * 
-	 * @return void
+	 * @return bool
 	 */
 	public function addPlagiarismCheckWebhookDataToSchema($hookName, $params) {
 		$schema =& $params[0];
@@ -121,6 +124,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
+
+		return false;
 	}
 
 	/**
@@ -254,7 +259,12 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 
 		// Create the submission at iThenticate's end
-		$submissionUuid = $ithenticate->submitSubmission($submission, $request->getUser(), $author);
+		$submissionUuid = $ithenticate->submitSubmission(
+			$submission,
+			$request->getUser(),
+			$author,
+			$request->getSite()
+		);
 
 		if (!$submissionUuid) {
 			$this->sendErrorMessage($submission->getId(), 'Could not submit the submission at iThenticate.');
@@ -263,6 +273,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// $submission->setData('ithenticate_id', $submissionUuid);
 		// $submissionDao->updateObject($submission);		
+		import('classes.core.Services');
 		Services::get("submission")->edit($submission, [
 			'ithenticate_id' => $submissionUuid,
 		], $request);
@@ -279,7 +290,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		if (!$webhookStorable->getData('ithenticate_webhook_id')) {
 			$signingSecret = \Illuminate\Support\Str::random(12);
 			
-			// http://ojs-stable-3_3_0.test/index.php/test-01/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
 			$webhookUrl = $request->getDispatcher()->url(
                 $request,
                 ROUTE_COMPONENT,

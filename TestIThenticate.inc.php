@@ -8,8 +8,8 @@
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @brief   Low-budget mock class for \IThenticate -- Replace the
- *          constructor in PlagiarismPlugin::submitForPlagiarismCheck with this class name 
- *          to log API usage instead of interacting with the iThenticate service.
+ *          constructor and import in PlagiarismPlugin::submitForPlagiarismCheck with  
+ *          this class name to log API usage instead of interacting with the iThenticate service.
  */
 
 class TestIThenticate {
@@ -26,7 +26,7 @@ class TestIThenticate {
      * 
      * @var array|null
      */
-    protected $eualVersionDetails = null;
+    protected $eulaVersionDetails = null;
 
     /**
      * The default EULA version placeholder to retrieve the current latest version
@@ -70,7 +70,7 @@ class TestIThenticate {
     }
 
     /**
-     * Confirm the EUAL on the user's behalf for given version
+     * Confirm the EULA on the user's behalf for given version
      * @see https://developers.turnitin.com/docs/tca#accept-eula-version
      * 
      * @param User      $user
@@ -80,7 +80,7 @@ class TestIThenticate {
      * @return bool
      */
     public function confirmEula($user, $context, $version = self::DEFAULT_EULA_VERSION) {
-        error_log("Confirming EULA for user {$user->getId()} with language ".$this->getEualConfirmationLocale($context->getPrimaryLocale())." for version {$this->getApplicationEulaVersion()}");
+        error_log("Confirming EULA for user {$user->getId()} with language ".$this->getEulaConfirmationLocale($context->getPrimaryLocale())." for version {$this->getApplicationEulaVersion()}");
         return true;
     }
     
@@ -91,11 +91,12 @@ class TestIThenticate {
      * @param Submission    $submission
      * @param User          $user
      * @param Author|null   $author
+     * @param Site|null     $site
      *
      * @return string|null  if succeed, it will return the created submission UUID at service's end and 
      *                      at failure, will return null
      */
-    public function submitSubmission($submission, $user, $author = null) {
+    public function submitSubmission($submission, $user, $author = null, $site = null) {
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()}");
         return \Illuminate\Support\Str::uuid()->__toString();
     }
@@ -146,7 +147,7 @@ class TestIThenticate {
     }
 
     /**
-     * Verify if user has already confirmed the given EUAL version
+     * Verify if user has already confirmed the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-acceptance-info
      *
      * @param Author|User   $user
@@ -155,19 +156,19 @@ class TestIThenticate {
      * @return bool
      */
     public function verifyUserEulaAcceptance($user, $version) {
-        error_log("Verifying if user with id {$user->getId()} has already confirmed the given EUAL version {$version}");
+        error_log("Verifying if user with id {$user->getId()} has already confirmed the given EULA version {$version}");
         return true;
     }
 
     /**
-     * Validate/Retrieve the given EUAL version
+     * Validate/Retrieve the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-version-info
      *
      * @param string $version
      * @return bool
      */
     public function validateEulaVersion($version) {
-        error_log("Validating/Retrieving the given EUAL version {$version}");
+        error_log("Validating/Retrieving the given EULA version {$version}");
         return true;
     }
 
@@ -198,7 +199,7 @@ class TestIThenticate {
      * 
      * @return array|null
      */
-    public function getEualDetails() {
+    public function getEulaDetails() {
         return [
             "version" => "v1beta",
             "valid_from" => "2018-04-30T17:00:00Z",
@@ -249,12 +250,12 @@ class TestIThenticate {
      * @param string $locale
      * @return string
      */
-    protected function getEualConfirmationLocale($locale) {
-        if (!$this->getEualDetails()) {
+    protected function getEulaConfirmationLocale($locale) {
+        if (!$this->getEulaDetails()) {
             return static::DEFAULT_EULA_LANGUAGE;
         }
 
-        $euleLangs = $this->getEualDetails()['available_languages'];
+        $euleLangs = $this->getEulaDetails()['available_languages'];
         $locale = str_replace("_", "-", substr($locale, 0, 5));
 
         return in_array($locale, $euleLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;

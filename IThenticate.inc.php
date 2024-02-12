@@ -55,7 +55,7 @@ class IThenticate
      * 
      * @var array|null
      */
-    protected $eualVersionDetails = null;
+    protected $eulaVersionDetails = null;
 
     /**
      * Base API path
@@ -111,7 +111,7 @@ class IThenticate
     }
 
     /**
-     * Confirm the EUAL on the user's behalf for given version
+     * Confirm the EULA on the user's behalf for given version
      * @see https://developers.turnitin.com/docs/tca#accept-eula-version
      * 
      * @param User      $user
@@ -142,7 +142,7 @@ class IThenticate
                 'json' => [
                     'user_id' => $user->getId(),
                     'accepted_timestamp' => \Carbon\Carbon::now()->toIso8601String(),
-                    'language' => $this->getEualConfirmationLocale($context->getPrimaryLocale()),
+                    'language' => $this->getEulaConfirmationLocale($context->getPrimaryLocale()),
                 ],
                 'verify' => false,
                 'exceptions' => false,
@@ -159,14 +159,21 @@ class IThenticate
      * @param Submission    $submission
      * @param User          $user
      * @param Author|null   $author
+     * @param Site|null     $site
      *
      * @return string|null  if succeed, it will return the created submission UUID at service's end and 
      *                      at failure, will return null
      */
-    public function submitSubmission($submission, $user, $author = null) {
+    public function submitSubmission($submission, $user, $author = null, $site = null) {
 
         $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
         $author ??= $publication->getPrimaryAuthor();
+
+        if (!$site) {
+            import('lib.pkp.classes.db.DAORegistry');
+            $siteDao = DAORegistry::getDAO("SiteDAO"); /** @var SiteDAO $siteDao */
+            $site = $siteDao->getSite(); /** @var Site $site */
+        }
 
         $response = Application::get()->getHttpClient()->request(
             'POST',
@@ -183,15 +190,15 @@ class IThenticate
                         'owners' => [
                             [
                                 'id' => $author->getId(),
-                                'given_name' => $author->getLocalizedGivenName(),
-                                'family_name' => $author->getLocalizedFamilyName(),
+                                'given_name' => $author->getGivenName($publication->getData('locale')) ?? $author->getLocalizedGivenName(),
+                                'family_name' => $author->getGivenName($publication->getData('locale')) ?? $author->getLocalizedFamilyName(),
                                 'email' => $author->getEmail(),
                             ]
                         ],
                         'submitter' => [
                             'id' => $user->getId(),
-                            'given_name' => $user->getLocalizedGivenName(),
-                            'family_name' => $user->getLocalizedFamilyName(),
+                            'given_name' => $user->getGivenName($site->getPrimaryLocale()) ?? $user->getLocalizedGivenName(),
+                            'family_name' => $user->getFamilyName($site->getPrimaryLocale()) ?? $user->getLocalizedFamilyName(),
                             'email' => $user->getEmail(),
                         ],
                         'original_submitted_time' => \Carbon\Carbon::now()->toIso8601String(),
@@ -274,7 +281,7 @@ class IThenticate
     }
 
     /**
-     * Verify if user has already confirmed the given EUAL version
+     * Verify if user has already confirmed the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-acceptance-info
      *
      * @param Author|User   $user
@@ -297,7 +304,7 @@ class IThenticate
     }
 
     /**
-     * Validate/Retrieve the given EUAL version
+     * Validate/Retrieve the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-version-info
      *
      * @param string $version
@@ -315,10 +322,10 @@ class IThenticate
         );
         
         if ($response->getStatusCode() === 200) {
-            $this->eualVersionDetails = json_decode($response->getBody()->getContents(), true);
+            $this->eulaVersionDetails = json_decode($response->getBody()->getContents(), true);
             
             if (!$this->eulaVersion) {
-                $this->eulaVersion = $this->eualVersionDetails['version'];
+                $this->eulaVersion = $this->eulaVersionDetails['version'];
             }
 
             return true;
@@ -370,8 +377,8 @@ class IThenticate
      * 
      * @return array|null
      */
-    public function getEualDetails() {
-        return $this->eualVersionDetails;
+    public function getEulaDetails() {
+        return $this->eulaVersionDetails;
     }
 
     /**
@@ -395,12 +402,12 @@ class IThenticate
      * @param string $locale
      * @return string
      */
-    protected function getEualConfirmationLocale($locale) {
-        if (!$this->getEualDetails()) {
+    protected function getEulaConfirmationLocale($locale) {
+        if (!$this->getEulaDetails()) {
             return static::DEFAULT_EULA_LANGUAGE;
         }
 
-        $euleLangs = $this->getEualDetails()['available_languages'];
+        $euleLangs = $this->getEulaDetails()['available_languages'];
         $locale = str_replace("_", "-", substr($locale, 0, 5));
 
         return in_array($locale, $euleLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
