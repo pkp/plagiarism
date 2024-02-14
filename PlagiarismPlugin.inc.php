@@ -10,6 +10,8 @@
  * @brief Plagiarism plugin
  */
 
+use Symfony\Component\VarDumper\Caster\ArgsStub;
+
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('lib.pkp.classes.db.DAORegistry');
 
@@ -30,13 +32,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 
 		HookRegistry::register('submissionsubmitstep4form::execute', [$this, 'submitForPlagiarismCheck']);
-
-		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
-		HookRegistry::register("Schema::get::{$submissionDao->schemaName}", [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
-
-		$schemaName = $this->hasForcedCredentials() ? SCHEMA_SITE : Application::get()->getContextDAO()->schemaName;
-		HookRegistry::register("Schema::get::{$schemaName}", [$this, 'addPlagiarismCheckWebhookDataToSchema']);
-
+		HookRegistry::register("Schema::get::" . SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
+		HookRegistry::register("Schema::get::" . SCHEMA_CONTEXT, [$this, 'addPlagiarismCheckWebhookDataToSchema']);
 		HookRegistry::register('LoadComponentHandler', [$this, 'setupWebhookHandler']);
 
 		return $success;
@@ -100,10 +97,10 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Add properties for this type of public identifier to the site/context entity's list for
+	 * Add properties for this type of public identifier to the context entity's list for
 	 * storage in the database.
 	 * 
-	 * @param string $hookName `Schema::get::context` or `Schema::get::site`
+	 * @param string $hookName `Schema::get::context`
 	 * @param array $params
 	 * 
 	 * @return bool
@@ -200,8 +197,8 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Setup the handler for webhook request
 	 * 
-	 * @param string $hookName
-	 * @param array $args
+	 * @param string $hookName `LoadComponentHandler`
+	 * @param array $params
 	 * 
 	 * @return bool
 	 */
@@ -220,17 +217,16 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Confirm EULA, create submission and upload submission files to iThenticate service
 	 * 
-	 * @param string $hookName
+	 * @param string $hookName `submissionsubmitstep4form::execute`
 	 * @param array $args
 	 * 
 	 * @return bool
 	 */
 	public function submitForPlagiarismCheck($hookName, $args) {
 		$request = Application::get()->getRequest(); /** @var Request $request */
+		$form =& $args[0]; /** @var SubmissionSubmitStep4Form $form */
+		$submission = $form->submission; /** @var Submission $submission */
 		$context = $request->getContext(); /** @var Context $context */
-		$siteDao = DAORegistry::getDAO('SiteDAO'); /** @var SiteDAO $siteDao */
-		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
-		$submission = $submissionDao->getById($request->getUserVar('submissionId')); /** @var Submission $submission */
 		$publication = $submission->getCurrentPublication(); /** @var Publication $publication */
 		$author = $publication->getPrimaryAuthor(); /** @var Author $author */
 
@@ -271,12 +267,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		// $submission->setData('ithenticate_id', $submissionUuid);
-		// $submissionDao->updateObject($submission);		
-		import('classes.core.Services');
-		Services::get("submission")->edit($submission, [
-			'ithenticate_id' => $submissionUuid,
-		], $request);
+		$submission->setData('ithenticate_id', $submissionUuid);
 		
 		// Upload submission files for successfully created submission at iThenticate's end
 		if (!$ithenticate->uploadSubmissionFile($submissionUuid, $submission)) {
@@ -284,10 +275,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		// If no webhook previously registered for this Site/Context, register it
-		$webhookStorable = $this->hasForcedCredentials() ? $request->getSite() : $context; /** @var Site|Context $webhookStorable */
-
-		if (!$webhookStorable->getData('ithenticate_webhook_id')) {
+		// If no webhook previously registered for this Context, register it
+		if (!$context->getData('ithenticate_webhook_id')) {
 			$signingSecret = \Illuminate\Support\Str::random(12);
 			
 			$webhookUrl = $request->getDispatcher()->url(
@@ -299,11 +288,9 @@ class PlagiarismPlugin extends GenericPlugin {
             );
 
 			if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
-				$webhookStorable->setData('ithenticate_webhook_signing_secret', $signingSecret);
-				$webhookStorable->setData('ithenticate_webhook_id', $webhookId);
-				$this->hasForcedCredentials()
-					? $siteDao->updateObject($webhookStorable)
-					: Application::get()->getContextDAO()->updateObject($webhookStorable);
+				$context->setData('ithenticate_webhook_signing_secret', $signingSecret);
+				$context->setData('ithenticate_webhook_id', $webhookId);
+				Application::get()->getContextDAO()->updateObject($context);
 			} else {
 				error_log("unable to complete the iThenticate webhook registration during the submission process of ID : {$submission->getId()}");
 			}
