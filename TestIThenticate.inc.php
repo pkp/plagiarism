@@ -26,7 +26,37 @@ class TestIThenticate {
      * 
      * @var array|null
      */
-    protected $eulaVersionDetails = null;
+    protected $eulaVersionDetails = [
+        "version" => "v1beta",
+        "valid_from" => "2018-04-30T17:00:00Z",
+        "valid_until" => null,
+        "url" => "https://static.turnitin.com/eula/v1beta/en-us/eula.html",
+        "available_languages" => [
+          "sv-SE",
+          "zh-CN",
+          "ja-JP",
+          "ko-KR",
+          "es-MX",
+          "nl-NL",
+          "ru-RU",
+          "zh-TW",
+          "ar-SA",
+          "pt-BR",
+          "de-DE",
+          "el-GR",
+          "nb-NO",
+          "cs-CZ",
+          "da-DK",
+          "tr-TR",
+          "pl-PL",
+          "fi-FI",
+          "it-IT",
+          "vi-VN",
+          "fr-FR",
+          "en-US",
+          "ro-RO",
+        ],
+    ];
 
     /**
      * The default EULA version placeholder to retrieve the current latest version
@@ -211,37 +241,7 @@ class TestIThenticate {
      * @return array|null
      */
     public function getEulaDetails() {
-        return [
-            "version" => "v1beta",
-            "valid_from" => "2018-04-30T17:00:00Z",
-            "valid_until" => null,
-            "url" => "https://static.turnitin.com/eula/v1beta/en-us/eula.html",
-            "available_languages" => [
-              "sv-SE",
-              "zh-CN",
-              "ja-JP",
-              "ko-KR",
-              "es-MX",
-              "nl-NL",
-              "ru-RU",
-              "zh-TW",
-              "ar-SA",
-              "pt-BR",
-              "de-DE",
-              "el-GR",
-              "nb-NO",
-              "cs-CZ",
-              "da-DK",
-              "tr-TR",
-              "pl-PL",
-              "fi-FI",
-              "it-IT",
-              "vi-VN",
-              "fr-FR",
-              "en-US",
-              "ro-RO",
-            ],
-        ];
+        return $this->eulaVersionDetails;
     }
 
     /**

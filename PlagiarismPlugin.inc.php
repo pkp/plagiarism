@@ -309,6 +309,12 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function stampEulaToSubmission($hookName, $args) {
 		$submission =& $args[0]; /** @var Submission $submission */
+		$context = Application::get()->getRequest()->getContext();
+
+		if (!static::ITHENTICATE_TEST_MODE_ENABLE && !$this->isServiceAccessAvailable($context)) {
+			$this->sendErrorMessage($submission->getId(), "ithenticate service access not set for context id {$context->getId()}");
+			return false;
+		}
 
 		$eualDetails = $this->getContextEulaDetails(
 			Application::get()->getRequest()->getContext(), 
@@ -340,6 +346,11 @@ class PlagiarismPlugin extends GenericPlugin {
 		$publication = $submission->getCurrentPublication();
 		$author = $publication->getPrimaryAuthor();
 		$user = $request->getUser();
+
+		if (!static::ITHENTICATE_TEST_MODE_ENABLE && !$this->isServiceAccessAvailable($context)) {
+			$this->sendErrorMessage($submission->getId(), "ithenticate service access not set for context id {$context->getId()}");
+			return false;
+		}
 
 		// if EULA details not stamped to submission, not going to sent it for plagiarism check
 		if (!$submission->getData('ithenticate_eula_version') || !$submission->getData('ithenticate_eula_url')) {
@@ -489,7 +500,9 @@ class PlagiarismPlugin extends GenericPlugin {
 				[$this, 'retrieveApplicableEulaDetails']
 			);
 		
-		if (time() - $cache->getCacheTime() > static::EULA_CACHE_LIFETIME) {
+		// if running on ithenticate test mode, set the cache life time to 60 seconds
+		$cacheLifetime = static::ITHENTICATE_TEST_MODE_ENABLE ? 60 : static::EULA_CACHE_LIFETIME;
+		if (time() - $cache->getCacheTime() > $cacheLifetime) {
 			$cache->flush();
 		}
 
@@ -584,6 +597,16 @@ class PlagiarismPlugin extends GenericPlugin {
 			];
 		
 		return [$apiUrl, $apiKey];
+	}
+
+	/**
+	 * Check is ithenticate service access details(API URL & KEY) available for given context
+	 * 
+	 * @param Context $context
+	 * @return bool
+	 */
+	protected function isServiceAccessAvailable($context) {
+		return !collect($this->getServiceAccess($context))->filter()->isEmpty();
 	}
 
 	/**
