@@ -56,7 +56,7 @@ class PlagiarismWebhookHandler extends PKPHandler {
 	 *
 	 * @return void
 	 */
-    public function handle() {
-        error_log('PKP Plagiarism plugin handle webhook request');
-    }
+	public function handle() {
+		error_log('PKP Plagiarism plugin handle webhook request');
+	}
 }

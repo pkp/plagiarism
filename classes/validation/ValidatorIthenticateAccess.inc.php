@@ -31,7 +31,7 @@ class ValidatorIthenticateAccess extends Validator {
         $this->ithenticate = $ithenticate;
     }
 
-    function isValid($value) {
+    public function isValid($value) {
 		return $this->ithenticate->validateAccess();
 	}
 } 

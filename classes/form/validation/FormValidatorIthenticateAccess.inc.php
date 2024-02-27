@@ -19,7 +19,7 @@ import("plugins.generic.plagiarism.IThenticate");
 import("plugins.generic.plagiarism.TestIThenticate");
 
 class FormValidatorIthenticateAccess extends FormValidator {
-    
+
 	/**
 	 * Constructor.
 	 * @param Form                          $form           the associated form
@@ -33,5 +33,3 @@ class FormValidatorIthenticateAccess extends FormValidator {
 		parent::__construct($form, $field, $type, $message, $validator);
 	}
 }
-
-
