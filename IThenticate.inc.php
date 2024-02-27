@@ -59,7 +59,7 @@ class IThenticate
 
     /**
      * Base API path
-     * The string `API_URL` need to be replaced with provided api url to generarte fully qualified base url
+     * The string `API_URL` need to be replaced with provided api url to generate fully qualified base url
      * 
      * @var string
      */
@@ -83,7 +83,7 @@ class IThenticate
      * The default webhook events for which webhook request will be received
      * @see https://developers.turnitin.com/docs/tca#event-types
      * 
-     * @var string
+     * @var array
      */
     public const DEFAULT_WEBHOOK_EVENTS = [
         'SUBMISSION_COMPLETE',
@@ -111,30 +111,48 @@ class IThenticate
     }
 
     /**
+     * Validate the service access by retrieving the the enabled feature
+     * @see https://developers.turnitin.com/docs/tca#get-features-enabled
+     * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
+     * 
+     * @return bool
+     */
+    public function validateAccess() {
+
+        try {
+            $response = Application::get()->getHttpClient()->request(
+                'GET',
+                $this->getApiPath("features-enabled"),
+                [
+                    'headers' => $this->getRequiredHeaders(),
+                    'verify' => false,
+                    'exceptions' => false,
+                    'http_errors' => false,
+                ]
+            );
+        } catch (\GuzzleHttp\Exception\ConnectException $exception) {
+            return false;
+        } catch (\Throwable $exception) {
+            throw $exception;
+        }
+
+        return $response->getStatusCode() === 200;
+    }
+
+    /**
      * Confirm the EULA on the user's behalf for given version
      * @see https://developers.turnitin.com/docs/tca#accept-eula-version
      * 
      * @param User      $user
      * @param Context   $context
-     * @param string    $version
      *
      * @return bool
      */
-    public function confirmEula($user, $context, $version = self::DEFAULT_EULA_VERSION) {
-        
-        // Validate the EULA version
-        if (!$this->validateEulaVersion($this->eulaVersion ?? $version)) {
-            return false;
-        }
-
-        // if user has already accepted/confirm this EULA, no need to go further to reconfirm
-        if ($this->verifyUserEulaAcceptance($user, $this->getApplicationEulaVersion())) {
-            return true;
-        }
+    public function confirmEula($user, $context) {
         
         $response = Application::get()->getHttpClient()->request(
             'POST',
-            $this->getApiPath("eula/{$this->getApplicationEulaVersion()}/accept"),
+            $this->getApiPath("eula/{$this->getApplicableEulaVersion()}/accept"),
             [
                 'headers' => array_merge($this->getRequiredHeaders(), [
                     'Content-Type' => 'application/json'
@@ -190,15 +208,15 @@ class IThenticate
                         'owners' => [
                             [
                                 'id' => $author->getId(),
-                                'given_name' => $author->getGivenName($publication->getData('locale')) ?? $author->getLocalizedGivenName(),
-                                'family_name' => $author->getGivenName($publication->getData('locale')) ?? $author->getLocalizedFamilyName(),
+                                'given_name' => $author->getGivenName($publication->getData('locale')),
+                                'family_name' => $author->getFamilyName($publication->getData('locale')),
                                 'email' => $author->getEmail(),
                             ]
                         ],
                         'submitter' => [
                             'id' => $user->getId(),
-                            'given_name' => $user->getGivenName($site->getPrimaryLocale()) ?? $user->getLocalizedGivenName(),
-                            'family_name' => $user->getFamilyName($site->getPrimaryLocale()) ?? $user->getLocalizedFamilyName(),
+                            'given_name' => $user->getGivenName($site->getPrimaryLocale()),
+                            'family_name' => $user->getFamilyName($site->getPrimaryLocale()),
                             'email' => $user->getEmail(),
                         ],
                         'original_submitted_time' => \Carbon\Carbon::now()->toIso8601String(),
@@ -230,7 +248,7 @@ class IThenticate
     public function uploadSubmissionFile($submissionTacId, $submission)
     {
         $submissionFiles = Services::get('submissionFile')->getMany([
-			'submissionIds' => [$submission->getId()],
+            'submissionIds' => [$submission->getId()],
 		]);
         
         $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
@@ -387,12 +405,44 @@ class IThenticate
      * @return string
      * @throws \Exception
      */
-    public function getApplicationEulaVersion() {
+    public function getApplicableEulaVersion() {
         if (!$this->eulaVersion) {
             throw new \Exception('No EULA version set yet');
         }
 
         return $this->eulaVersion;
+    }
+
+    /**
+     * Set the applicable EULA version
+     * 
+     * @param string $version
+     * @return self
+     */
+    public function setApplicableEulaVersion($version) {
+        $this->eulaVersion = $version;
+
+        return $this;
+    }
+
+    /**
+     * Get the applicable EULA Url
+     * 
+     * @param  string|null $locale
+     * @return string
+     * 
+     * @throws \Exception
+     */
+    public function getApplicableEulaUrl($locale = null) {
+        if (!$this->eulaVersion) {
+            throw new \Exception('No EULA version set yet');
+        }
+
+        $applicableEulaLanguage = $this->getEulaConfirmationLocale($locale ?? static::DEFAULT_EULA_LANGUAGE);
+
+        $eulaUrl = $this->eulaVersionDetails['url'];
+
+        return str_replace(static::DEFAULT_EULA_LANGUAGE, $applicableEulaLanguage, $eulaUrl);
     }
 
     /**

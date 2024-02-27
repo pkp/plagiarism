@@ -7,9 +7,9 @@
  * Copyright (c) 2003-2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @brief   Low-budget mock class for \IThenticate -- Replace the
- *          constructor and import in PlagiarismPlugin::submitForPlagiarismCheck with  
- *          this class name to log API usage instead of interacting with the iThenticate service.
+ * @brief   Low-budget mock class for \IThenticate -- set the const `ITHENTICATE_TEST_MODE_ENABLE`
+ *          value in the `PlagiarismPlugin` class to `true` to log API usage instead of 
+ *          interacting with the iThenticate service.
  */
 
 class TestIThenticate {
@@ -46,7 +46,7 @@ class TestIThenticate {
      * The default webhook events for which webhook request will be received
      * @see https://developers.turnitin.com/docs/tca#event-types
      * 
-     * @var string
+     * @var array
      */
     public const DEFAULT_WEBHOOK_EVENTS = [
         'SUBMISSION_COMPLETE',
@@ -70,17 +70,28 @@ class TestIThenticate {
     }
 
     /**
+     * Validate the service access by retrieving the the enabled feature
+     * @see https://developers.turnitin.com/docs/tca#get-features-enabled
+     * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
+     * 
+     * @return bool
+     */
+    public function validateAccess() {
+        error_log("Confirming the service access validation for given access details");
+        return true;
+    }
+
+    /**
      * Confirm the EULA on the user's behalf for given version
      * @see https://developers.turnitin.com/docs/tca#accept-eula-version
      * 
      * @param User      $user
      * @param Context   $context
-     * @param string    $version
      *
      * @return bool
      */
-    public function confirmEula($user, $context, $version = self::DEFAULT_EULA_VERSION) {
-        error_log("Confirming EULA for user {$user->getId()} with language ".$this->getEulaConfirmationLocale($context->getPrimaryLocale())." for version {$this->getApplicationEulaVersion()}");
+    public function confirmEula($user, $context) {
+        error_log("Confirming EULA for user {$user->getId()} with language ".$this->getEulaConfirmationLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
         return true;
     }
     
@@ -239,8 +250,40 @@ class TestIThenticate {
      * @return string
      * @throws \Exception
      */
-    public function getApplicationEulaVersion() {
+    public function getApplicableEulaVersion() {
         return $this->eulaVersion;
+    }
+
+    /**
+     * Set the applicable EULA version
+     * 
+     * @param string $version
+     * @return self
+     */
+    public function setApplicableEulaVersion($version) {
+        $this->eulaVersion = $version;
+
+        return $this;
+    }
+
+    /**
+     * Get the applicable EULA Url
+     * 
+     * @param  string|null $locale
+     * @return string
+     * 
+     * @throws \Exception
+     */
+    public function getApplicableEulaUrl($locale = null) {
+        if (!$this->eulaVersion) {
+            throw new \Exception('No EULA version set yet');
+        }
+
+        $applicableEulaLanguage = $this->getEulaConfirmationLocale($locale ?? static::DEFAULT_EULA_LANGUAGE);
+
+        $eulaUrl = $this->eulaVersionDetails['url'];
+
+        return str_replace(static::DEFAULT_EULA_LANGUAGE, $applicableEulaLanguage, $eulaUrl);
     }
 
     /**

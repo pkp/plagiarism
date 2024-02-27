@@ -35,11 +35,24 @@ msgstr "iThenticate API KEY"
 msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
 msgstr "iThenticate API URL is required"
 
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"The specified URL is not valid. Please double-check the URL and try again. "
+"(Hint: Try adding http:// to the beginning of the URL.)"
+
 msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
 msgstr "iThenticate API KEY is required"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"The specified API URL/KEY is invalid and can not establish connection to IThenticate API service."
+"Please double-check the API URL/KEY and try again."
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr "Upload of submission {$submissionId} to iThenticate failed with error: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr "Plagiarism EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"

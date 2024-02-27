@@ -10,14 +10,26 @@
  * @brief Plagiarism plugin
  */
 
-use Symfony\Component\VarDumper\Caster\ArgsStub;
-
 import('lib.pkp.classes.plugins.GenericPlugin');
 import('lib.pkp.classes.db.DAORegistry');
 
 class PlagiarismPlugin extends GenericPlugin {
 
+	/**
+	 * Specify a default integration name for iThenticate service
+	 */
 	public const PLUGIN_INTEGRATION_NAME = 'Plagiarism plugin for OJS/OMP/OPS';
+
+	/**
+	 * Number of seconds EULA details for a context should be cached before refreshing it
+	 */
+	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
+
+	/**
+	 * Set the value to `true` to enable test mode that will log instead of interacting with 
+	 * iThenticate API service.
+	 */
+	protected const ITHENTICATE_TEST_MODE_ENABLE = false;
 
 	/**
 	 * @copydoc Plugin::register()
@@ -31,9 +43,16 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;	
 		}
 
+		// Need to register both of TemplateManager display and fetch hook as both of these
+		// get called when presenting the submission 
+		HookRegistry::register('TemplateManager::display', [$this, 'addEulaToChecklist']);
+		HookRegistry::register('TemplateManager::fetch', [$this, 'addEulaToChecklist']);
+
+		HookRegistry::register('Submission::add', [$this, 'stampEulaToSubmission']);
 		HookRegistry::register('submissionsubmitstep4form::execute', [$this, 'submitForPlagiarismCheck']);
-		HookRegistry::register("Schema::get::" . SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
-		HookRegistry::register("Schema::get::" . SCHEMA_CONTEXT, [$this, 'addPlagiarismCheckWebhookDataToSchema']);
+		HookRegistry::register('Schema::get::' . SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
+		HookRegistry::register('Schema::get::' . SCHEMA_CONTEXT, [$this, 'addPlagiarismCheckWebhookDataToSchema']);
+		HookRegistry::register('userdao::getAdditionalFieldNames', [$this, 'handleAdditionalEulaConfirmationFieldNames']);
 		HookRegistry::register('LoadComponentHandler', [$this, 'setupWebhookHandler']);
 
 		return $success;
@@ -75,6 +94,40 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Add the IThenticate EULA url as a checklist of submission process
+	 * 
+	 * @param string $hookName `TemplateManager::display` or `TemplateManager::fetch`
+	 * @param array $params
+	 * 
+	 * @return bool
+	 */
+	public function addEulaToChecklist($hookName, $params) {
+		$templateManager = & $params[0]; /** @var TemplateManager $templateManager */
+		$context = $templateManager->getTemplateVars('currentContext'); /** @var Context $context */
+		
+		if (!$context || strtolower($templateManager->getTemplateVars('requestedPage') ?? '') !== 'submission') {
+			return false;
+		}
+
+		$eualDetails = $this->getContextEulaDetails($context);
+		
+		foreach($context->getData('submissionChecklist') as $locale => $checklist) {
+			array_push($checklist, [
+				'order' => (collect($checklist)->pluck('order')->sort(SORT_REGULAR)->last() ?? 0) + 1,
+				'content' => __('plugins.generic.plagiarism.submission.checklist.eula', [
+					'localizedEulaUrl' => $eualDetails[$locale]['url']
+				]),
+			]);
+
+			$context->setData('submissionChecklist', $checklist, $locale);
+		}
+
+		$templateManager->assign('currentContext', $context);
+		
+		return false;
+	}
+
+	/**
 	 * Add properties for this type of public identifier to the submission entity's list for
 	 * storage in the database.
 	 * 
@@ -89,6 +142,20 @@ class PlagiarismPlugin extends GenericPlugin {
 		$schema->properties->ithenticate_id = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate service submission uuid that return back after a submission has been successful submitted',
+			'apiSummary' => true,
+			'validation' => ['nullable'],
+		];
+
+		$schema->properties->ithenticate_eula_version = (object) [
+			'type' => 'string',
+			'description' => 'The iThenticate EULA version which has been agreed at submission checklist',
+			'apiSummary' => true,
+			'validation' => ['nullable'],
+		];
+
+		$schema->properties->ithenticate_eula_url = (object) [
+			'type' => 'string',
+			'description' => 'The iThenticate EULA url which has been agreen at submission checklist',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
@@ -121,6 +188,24 @@ class PlagiarismPlugin extends GenericPlugin {
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
+
+		return false;
+	}
+
+	/**
+	 * Add additional fields for users to stamp EULA details
+	 * 
+	 * @param string $hookName `userdao::getAdditionalFieldNames`
+	 * @param array $params
+	 * 
+	 * @return bool
+	 */
+	public function handleAdditionalEulaConfirmationFieldNames($hookName, $params) {
+
+		$fields =& $params[1];
+
+		$fields[] = 'ithenticateEulaVersion';
+		$fields[] = 'ithenticateEulaConfirmedAt';
 
 		return false;
 	}
@@ -215,6 +300,31 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Stamp the iThenticate EULA with the submission
+	 * 
+	 * @param string $hookName `Submission::add`
+	 * @param array $args
+	 * 
+	 * @return bool
+	 */
+	public function stampEulaToSubmission($hookName, $args) {
+		$submission =& $args[0]; /** @var Submission $submission */
+
+		$eualDetails = $this->getContextEulaDetails(
+			Application::get()->getRequest()->getContext(), 
+			$submission->getData('locale')
+		);
+
+		$submission->setData('ithenticate_eula_version', $eualDetails['version']);
+		$submission->setData('ithenticate_eula_url', $eualDetails['url']);
+
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submissionDao->updateObject($submission);
+
+		return false;
+	}
+
+	/**
 	 * Confirm EULA, create submission and upload submission files to iThenticate service
 	 * 
 	 * @param string $hookName `submissionsubmitstep4form::execute`
@@ -223,41 +333,43 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return bool
 	 */
 	public function submitForPlagiarismCheck($hookName, $args) {
-		$request = Application::get()->getRequest(); /** @var Request $request */
+		$request = Application::get()->getRequest();
 		$form =& $args[0]; /** @var SubmissionSubmitStep4Form $form */
 		$submission = $form->submission; /** @var Submission $submission */
-		$context = $request->getContext(); /** @var Context $context */
-		$publication = $submission->getCurrentPublication(); /** @var Publication $publication */
-		$author = $publication->getPrimaryAuthor(); /** @var Author $author */
+		$context = $request->getContext();
+		$publication = $submission->getCurrentPublication();
+		$author = $publication->getPrimaryAuthor();
+		$user = $request->getUser();
 
-		// try to get credentials for current context otherwise use default config
-		list($apiUrl, $apiKey) = $this->hasForcedCredentials()
-			? $this->getForcedCredentials()
-			: [
-				$this->getSetting($context->getId(), 'ithenticateApiUrl'), 
-				$this->getSetting($context->getId(), 'ithenticateApiKey')
-			];
-
-		import("plugins.generic.plagiarism.IThenticate");
-
-		/** @var \IThenticate $ithenticate */
-		$ithenticate = new IThenticate(
-			$apiUrl,
-			$apiKey,
-			static::PLUGIN_INTEGRATION_NAME,
-			$this->getCurrentVersion()->getData('current')
-		);
-
-		// Try to validate and confirm the EULA on user's behalf
-		if (!$ithenticate->confirmEula($request->getUser(), $context)) {
-			$this->sendErrorMessage($submission->getId(), 'Could not confirm EULA at iThenticate.');
+		// if EULA details not stamped to submission, not going to sent it for plagiarism check
+		if (!$submission->getData('ithenticate_eula_version') || !$submission->getData('ithenticate_eula_url')) {
+			$this->sendErrorMessage($submission->getId(), 'Unable to obtain the stamped EULA details to submission');
 			return false;
+		}
+
+		$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
+		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
+		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
+		
+		// Check if EULA stamped to submitter and if not, try to stamp it
+		if (!$user->getData('ithenticateEulaVersion') ||
+			$user->getData('ithenticateEulaVersion') !== $submissionEulaVersion) {
+			
+			// Check if user has ever already accepted this EULA version and if so, stamp it to user
+			// Or, try to confirm the EULA for user and upon succeeding, stamp it to user
+			if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
+				$ithenticate->confirmEula($user, $context)) {
+				$this->stampEualVersionToSubmittingUser($user, $submissionEulaVersion);
+			} else {
+				$this->sendErrorMessage($submission->getId(), 'Unable to stamp the EULA details to submission submitter');
+				return false;
+			}
 		}
 
 		// Create the submission at iThenticate's end
 		$submissionUuid = $ithenticate->submitSubmission(
 			$submission,
-			$request->getUser(),
+			$user,
 			$author,
 			$request->getSite()
 		);
@@ -356,6 +468,138 @@ class PlagiarismPlugin extends GenericPlugin {
                 }
                 return new JSONMessage(true, $form->fetch($request));
         }
+
         return parent::manage($args, $request);
     }
+
+	/**
+	 * Get the cached EULA details form Context
+	 * 
+	 * @param Context 		$context
+	 * @param string|null 	$locale
+	 * 
+	 * @return array
+	 */
+	public function getContextEulaDetails($context, $locale = null) {
+		/** @var \FileCache $cache */
+		$cache = CacheManager::getManager()
+			->getCache(
+				'ithenticate_eula', 
+				"CONTEXT_ID_{$context->getId()}",
+				[$this, 'retrieveApplicableEulaDetails']
+			);
+		
+		if (time() - $cache->getCacheTime() > static::EULA_CACHE_LIFETIME) {
+			$cache->flush();
+		}
+
+		$eulaDetails = $cache->get("CONTEXT_ID_{$context->getId()}");
+
+		return $locale ? $eulaDetails[$locale] : $eulaDetails;
+	}
+
+	/**
+	 * Retrived and generate the localized EULA details for given context 
+	 * and cache it in following format
+	 * [
+	 *   'en_US' => [
+	 *     'version' => '',
+	 *     'url' => '',
+	 *   ],
+	 *   ...
+	 * ]
+	 * 
+	 * @param GenericCache 	$cache
+	 * @param mixed 		$cacheId
+	 * 
+	 * @return array
+	 */
+	public function retrieveApplicableEulaDetails($cache, $cacheId) {
+		$context = Application::get()->getRequest()->getContext();
+		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
+		$eualDetails = [];
+		
+		if ($ithenticate->validateEulaVersion($ithenticate::DEFAULT_EULA_VERSION)) {
+			foreach($context->getSupportedSubmissionLocaleNames() as $localeKey => $localeName) {
+				$eualDetails[$localeKey] = [
+					'version' 	=> $ithenticate->getApplicableEulaVersion(),
+					'url' 		=> $ithenticate->getApplicableEulaUrl($localeKey),
+				];
+			}
+		}
+
+		$cache->setEntireCache([$cacheId => $eualDetails]);
+
+		return $eualDetails;
+	}
+
+	/**
+	 * Create and return an instance of service class responsible to handle the
+	 * communication with iThenticate service.
+	 * 
+	 * If const `ITHENTICATE_TEST_MODE_ENABLE` set to true, it will return an
+	 * instance of mock class `TestIThenticate` instead of actual commucation
+	 * responsible class.
+	 * 
+	 * @param string $apiUrl
+	 * @param string $apiKey
+	 * 
+	 * @return \IThenticate|\TestIThenticate
+	 */
+	public function initIthenticate($apiUrl, $apiKey) {
+
+		if (static::ITHENTICATE_TEST_MODE_ENABLE) {
+			import("plugins.generic.plagiarism.TestIThenticate");
+			return new \TestIThenticate(
+				$apiUrl,
+				$apiKey,
+				static::PLUGIN_INTEGRATION_NAME,
+				$this->getCurrentVersion()->getData('current')
+			);
+		}
+
+		import("plugins.generic.plagiarism.IThenticate");
+
+		return new \IThenticate(
+			$apiUrl,
+			$apiKey,
+			static::PLUGIN_INTEGRATION_NAME,
+			$this->getCurrentVersion()->getData('current')
+		);
+	}
+
+	/**
+	 * Get the ithenticate service access as array in format [API_URL, API_KEY]
+	 * 
+	 * @param Context $context
+	 * @return array
+	 */
+	protected function getServiceAccess($context) {
+		// try to get credentials for current context otherwise use default config
+		list($apiUrl, $apiKey) = $this->hasForcedCredentials()
+			? $this->getForcedCredentials()
+			: [
+				$this->getSetting($context->getId(), 'ithenticateApiUrl'), 
+				$this->getSetting($context->getId(), 'ithenticateApiKey')
+			];
+		
+		return [$apiUrl, $apiKey];
+	}
+
+	/**
+	 * Stamp the EULA version and confirmation datetime for submitting user
+	 * 
+	 * @param User 		$user
+	 * @param string 	$version
+	 * 
+	 * @return void
+	 */
+	protected function stampEualVersionToSubmittingUser($user, $version) {
+		$userDao = DAORegistry::getDAO('UserDAO'); /** @var UserDAO $userDao */
+
+		$user->setData('ithenticateEulaVersion', $version);
+		$user->setData('ithenticateEulaConfirmedAt', Core::getCurrentDate());
+
+		$userDao->updateObject($user);
+	}
 }

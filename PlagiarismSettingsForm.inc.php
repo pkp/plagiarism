@@ -12,6 +12,7 @@
 
 import('lib.pkp.classes.form.Form');
 import('plugins.generic.plagiarism.PlagiarismPlugin');
+import('plugins.generic.plagiarism.classes.form.validation.FormValidatorIthenticateAccess');
 
 class PlagiarismSettingsForm extends Form {
 
@@ -31,17 +32,19 @@ class PlagiarismSettingsForm extends Form {
 
 	/**
 	 * Constructor
-	 * @param $plugin PlagiarismPlugin
-	 * @param $contextId int
+	 * 
+	 * @param PlagiarismPlugin 	$plugin
+	 * @param int 				$contextId
 	 */
-	function __construct($plugin, $contextId) {
-		$this->_contextId = $contextId;
+	public function __construct($plugin, $contextId) {
 		$this->_plugin = $plugin;
+		$this->_contextId = $contextId;
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
-                
+
 		$this->addCheck(new FormValidator($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlRequired'));
 		$this->addCheck(new FormValidator($this, 'ithenticateApiKey', 'required', 'plugins.generic.plagiarism.manager.settings.apiKeyRequired'));
+		$this->addCheck(new FormValidatorUrl($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlInvalid'));
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -52,7 +55,7 @@ class PlagiarismSettingsForm extends Form {
 	 */
 	public function initData() {
 		$this->_data = [
-            'ithenticateApiUrl' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiUrl'),
+			'ithenticateApiUrl' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiUrl'),
 			'ithenticateApiKey' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiKey'),
 			'ithenticateForced' => $this->_plugin->hasForcedCredentials(),
 		];
@@ -72,6 +75,26 @@ class PlagiarismSettingsForm extends Form {
 		$templateMgr = TemplateManager::getManager($request);
 		$templateMgr->assign('pluginName', $this->_plugin->getName());
 		return parent::fetch($request, $template, $display);
+	}
+
+	/**
+	 * @copydoc Form::validate()
+	 */
+	public function validate($callHooks = true) {
+		$this->addCheck(
+			new FormValidatorIthenticateAccess(
+				$this,
+				'',
+				'required',
+				'plugins.generic.plagiarism.manager.settings.serviceAccessInvalid',
+				$this->_plugin->initIthenticate(
+					$this->getData('ithenticateApiUrl'),
+					$this->getData('ithenticateApiKey')
+				)
+			)
+		);
+
+		return parent::validate($callHooks);
 	}
 
 	/**

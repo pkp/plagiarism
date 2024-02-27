@@ -17,16 +17,16 @@ import('lib.pkp.classes.handler.PKPHandler');
 
 class PlagiarismWebhookHandler extends PKPHandler {
 
-    /** 
-     * The Plagiarism Plugin itself
-     * 
-     * @var PlagiarismPlugin 
-     */
+	/** 
+	 * The Plagiarism Plugin itself
+	 * 
+	 * @var PlagiarismPlugin 
+	 */
 	protected static $_plugin;
 
 	/**
 	 * Get the plugin
-     * 
+	 * 
 	 * @return PlagiarismPlugin
 	 */
 	public static function getPlugin() {
@@ -35,7 +35,7 @@ class PlagiarismWebhookHandler extends PKPHandler {
 
 	/**
 	 * Set the Plugin
-     * 
+	 * 
 	 * @param PlagiarismPlugin $plugin
 	 */
 	public static function setPlugin($plugin) {
@@ -51,7 +51,12 @@ class PlagiarismWebhookHandler extends PKPHandler {
 		return true;
 	}
 
+	/**
+	 * Handle the incoming webhook request
+	 *
+	 * @return void
+	 */
     public function handle() {
-        error_log('handle webhook request');
+        error_log('PKP Plagiarism plugin handle webhook request');
     }
 }

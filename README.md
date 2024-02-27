@@ -51,4 +51,3 @@ The config.inc.php settings format is:
 ; The API key to authorize the api calls
 ; api_key = "YOUR_API_KEY"
 ```
-
