@@ -237,39 +237,6 @@ class IThenticate
     }
 
     /**
-     * Upload all submission files to the service's end
-     *
-     * @param string        $submissionTacId The submission UUID return back from service
-     * @param Submission    $submission
-     *
-     * @return bool         If all submission files uploaded successfully, only then it will 
-     *                      return TRUE and return FALSE on a single failure
-     */
-    public function uploadSubmissionFile($submissionTacId, $submission)
-    {
-        $submissionFiles = Services::get('submissionFile')->getMany([
-            'submissionIds' => [$submission->getId()],
-		]);
-        
-        $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
-
-        foreach($submissionFiles as $submissionFile) {
-            $file = Services::get('file')->get($submissionFile->getData('fileId'));
-            $uploadStatus = $this->uploadFile(
-                $submissionTacId, 
-                $submissionFile->getData("name", $publication->getData("locale")),
-                Services::get('file')->fs->read($file->path),
-            );
-
-            if (!$uploadStatus) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Upload single submission file to the service's end
      * @see https://developers.turnitin.com/docs/tca#upload-submission-file-contents
      *

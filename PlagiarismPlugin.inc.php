@@ -141,7 +141,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		$schema->properties->ithenticate_id = (object) [
 			'type' => 'string',
-			'description' => 'The iThenticate service submission uuid that return back after a submission has been successful submitted',
+			'description' => 'The json encoded data map of submission file id to ithenticate submission id for each file submission file',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
@@ -377,49 +377,82 @@ class PlagiarismPlugin extends GenericPlugin {
 			}
 		}
 
-		// Create the submission at iThenticate's end
-		$submissionUuid = $ithenticate->submitSubmission(
-			$submission,
-			$user,
-			$author,
-			$request->getSite()
-		);
+		/** @var DAOResultIterator $submissionFiles */
+		$submissionFiles = Services::get('submissionFile')->getMany([
+            'submissionIds' => [$submission->getId()],
+		]);
 
-		if (!$submissionUuid) {
-			$this->sendErrorMessage($submission->getId(), 'Could not submit the submission at iThenticate.');
-			return false;
-		}
+		$submissionUuids = [];
 
-		$submission->setData('ithenticate_id', $submissionUuid);
-		
-		// Upload submission files for successfully created submission at iThenticate's end
-		if (!$ithenticate->uploadSubmissionFile($submissionUuid, $submission)) {
-			$this->sendErrorMessage($submission->getId(), 'Could not complete the file upload at iThenticate.');
-			return false;
-		}
+		foreach($submissionFiles as $submissionFile) { /** @var SubmissionFile $submissionFile */
+			// Create a new submission at iThenticate's end
+			$submissionUuid = $ithenticate->submitSubmission(
+				$submission,
+				$user,
+				$author,
+				$request->getSite()
+			);
 
-		// If no webhook previously registered for this Context, register it
-		if (!$context->getData('ithenticate_webhook_id')) {
-			$signingSecret = \Illuminate\Support\Str::random(12);
-			
-			$webhookUrl = $request->getDispatcher()->url(
-                $request,
-                ROUTE_COMPONENT,
-                $context->getData('urlPath'),
-                'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-                'handle'
+			if (!$submissionUuid) {
+				$this->sendErrorMessage($submission->getId(), 'Could not submit the submission at iThenticate.');
+				return false;
+			}
+
+			$submissionUuids[$submissionFile->getId()] = $submissionUuid;
+
+			$file = Services::get('file')->get($submissionFile->getData('fileId'));
+            $uploadStatus = $ithenticate->uploadFile(
+                $submissionUuid, 
+                $submissionFile->getData("name", $publication->getData("locale")),
+                Services::get('file')->fs->read($file->path),
             );
 
-			if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
-				$context->setData('ithenticate_webhook_signing_secret', $signingSecret);
-				$context->setData('ithenticate_webhook_id', $webhookId);
-				Application::get()->getContextDAO()->updateObject($context);
-			} else {
-				error_log("unable to complete the iThenticate webhook registration during the submission process of ID : {$submission->getId()}");
+			// Upload submission files for successfully created submission at iThenticate's end
+			if (!$uploadStatus) {
+				$this->sendErrorMessage($submission->getId(), 'Could not complete the file upload at iThenticate for file ' . $submissionFile->getData("name", $publication->getData("locale")));
+				return false;
 			}
 		}
 
+		$submission->setData('ithenticate_id', json_encode($submissionUuids));
+
+		// If no webhook previously registered for this Context, register it
+		if (!$context->getData('ithenticate_webhook_id')) {
+			$this->registerIthenticateWebhook($ithenticate, $context);
+		}
+
 		return true;
+	}
+
+	/**
+	 * Register the webhook for this context
+	 * 
+	 * @param \IThenticate|\TestIThenticate $ithenticate
+	 * @param Context|null 					$context
+	 * 
+	 * @return void
+	 */
+	public function registerIthenticateWebhook($ithenticate, $context = null) {
+
+		$request = Application::get()->getRequest();
+		$context ??= $request->getContext();
+
+		$signingSecret = \Illuminate\Support\Str::random(12);
+		$webhookUrl = $request->getDispatcher()->url(
+			$request,
+			ROUTE_COMPONENT,
+			$context->getData('urlPath'),
+			'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
+			'handle'
+		);
+
+		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
+			$context->setData('ithenticate_webhook_signing_secret', $signingSecret);
+			$context->setData('ithenticate_webhook_id', $webhookId);
+			Application::get()->getContextDAO()->updateObject($context);
+		} else {
+			error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");
+		}
 	}
 
 	/**
@@ -466,7 +499,7 @@ class PlagiarismPlugin extends GenericPlugin {
                 $templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
 
                 $this->import('PlagiarismSettingsForm');
-                $form = new PlagiarismSettingsForm($this, $context->getId());
+                $form = new PlagiarismSettingsForm($this, $context);
 
                 if ($request->getUserVar('save')) {
                     $form->readInputData();

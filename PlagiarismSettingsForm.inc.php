@@ -17,11 +17,11 @@ import('plugins.generic.plagiarism.classes.form.validation.FormValidatorIthentic
 class PlagiarismSettingsForm extends Form {
 
 	/**
-	 * The context id
+	 * The context
 	 * 
-	 * @var int
+	 * @var Context
 	 */
-	var $_contextId;
+	var $_context;
 
 	/**
 	 * The PlagiarismPlugin instance
@@ -34,11 +34,11 @@ class PlagiarismSettingsForm extends Form {
 	 * Constructor
 	 * 
 	 * @param PlagiarismPlugin 	$plugin
-	 * @param int 				$contextId
+	 * @param Context 			$context
 	 */
-	public function __construct($plugin, $contextId) {
+	public function __construct($plugin, $context) {
 		$this->_plugin = $plugin;
-		$this->_contextId = $contextId;
+		$this->_context = $context;
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
 
@@ -55,8 +55,8 @@ class PlagiarismSettingsForm extends Form {
 	 */
 	public function initData() {
 		$this->_data = [
-			'ithenticateApiUrl' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiUrl'),
-			'ithenticateApiKey' => $this->_plugin->getSetting($this->_contextId, 'ithenticateApiKey'),
+			'ithenticateApiUrl' => $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl'),
+			'ithenticateApiKey' => $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey'),
 			'ithenticateForced' => $this->_plugin->hasForcedCredentials(),
 		];
 	}
@@ -101,8 +101,23 @@ class PlagiarismSettingsForm extends Form {
 	 * @copydoc Form::execute()
 	 */
 	public function execute(...$functionArgs) {
-        $this->_plugin->updateSetting($this->_contextId, 'ithenticateApiUrl', trim($this->getData('ithenticateApiUrl'), "\"\';"), 'string');
-		$this->_plugin->updateSetting($this->_contextId, 'ithenticateApiKey', trim($this->getData('ithenticateApiKey'), "\"\';"), 'string');
+        $ithenticateApiUrl = trim($this->getData('ithenticateApiUrl'), "\"\';");
+		$ithenticateApiKey = trim($this->getData('ithenticateApiKey'), "\"\';");
+
+		if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
+			$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey)
+		{
+			// access updated or new access entered, need to update webhook registration	
+			$this->_plugin->registerIthenticateWebhook(
+				$this->_plugin->initIthenticate(
+					$this->getData('ithenticateApiUrl'),
+					$this->getData('ithenticateApiKey')
+				)
+			);
+		}
+
+		$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiUrl', $ithenticateApiUrl, 'string');
+		$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiKey', $ithenticateApiKey, 'string');
 		parent::execute(...$functionArgs);
 	}
 }
