@@ -291,7 +291,7 @@ class IThenticate
                 ]),
                 'body' => $fileContent,
                 'verify' => false,
-                'exceptions' => true,
+                'exceptions' => false,
             ]
         );
 
