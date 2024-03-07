@@ -13,8 +13,8 @@
 <version>
 	<application>plagiarism</application>
 	<type>plugins.generic</type>
-	<release>1.0.6.0</release>
-	<date>2023-08-02</date>
+	<release>1.0.6.1</release>
+	<date>2024-03-07</date>
 	<lazy-load>1</lazy-load>
 	<class>PlagiarismPlugin</class>
 </version>
