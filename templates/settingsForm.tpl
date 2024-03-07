@@ -9,15 +9,19 @@
 	{csrf}
 	{include file="controllers/notification/inPlaceNotification.tpl" notificationId="plagiarismSettingsFormNotification"}
 
-	<div id="description">{translate key="plugins.generic.plagiarism.manager.settings.description"}</div>
+	<div id="description">
+		{translate key="plugins.generic.plagiarism.manager.settings.description"}
+	</div>
+
 	{if $ithenticateForced}
-	<div id="ithenticate_notice"><b>{translate key="plugins.generic.plagiarism.manager.settings.areForced"}</b></div>
+		<div id="ithenticate_notice">
+			<b>{translate key="plugins.generic.plagiarism.manager.settings.areForced"}</b>
+		</div>
 	{/if}
 
 	{fbvFormArea id="webFeedSettingsFormArea"}
-            {fbvElement type="text" id="ithenticateUser" value=$ithenticateUser label="plugins.generic.plagiarism.manager.settings.username"}
-            {fbvElement type="text" id="ithenticatePass" value=$ithenticatePass label="plugins.generic.plagiarism.manager.settings.password" password=true}
-                
+		{fbvElement type="text" id="ithenticateApiUrl" value=$ithenticateApiUrl label="plugins.generic.plagiarism.manager.settings.apiUrl"}
+		{fbvElement type="text" id="ithenticateApiKey" value=$ithenticateApiKey label="plugins.generic.plagiarism.manager.settings.apiKey"}
 	{/fbvFormArea}
 
 	{fbvFormButtons}
