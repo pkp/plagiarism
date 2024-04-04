@@ -487,19 +487,19 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-     * @copydoc Plugin::getActions()
-     */
+	 * @copydoc Plugin::getActions()
+	 */
     public function getActions($request, $verb) {
-        $router = $request->getRouter();
+		$router = $request->getRouter();
 		import('lib.pkp.classes.linkAction.request.AjaxModal');
         
 		return array_merge(
 			$this->getEnabled() 
 				? [
 					new LinkAction(
-                    	'settings',
-                    	new AjaxModal(
-                            $router->url(
+						'settings',
+						new AjaxModal(
+							$router->url(
 								$request, 
 								null, 
 								null, 
@@ -507,45 +507,45 @@ class PlagiarismPlugin extends GenericPlugin {
 								null, 
 								['verb' => 'settings', 'plugin' => $this->getName(), 'category' => 'generic']
 							),
-                        	$this->getDisplayName()
-                    	),
-                    	__('manager.plugins.settings'),
-                    	null
-            		),
+							$this->getDisplayName()
+						),
+						__('manager.plugins.settings'),
+						null
+					),
 				] : [],
 			parent::getActions($request, $verb)
-        );
-    }
+		);
+	}
 
-    /**
-     * @copydoc Plugin::manage()
-     */
-    public function manage($args, $request) {
-        switch ($request->getUserVar('verb')) {
-            case 'settings':
-                $context = $request->getContext(); /** @var Context $context */
+	/**
+	 * @copydoc Plugin::manage()
+	 */
+	public function manage($args, $request) {
+		switch ($request->getUserVar('verb')) {
+			case 'settings':
+				$context = $request->getContext(); /** @var Context $context */
 
-                AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
-                $templateMgr = TemplateManager::getManager($request); /** @var TemplateManager $templateMgr */
-                $templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+				AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
+				$templateMgr = TemplateManager::getManager($request); /** @var TemplateManager $templateMgr */
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
 
-                $this->import('PlagiarismSettingsForm');
-                $form = new PlagiarismSettingsForm($this, $context);
+				$this->import('PlagiarismSettingsForm');
+				$form = new PlagiarismSettingsForm($this, $context);
 
-                if ($request->getUserVar('save')) {
-                    $form->readInputData();
-                    if ($form->validate()) {
-                        $form->execute();
-                        return new JSONMessage(true);
-                    }
-                } else {
-                    $form->initData();
-                }
-                return new JSONMessage(true, $form->fetch($request));
-        }
+				if ($request->getUserVar('save')) {
+					$form->readInputData();
+					if ($form->validate()) {
+						$form->execute();
+						return new JSONMessage(true);
+					}
+				} else {
+					$form->initData();
+				}
+				return new JSONMessage(true, $form->fetch($request));
+		}
 
-        return parent::manage($args, $request);
-    }
+		return parent::manage($args, $request);
+	}
 
 	/**
 	 * Get the cached EULA details form Context

@@ -326,7 +326,7 @@ class IThenticate
                 'exceptions' => false,
             ]
         );
-        // ray(json_decode($response->getBody()->getContents()));
+
         return $response->getStatusCode() === 202;
     }
 

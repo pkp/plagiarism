@@ -95,7 +95,7 @@ class PlagiarismSettingsForm extends Form {
 	 * @copydoc Form::execute()
 	 */
 	public function execute(...$functionArgs) {
-        $ithenticateApiUrl = trim($this->getData('ithenticateApiUrl'), "\"\';");
+		$ithenticateApiUrl = trim($this->getData('ithenticateApiUrl'), "\"\';");
 		$ithenticateApiKey = trim($this->getData('ithenticateApiKey'), "\"\';");
 
 		if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
