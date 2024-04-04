@@ -15,7 +15,7 @@
 class TestIThenticate {
 
     /**
-     * The EULA(end user license agreement) that user need to confrim before making request
+     * The EULA(end user license agreement) that user need to confirm before making request
      * 
      * @var string|null
      */
@@ -100,7 +100,7 @@ class TestIThenticate {
     }
 
     /**
-     * Validate the service access by retrieving the the enabled feature
+     * Validate the service access by retrieving the enabled feature
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
      * 
@@ -129,15 +129,15 @@ class TestIThenticate {
      * Create a new submission at service's end
      * @see https://developers.turnitin.com/docs/tca#create-a-submission
      * 
-     * @param Submission    $submission
-     * @param User          $user
-     * @param Author|null   $author
-     * @param Site|null     $site
+     * @param Submission    $submission The article submission to check for plagiarism
+     * @param User          $user       The user who is making submitting the submission
+     * @param Author        $author     The author/owher of the submission
+     * @param Site          $site       The core site of submission system
      *
-     * @return string|null  if succeed, it will return the created submission UUID at service's end and 
-     *                      at failure, will return null
+     * @return string|null              if succeed, it will return the created submission UUID from 
+     *                                  service's end and at failure, will return null
      */
-    public function submitSubmission($submission, $user, $author = null, $site = null) {
+    public function createSubmission($submission, $user, $author, $site) {
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()}");
         return \Illuminate\Support\Str::uuid()->__toString();
     }
@@ -154,6 +154,18 @@ class TestIThenticate {
      */
     public function uploadFile($submissionTacId, $fileName, $fileContent) {
         error_log("Uploading submission file named {$fileName} for submission UUID {$submissionTacId}");
+        return true;
+    }
+
+    /**
+     * Schedule the similarity report generation process
+     * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
+     *
+     * @param string $submissionUuid The submission UUID return back from service
+     * @return bool
+     */
+    public function scheduleSimilarityReportGenerationProcess($submissionUuid) {
+        error_log("Scheduled similarity report generation process for submission UUID {$submissionUuid}");
         return true;
     }
 
@@ -268,9 +280,9 @@ class TestIThenticate {
             return static::DEFAULT_EULA_LANGUAGE;
         }
 
-        $euleLangs = $this->getEulaDetails()['available_languages'];
+        $eulaLangs = $this->getEulaDetails()['available_languages'];
         $locale = str_replace("_", "-", substr($locale, 0, 5));
 
-        return in_array($locale, $euleLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
+        return in_array($locale, $eulaLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
     }
 }

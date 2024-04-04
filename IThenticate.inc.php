@@ -13,7 +13,7 @@
 class IThenticate
 {
     /** 
-     * The base api url in the format of schems://host
+     * The base api url in the format of schema://host
      * 
      * @var string
      */
@@ -44,7 +44,7 @@ class IThenticate
     protected $integrationVersion;
     
     /**
-     * The EULA(end user license agreement) that user need to confrim before making request
+     * The EULA(end user license agreement) that user need to confirmm before making request
      * 
      * @var string|null
      */
@@ -94,6 +94,18 @@ class IThenticate
     ];
 
     /**
+     * The entity(e.g. submission owner, submitter etc) to id prefix mapping
+     * This helps to identify the type of entity associated with requesting system
+     * For example, `author/1` rather than only `1` identify as author entity of requesting system
+     * 
+     * @var array
+     */
+    public const ENTITY_ID_PREFIXES = [
+        'owner' => 'author_',
+        'submitter' => 'user_',
+    ];
+
+    /**
      * Create a new instance
      * 
      * @param string        $apiUrl
@@ -103,7 +115,7 @@ class IThenticate
      * @param string|null   eulaVersion
      */
     public function __construct($apiUrl, $apiKey, $integrationName, $integrationVersion, $eulaVersion = null) {
-        $this->apiUrl               = rtrim(trim($apiUrl), '/\\');
+        $this->apiUrl               = rtrim(trim($apiUrl ?? ''), '/\\');
         $this->apiKey               = $apiKey;
         $this->integrationName      = $integrationName;
         $this->integrationVersion   = $integrationVersion;
@@ -111,7 +123,7 @@ class IThenticate
     }
 
     /**
-     * Validate the service access by retrieving the the enabled feature
+     * Validate the service access by retrieving the enabled feature
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
      * 
@@ -122,7 +134,7 @@ class IThenticate
         try {
             $response = Application::get()->getHttpClient()->request(
                 'GET',
-                $this->getApiPath("features-enabled"),
+                $this->getApiPath('features-enabled'),
                 [
                     'headers' => $this->getRequiredHeaders(),
                     'verify' => false,
@@ -158,7 +170,7 @@ class IThenticate
                     'Content-Type' => 'application/json'
                 ]),
                 'json' => [
-                    'user_id' => $user->getId(),
+                    'user_id' => $this->getGeneratedId('submitter', $user->getId()),
                     'accepted_timestamp' => \Carbon\Carbon::now()->toIso8601String(),
                     'language' => $this->getEulaConfirmationLocale($context->getPrimaryLocale()),
                 ],
@@ -174,24 +186,18 @@ class IThenticate
      * Create a new submission at service's end
      * @see https://developers.turnitin.com/docs/tca#create-a-submission
      * 
-     * @param Submission    $submission
-     * @param User          $user
-     * @param Author|null   $author
-     * @param Site|null     $site
+     * @param Submission    $submission The article submission to check for plagiarism
+     * @param User          $user       The user who is making submitting the submission
+     * @param Author        $author     The author/owher of the submission
+     * @param Site          $site       The core site of submission system
      *
-     * @return string|null  if succeed, it will return the created submission UUID at service's end and 
-     *                      at failure, will return null
+     * @return string|null              if succeed, it will return the created submission UUID from 
+     *                                  service's end and at failure, will return null
      */
-    public function submitSubmission($submission, $user, $author = null, $site = null) {
+    public function createSubmission($submission, $user, $author, $site) {
 
         $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
         $author ??= $publication->getPrimaryAuthor();
-
-        if (!$site) {
-            import('lib.pkp.classes.db.DAORegistry');
-            $siteDao = DAORegistry::getDAO("SiteDAO"); /** @var SiteDAO $siteDao */
-            $site = $siteDao->getSite(); /** @var Site $site */
-        }
 
         $response = Application::get()->getHttpClient()->request(
             'POST',
@@ -201,20 +207,20 @@ class IThenticate
                     'Content-Type' => 'application/json'
                 ]),
                 'json' => [
-                    'owner' => $author->getId(),
+                    'owner' => $this->getGeneratedId('owner', $author->getId()),
                     'title' => $publication->getLocalizedTitle($publication->getData('locale')),
-                    'submitter' => $user->getId(),
+                    'submitter' => $this->getGeneratedId('submitter', $user->getId()),
                     'metadata' => [
                         'owners' => [
                             [
-                                'id' => $author->getId(),
+                                'id' => $this->getGeneratedId('owner', $author->getId()),
                                 'given_name' => $author->getGivenName($publication->getData('locale')),
                                 'family_name' => $author->getFamilyName($publication->getData('locale')),
                                 'email' => $author->getEmail(),
                             ]
                         ],
                         'submitter' => [
-                            'id' => $user->getId(),
+                            'id' => $this->getGeneratedId('submitter', $user->getId()),
                             'given_name' => $user->getGivenName($site->getPrimaryLocale()),
                             'family_name' => $user->getFamilyName($site->getPrimaryLocale()),
                             'email' => $user->getEmail(),
@@ -266,6 +272,65 @@ class IThenticate
     }
 
     /**
+     * Schedule the similarity report generation process
+     * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
+     *
+     * @param string $submissionUuid The submission UUID return back from service
+     * @return bool
+     */
+    public function scheduleSimilarityReportGenerationProcess($submissionUuid) {
+
+        $response = Application::get()->getHttpClient()->request(
+            'PUT',
+            $this->getApiPath("submissions/{$submissionUuid}/similarity"),
+            [
+                'headers' => array_merge($this->getRequiredHeaders(), [
+                    'Content-Type' => 'application/json'
+                ]),
+                'json' => [
+                    // section `indexing_settings` settings
+                    'indexing_settings' => [
+                        'add_to_index' => true,
+                    ],
+
+                    // section `generation_settings` settings
+                    'generation_settings' => [
+                        'search_repositories' => [
+                            'INTERNET',
+                            'SUBMITTED_WORK',
+                            'PUBLICATION',
+                            'CROSSREF',
+                            'CROSSREF_POSTED_CONTENT'
+                        ],
+                        'auto_exclude_self_matching_scope' => 'ALL',
+                        'priority' => 'HIGH',
+                    ],
+
+                    // section `view_settings` settings
+                    'view_settings' => [
+                        'exclude_quotes' => true,
+                        'exclude_bibliography' => true,
+                        'exclude_citations' => false,
+                        'exclude_abstract' => false,
+                        'exclude_methods' => false,
+                        'exclude_custom_sections' => false,
+                        'exclude_preprints' => false,
+                        'exclude_small_matches' => 8,
+                        'exclude_internet' => false,
+                        'exclude_publications' => false,
+                        'exclude_crossref' => false,
+                        'exclude_crossref_posted_content' => false,
+                        'exclude_submitted_works' => false,
+                    ],
+                ],
+                'exceptions' => false,
+            ]
+        );
+        // ray(json_decode($response->getBody()->getContents()));
+        return $response->getStatusCode() === 202;
+    }
+
+    /**
      * Verify if user has already confirmed the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-acceptance-info
      *
@@ -274,11 +339,11 @@ class IThenticate
      *
      * @return bool
      */
-    public function verifyUserEulaAcceptance($user, $version)
-    {
+    public function verifyUserEulaAcceptance($user, $version) {
+
         $response = Application::get()->getHttpClient()->request(
             'GET',
-            $this->getApiPath("eula/{$version}/accept/{$user->getId()}"),
+            $this->getApiPath("eula/{$version}/accept/" . $this->getGeneratedId('submitter' ,$user->getId())),
             [
                 'headers' => $this->getRequiredHeaders(),
                 'exceptions' => false,
@@ -336,7 +401,7 @@ class IThenticate
             $this->getApiPath('webhooks'),
             [
                 'headers' => array_merge($this->getRequiredHeaders(), [
-                    'Content-Type' => ' application/json',
+                    'Content-Type' => 'application/json',
                 ]),
                 'json' => [
                     'signing_secret' => base64_encode($signingSecret),
@@ -424,10 +489,10 @@ class IThenticate
             return static::DEFAULT_EULA_LANGUAGE;
         }
 
-        $euleLangs = $this->getEulaDetails()['available_languages'];
+        $eulaLangs = $this->getEulaDetails()['available_languages'];
         $locale = str_replace("_", "-", substr($locale, 0, 5));
 
-        return in_array($locale, $euleLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
+        return in_array($locale, $eulaLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
     }
 
     /**
@@ -447,9 +512,39 @@ class IThenticate
     /**
      * Generate and return the final API end point to make request
      * 
-     * @return string
+     * @return \GuzzleHttp\Psr7\Uri
      */
     protected function getApiPath($apiPathSegment) {
-        return str_replace('API_URL', $this->apiUrl, $this->apiBasePath) . $apiPathSegment;
+        $apiRequestUrl = str_replace('API_URL', $this->apiUrl, $this->apiBasePath) . $apiPathSegment;
+        return new \GuzzleHttp\Psr7\Uri($apiRequestUrl);
+    }
+
+    /**
+     * Generate and return unique entity id by concatenating the prefix to given id
+     * 
+     * @param  string   $entity     The entity name (e.g. owner/submitter etc).
+     * @param  mixed    $id         Entity id associated with requesting system.
+     * @param  bool     $silent     Silently return the passed `$id` is no matching entity mapping
+     *                              not found. Default to `true` and when set to `false`, will throw
+     *                              exception.
+     * 
+     * @return mixed
+     */
+    protected function getGeneratedId($entity, $id, $silent = true) {
+        if (!in_array($entity, array_keys(static::ENTITY_ID_PREFIXES))) {
+            if ($silent) {
+                return $id;
+            }
+
+            throw new Exception(
+                sprintf(
+                    'Invalid entity %s given, must be among [%s]',
+                    $entity,
+                    implode(', ', array_keys(static::ENTITY_ID_PREFIXES))
+                )
+            );
+        }
+
+        return static::ENTITY_ID_PREFIXES[$entity] . $id;
     }
 }

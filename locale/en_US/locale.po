@@ -45,7 +45,7 @@ msgstr "iThenticate API KEY is required"
 
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
 msgstr ""
-"The specified API URL/KEY is invalid and can not establish connection to IThenticate API service."
+"The specified API URL/KEY is invalid and can not establish connection to iThenticate API service."
 "Please double-check the API URL/KEY and try again."
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
@@ -55,4 +55,4 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr "Upload of submission {$submissionId} to iThenticate failed with error: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.submission.checklist.eula"
-msgstr "Plagiarism EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
+msgstr "iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"

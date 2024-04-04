@@ -21,14 +21,14 @@ class PlagiarismSettingsForm extends Form {
 	 * 
 	 * @var Context
 	 */
-	var $_context;
+	protected $_context;
 
 	/**
 	 * The PlagiarismPlugin instance
 	 * 
 	 * @var PlagiarismPlugin
 	 */
-	var $_plugin;
+	protected $_plugin;
 
 	/**
 	 * Constructor
@@ -40,11 +40,25 @@ class PlagiarismSettingsForm extends Form {
 		$this->_plugin = $plugin;
 		$this->_context = $context;
 
+		$request = Application::get()->getRequest();
+
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
 
 		$this->addCheck(new FormValidator($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlRequired'));
 		$this->addCheck(new FormValidator($this, 'ithenticateApiKey', 'required', 'plugins.generic.plagiarism.manager.settings.apiKeyRequired'));
 		$this->addCheck(new FormValidatorUrl($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlInvalid'));
+		$this->addCheck(
+			new FormValidatorIthenticateAccess(
+				$this,
+				'',
+				'required',
+				'plugins.generic.plagiarism.manager.settings.serviceAccessInvalid',
+				$this->_plugin->initIthenticate(
+					$request->getUserVar('ithenticateApiUrl'),
+					$request->getUserVar('ithenticateApiKey')
+				)
+			)
+		);
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -78,26 +92,6 @@ class PlagiarismSettingsForm extends Form {
 	}
 
 	/**
-	 * @copydoc Form::validate()
-	 */
-	public function validate($callHooks = true) {
-		$this->addCheck(
-			new FormValidatorIthenticateAccess(
-				$this,
-				'',
-				'required',
-				'plugins.generic.plagiarism.manager.settings.serviceAccessInvalid',
-				$this->_plugin->initIthenticate(
-					$this->getData('ithenticateApiUrl'),
-					$this->getData('ithenticateApiKey')
-				)
-			)
-		);
-
-		return parent::validate($callHooks);
-	}
-
-	/**
 	 * @copydoc Form::execute()
 	 */
 	public function execute(...$functionArgs) {
@@ -105,8 +99,8 @@ class PlagiarismSettingsForm extends Form {
 		$ithenticateApiKey = trim($this->getData('ithenticateApiKey'), "\"\';");
 
 		if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
-			$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey)
-		{
+			$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey) {
+			
 			// access updated or new access entered, need to update webhook registration	
 			$this->_plugin->registerIthenticateWebhook(
 				$this->_plugin->initIthenticate(
@@ -118,6 +112,7 @@ class PlagiarismSettingsForm extends Form {
 
 		$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiUrl', $ithenticateApiUrl, 'string');
 		$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiKey', $ithenticateApiKey, 'string');
+
 		parent::execute(...$functionArgs);
 	}
 }

@@ -26,8 +26,7 @@ class ValidatorIthenticateAccess extends Validator {
 	 */
     protected $ithenticate;
 
-    public function __construct($ithenticate)
-    {
+    public function __construct($ithenticate) {
         $this->ithenticate = $ithenticate;
     }
 
