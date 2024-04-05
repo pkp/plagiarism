@@ -59,17 +59,16 @@ class PlagiarismWebhookHandler extends PKPHandler {
 	 *
 	 * @return void
 	 */
-	public function handle($data) {
+	public function handle() {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
+		$headers = collect(array_change_key_case(getallheaders(), CASE_LOWER));
+		$payload = file_get_contents('php://input');
 
 		if (!$context->getData('ithenticate_webhook_id') || !$context->getData('ithenticate_webhook_signing_secret')) {
 			error_log("iThenticate webhook not configured for context id {$context->getId()}");
 			return;
 		}
-
-		$headers = collect(array_change_key_case(getallheaders(), CASE_LOWER));
-		$payload = file_get_contents('php://input');
 
 		if (!$headers->has(['x-turnitin-eventtype', 'x-turnitin-signature'])) {
 			error_log('Missing required iThenticate webhook headers');
@@ -99,8 +98,8 @@ class PlagiarismWebhookHandler extends PKPHandler {
 	 * Initiate the iThenticate similarity report generation process for given 
 	 * iThenticate submission id
 	 * 
-	 * @param Context $context 
-	 * @param string $payload
+	 * @param Context 	$context 	The current context for which the webhook request has initiated
+	 * @param string 	$payload	The incoming request payload through webhook
 	 *
 	 * @return void
 	 */
@@ -126,7 +125,7 @@ class PlagiarismWebhookHandler extends PKPHandler {
 		$submissionFile = $submissionFileDao->getById($ithenticateSubmission->submission_file_id);
 		
 		if ((int)$submissionFile->getData('ithenticate_similarity_scheduled')) {
-			error_log("Similarity report generation process as already been scheduled for iThenticate submission id {$payload->id}");
+			error_log("Similarity report generation process has already been scheduled for iThenticate submission id {$payload->id}");
 			return;
 		}
 
