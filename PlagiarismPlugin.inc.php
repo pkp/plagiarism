@@ -29,7 +29,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * Set the value to `true` to enable test mode that will log instead of interacting with 
 	 * iThenticate API service.
 	 */
-	protected const ITHENTICATE_TEST_MODE_ENABLE = false;
+	protected const ITHENTICATE_TEST_MODE_ENABLE = true;
 
 	/**
 	 * @copydoc Plugin::register()
@@ -107,6 +107,11 @@ class PlagiarismPlugin extends GenericPlugin {
 		$context = $templateManager->getTemplateVars('currentContext'); /** @var Context $context */
 		
 		if (!$context || strtolower($templateManager->getTemplateVars('requestedPage') ?? '') !== 'submission') {
+			return false;
+		}
+
+		if (!$this->isServiceAccessAvailable($context)) {
+			error_log("ithenticate service access not set for context id {$context->getId()}");
 			return false;
 		}
 
