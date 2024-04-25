@@ -29,7 +29,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * Set the value to `true` to enable test mode that will log instead of interacting with 
 	 * iThenticate API service.
 	 */
-	protected const ITHENTICATE_TEST_MODE_ENABLE = true;
+	protected const ITHENTICATE_TEST_MODE_ENABLE = false;
 
 	/**
 	 * @copydoc Plugin::register()
