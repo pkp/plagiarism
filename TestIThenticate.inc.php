@@ -59,6 +59,13 @@ class TestIThenticate {
     ];
 
     /**
+     * Should suppress the exception on api request and log request details and exception instead
+     * 
+     * @var bool
+     */
+    protected $suppressApiRequestException = true;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      * 
      * @var string
@@ -100,13 +107,101 @@ class TestIThenticate {
     }
 
     /**
+     * Will deactivate the exception suppression on api request and throw exception
+     * 
+     * @return self
+     */
+    public function withoutSuppressingApiRequestException() {
+        $this->suppressApiRequestException = false;
+        error_log('deactivating api request exception suppression');
+        return $this;
+    }
+
+    /**
+     * Get the json details of all enable features or get certiain feature details
+     * To get certain or nested feature details, pass the feature params in dot(.) notation
+     * For Example
+     *  - to get specific feature as `similarity`, call as getEnabledFeature('similarity')
+     *  - to get nested feature as `viewer_modes` in `similarity`, call as getEnabledFeature('similarity.viewer_modes')
+     * 
+     * @param  mixed $feature The specific or nested feature details to get
+     * @return mixed
+     * 
+     * @throws \Exception
+     */
+    public function getEnabledFeature($feature = null) {
+        
+        $result = '{
+            "similarity": {
+                "viewer_modes": {
+                    "match_overview": true,
+                    "all_sources": true
+                },
+                "generation_settings": {
+                    "search_repositories": [
+                        "INTERNET",
+                        "PUBLICATION",
+                        "CROSSREF",
+                        "CROSSREF_POSTED_CONTENT",
+                        "SUBMITTED_WORK"
+                    ],
+                    "submission_auto_excludes": true
+                },
+                "view_settings": {
+                    "exclude_bibliography": true,
+                    "exclude_quotes": true,
+                    "exclude_abstract": true,
+                    "exclude_methods": true,
+                    "exclude_small_matches": true,
+                    "exclude_internet": true,
+                    "exclude_publications": true,
+                    "exclude_crossref": true,
+                    "exclude_crossref_posted_content": true,
+                    "exclude_submitted_works": true,
+                    "exclude_citations": true,
+                    "exclude_preprints": true
+                }
+            },
+            "tenant": {
+                "require_eula": false
+            },
+            "product_name": "Turnitin Originality",
+            "access_options": [
+                "NATIVE",
+                "CORE_API",
+                "DRAFT_COACH"
+            ]
+        }';
+
+        $result = json_decode($result, true);
+
+        if (!$feature) {
+            error_log("iThenticate enabled feature details {$result}");
+            return $result;
+        }
+
+        $featureStatus = data_get(
+            $result,
+            $feature,
+            fn () => $this->suppressApiRequestException
+                ? null
+                : throw new \Exception("Feature details {$feature} does not exist")
+        );
+
+        error_log("iThenticate specific enable feature details {$featureStatus}");
+        return $featureStatus;
+    }
+
+    /**
      * Validate the service access by retrieving the enabled feature
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
      * 
+     * @param  mixed $result    This may contains the returned enabled feature details from 
+     *                          request validation api end point if validated successfully.
      * @return bool
      */
-    public function validateAccess() {
+    public function validateAccess(&$result = null) {
         error_log("Confirming the service access validation for given access details");
         return true;
     }

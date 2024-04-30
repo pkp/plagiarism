@@ -66,6 +66,13 @@ class IThenticate
     protected $apiBasePath = "API_URL/api/v1/";
 
     /**
+     * Should suppress the exception on api request and log request details and exception instead
+     * 
+     * @var bool
+     */
+    protected $suppressApiRequestException = true;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      * 
      * @var string
@@ -123,32 +130,78 @@ class IThenticate
     }
 
     /**
+     * Will deactivate the exception suppression on api request and throw exception
+     * 
+     * @return self
+     */
+    public function withoutSuppressingApiRequestException() {
+        $this->suppressApiRequestException = false;
+
+        return $this;
+    }
+
+    /**
+     * Get the json details of all enable features or get certiain feature details
+     * To get certain or nested feature details, pass the feature params in dot(.) notation
+     * For Example
+     *  - to get specific feature as `similarity`, call as getEnabledFeature('similarity')
+     *  - to get nested feature as `viewer_modes` in `similarity`, call as getEnabledFeature('similarity.viewer_modes')
+     * @see https://developers.turnitin.com/docs/tca#get-features-enabled
+     * 
+     * @param  mixed $feature The specific or nested feature details to get
+     * @return mixed
+     * 
+     * @throws \Exception
+     */
+    public function getEnabledFeature($feature = null) {
+        
+        $result = '{}';
+
+        if (!$this->validateAccess($result)) {
+            return $this->suppressApiRequestException
+                ? json_decode($result, true)
+                : throw new \Exception('unbale to validate access details');
+        }
+
+        $result = json_decode($result, true);
+
+        if (!$feature) {
+            return $result;
+        }
+
+        return data_get(
+            $result,
+            $feature,
+            fn () => $this->suppressApiRequestException
+                ? null
+                : throw new \Exception("Feature details {$feature} does not exist")
+        );
+    }
+
+    /**
      * Validate the service access by retrieving the enabled feature
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
      * 
+     * @param  mixed $result    This may contains the returned enabled feature details from 
+     *                          request validation api end point if validated successfully.
      * @return bool
      */
-    public function validateAccess() {
+    public function validateAccess(&$result = null) {
+        
+        $response = $this->makeApiRequest('GET', $this->getApiPath('features-enabled'), [
+            'headers' => $this->getRequiredHeaders(),
+            'verify' => false,
+            'exceptions' => false,
+            'http_errors' => false,
+        ]);
 
-        try {
-            $response = Application::get()->getHttpClient()->request(
-                'GET',
-                $this->getApiPath('features-enabled'),
-                [
-                    'headers' => $this->getRequiredHeaders(),
-                    'verify' => false,
-                    'exceptions' => false,
-                    'http_errors' => false,
-                ]
-            );
-        } catch (\GuzzleHttp\Exception\ConnectException $exception) {
-            return false;
-        } catch (\Throwable $exception) {
-            throw $exception;
+        if ($response && $response->getStatusCode() === 200) {
+            $result = $response->getBody();
+            return true;
         }
 
-        return $response->getStatusCode() === 200;
+        return false;
     }
 
     /**
@@ -162,7 +215,7 @@ class IThenticate
      */
     public function confirmEula($user, $context) {
         
-        $response = Application::get()->getHttpClient()->request(
+        $response = $this->makeApiRequest(
             'POST',
             $this->getApiPath("eula/{$this->getApplicableEulaVersion()}/accept"),
             [
@@ -179,7 +232,7 @@ class IThenticate
             ]
         );
 
-        return $response->getStatusCode() === 200;
+        return $response ? $response->getStatusCode() === 200 : false;
     }
     
     /**
@@ -199,7 +252,7 @@ class IThenticate
         $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
         $author ??= $publication->getPrimaryAuthor();
 
-        $response = Application::get()->getHttpClient()->request(
+        $response = $this->makeApiRequest(
             'POST',
             $this->getApiPath("submissions"),
             [
@@ -234,7 +287,7 @@ class IThenticate
             ]
         );
 
-        if ($response->getStatusCode() === 201) {
+        if ($response && $response->getStatusCode() === 201) {
             $result = json_decode($response->getBody()->getContents());
             return $result->id;
         }
@@ -254,7 +307,7 @@ class IThenticate
      */
     public function uploadFile($submissionTacId, $fileName, $fileContent) {
         
-        $response = Application::get()->getHttpClient()->request(
+        $response = $this->makeApiRequest(
             'PUT',
             $this->getApiPath("submissions/{$submissionTacId}/original"),
             [
@@ -268,7 +321,7 @@ class IThenticate
             ]
         );
 
-        return $response->getStatusCode() === 202;
+        return $response ? $response->getStatusCode() === 202 : false;
     }
 
     /**
@@ -280,7 +333,7 @@ class IThenticate
      */
     public function scheduleSimilarityReportGenerationProcess($submissionUuid) {
 
-        $response = Application::get()->getHttpClient()->request(
+        $response = $this->makeApiRequest(
             'PUT',
             $this->getApiPath("submissions/{$submissionUuid}/similarity"),
             [
@@ -327,7 +380,7 @@ class IThenticate
             ]
         );
 
-        return $response->getStatusCode() === 202;
+        return $response ? $response->getStatusCode() === 202 : false;
     }
 
     /**
@@ -341,7 +394,7 @@ class IThenticate
      */
     public function verifyUserEulaAcceptance($user, $version) {
 
-        $response = Application::get()->getHttpClient()->request(
+        $response = $this->makeApiRequest(
             'GET',
             $this->getApiPath("eula/{$version}/accept/" . $this->getGeneratedId('submitter' ,$user->getId())),
             [
@@ -350,7 +403,7 @@ class IThenticate
             ]
         );
         
-        return $response->getStatusCode() === 200;
+        return $response ? $response->getStatusCode() === 200 : false;
     }
 
     /**
@@ -362,14 +415,10 @@ class IThenticate
      */
     public function validateEulaVersion($version) {
 
-        $response = Application::get()->getHttpClient()->request(
-            'GET',
-            $this->getApiPath("eula/{$version}"),
-            [
-                'headers' => $this->getRequiredHeaders(),
-                'exceptions' => false,
-            ]
-        );
+        $response = $this->makeApiRequest('GET', $this->getApiPath("eula/{$version}"), [
+            'headers' => $this->getRequiredHeaders(),
+            'exceptions' => false,
+        ]);
         
         if ($response->getStatusCode() === 200) {
             $this->eulaVersionDetails = json_decode($response->getBody()->getContents(), true);
@@ -396,25 +445,21 @@ class IThenticate
      */
     public function registerWebhook($signingSecret, $url, $events = self::DEFAULT_WEBHOOK_EVENTS) {
 
-        $response = Application::get()->getHttpClient()->request(
-            'POST',
-            $this->getApiPath('webhooks'),
-            [
-                'headers' => array_merge($this->getRequiredHeaders(), [
-                    'Content-Type' => 'application/json',
-                ]),
-                'json' => [
-                    'signing_secret' => base64_encode($signingSecret),
-                    'url' => $url,
-                    'event_types' => $events,
-                    'allow_insecure' => true,
-                ],
-                'verify' => false,
-                'exceptions' => false,
-            ]
-        );
+        $response = $this->makeApiRequest('POST', $this->getApiPath('webhooks'), [
+            'headers' => array_merge($this->getRequiredHeaders(), [
+                'Content-Type' => 'application/json',
+            ]),
+            'json' => [
+                'signing_secret' => base64_encode($signingSecret),
+                'url' => $url,
+                'event_types' => $events,
+                'allow_insecure' => true,
+            ],
+            'verify' => false,
+            'exceptions' => false,
+        ]);
 
-        if ($response->getStatusCode() === 201) {
+        if ($response && $response->getStatusCode() === 201) {
             $result = json_decode($response->getBody()->getContents());
             return $result->id;
         }
@@ -475,6 +520,41 @@ class IThenticate
         $eulaUrl = $this->eulaVersionDetails['url'];
 
         return str_replace(static::DEFAULT_EULA_LANGUAGE, $applicableEulaLanguage, $eulaUrl);
+    }
+
+    /**
+     * Make the api request
+     * 
+     * @param string                                $method  HTTP method.
+     * @param string|\Psr\Http\Message\UriInterface $uri     URI object or string.
+     * @param array                                 $options Request options to apply. See \GuzzleHttp\RequestOptions.
+     * 
+     * @return \Psr\Http\Message\ResponseInterface|null
+     * 
+     * @throws \Throwable
+     */
+    public function makeApiRequest($method, $url, $options = []) {
+        
+        $response = null;
+
+        try {
+            $response = Application::get()->getHttpClient()->request($method, $url, $options);
+        } catch (\Throwable $exception) {
+            error_log(
+                sprintf(
+                    'iThenticate API request to %s for %s method failed with options %s',
+                    $url,
+                    $method,
+                    print_r($options, true)
+                )
+            );
+
+            $this->suppressApiRequestException
+                ? error_log($exception->__toString())
+                : throw $exception;
+        }
+
+        return $response;
     }
 
     /**
