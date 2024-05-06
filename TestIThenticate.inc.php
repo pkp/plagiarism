@@ -94,6 +94,22 @@ class TestIThenticate {
     ];
 
     /**
+     * The list of valid permission for owner and submitter when creating a new submission
+     * @see https://developers.turnitin.com/docs/tca#create-a-submission
+     * 
+     * @var array
+     */
+    public const SUBMISSION_PERMISSION_SET = [
+        'ADMINISTRATOR',
+        'APPLICANT',
+        'EDITOR',
+        'INSTRUCTOR',
+        'LEARNER',
+        'UNDEFINED',
+        'USER',
+    ];
+
+    /**
      * Create a new instance
      * 
      * @param string        $apiUrl
@@ -163,7 +179,7 @@ class TestIThenticate {
                 }
             },
             "tenant": {
-                "require_eula": false
+                "require_eula": true
             },
             "product_name": "Turnitin Originality",
             "access_options": [
@@ -224,16 +240,30 @@ class TestIThenticate {
      * Create a new submission at service's end
      * @see https://developers.turnitin.com/docs/tca#create-a-submission
      * 
-     * @param Submission    $submission The article submission to check for plagiarism
-     * @param User          $user       The user who is making submitting the submission
-     * @param Author        $author     The author/owher of the submission
-     * @param Site          $site       The core site of submission system
+     * @param Site          $site                   The core site of submission system
+     * @param Submission    $submission             The article submission to check for plagiarism
+     * @param User          $user                   The user who is making submitting the submission
+     * @param Author        $author                 The author/owner of the submission
+     * @param string        $authorPermission       Submission author/owner permission set
+     * @param string        $submitterPermission    Submission submitter permission set
      *
      * @return string|null              if succeed, it will return the created submission UUID from 
      *                                  service's end and at failure, will return null
+     * 
+     * @throws \Exception
      */
-    public function createSubmission($submission, $user, $author, $site) {
-        error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()}");
+    public function createSubmission($site, $submission, $user, $author, $authorPermission, $submitterPermission) {
+
+        if (!$this->validatePermission($authorPermission, static::SUBMISSION_PERMISSION_SET)) {
+            throw new \Exception("in valid owner permission {$authorPermission} given");
+        }
+
+        if (!$this->validatePermission($submitterPermission, static::SUBMISSION_PERMISSION_SET)) {
+            throw new \Exception("in valid submitter permission {$submitterPermission} given");
+        }
+
+        error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()} with owner permission as {$authorPermission} and submitter permission as {$submitterPermission}");
+
         return \Illuminate\Support\Str::uuid()->__toString();
     }
 
@@ -379,5 +409,17 @@ class TestIThenticate {
         $locale = str_replace("_", "-", substr($locale, 0, 5));
 
         return in_array($locale, $eulaLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * Validate the existence of a permission against a given permission set
+     * 
+     * @param  string   $permission     The specific permission to check for existence
+     * @param  array    $permissionSet  The permission list to check against
+     * 
+     * @return bool True/False if the permission exists in the given permission set
+     */
+    protected function validatePermission($permission, $permissionSet) {
+        return in_array($permission, $permissionSet);
     }
 }

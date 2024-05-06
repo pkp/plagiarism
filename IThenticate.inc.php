@@ -101,6 +101,22 @@ class IThenticate
     ];
 
     /**
+     * The list of valid permission for owner and submitter when creating a new submission
+     * @see https://developers.turnitin.com/docs/tca#create-a-submission
+     * 
+     * @var array
+     */
+    public const SUBMISSION_PERMISSION_SET = [
+        'ADMINISTRATOR',
+        'APPLICANT',
+        'EDITOR',
+        'INSTRUCTOR',
+        'LEARNER',
+        'UNDEFINED',
+        'USER',
+    ];
+
+    /**
      * The entity(e.g. submission owner, submitter etc) to id prefix mapping
      * This helps to identify the type of entity associated with requesting system
      * For example, `author/1` rather than only `1` identify as author entity of requesting system
@@ -239,15 +255,27 @@ class IThenticate
      * Create a new submission at service's end
      * @see https://developers.turnitin.com/docs/tca#create-a-submission
      * 
-     * @param Submission    $submission The article submission to check for plagiarism
-     * @param User          $user       The user who is making submitting the submission
-     * @param Author        $author     The author/owher of the submission
-     * @param Site          $site       The core site of submission system
+     * @param Site          $site                   The core site of submission system
+     * @param Submission    $submission             The article submission to check for plagiarism
+     * @param User          $user                   The user who is making submitting the submission
+     * @param Author        $author                 The author/owner of the submission
+     * @param string        $authorPermission       Submission author/owner permission set
+     * @param string        $submitterPermission    Submission submitter permission set
      *
      * @return string|null              if succeed, it will return the created submission UUID from 
      *                                  service's end and at failure, will return null
+     * 
+     * @throws \Exception
      */
-    public function createSubmission($submission, $user, $author, $site) {
+    public function createSubmission($site, $submission, $user, $author, $authorPermission, $submitterPermission) {
+
+        if (!$this->validatePermission($authorPermission, static::SUBMISSION_PERMISSION_SET)) {
+            throw new \Exception("in valid owner permission {$authorPermission} given");
+        }
+
+        if (!$this->validatePermission($submitterPermission, static::SUBMISSION_PERMISSION_SET)) {
+            throw new \Exception("in valid submitter permission {$submitterPermission} given");
+        }
 
         $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
         $author ??= $publication->getPrimaryAuthor();
@@ -263,6 +291,8 @@ class IThenticate
                     'owner' => $this->getGeneratedId('owner', $author->getId()),
                     'title' => $publication->getLocalizedTitle($publication->getData('locale')),
                     'submitter' => $this->getGeneratedId('submitter', $user->getId()),
+                    'owner_default_permission_set' => $authorPermission,
+                    'submitter_default_permission_set' => $submitterPermission,
                     'metadata' => [
                         'owners' => [
                             [
@@ -626,5 +656,17 @@ class IThenticate
         }
 
         return static::ENTITY_ID_PREFIXES[$entity] . $id;
+    }
+
+    /**
+     * Validate the existence of a permission against a given permission set
+     * 
+     * @param  string   $permission     The specific permission to check for existence
+     * @param  array    $permissionSet  The permission list to check against
+     * 
+     * @return bool True/False if the permission exists in the given permission set
+     */
+    protected function validatePermission($permission, $permissionSet) {
+        return in_array($permission, $permissionSet);
     }
 }

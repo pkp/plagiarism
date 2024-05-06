@@ -21,6 +21,11 @@ class PlagiarismPlugin extends GenericPlugin {
 	public const PLUGIN_INTEGRATION_NAME = 'Plagiarism plugin for OJS/OMP/OPS';
 
 	/**
+	 * The default permission of submission primary author's to pass to the iThenticate service
+	 */
+	public const SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION = 'USER';
+
+	/**
 	 * Number of seconds EULA details for a context should be cached before refreshing it
 	 */
 	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
@@ -454,36 +459,43 @@ class PlagiarismPlugin extends GenericPlugin {
             'submissionIds' => [$submission->getId()],
 		]);
 
-		foreach($submissionFiles as $submissionFile) { /** @var SubmissionFile $submissionFile */
-			// Create a new submission at iThenticate's end
-			$submissionUuid = $ithenticate->createSubmission(
-				$submission,
-				$user,
-				$author,
-				$request->getSite()
-			);
-
-			if (!$submissionUuid) {
-				$this->sendErrorMessage($submission->getId(), "Could not create the submission at iThenticate for file id {$submissionFile->getId()}");
-				return false;
+		try {
+			foreach($submissionFiles as $submissionFile) { /** @var SubmissionFile $submissionFile */
+				// Create a new submission at iThenticate's end
+				$submissionUuid = $ithenticate->createSubmission(
+					$request->getSite(),
+					$submission,
+					$user,
+					$author,
+					static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
+					$this->getSubmitterPermission($context, $user)
+				);
+	
+				if (!$submissionUuid) {
+					$this->sendErrorMessage($submission->getId(), "Could not create the submission at iThenticate for file id {$submissionFile->getId()}");
+					return false;
+				}
+	
+				$file = Services::get('file')->get($submissionFile->getData('fileId'));
+				$uploadStatus = $ithenticate->uploadFile(
+					$submissionUuid, 
+					$submissionFile->getData("name", $publication->getData("locale")),
+					Services::get('file')->fs->read($file->path),
+				);
+	
+				// Upload submission files for successfully created submission at iThenticate's end
+				if (!$uploadStatus) {
+					$this->sendErrorMessage($submission->getId(), 'Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")));
+					return false;
+				}
+	
+				$submissionFile->setData('ithenticate_id', $submissionUuid);
+				$submissionFile->setData('ithenticate_similarity_scheduled', 0);
+				$submissionFileDao->updateObject($submissionFile);
 			}
-
-			$file = Services::get('file')->get($submissionFile->getData('fileId'));
-			$uploadStatus = $ithenticate->uploadFile(
-				$submissionUuid, 
-				$submissionFile->getData("name", $publication->getData("locale")),
-				Services::get('file')->fs->read($file->path),
-			);
-
-			// Upload submission files for successfully created submission at iThenticate's end
-			if (!$uploadStatus) {
-				$this->sendErrorMessage($submission->getId(), 'Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")));
-				return false;
-			}
-
-			$submissionFile->setData('ithenticate_id', $submissionUuid);
-			$submissionFile->setData('ithenticate_similarity_scheduled', 0);
-			$submissionFileDao->updateObject($submissionFile);
+		} catch (\Throwable $exception) {
+			$this->sendErrorMessage($submission->getId(), $exception->getMessage());
+			return false;
 		}
 
 		return true;
@@ -742,5 +754,30 @@ class PlagiarismPlugin extends GenericPlugin {
 		$user->setData('ithenticateEulaConfirmedAt', Core::getCurrentDate());
 
 		$userDao->updateObject($user);
+	}
+
+	/**
+	 * Get the submission submitter's appropriate permission based on role in the submission context
+	 * 
+	 * @param Context 	$context
+	 * @param User 		$user
+	 * 
+	 * @return string
+	 */
+	protected function getSubmitterPermission($context, $user) {
+		
+		if ($user->hasRole([ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER], $context->getId())) {
+			return 'ADMINISTRATOR';
+		}
+
+		if ($user->hasRole([ROLE_ID_SUB_EDITOR], $context->getId())) {
+			return 'EDITOR';
+		}
+
+		if ($user->hasRole([ROLE_ID_AUTHOR], $context->getId())) {
+			return 'USER';
+		}
+
+		return 'UNDEFINED';
 	}
 }
