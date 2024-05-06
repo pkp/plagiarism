@@ -205,6 +205,13 @@ class PlagiarismPlugin extends GenericPlugin {
 			'validation' => ['nullable'],
 		];
 
+		$schema->properties->ithenticate_similarity_result = (object) [
+			'type' => 'string',
+			'description' => 'The similarity check result for this submission file in json format',
+			'apiSummary' => true,
+			'validation' => ['nullable'],
+		];
+
 		return false;
 	}
 
@@ -293,14 +300,26 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Send the editor an error message
 	 * 
-	 * @param int $submissionid
-	 * @param string $message
+	 * @param string 	$message			The error/exception message to set as notification and log in error file
+	 * @param int|null 	$submissionid		The submission id for which error/exception has generated
 	 * 
 	 * @return void
 	 */
-	public function sendErrorMessage($submissionId, $message) {
+	public function sendErrorMessage($message, $submissionId = null) {
+
 		$request = Application::get()->getRequest(); /** @var Request $request */
 		$context = $request->getContext(); /** @var Context $context */
+		$message = $submissionId
+			? __(
+				'plugins.generic.plagiarism.errorMessage', [
+					'submissionId' => $submissionId,
+					'errorMessage' => $message
+				]
+			) : __(
+				'plugins.generic.plagiarism.general.errorMessage', [
+					'errorMessage' => $message
+				]
+			);
 		
 		import('classes.notification.NotificationManager');
 		$notificationManager = new NotificationManager();
@@ -312,12 +331,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			$notificationManager->createTrivialNotification(
 				$manager->getId(), 
 				NOTIFICATION_TYPE_ERROR, 
-				['contents' => __(
-					'plugins.generic.plagiarism.errorMessage', [
-						'submissionId' => $submissionId,
-						'errorMessage' => $message
-					]
-				)]
+				['contents' => $message]
 			);
 		}
 
@@ -357,7 +371,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$context = Application::get()->getRequest()->getContext();
 
 		if (!static::isRunningInTestMode() && !$this->isServiceAccessAvailable($context)) {
-			$this->sendErrorMessage($submission->getId(), "ithenticate service access not set for context id {$context->getId()}");
+			$this->sendErrorMessage("ithenticate service access not set for context id {$context->getId()}", $submission->getId());
 			return false;
 		}
 
@@ -414,7 +428,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$user = $request->getUser();
 
 		if (!static::isRunningInTestMode() && !$this->isServiceAccessAvailable($context)) {
-			$this->sendErrorMessage($submission->getId(), "ithenticate service access not set for context id {$context->getId()}");
+			$this->sendErrorMessage("ithenticate service access not set for context id {$context->getId()}", $submission->getId());
 			return false;
 		}
 
@@ -431,7 +445,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 			// if EULA details not stamped to submission, not going to sent it for plagiarism check
 			if (!$submission->getData('ithenticate_eula_version') || !$submission->getData('ithenticate_eula_url')) {
-				$this->sendErrorMessage($submission->getId(), 'Unable to obtain the stamped EULA details to submission');
+				$this->sendErrorMessage('Unable to obtain the stamped EULA details to submission', $submission->getId());
 				return false;
 			}
 
@@ -448,7 +462,7 @@ class PlagiarismPlugin extends GenericPlugin {
 					$ithenticate->confirmEula($user, $context)) {
 					$this->stampEulaVersionToSubmittingUser($user, $submissionEulaVersion);
 				} else {
-					$this->sendErrorMessage($submission->getId(), 'Unable to stamp the EULA details to submission submitter');
+					$this->sendErrorMessage('Unable to stamp the EULA details to submission submitter', $submission->getId());
 					return false;
 				}
 			}
@@ -472,7 +486,7 @@ class PlagiarismPlugin extends GenericPlugin {
 				);
 	
 				if (!$submissionUuid) {
-					$this->sendErrorMessage($submission->getId(), "Could not create the submission at iThenticate for file id {$submissionFile->getId()}");
+					$this->sendErrorMessage("Could not create the submission at iThenticate for file id {$submissionFile->getId()}", $submission->getId());
 					return false;
 				}
 	
@@ -485,7 +499,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	
 				// Upload submission files for successfully created submission at iThenticate's end
 				if (!$uploadStatus) {
-					$this->sendErrorMessage($submission->getId(), 'Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")));
+					$this->sendErrorMessage('Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")), $submission->getId());
 					return false;
 				}
 	
@@ -494,7 +508,7 @@ class PlagiarismPlugin extends GenericPlugin {
 				$submissionFileDao->updateObject($submissionFile);
 			}
 		} catch (\Throwable $exception) {
-			$this->sendErrorMessage($submission->getId(), $exception->getMessage());
+			$this->sendErrorMessage($exception->getMessage(), $submission->getId());
 			return false;
 		}
 

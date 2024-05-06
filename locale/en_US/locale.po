@@ -54,5 +54,32 @@ msgstr "iThenticate settings were found in config.inc.php and the settings here 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr "Upload of submission {$submissionId} to iThenticate failed with error: {$errorMessage}"
 
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "The uploaded filetype is not supported."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "An unspecified error occurred while processing the submissions."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr "The submisison does not contain text to generate a Similarity Report or the word count of the submissions is 0 ."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 800 pages)."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "The uploaded file requires a password in order to be opened."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "The uploaded file appears to be corrupt."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Request processing error : {$errorMessage}"
+
 msgid "plugins.generic.plagiarism.submission.checklist.eula"
 msgstr "iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
