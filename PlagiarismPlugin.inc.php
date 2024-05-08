@@ -263,41 +263,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Fetch credentials from config.inc.php, if available
-	 * 
-	 * @return array api url and api key, or null(s)
-	 */
-	public function getForcedCredentials() {
-		$request = Application::get()->getRequest(); /** @var Request $request */
-		$context = $request->getContext(); /** @var Context $context */
-		$contextPath = $context ? $context->getPath() : 'index';
-
-		$apiUrl = Config::getVar(
-			'ithenticate',
-			'api_url[' . $contextPath . ']',
-			Config::getVar('ithenticate', 'api_url')
-		);
-
-		$apiKey = Config::getVar(
-			'ithenticate',
-			'api_key[' . $contextPath . ']',
-			Config::getVar('ithenticate', 'api_key')
-		);
-
-		return [$apiUrl, $apiKey];
-	}
-
-	/**
-	 * Check and determine if plagiarism checking service creds has been set forced in config.inc.php
-	 * 
-	 * @return bool
-	 */
-	public function hasForcedCredentials() {
-		list($apiUrl, $apiKey) = $this->getForcedCredentials();
-		return !empty($apiUrl) && !empty($apiKey);
-	}
-
-	/**
 	 * Send the editor an error message
 	 * 
 	 * @param string 	$message			The error/exception message to set as notification and log in error file
@@ -565,7 +530,11 @@ class PlagiarismPlugin extends GenericPlugin {
 								null, 
 								'manage', 
 								null, 
-								['verb' => 'settings', 'plugin' => $this->getName(), 'category' => 'generic']
+								[
+									'verb' => 'settings',
+									'plugin' => $this->getName(),
+									'category' => 'generic'
+								]
 							),
 							$this->getDisplayName()
 						),
@@ -741,6 +710,67 @@ class PlagiarismPlugin extends GenericPlugin {
 			];
 		
 		return [$apiUrl, $apiKey];
+	}
+
+	/**
+	 * Fetch credentials from config.inc.php, if available
+	 * 
+	 * @return array api url and api key, or null(s)
+	 */
+	public function getForcedCredentials() {
+		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
+		$contextPath = $context ? $context->getPath() : 'index';
+
+		$apiUrl = $this->getForcedConfigSetting($contextPath, 'api_url');
+		$apiKey = $this->getForcedConfigSetting($contextPath, 'api_key');
+
+		return [$apiUrl, $apiKey];
+	}
+
+	/**
+	 * Check and determine if plagiarism checking service creds has been set forced in config.inc.php
+	 * 
+	 * @return bool
+	 */
+	public function hasForcedCredentials() {
+		list($apiUrl, $apiKey) = $this->getForcedCredentials();
+		return !empty($apiUrl) && !empty($apiKey);
+	}
+
+	/**
+	 * Get the configuration settings for ithenticate similarity report generation process
+	 * 
+	 * @param Context $context
+	 * @return array
+	 */
+	public function getSimilarityConfigSettings($context) {
+		$contextPath = $context->getPath();
+
+		return [
+			'addToIndex' 			=> $this->getForcedConfigSetting($contextPath, 'addToIndex') 			?? $this->getSetting($context->getId(), 'addToIndex'),
+			'excludeQuotes' 		=> $this->getForcedConfigSetting($contextPath, 'excludeQuotes') 		?? $this->getSetting($context->getId(), 'excludeQuotes'),
+			'excludeBibliography' 	=> $this->getForcedConfigSetting($contextPath, 'excludeBibliography') 	?? $this->getSetting($context->getId(), 'excludeBibliography'),
+			'excludeCitations' 		=> $this->getForcedConfigSetting($contextPath, 'excludeCitations') 		?? $this->getSetting($context->getId(), 'excludeCitations'),
+			'excludeAbstract' 		=> $this->getForcedConfigSetting($contextPath, 'excludeAbstract') 		?? $this->getSetting($context->getId(), 'excludeAbstract'),
+			'excludeMethods' 		=> $this->getForcedConfigSetting($contextPath, 'excludeMethods') 		?? $this->getSetting($context->getId(), 'excludeMethods'),
+			'excludeSmallMatches' 	=> $this->getForcedConfigSetting($contextPath, 'excludeSmallMatches') 	?? $this->getSetting($context->getId(), 'excludeSmallMatches'),
+		];
+	}
+
+	/**
+	 * Get the forced config at global or context level if defined
+	 * 
+	 * @param string $contextPath
+	 * @param string $configKeyName
+	 * 
+	 * @return mixed
+	 */
+	protected function getForcedConfigSetting($contextPath, $configKeyName) {
+		return Config::getVar(
+			'ithenticate',
+			"{$configKeyName}[{$contextPath}]",
+			Config::getVar('ithenticate', $configKeyName)
+		);
 	}
 
 	/**

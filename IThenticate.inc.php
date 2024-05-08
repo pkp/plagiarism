@@ -165,28 +165,26 @@ class IThenticate
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * 
      * @param  mixed $feature The specific or nested feature details to get
-     * @return mixed
+     * @return string|array|null
      * 
      * @throws \Exception
      */
     public function getEnabledFeature($feature = null) {
         
-        $result = '{}';
+        static $result;
 
-        if (!$this->validateAccess($result)) {
+        if (!isset($result) && !$this->validateAccess($result)) {
             return $this->suppressApiRequestException
-                ? json_decode($result, true)
+                ? []
                 : throw new \Exception('unbale to validate access details');
         }
 
-        $result = json_decode($result, true);
-
         if (!$feature) {
-            return $result;
+            return json_decode($result, true);
         }
 
         return data_get(
-            $result,
+            json_decode($result, true),
             $feature,
             fn () => $this->suppressApiRequestException
                 ? null
@@ -204,7 +202,7 @@ class IThenticate
      * @return bool
      */
     public function validateAccess(&$result = null) {
-        
+
         $response = $this->makeApiRequest('GET', $this->getApiPath('features-enabled'), [
             'headers' => $this->getRequiredHeaders(),
             'verify' => false,
@@ -213,7 +211,7 @@ class IThenticate
         ]);
 
         if ($response && $response->getStatusCode() === 200) {
-            $result = $response->getBody();
+            $result = $response->getBody()->getContents();
             return true;
         }
 
@@ -358,11 +356,13 @@ class IThenticate
      * Schedule the similarity report generation process
      * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
      *
-     * @param string $submissionUuid The submission UUID return back from service
+     * @param string    $submissionUuid The submission UUID return back from service
+     * @param array     $settings       The specific few settings
+     * 
      * @return bool
      */
-    public function scheduleSimilarityReportGenerationProcess($submissionUuid) {
-
+    public function scheduleSimilarityReportGenerationProcess($submissionUuid, $settings = []) {
+        
         $response = $this->makeApiRequest(
             'PUT',
             $this->getApiPath("submissions/{$submissionUuid}/similarity"),
@@ -373,37 +373,39 @@ class IThenticate
                 'json' => [
                     // section `indexing_settings` settings
                     'indexing_settings' => [
-                        'add_to_index' => true,
+                        'add_to_index' => $settings['addToIndex'] ?? true,
                     ],
 
                     // section `generation_settings` settings
                     'generation_settings' => [
-                        'search_repositories' => [
+                        'search_repositories' => $this->getEnabledFeature(
+                            'similarity.generation_settings.search_repositories'
+                        ) ?? [
                             'INTERNET',
                             'SUBMITTED_WORK',
                             'PUBLICATION',
                             'CROSSREF',
                             'CROSSREF_POSTED_CONTENT'
                         ],
-                        'auto_exclude_self_matching_scope' => 'ALL',
-                        'priority' => 'HIGH',
+                        'auto_exclude_self_matching_scope' => $settings['autoExcludeSelfMatchingScope'] ?? 'ALL',
+                        'priority' => $settings['priority'] ?? 'HIGH',
                     ],
 
                     // section `view_settings` settings
                     'view_settings' => [
-                        'exclude_quotes' => true,
-                        'exclude_bibliography' => true,
-                        'exclude_citations' => false,
-                        'exclude_abstract' => false,
-                        'exclude_methods' => false,
-                        'exclude_custom_sections' => false,
-                        'exclude_preprints' => false,
-                        'exclude_small_matches' => 8,
-                        'exclude_internet' => false,
-                        'exclude_publications' => false,
-                        'exclude_crossref' => false,
-                        'exclude_crossref_posted_content' => false,
-                        'exclude_submitted_works' => false,
+                        'exclude_quotes'                    => $settings['excludeQuotes']                   ?? false,
+                        'exclude_bibliography'              => $settings['excludeBibliography']             ?? false,
+                        'exclude_citations'                 => $settings['excludeCitations']                ?? false,
+                        'exclude_abstract'                  => $settings['excludeAbstract']                 ?? false,
+                        'exclude_methods'                   => $settings['excludeMethods']                  ?? false,
+                        'exclude_custom_sections'           => $settings['excludeCustomSections']           ?? false,
+                        'exclude_preprints'                 => $settings['excludePreprints']                ?? false,
+                        'exclude_small_matches'             => $settings['excludeSmallMatches']             ?? 8,
+                        'exclude_internet'                  => $settings['excludeInternet']                 ?? false,
+                        'exclude_publications'              => $settings['excludePublications']             ?? false,
+                        'exclude_crossref'                  => $settings['excludeCrossref']                 ?? false,
+                        'exclude_crossref_posted_content'   => $settings['excludeCrossrefPostedContent']    ?? false,
+                        'exclude_submitted_works'           => $settings['excludeSubmittedWorks']           ?? false,
                     ],
                 ],
                 'exceptions' => false,

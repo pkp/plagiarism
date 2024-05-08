@@ -83,3 +83,33 @@ msgstr "Request processing error : {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.submission.checklist.eula"
 msgstr "iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Submission similarity check settings"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr "Note that if any of the following setting set in the config file at global or journal level, that will take precedence over what set here."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr "The submission will be added to all valid node groups for future matching"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Text in quotes of the submission will not count as similar content"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr "Text in a bibliography sectionm of the submission will not count as similar content"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "Text in the abstract section of the submission will not count as similar content"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr "Text in the method section of the submission will not count as similar content"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "The citations of the submission will be excuded from similarity check"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Exclude small match count"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr "Similarity matches that match less than the specified amount of words will not count as similar content"

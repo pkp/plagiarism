@@ -44,21 +44,23 @@ class PlagiarismSettingsForm extends Form {
 
 		parent::__construct($plugin->getTemplateResource('settingsForm.tpl'));
 
-		$this->addCheck(new FormValidator($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlRequired'));
-		$this->addCheck(new FormValidator($this, 'ithenticateApiKey', 'required', 'plugins.generic.plagiarism.manager.settings.apiKeyRequired'));
-		$this->addCheck(new FormValidatorUrl($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlInvalid'));
-		$this->addCheck(
-			new FormValidatorIthenticateAccess(
-				$this,
-				'',
-				'required',
-				'plugins.generic.plagiarism.manager.settings.serviceAccessInvalid',
-				$this->_plugin->initIthenticate(
-					$request->getUserVar('ithenticateApiUrl'),
-					$request->getUserVar('ithenticateApiKey')
+		if (!empty(array_filter([$request->getUserVar('ithenticateApiUrl'), $request->getUserVar('ithenticateApiKey')]))) {
+			$this->addCheck(new FormValidator($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlRequired'));
+			$this->addCheck(new FormValidator($this, 'ithenticateApiKey', 'required', 'plugins.generic.plagiarism.manager.settings.apiKeyRequired'));
+			$this->addCheck(new FormValidatorUrl($this, 'ithenticateApiUrl', 'required', 'plugins.generic.plagiarism.manager.settings.apiUrlInvalid'));
+			$this->addCheck(
+				new FormValidatorIthenticateAccess(
+					$this,
+					'',
+					'required',
+					'plugins.generic.plagiarism.manager.settings.serviceAccessInvalid',
+					$this->_plugin->initIthenticate(
+						$request->getUserVar('ithenticateApiUrl'),
+						$request->getUserVar('ithenticateApiKey')
+					)
 				)
-			)
-		);
+			);
+		}
 
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
@@ -69,9 +71,16 @@ class PlagiarismSettingsForm extends Form {
 	 */
 	public function initData() {
 		$this->_data = [
-			'ithenticateApiUrl' => $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl'),
-			'ithenticateApiKey' => $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey'),
-			'ithenticateForced' => $this->_plugin->hasForcedCredentials(),
+			'ithenticateForced' 	=> $this->_plugin->hasForcedCredentials(),
+			'ithenticateApiUrl' 	=> $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl'),
+			'ithenticateApiKey' 	=> $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey'),
+			'addToIndex' 			=> $this->_plugin->getSetting($this->_context->getId(), 'addToIndex'),
+			'excludeQuotes' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeQuotes'),
+			'excludeBibliography' 	=> $this->_plugin->getSetting($this->_context->getId(), 'excludeBibliography'),
+			'excludeCitations' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeCitations'),
+			'excludeAbstract' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeAbstract'),
+			'excludeMethods' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeMethods'),
+			'excludeSmallMatches' 	=> $this->_plugin->getSetting($this->_context->getId(), 'excludeSmallMatches'),
 		];
 	}
 
@@ -79,7 +88,17 @@ class PlagiarismSettingsForm extends Form {
 	 * Assign form data to user-submitted data.
 	 */
 	public function readInputData() {
-		$this->readUserVars(['ithenticateApiUrl', 'ithenticateApiKey']);
+		$this->readUserVars([
+			'ithenticateApiUrl',
+			'ithenticateApiKey',
+			'addToIndex',
+			'excludeQuotes',
+			'excludeBibliography',
+			'excludeCitations',
+			'excludeAbstract',
+			'excludeMethods',
+			'excludeSmallMatches',
+		]);
 	}
 
 	/**
@@ -95,23 +114,36 @@ class PlagiarismSettingsForm extends Form {
 	 * @copydoc Form::execute()
 	 */
 	public function execute(...$functionArgs) {
+		
 		$ithenticateApiUrl = trim($this->getData('ithenticateApiUrl'), "\"\';");
 		$ithenticateApiKey = trim($this->getData('ithenticateApiKey'), "\"\';");
 
-		if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
-			$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey) {
-			
-			// access updated or new access entered, need to update webhook registration	
-			$this->_plugin->registerIthenticateWebhook(
-				$this->_plugin->initIthenticate(
-					$this->getData('ithenticateApiUrl'),
-					$this->getData('ithenticateApiKey')
-				)
-			);
+		if (!empty(array_filter([$ithenticateApiUrl, $ithenticateApiKey]))) {
+
+			if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
+				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey) {
+				
+				// access updated or new access entered, need to update webhook registration	
+				$this->_plugin->registerIthenticateWebhook(
+					$this->_plugin->initIthenticate(
+						$this->getData('ithenticateApiUrl'),
+						$this->getData('ithenticateApiKey')
+					)
+				);
+			}
+
+			$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiUrl', $ithenticateApiUrl, 'string');
+			$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiKey', $ithenticateApiKey, 'string');
 		}
 
-		$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiUrl', $ithenticateApiUrl, 'string');
-		$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiKey', $ithenticateApiKey, 'string');
+		$this->_plugin->updateSetting($this->_context->getId(), 'addToIndex', 			$this->getData('addToIndex'), 			'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'excludeQuotes', 		$this->getData('excludeQuotes'), 		'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'excludeBibliography', 	$this->getData('excludeBibliography'), 	'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'excludeCitations', 	$this->getData('excludeCitations'), 	'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'excludeAbstract', 		$this->getData('excludeAbstract'), 		'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'excludeMethods', 		$this->getData('excludeMethods'), 		'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'excludeSmallMatches', 	$this->getData('excludeSmallMatches'), 	'int');
+		
 
 		parent::execute(...$functionArgs);
 	}

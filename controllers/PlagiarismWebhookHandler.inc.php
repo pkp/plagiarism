@@ -135,11 +135,16 @@ class PlagiarismWebhookHandler extends PKPHandler {
 			static::$_plugin->sendErrorMessage("Similarity report generation process has already been scheduled for iThenticate submission id {$payload->id}", $submissionFile->getData('submissionId'));
 			return;
 		}
+		
+		list($apiUrl, $apiKey) = static::$_plugin->getServiceAccess($context);
+		$ithenticate = static::$_plugin->initIthenticate($apiUrl, $apiKey);
 
-		$ithenticate = static::$_plugin->initIthenticate(
-			...static::$_plugin->getServiceAccess($context)
+		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
+			$payload->id,
+			static::$_plugin->getSimilarityConfigSettings($context)
 		);
-		if (!$ithenticate->scheduleSimilarityReportGenerationProcess($payload->id)) {
+
+		if (!$scheduleSimilarityReport) {
 			static::$_plugin->sendErrorMessage("Failed to schedule the similarity report generation process for iThenticate submission id {$payload->id}", $submissionFile->getData('submissionId'));
 			return;
 		}
