@@ -84,6 +84,12 @@ msgstr "Request processing error : {$errorMessage}"
 msgid "plugins.generic.plagiarism.submission.checklist.eula"
 msgstr "iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
 
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr "You must read and accept the <a target=\"_blank\" href=\"{$localizedEulaUrl}\">iThenticate EULA</a> before proceeding to finalise the submission."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Accept EULA and Continue"
+
 msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Submission similarity check settings"
 
