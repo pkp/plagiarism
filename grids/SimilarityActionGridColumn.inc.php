@@ -1,28 +1,38 @@
 <?php
 
 /**
- * @file 
+ * @file plugins/generic/plagiarism/grids/SimilarityActionGridColumn.inc.php
  *
  * Copyright (c) 2014-2024 Simon Fraser University
  * Copyright (c) 2000-2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class SimilarityActionGridColumn
- * @ingroup 
+ * @ingroup plugins_generic_plagiarism
  *
- * @brief 
+ * @brief GridColumn handler to show similarity score and actions related to iThenticate
  */
 
 import('lib.pkp.classes.controllers.grid.GridColumn');
 import('lib.pkp.classes.controllers.grid.ColumnBasedGridCellProvider');
-import('lib.pkp.classes.linkAction.request.AjaxAction');
 import('lib.pkp.classes.linkAction.request.OpenWindowAction');
 import('lib.pkp.classes.linkAction.request.RemoteActionConfirmationModal');
 
 class SimilarityActionGridColumn extends GridColumn {
 	
-    protected $similarityScoreColumns = [];
+	/**
+	 * List of columns record to retrieve to show ithenticate's similarity scores
+	 *
+	 * @var array
+	 */
+	protected $similarityScoreColumns = [];
 
+	/**
+	 * Constructor
+	 *
+	 * @param array $scoreColumns   List of columns record to retrieve to show ithenticate's 
+	 *                              similarity scores 
+	 */
     public function __construct($scoreColumns) {
 
         $this->similarityScoreColumns = $scoreColumns;
