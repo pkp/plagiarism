@@ -87,8 +87,14 @@ msgstr "iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link<
 msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
 msgstr "You must read and accept the <a target=\"_blank\" href=\"{$localizedEulaUrl}\">iThenticate EULA</a> before proceeding to finalise the submission."
 
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "I have read the end user license agreement and accept it."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Must need to confirm and accept the EULA."
+
 msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
-msgstr "Accept EULA and Continue"
+msgstr "Confirm and Continue"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Submission similarity check settings"

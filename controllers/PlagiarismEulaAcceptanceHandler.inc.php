@@ -31,6 +31,14 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
 		$context = $request->getContext();
         $user = $request->getUser();
         $submissionEulaVersion = $args['version'];
+        $confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
+
+        if (!$confirmSubmissionEula) {
+            SessionManager::getManager()->getUserSession()->setSessionVar('confirmSubmissionEulaError', true);
+            return $this->redirectToUrl($request, $context, ['submissionId' => $args['submissionId']]);
+        }
+
+        SessionManager::getManager()->getUserSession()->unsetSessionVar('confirmSubmissionEulaError');
 
         /** @var \IThenticate $ithenticate */
         $ithenticate = static::$_plugin->initIthenticate(
@@ -45,7 +53,21 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
             static::$_plugin->stampEulaVersionToUser($user, $submissionEulaVersion);
 		}
 
-		$request->redirectUrl(
+		return $this->redirectToUrl($request, $context, ['submissionId' => $args['submissionId']]);
+	}
+
+    /**
+	 * Generate and get the redirection url
+	 *
+	 * @param Request $request
+     * @param Context $context
+     * @param array $args
+	 * 
+	 * @return string
+	 */
+    protected function redirectToUrl($request, $context, $args) {
+        
+        return $request->redirectUrl(
             $request->getDispatcher()->url(
                 $request,
                 ROUTE_PAGE,
@@ -53,8 +75,9 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
                 'submission',
                 'wizard',
                 4,
-                ['submissionId' => $args['submissionId']]
+                $args
             )
         );
-	}
+    }
+    
 }

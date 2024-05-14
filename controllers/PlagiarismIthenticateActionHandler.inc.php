@@ -43,7 +43,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$viewerUrl = $ithenticate->createViewerLaunchUrl(
 			$submissionFile->getData('ithenticate_id'),
 			$user,
-			'en-US'
+			'en-US' // Need to update it based on user/submission appropriate locale
 		);
 
 		return $request->redirectUrl($viewerUrl);
