@@ -119,3 +119,39 @@ msgstr "Exclude small match count"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
 msgstr "Similarity matches that match less than the specified amount of words will not count as similar content"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Plagiarism Score"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Launch Plagiarims Similarity Viewer"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Overall Match Percentage"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.internet_match_percentage"
+msgstr "Internet Match Percentage"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.publication_match_percentage"
+msgstr "publication Match Percentage"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.submitted_works_match_percentage"
+msgstr "submitted Works Match Percentage"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Schedule Plagiarism Report"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Are you sure you want to generate the plagiarims report?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Refresh Plagiarism Similarity Score"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Are you sure you want to refresh plagiarims similarity score?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Submit for Plagiarims Check"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr "Are you sure you want to submit this file for plagiarism check?"

@@ -416,6 +416,72 @@ class IThenticate
     }
 
     /**
+     * Get the similarity result info
+     * @see https://developers.turnitin.com/docs/tca#get-similarity-report-info
+     *
+     * @param string $submissionUuid The submission UUID return back from service
+     * @return string|null
+     */
+    public function getSimilarityResult($submissionUuid) {
+
+        $response = $this->makeApiRequest(
+            'GET',
+            $this->getApiPath("submissions/{$submissionUuid}/similarity"),
+            [
+                'headers' => $this->getRequiredHeaders(),
+                'exceptions' => false,
+            ]
+        );
+
+        return $response && $response->getStatusCode() === 200
+            ? $response->getBody()->getContents()
+            : null;
+    }
+
+    /**
+     * Create the viewer launch url
+     * @see https://developers.turnitin.com/docs/tca#create-viewer-launch-url
+     *
+     * @param string    $submissionUuid The submission UUID return back from service
+     * @param User      $user           The viewing user
+     * @param string    $locale         The preferred locale
+     * 
+     * @return string|null
+     */
+    public function createViewerLaunchUrl($submissionUuid, $user, $locale) {
+
+        $response = $this->makeApiRequest(
+            'POST',
+            $this->getApiPath("submissions/{$submissionUuid}/viewer-url"),
+            [
+                'headers' => array_merge($this->getRequiredHeaders(), [
+                    'Content-Type' => 'application/json'
+                ]),
+                'json' => [
+                    'viewer_user_id' => $this->getGeneratedId('submitter', $user->getId()),
+                    'locale' => $locale,
+                    'viewer_default_permission_set' => 'ADMINISTRATOR',
+                    'viewer_permissions' => [
+                        'may_view_submission_full_source' => true,
+                        'may_view_match_submission_info' => true,
+                        'may_view_flags_panel' => true,
+                        'may_view_document_details_panel' => true,
+                        'may_view_sections_exclusion_panel' => true,
+                    ],
+                ],
+                'exceptions' => false,
+            ]
+        );
+        
+        if ($response && $response->getStatusCode() === 200) {
+            $result = json_decode($response->getBody()->getContents());
+            return $result->viewer_url;
+        }
+
+        return null;
+    }
+
+    /**
      * Verify if user has already confirmed the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-acceptance-info
      *

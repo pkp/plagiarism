@@ -13,51 +13,20 @@
  * @brief Handle the reconfirmation and acceptance of iThenticate EULA
  */
 
-import('lib.pkp.classes.handler.PKPHandler');
+import("plugins.generic.plagiarism.controllers.PlagiarismComponentHandler");
 import("plugins.generic.plagiarism.IThenticate");
 
-class PlagiarismEulaAcceptanceHandler extends PKPHandler {
-
-	/** 
-	 * The Plagiarism Plugin itself
-	 * 
-	 * @var PlagiarismPlugin 
-	 */
-	protected static $_plugin;
+class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
 
 	/**
-	 * Get the plugin
-	 * 
-	 * @return PlagiarismPlugin
-	 */
-	public static function getPlugin() {
-		return static::$_plugin;
-	}
-
-	/**
-	 * Set the Plugin
-	 * 
-	 * @param PlagiarismPlugin $plugin
-	 */
-	public static function setPlugin($plugin) {
-		static::$_plugin = $plugin;
-	}
-
-	/**
-	 * Authorize this request.
+	 * Handle the presentation of iThenticate EULA right before the submission final stage
 	 *
-	 * @return bool
-	 */
-	public function authorize($request, &$args, $roleAssignments) {
-		return true;
-	}
-
-	/**
-	 * Handle the request
-	 *
+	 * @param array $args
+	 * @param Request $request
+	 * 
 	 * @return void
 	 */
-	public function handle($args) {
+	public function handle($args, $request) {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
         $user = $request->getUser();
@@ -88,5 +57,4 @@ class PlagiarismEulaAcceptanceHandler extends PKPHandler {
             )
         );
 	}
-
 }

@@ -37,6 +37,29 @@ class PlagiarismPlugin extends GenericPlugin {
 	protected const ITHENTICATE_TEST_MODE_ENABLE = true;
 
 	/**
+	 * List of valid url components
+	 * 
+	 * @var array
+	 */
+	protected $validRouteComponentHandlers = [
+		'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
+		'plugins.generic.plagiarism.controllers.PlagiarismEulaAcceptanceHandler',
+		'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+	];
+
+	/**
+	 * List of columns record to retrieve to show ithenticate's similarity scores
+	 * 
+	 * @var array
+	 */
+	protected $similarityScoreColumns = [
+		'overall_match_percentage',
+		'internet_match_percentage',
+		'publication_match_percentage',
+		'submitted_works_match_percentage',
+	];
+
+	/**
 	 * Running in test mode
 	 * 
 	 * @return bool
@@ -84,8 +107,9 @@ class PlagiarismPlugin extends GenericPlugin {
 		
 		HookRegistry::register('userdao::getAdditionalFieldNames', [$this, 'handleAdditionalEulaConfirmationFieldNames']);
 
-		HookRegistry::register('LoadComponentHandler', [$this, 'setupWebhookHandler']);
-		HookRegistry::register('LoadComponentHandler', [$this, 'handleEulaAcceptance']);
+		HookRegistry::register('LoadComponentHandler', [$this, 'handleRouteComponent']);
+
+		HookRegistry::register('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 
 		return $success;
 	}
@@ -235,6 +259,27 @@ class PlagiarismPlugin extends GenericPlugin {
 		$fields[] = 'ithenticateEulaConfirmedAt';
 
 		return false;
+	}
+
+	/**
+	 * Handle the plugin specific route component requests
+	 * 
+	 * @param string $hookName `LoadComponentHandler`
+	 * @param array $params
+	 * 
+	 * @return bool
+	 */
+	public function handleRouteComponent($hookName, $params) {
+		$component =& $params[0];
+
+		if (!in_array($component, $this->validRouteComponentHandlers)) {
+			return false;
+		}
+
+		import($component);
+		$componentName = last(explode('.', $component));
+		$componentName::setPlugin($this);
+		return true;
 	}
 
 	/**
@@ -422,26 +467,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Handle the EULA acceptance requried right before the final stage of submission
-	 * 
-	 * @param string $hookName `LoadComponentHandler`
-	 * @param array $params
-	 * 
-	 * @return bool
-	 */
-	public function handleEulaAcceptance($hookName, $params) {
-		$component =& $params[0];
-
-		if ($component == 'plugins.generic.plagiarism.controllers.PlagiarismEulaAcceptanceHandler') {
-			import($component);
-			PlagiarismEulaAcceptanceHandler::setPlugin($this);
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Complete the submission process at iThenticate service's end
 	 * The steps follows as:
 	 * 	- Check if proper service credentials(API Url and Key) are available
@@ -557,21 +582,31 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Setup the handler for webhook request
+	 * Add ithenticate related data and actions to submission file grid view
 	 * 
-	 * @param string $hookName `LoadComponentHandler`
+	 * @param string $hookName `editorsubmissiondetailsfilesgridhandler::initfeatures`
 	 * @param array $params
 	 * 
 	 * @return bool
 	 */
-	public function setupWebhookHandler($hookName, $params) {
-		$component =& $params[0];
+	public function addActionsToSubmissionFileGrid($hookName, $params) {
+		$request = Application::get()->getRequest();
+		$user = $request->getUser();
+		$context = $request->getContext();
 
-		if ($component == 'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler') {
-			import($component);
-			PlagiarismWebhookHandler::setPlugin($this);
-			return true;
+		if (!$user->hasRole([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_REVIEWER], $context->getId())) {
+			return false;
 		}
+
+		/** @var EditorSubmissionDetailsFilesGridHandler $editorSubmissionDetailsFilesGridHandler */
+		$editorSubmissionDetailsFilesGridHandler = & $params[0];
+
+		import('plugins.generic.plagiarism.grids.SimilarityActionGridColumn');
+		$editorSubmissionDetailsFilesGridHandler->addColumn(
+			new SimilarityActionGridColumn(
+				$this->similarityScoreColumns
+			)
+		);
 
 		return false;
 	}
@@ -894,10 +929,35 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Get the submission submitter's appropriate permission based on role in the submission context
+	 * 
+	 * @param Context 	$context
+	 * @param User 		$user
+	 * 
+	 * @return string
+	 */
+	public function getSubmitterPermission($context, $user) {
+		
+		if ($user->hasRole([ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER], $context->getId())) {
+			return 'ADMINISTRATOR';
+		}
+
+		if ($user->hasRole([ROLE_ID_SUB_EDITOR], $context->getId())) {
+			return 'EDITOR';
+		}
+
+		if ($user->hasRole([ROLE_ID_AUTHOR], $context->getId())) {
+			return 'USER';
+		}
+
+		return 'UNDEFINED';
+	}
+
+	/**
 	 * Send the editor an error message
 	 * 
-	 * @param string 	$message			The error/exception message to set as notification and log in error file
-	 * @param int|null 	$submissionid		The submission id for which error/exception has generated
+	 * @param string 	$message 		The error/exception message to set as notification and log in error file
+	 * @param int|null 	$submissionid 	The submission id for which error/exception has generated
 	 * 
 	 * @return void
 	 */
@@ -925,8 +985,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		$managers = $roleDao->getUsersByRoleId(ROLE_ID_MANAGER, $context->getId()); /** @var DAOResultFactory $managers */
 		while ($manager = $managers->next()) {
 			$notificationManager->createTrivialNotification(
-				$manager->getId(), 
-				NOTIFICATION_TYPE_ERROR, 
+				$manager->getId(),
+				NOTIFICATION_TYPE_ERROR,
 				['contents' => $message]
 			);
 		}
@@ -958,30 +1018,5 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	protected function isServiceAccessAvailable($context) {
 		return !collect($this->getServiceAccess($context))->filter()->isEmpty();
-	}
-
-	/**
-	 * Get the submission submitter's appropriate permission based on role in the submission context
-	 * 
-	 * @param Context 	$context
-	 * @param User 		$user
-	 * 
-	 * @return string
-	 */
-	protected function getSubmitterPermission($context, $user) {
-		
-		if ($user->hasRole([ROLE_ID_SITE_ADMIN, ROLE_ID_MANAGER], $context->getId())) {
-			return 'ADMINISTRATOR';
-		}
-
-		if ($user->hasRole([ROLE_ID_SUB_EDITOR], $context->getId())) {
-			return 'EDITOR';
-		}
-
-		if ($user->hasRole([ROLE_ID_AUTHOR], $context->getId())) {
-			return 'USER';
-		}
-
-		return 'UNDEFINED';
 	}
 }

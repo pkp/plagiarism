@@ -231,6 +231,33 @@ class TestIThenticate {
     }
 
     /**
+     * @copydoc \IThenticate::getSimilarityResult()
+     */
+    public function getSimilarityResult($submissionUuid) {
+        error_log("Similarity report result retrived for iThenticate submission id : {$submissionUuid}");
+        return '{
+            "submission_id": "'.$submissionUuid.'",
+            "overall_match_percentage": 15,
+            "internet_match_percentage": 12,
+            "publication_match_percentage": 10,
+            "submitted_works_match_percentage": 0,
+            "status": "COMPLETE",
+            "time_requested": "2017-11-06T19:14:31.828Z",
+            "time_generated": "2017-11-06T19:14:45.993Z",
+            "top_source_largest_matched_word_count": 193,
+            "top_matches": []
+        }';
+    }
+
+    /**
+     * @copydoc \IThenticate::createViewerLaunchUrl()
+     */
+    public function createViewerLaunchUrl($submissionUuid, $user, $locale) {
+        error_log("Similarity report viewer launch url generated for iThenticate submission id : {$submissionUuid}");
+        return Application::get()->getRequest()->getBaseUrl();
+    }
+
+    /**
      * @copydoc \IThenticate::verifyUserEulaAcceptance()
      */
     public function verifyUserEulaAcceptance($user, $version) {

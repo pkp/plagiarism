@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/controllers/grid/PlagiarismWebhookHandler.inc.php
+ * @file plugins/generic/plagiarism/controllers/PlagiarismWebhookHandler.inc.php
  *
  * Copyright (c) 2014-2024 Simon Fraser University
  * Copyright (c) 2000-2024 John Willinsky
@@ -15,35 +15,10 @@
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-import('lib.pkp.classes.handler.PKPHandler');
+import("plugins.generic.plagiarism.controllers.PlagiarismComponentHandler");
 import("plugins.generic.plagiarism.IThenticate");
 
-class PlagiarismWebhookHandler extends PKPHandler {
-
-	/** 
-	 * The Plagiarism Plugin itself
-	 * 
-	 * @var PlagiarismPlugin 
-	 */
-	protected static $_plugin;
-
-	/**
-	 * Get the plugin
-	 * 
-	 * @return PlagiarismPlugin
-	 */
-	public static function getPlugin() {
-		return static::$_plugin;
-	}
-
-	/**
-	 * Set the Plugin
-	 * 
-	 * @param PlagiarismPlugin $plugin
-	 */
-	public static function setPlugin($plugin) {
-		static::$_plugin = $plugin;
-	}
+class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 
 	/**
 	 * Authorize this request.
