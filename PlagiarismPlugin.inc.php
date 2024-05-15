@@ -604,6 +604,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		import('plugins.generic.plagiarism.grids.SimilarityActionGridColumn');
 		$editorSubmissionDetailsFilesGridHandler->addColumn(
 			new SimilarityActionGridColumn(
+				$this,
 				$this->similarityScoreColumns
 			)
 		);

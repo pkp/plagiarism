@@ -13,10 +13,12 @@
  * @brief GridColumn handler to show similarity score and actions related to iThenticate
  */
 
+import('lib.pkp.classes.db.DAORegistry');
 import('lib.pkp.classes.controllers.grid.GridColumn');
 import('lib.pkp.classes.controllers.grid.ColumnBasedGridCellProvider');
 import('lib.pkp.classes.linkAction.request.OpenWindowAction');
 import('lib.pkp.classes.linkAction.request.RemoteActionConfirmationModal');
+import('lib.pkp.classes.linkAction.request.AjaxModal');
 
 class SimilarityActionGridColumn extends GridColumn {
 	
@@ -27,14 +29,23 @@ class SimilarityActionGridColumn extends GridColumn {
 	 */
 	protected $similarityScoreColumns = [];
 
+    /** 
+	 * The Plagiarism Plugin itself
+	 * 
+	 * @var PlagiarismPlugin
+	 */
+	protected $_plugin;
+
 	/**
 	 * Constructor
 	 *
-	 * @param array $scoreColumns   List of columns record to retrieve to show ithenticate's 
-	 *                              similarity scores 
+     * @param PlagiarismPlugin  $plugin         The Plagiarism Plugin itself
+	 * @param array             $scoreColumns   List of columns record to retrieve to show ithenticate's 
+	 *                                          similarity scores 
 	 */
-    public function __construct($scoreColumns) {
+    public function __construct($plugin, $scoreColumns) {
 
+        $this->_plugin = $plugin;
         $this->similarityScoreColumns = $scoreColumns;
 
         $cellProvider = new ColumnBasedGridCellProvider();
@@ -108,10 +119,41 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		$submissionFileData = $row->getData();
         $submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
+        $submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 
         // There was an error and submission not completed, 
         // Ask for confirmation and try to complete the submission process
         if (!$submissionFile->getData('ithenticate_id')) {
+
+            // first check if curernt user has already EULA confirmed that is associated with submission
+            // If not confirmed, need to confirm EULA first before uploading submission to iThenticate
+
+            if ($this->isEulaConfirmationRequired($context, $submission, $user)) {
+
+                $cellActions[] = new LinkAction(
+                    "plagiarism-eula-confirmation-{$submissionFile->getId()}",
+                    new AjaxModal(
+                        $request->getDispatcher()->url(
+                            $request,
+                            ROUTE_COMPONENT,
+                            $context->getData('urlPath'),
+                            'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+                            'confirmEula',
+                            null,
+                            [
+                                'submissionFileId' => $submissionFile->getId(),
+                                'onAcceptAction' => 'submitSubmission',
+                            ]
+                        ),
+                        __('plugins.generic.plagiarism.similarity.action.confirmEula.title')
+                    ),
+                    __('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
+                );
+                
+                return $cellActions;
+            }
+
             $cellActions[] = new LinkAction(
                 "plagiarism-submission-submit-{$submissionFile->getId()}",
                 new RemoteActionConfirmationModal(
@@ -132,6 +174,8 @@ class SimilarityActionGridColumn extends GridColumn {
                 ),
                 __('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
             );
+
+            return $cellActions;
         }
         
         // Submission similarity report generation has not scheduled
@@ -156,6 +200,8 @@ class SimilarityActionGridColumn extends GridColumn {
                 ),
                 __('plugins.generic.plagiarism.similarity.action.generateReport.title')
             );
+
+            return $cellActions;
         }
 
         // Generate the action for similarity score refresh
@@ -211,5 +257,42 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		return $cellActions;
 	}
+
+    /**
+	 * Check for the requrement of EULA confirmation
+	 *
+     * @param Context       $context
+     * @param Submission    $submission
+     * @param User          $user
+     * 
+     * @return bool
+	 */
+    protected function isEulaConfirmationRequired($context, $submission, $user) {
+
+        // Check if EULA confirmation required for this tenant
+        if ($this->_plugin->getContextEulaDetails($context, 'require_eula') === false) {
+            return false;
+        }
+
+        // If no EULA is stamped with submission
+        // means submission never passed through iThenticate process
+        if (!$submission->getData('ithenticate_eula_version')) {
+            return true;
+        }
+
+        // If no EULA is stamped with submission
+        // means user has never previously interacted with iThenticate process
+        if (!$user->getData('ithenticateEulaVersion')) {
+            return true;
+        }
+
+        // If user and submission EULA do not match
+        // means users previously agreed upon different EULA
+        if ($user->getData('ithenticateEulaVersion') !== $submission->getData('ithenticate_eula_version')) {
+            return true;
+        }
+
+        return false;
+    }
 
 }

@@ -133,7 +133,7 @@ msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
 msgstr "Plagiarism Score"
 
 msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
-msgstr "Launch Plagiarims Similarity Viewer"
+msgstr "Launch Plagiarism Similarity Viewer"
 
 msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
 msgstr "Overall Match Percentage"
@@ -151,16 +151,19 @@ msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
 msgstr "Schedule Plagiarism Report"
 
 msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
-msgstr "Are you sure you want to generate the plagiarims report?"
+msgstr "Are you sure you want to generate the Plagiarism report?"
 
 msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
 msgstr "Refresh Plagiarism Similarity Score"
 
 msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
-msgstr "Are you sure you want to refresh plagiarims similarity score?"
+msgstr "Are you sure you want to refresh Plagiarism similarity score?"
 
 msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
-msgstr "Submit for Plagiarims Check"
+msgstr "Submit for Plagiarism Check"
 
 msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
 msgstr "Are you sure you want to submit this file for plagiarism check?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Plagiarism End User License Agreement Confirmation"

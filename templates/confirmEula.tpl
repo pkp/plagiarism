@@ -9,18 +9,37 @@
  *}
 <script type="text/javascript">
     $(function() {ldelim}
-        // Attach the JS form handler.
-        // $('#confirmEulaForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
 
-        let cancelWarningMessage = "{$cancelWarningMessage}",
-            cancelRedirect = "{$cancelRedirect}";
-        
-        $('form#confirmEulaForm').on('click', 'a.cancelButton', function (event) {
-            event.preventDefault();
-            if (confirm(cancelWarningMessage) === true) {
-                window.location.href = cancelRedirect;
+        const isValidUrl = urlString => {
+            let url;
+
+            try { 
+                url = new URL(urlString); 
+            } catch(e) { 
+                return false; 
             }
-        });
+
+            return url.protocol === "http:" || url.protocol === "https:";
+        }
+        
+        let cancelWarningMessage = "{$cancelWarningMessage}" || undefined,
+            cancelRedirect = "{$cancelRedirect}" || undefined;
+
+        
+        if (isValidUrl(cancelRedirect)) {
+            $('form#confirmEulaForm').on('click', 'a.cancelButton', function (event) {
+                if (cancelRedirect === 'modal') {
+                    return true;
+                }
+                event.preventDefault();
+                if (confirm(cancelWarningMessage) === true) {
+                    window.location.href = cancelRedirect;
+                }
+            });
+        } else {
+            // Attach the JS form handler.
+            $('#confirmEulaForm').pkpHandler('$.pkp.controllers.form.AjaxFormHandler');
+        }
     {rdelim});
 </script>
 
