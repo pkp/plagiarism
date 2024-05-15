@@ -31,19 +31,34 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$context = $request->getContext();
         $user = $request->getUser();
 
-		/** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
+		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
+		$siteDao = DAORegistry::getDAO("SiteDAO"); /** @var SiteDAO $siteDao */
+		$site = $siteDao->getSite();
 
 		/** @var \IThenticate $ithenticate */
         $ithenticate = static::$_plugin->initIthenticate(
             ...static::$_plugin->getServiceAccess($context)
         );
 
+		$locale = $ithenticate
+			->setApplicableEulaVersion($submission->getData('ithenticate_eula_version'))
+			->getApplicableLocale(
+				collect([$submission->getData("locale")])
+					->merge($user->getData("locales"))
+					->merge([$context->getPrimaryLocale(), $site->getPrimaryLocale()])
+					->unique()
+					->toArray()
+			);
+
 		$viewerUrl = $ithenticate->createViewerLaunchUrl(
 			$submissionFile->getData('ithenticate_id'),
 			$user,
-			'en-US' // Need to update it based on user/submission appropriate locale
+			$locale,
+			static::$_plugin->getSubmitterPermission($context, $user),
+			(bool)static::$_plugin->getSimilarityConfigSettings($context, 'allowViewerUpdate')
 		);
 
 		return $request->redirectUrl($viewerUrl);

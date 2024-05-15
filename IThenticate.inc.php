@@ -239,7 +239,7 @@ class IThenticate
                 'json' => [
                     'user_id' => $this->getGeneratedId('submitter', $user->getId()),
                     'accepted_timestamp' => \Carbon\Carbon::now()->toIso8601String(),
-                    'language' => $this->getEulaConfirmationLocale($context->getPrimaryLocale()),
+                    'language' => $this->getApplicableLocale($context->getPrimaryLocale()),
                 ],
                 'verify' => false,
                 'exceptions' => false,
@@ -442,13 +442,16 @@ class IThenticate
      * Create the viewer launch url
      * @see https://developers.turnitin.com/docs/tca#create-viewer-launch-url
      *
-     * @param string    $submissionUuid The submission UUID return back from service
-     * @param User      $user           The viewing user
-     * @param string    $locale         The preferred locale
+     * @param string    $submissionUuid         The submission UUID return back from service
+     * @param User      $user                   The viewing user
+     * @param string    $locale                 The preferred locale
+     * @param string    $viewerPermission       The viewing user permission
+     * @param bool      $allowUpdateInViewer    Should allow to update in the viewer and save it which will
+     *                                          cause the update of similarity score
      * 
      * @return string|null
      */
-    public function createViewerLaunchUrl($submissionUuid, $user, $locale) {
+    public function createViewerLaunchUrl($submissionUuid, $user, $locale, $viewerPermission, $allowUpdateInViewer) {
 
         $response = $this->makeApiRequest(
             'POST',
@@ -460,13 +463,18 @@ class IThenticate
                 'json' => [
                     'viewer_user_id' => $this->getGeneratedId('submitter', $user->getId()),
                     'locale' => $locale,
-                    'viewer_default_permission_set' => 'ADMINISTRATOR',
+                    'viewer_default_permission_set' => $viewerPermission,
                     'viewer_permissions' => [
                         'may_view_submission_full_source' => true,
                         'may_view_match_submission_info' => true,
                         'may_view_flags_panel' => true,
                         'may_view_document_details_panel' => true,
                         'may_view_sections_exclusion_panel' => true,
+                    ],
+                    'similarity' => [
+                        'view_settings' => [
+                            'save_changes' => $allowUpdateInViewer
+                        ],
                     ],
                 ],
                 'exceptions' => false,
@@ -601,26 +609,6 @@ class IThenticate
     }
 
     /**
-     * Get the applicable EULA Url
-     * 
-     * @param  string|null $locale
-     * @return string
-     * 
-     * @throws \Exception
-     */
-    public function getApplicableEulaUrl($locale = null) {
-        if (!$this->eulaVersion) {
-            throw new \Exception('No EULA version set yet');
-        }
-
-        $applicableEulaLanguage = $this->getEulaConfirmationLocale($locale ?? static::DEFAULT_EULA_LANGUAGE);
-
-        $eulaUrl = $this->eulaVersionDetails['url'];
-
-        return str_replace(static::DEFAULT_EULA_LANGUAGE, $applicableEulaLanguage, $eulaUrl);
-    }
-
-    /**
      * Make the api request
      * 
      * @param string                                $method  HTTP method.
@@ -656,21 +644,68 @@ class IThenticate
     }
 
     /**
+     * Get the applicable EULA Url
+     * 
+     * @param  string|array|null $locale
+     * @return string
+     * 
+     * @throws \Exception
+     */
+    public function getApplicableEulaUrl($locales = null) {
+        if (!$this->eulaVersion) {
+            throw new \Exception('No EULA version set yet');
+        }
+
+        $applicableEulaLanguage = $this->getApplicableLocale($locales ?? static::DEFAULT_EULA_LANGUAGE);
+
+        $eulaUrl = $this->eulaVersionDetails['url'];
+
+        return str_replace(
+            strtolower(static::DEFAULT_EULA_LANGUAGE),
+            strtolower($applicableEulaLanguage),
+            $eulaUrl
+        );
+    }
+
+    /**
      * Convert given submission/context locale to service compatible and acceptable locale format
      * @see https://developers.turnitin.com/docs/tca#eula
      * 
-     * @param string $locale
+     * @param string|array $locales
+     * @param string|null  $eulaVersion
+     * 
      * @return string
      */
-    protected function getEulaConfirmationLocale($locale) {
-        if (!$this->getEulaDetails()) {
+    public function getApplicableLocale($locales, $eulaVersion = null) {
+        if (!$this->getEulaDetails() && !$this->validateEulaVersion($eulaVersion ?? $this->eulaVersion)) {
             return static::DEFAULT_EULA_LANGUAGE;
         }
 
-        $eulaLangs = $this->getEulaDetails()['available_languages'];
-        $locale = str_replace("_", "-", substr($locale, 0, 5));
+        if (is_string($locales)) {
+            return $this->getCorrespondingLocaleAvailable($locales) ?? static::DEFAULT_EULA_LANGUAGE;
+        }
 
-        return in_array($locale, $eulaLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
+        foreach ($locales as $locale) {
+            $correspondingLocale = $this->getCorrespondingLocaleAvailable($locale);
+            if ($correspondingLocale) {
+                return $correspondingLocale;
+            }
+        }
+
+        return static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * Get the corresponding available locale or return null
+     * 
+     * @param string $locales
+     * @return string|null
+     */
+    protected function getCorrespondingLocaleAvailable($locale) {
+        $eulaLangs = $this->eulaVersionDetails['available_languages'];
+        $locale = str_replace("_", "-", substr($locale, 0, 5));
+        
+        return in_array($locale, $eulaLangs) ? $locale : null;
     }
 
     /**

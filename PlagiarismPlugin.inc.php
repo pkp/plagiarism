@@ -909,15 +909,17 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Get the configuration settings for ithenticate similarity report generation process
+	 * Get the configuration settings(all or specific) for ithenticate similarity report generation process
 	 * 
-	 * @param Context $context
-	 * @return array
+	 * @param Context 		$context
+	 * @param string|null 	$settingName
+	 * 
+	 * @return array|string|null
 	 */
-	public function getSimilarityConfigSettings($context) {
+	public function getSimilarityConfigSettings($context, $settingName = null) {
 		$contextPath = $context->getPath();
 
-		return [
+		$similarityConfigSettings = [
 			'addToIndex' 			=> $this->getForcedConfigSetting($contextPath, 'addToIndex') 			?? $this->getSetting($context->getId(), 'addToIndex'),
 			'excludeQuotes' 		=> $this->getForcedConfigSetting($contextPath, 'excludeQuotes') 		?? $this->getSetting($context->getId(), 'excludeQuotes'),
 			'excludeBibliography' 	=> $this->getForcedConfigSetting($contextPath, 'excludeBibliography') 	?? $this->getSetting($context->getId(), 'excludeBibliography'),
@@ -925,7 +927,12 @@ class PlagiarismPlugin extends GenericPlugin {
 			'excludeAbstract' 		=> $this->getForcedConfigSetting($contextPath, 'excludeAbstract') 		?? $this->getSetting($context->getId(), 'excludeAbstract'),
 			'excludeMethods' 		=> $this->getForcedConfigSetting($contextPath, 'excludeMethods') 		?? $this->getSetting($context->getId(), 'excludeMethods'),
 			'excludeSmallMatches' 	=> $this->getForcedConfigSetting($contextPath, 'excludeSmallMatches') 	?? $this->getSetting($context->getId(), 'excludeSmallMatches'),
+			'allowViewerUpdate'		=> $this->getForcedConfigSetting($contextPath, 'allowViewerUpdate') 	?? $this->getSetting($context->getId(), 'allowViewerUpdate'),
 		];
+
+		return $settingName
+			? ($similarityConfigSettings[$settingName] ?? null)
+			: $similarityConfigSettings;
 	}
 
 	/**

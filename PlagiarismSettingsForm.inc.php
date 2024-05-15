@@ -98,6 +98,7 @@ class PlagiarismSettingsForm extends Form {
 			'excludeAbstract',
 			'excludeMethods',
 			'excludeSmallMatches',
+			'allowViewerUpdate',
 		]);
 	}
 
@@ -143,6 +144,7 @@ class PlagiarismSettingsForm extends Form {
 		$this->_plugin->updateSetting($this->_context->getId(), 'excludeAbstract', 		$this->getData('excludeAbstract'), 		'bool');
 		$this->_plugin->updateSetting($this->_context->getId(), 'excludeMethods', 		$this->getData('excludeMethods'), 		'bool');
 		$this->_plugin->updateSetting($this->_context->getId(), 'excludeSmallMatches', 	$this->getData('excludeSmallMatches'), 	'int');
+		$this->_plugin->updateSetting($this->_context->getId(), 'allowViewerUpdate', 	$this->getData('allowViewerUpdate'), 	'bool');
 		
 
 		parent::execute(...$functionArgs);

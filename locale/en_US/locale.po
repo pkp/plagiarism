@@ -126,6 +126,9 @@ msgstr "Exclude small match count"
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
 msgstr "Similarity matches that match less than the specified amount of words will not count as similar content"
 
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr "Allow changes in the similarity viewer to update the similarity score"
+
 msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
 msgstr "Plagiarism Score"
 

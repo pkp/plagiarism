@@ -46,12 +46,13 @@
 				<b>{translate key="plugins.generic.plagiarism.similarityCheck.settings.warning.note"}</b>
 			</div>
 
-			{fbvElement type="checkbox" name="addToIndex" 					id="addToIndex" 					checked=$addToIndex 					label="plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex" 					translate="true"}
-			{fbvElement type="checkbox" name="excludeQuotes" 				id="excludeQuotes" 					checked=$excludeQuotes 					label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes" 				translate="true"}
-			{fbvElement type="checkbox" name="excludeBibliography" 			id="excludeBibliography" 			checked=$excludeBibliography 			label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography" 			translate="true"}
-			{fbvElement type="checkbox" name="excludeCitations" 			id="excludeCitations" 				checked=$excludeCitations 				label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations" 				translate="true"}
-			{fbvElement type="checkbox" name="excludeAbstract" 				id="excludeAbstract" 				checked=$excludeAbstract 				label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract" 				translate="true"}
-			{fbvElement type="checkbox" name="excludeMethods" 				id="excludeMethods" 				checked=$excludeMethods 				label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods" 				translate="true"}
+			{fbvElement type="checkbox" name="addToIndex" 			id="addToIndex" 			checked=$addToIndex 			label="plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex" 			translate="true"}
+			{fbvElement type="checkbox" name="excludeQuotes" 		id="excludeQuotes" 			checked=$excludeQuotes 			label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes" 		translate="true"}
+			{fbvElement type="checkbox" name="excludeBibliography" 	id="excludeBibliography" 	checked=$excludeBibliography 	label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography" 	translate="true"}
+			{fbvElement type="checkbox" name="excludeCitations" 	id="excludeCitations" 		checked=$excludeCitations 		label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations" 		translate="true"}
+			{fbvElement type="checkbox" name="excludeAbstract" 		id="excludeAbstract" 		checked=$excludeAbstract 		label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract" 		translate="true"}
+			{fbvElement type="checkbox" name="excludeMethods" 		id="excludeMethods" 		checked=$excludeMethods 		label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods" 		translate="true"}
+			{fbvElement type="checkbox" name="allowViewerUpdate" 	id="allowViewerUpdate" 		checked=$allowViewerUpdate 		label="plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate" 	translate="true"}
 			
 			{fbvFormSection description="plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"}
 				{fbvElement 

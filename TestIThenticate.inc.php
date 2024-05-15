@@ -186,7 +186,7 @@ class TestIThenticate {
      * @copydoc \IThenticate::confirmEula()
      */
     public function confirmEula($user, $context) {
-        error_log("Confirming EULA for user {$user->getId()} with language ".$this->getEulaConfirmationLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
+        error_log("Confirming EULA for user {$user->getId()} with language ".$this->getApplicableLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
         return true;
     }
     
@@ -252,8 +252,8 @@ class TestIThenticate {
     /**
      * @copydoc \IThenticate::createViewerLaunchUrl()
      */
-    public function createViewerLaunchUrl($submissionUuid, $user, $locale) {
-        error_log("Similarity report viewer launch url generated for iThenticate submission id : {$submissionUuid}");
+    public function createViewerLaunchUrl($submissionUuid, $user, $locale, $viewerPermission, $allowUpdateInViewer) {
+        error_log("Similarity report viewer launch url generated for iThenticate submission id : {$submissionUuid} with locale : {$locale}, viewer permission : {$viewerPermission} and update viewer permission : {$allowUpdateInViewer}");
         return Application::get()->getRequest()->getBaseUrl();
     }
 
@@ -314,30 +314,52 @@ class TestIThenticate {
     /**
      * @copydoc \IThenticate::getApplicableEulaUrl()
      */
-    public function getApplicableEulaUrl($locale = null) {
+    public function getApplicableEulaUrl($locales = null) {
         if (!$this->eulaVersion) {
             throw new \Exception('No EULA version set yet');
         }
 
-        $applicableEulaLanguage = $this->getEulaConfirmationLocale($locale ?? static::DEFAULT_EULA_LANGUAGE);
+        $applicableEulaLanguage = $this->getApplicableLocale($locales ?? static::DEFAULT_EULA_LANGUAGE);
 
         $eulaUrl = $this->eulaVersionDetails['url'];
 
-        return str_replace(static::DEFAULT_EULA_LANGUAGE, $applicableEulaLanguage, $eulaUrl);
+        return str_replace(
+            strtolower(static::DEFAULT_EULA_LANGUAGE),
+            strtolower($applicableEulaLanguage),
+            $eulaUrl
+        );
     }
 
     /**
-     * @copydoc \IThenticate::getEulaConfirmationLocale()
+     * @copydoc \IThenticate::getApplicableLocale()
      */
-    protected function getEulaConfirmationLocale($locale) {
-        if (!$this->getEulaDetails()) {
+    public function getApplicableLocale($locales, $eulaVersion = null) {
+        if (!$this->getEulaDetails() && !$this->validateEulaVersion($eulaVersion ?? $this->eulaVersion)) {
             return static::DEFAULT_EULA_LANGUAGE;
         }
 
-        $eulaLangs = $this->getEulaDetails()['available_languages'];
-        $locale = str_replace("_", "-", substr($locale, 0, 5));
+        if (is_string($locales)) {
+            return $this->getCorrespondingLocaleAvailable($locales) ?? static::DEFAULT_EULA_LANGUAGE;
+        }
 
-        return in_array($locale, $eulaLangs) ? $locale : static::DEFAULT_EULA_LANGUAGE;
+        foreach ($locales as $locale) {
+            $correspondingLocale = $this->getCorrespondingLocaleAvailable($locale);
+            if ($correspondingLocale) {
+                return $correspondingLocale;
+            }
+        }
+
+        return static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * @copydoc \IThenticate::isCorrespondingLocaleAvailable()
+     */
+    protected function getCorrespondingLocaleAvailable($locale) {
+        $eulaLangs = $this->eulaVersionDetails['available_languages'];
+        $locale = str_replace("_", "-", substr($locale, 0, 5));
+        
+        return in_array($locale, $eulaLangs) ? $locale : null;
     }
 
     /**
