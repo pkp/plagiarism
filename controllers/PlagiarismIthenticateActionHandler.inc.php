@@ -153,50 +153,21 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']); /** @var SubmissionFile $submissionFile */
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId')); /** @var Submission $submission*/
-		$publication = $submission->getCurrentPublication();
-		$author = $publication->getPrimaryAuthor();
 
 		/** @var \IThenticate $ithenticate */
         $ithenticate = static::$_plugin->initIthenticate(
             ...static::$_plugin->getServiceAccess($context)
         );
 
-		$submissionUuid = $ithenticate->createSubmission(
-			$request->getSite(),
-			$submission,
-			$user,
-			$author,
-			static::$_plugin::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
-			static::$_plugin->getSubmitterPermission($context, $user)
-		);
-
-		if (!$submissionUuid) {
-			static::$_plugin->sendErrorMessage("Could not create the submission at iThenticate for file id {$submissionFile->getId()}", $submission->getId());
+		if (!static::$_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
 			return new JSONMessage(false);
 		}
-
-		$file = Services::get('file')->get($submissionFile->getData('fileId'));
-		$uploadStatus = $ithenticate->uploadFile(
-			$submissionUuid, 
-			$submissionFile->getData("name", $publication->getData("locale")),
-			Services::get('file')->fs->read($file->path),
-		);
-
-		// Upload submission files for successfully created submission at iThenticate's end
-		if (!$uploadStatus) {
-			static::$_plugin->sendErrorMessage('Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")), $submission->getId());
-			return new JSONMessage(false);
-		}
-
-		$submissionFile->setData('ithenticate_id', $submissionUuid);
-		$submissionFile->setData('ithenticate_similarity_scheduled', 0);
-		$submissionFileDao->updateObject($submissionFile);
 
 		return DAO::getDataChangedEvent($submissionFile->getId());
 	}
 
 	/**
-	 * Accept the EULA, stamp it to proper entity (Submission/User or both) and run
+	 * Accept the EULA, stamp it to proper entity (Submission/User or both) and may run
 	 * one of following intended action
 	 * 	- Upload submission file
 	 * 	- Schedule similarity report generation process

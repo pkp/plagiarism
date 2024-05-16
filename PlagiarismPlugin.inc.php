@@ -110,6 +110,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		HookRegistry::register('LoadComponentHandler', [$this, 'handleRouteComponent']);
 
 		HookRegistry::register('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
+		HookRegistry::register('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 
 		return $success;
 	}
@@ -173,6 +174,16 @@ class PlagiarismPlugin extends GenericPlugin {
 			'description' => 'The iThenticate EULA url which has been agreen at submission checklist',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
+		];
+
+		$schema->properties->ithenticate_submission_completed_at = (object) [
+			'type' => 'string',
+			'description' => 'The timestamp at which this submission successfully completed uploading all files at iThenticate service end',
+			'apiSummary' => true,
+			'validation' => [
+				'date:Y-m-d H:i:s',
+				'nullable',
+			],
 		];
 
 		return false;
@@ -491,10 +502,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::get()->getRequest();
 		$form =& $args[0]; /** @var SubmissionSubmitStep4Form $form */
 		$submission = $form->submission; /** @var Submission $submission */
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
 		$context = $request->getContext();
-		$publication = $submission->getCurrentPublication();
-		$author = $publication->getPrimaryAuthor();
 		$user = $request->getUser();
 
 		if (!static::isRunningInTestMode() && !$this->isServiceAccessAvailable($context)) {
@@ -522,7 +530,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
 			$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
 			
-			// Check if EULA stamped to submitter and if not, try to stamp it
+			// Check if submission EULA stamped to submitter and if not
+			// not going to sent it for plagiarism check
 			if (!$user->getData('ithenticateEulaVersion') ||
 				$user->getData('ithenticateEulaVersion') !== $submissionEulaVersion) {
 				
@@ -541,42 +550,18 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		try {
 			foreach($submissionFiles as $submissionFile) { /** @var SubmissionFile $submissionFile */
-				// Create a new submission at iThenticate's end
-				$submissionUuid = $ithenticate->createSubmission(
-					$request->getSite(),
-					$submission,
-					$user,
-					$author,
-					static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
-					$this->getSubmitterPermission($context, $user)
-				);
-	
-				if (!$submissionUuid) {
-					$this->sendErrorMessage("Could not create the submission at iThenticate for file id {$submissionFile->getId()}", $submission->getId());
+				if (!$this->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
 					return false;
 				}
-	
-				$file = Services::get('file')->get($submissionFile->getData('fileId'));
-				$uploadStatus = $ithenticate->uploadFile(
-					$submissionUuid, 
-					$submissionFile->getData("name", $publication->getData("locale")),
-					Services::get('file')->fs->read($file->path),
-				);
-	
-				// Upload submission files for successfully created submission at iThenticate's end
-				if (!$uploadStatus) {
-					$this->sendErrorMessage('Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")), $submission->getId());
-					return false;
-				}
-	
-				$submissionFile->setData('ithenticate_id', $submissionUuid);
-				$submissionFile->setData('ithenticate_similarity_scheduled', 0);
-				$submissionFileDao->updateObject($submissionFile);
 			}
 		} catch (\Throwable $exception) {
 			$this->sendErrorMessage($exception->getMessage(), $submission->getId());
 			return false;
 		}
+
+		$submission->setData('ithenticate_submission_completed_at', Core::getCurrentDate());
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submissionDao->updateObject($submission);
 
 		return true;
 	}
@@ -584,7 +569,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Add ithenticate related data and actions to submission file grid view
 	 * 
-	 * @param string $hookName `editorsubmissiondetailsfilesgridhandler::initfeatures`
+	 * @param string $hookName `editorsubmissiondetailsfilesgridhandler::initfeatures` or `editorreviewfilesgridhandler::initfeatures`
 	 * @param array $params
 	 * 
 	 * @return bool
@@ -598,11 +583,11 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		/** @var EditorSubmissionDetailsFilesGridHandler $editorSubmissionDetailsFilesGridHandler */
-		$editorSubmissionDetailsFilesGridHandler = & $params[0];
+		/** @var EditorSubmissionDetailsFilesGridHandler|EditorReviewFilesGridHandler $submissionDetailsFilesGridHandler */
+		$submissionDetailsFilesGridHandler = & $params[0];
 
 		import('plugins.generic.plagiarism.grids.SimilarityActionGridColumn');
-		$editorSubmissionDetailsFilesGridHandler->addColumn(
+		$submissionDetailsFilesGridHandler->addColumn(
 			new SimilarityActionGridColumn(
 				$this,
 				$this->similarityScoreColumns
@@ -610,6 +595,57 @@ class PlagiarismPlugin extends GenericPlugin {
 		);
 
 		return false;
+	}
+
+	/**
+	 * Create a new submission at iThenticate service's end
+	 * 
+	 * @param Request 						$request
+	 * @param User 							$user
+	 * @param Submission 					$submission
+	 * @param SubmissionFile 				$submissionFile
+	 * @param IThenticate|TestIThenticate 	$ithenticate
+	 * 
+	 * @return bool
+	 */
+	public function createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate) {
+		$context = $request->getContext();
+		$publication = $submission->getCurrentPublication();
+		$author = $publication->getPrimaryAuthor();
+		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
+
+		$submissionUuid = $ithenticate->createSubmission(
+			$request->getSite(),
+			$submission,
+			$user,
+			$author,
+			static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
+			$this->getSubmitterPermission($context, $user)
+		);
+
+		if (!$submissionUuid) {
+			$this->sendErrorMessage("Could not create the submission at iThenticate for file id {$submissionFile->getId()}", $submission->getId());
+			return false;
+		}
+
+		$file = Services::get('file')->get($submissionFile->getData('fileId'));
+		$uploadStatus = $ithenticate->uploadFile(
+			$submissionUuid, 
+			$submissionFile->getData("name", $publication->getData("locale")),
+			Services::get('file')->fs->read($file->path),
+		);
+
+		// Upload submission files for successfully created submission at iThenticate's end
+		if (!$uploadStatus) {
+			$this->sendErrorMessage('Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")), $submission->getId());
+			return false;
+		}
+
+		$submissionFile->setData('ithenticate_id', $submissionUuid);
+		$submissionFile->setData('ithenticate_similarity_scheduled', 0);
+		$submissionFileDao->updateObject($submissionFile);
+
+		return true;
 	}
 
 	/**

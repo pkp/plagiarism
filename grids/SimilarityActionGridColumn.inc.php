@@ -61,15 +61,11 @@ class SimilarityActionGridColumn extends GridColumn {
 	}
 
 	/**
-	 * Method expected by ColumnBasedGridCellProvider
-	 * to render a cell in this column.
+	 * Method expected by ColumnBasedGridCellProvider to render a cell in this column.
 	 *
 	 * @copydoc ColumnBasedGridCellProvider::getTemplateVarsFromRowColumn()
 	 */
 	public function getTemplateVarsFromRow($row) {
-
-        $request = Application::get()->getRequest();
-        $context = $request->getContext();
 
 		$submissionFileData = $row->getData();
 		$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
