@@ -286,62 +286,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Stamp the iThenticate EULA with the submission
-	 * 
-	 * @param Context $context
-	 * @param Submission $submission
-	 * 
-	 * @return bool
-	 */
-	public function stampEulaToSubmission($context, $submission) {
-
-		$eulaDetails = $this->getContextEulaDetails($context, $submission->getData('locale'));
-
-		$submission->setData('ithenticate_eula_version', $eulaDetails['version']);
-		$submission->setData('ithenticate_eula_url', $eulaDetails['url']);
-
-		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
-		$submissionDao->updateObject($submission);
-
-		return true;
-	}
-
-	/**
-	 * Stamp the iThenticate EULA to the submitting user
-	 * 
-	 * @param Context 		$context
-	 * @param Submission 	$submission
-	 * @param User|null 	$user
-	 * 
-	 * @return bool
-	 */
-	public function stampEulaToSubmittingUser($context, $submission, $user = null) {
-		$request = Application::get()->getRequest();
-		$user ??= $request->getUser();
-
-		$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
-
-		// If submission EULA version has already been stamped to user
-		// no need to do the confirmation and stamping again
-		if ($user->getData('ithenticateEulaVersion') === $submissionEulaVersion) {
-			return false;
-		}
-
-		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
-		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
-		
-		// Check if user has ever already accepted this EULA version and if so, stamp it to user
-		// Or, try to confirm the EULA for user and upon succeeding, stamp it to user
-		if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
-			$ithenticate->confirmEula($user, $context)) {
-			$this->stampEulaVersionToUser($user, $submissionEulaVersion);
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Check at the final stage of submission if the submitting user has already confirmed
 	 * or accepted the EULA version associated with submission
 	 * 
@@ -519,6 +463,62 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Stamp the iThenticate EULA with the submission
+	 * 
+	 * @param Context $context
+	 * @param Submission $submission
+	 * 
+	 * @return bool
+	 */
+	public function stampEulaToSubmission($context, $submission) {
+
+		$eulaDetails = $this->getContextEulaDetails($context, $submission->getData('locale'));
+
+		$submission->setData('ithenticate_eula_version', $eulaDetails['version']);
+		$submission->setData('ithenticate_eula_url', $eulaDetails['url']);
+
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submissionDao->updateObject($submission);
+
+		return true;
+	}
+
+	/**
+	 * Stamp the iThenticate EULA to the submitting user
+	 * 
+	 * @param Context 		$context
+	 * @param Submission 	$submission
+	 * @param User|null 	$user
+	 * 
+	 * @return bool
+	 */
+	public function stampEulaToSubmittingUser($context, $submission, $user = null) {
+		$request = Application::get()->getRequest();
+		$user ??= $request->getUser();
+
+		$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
+
+		// If submission EULA version has already been stamped to user
+		// no need to do the confirmation and stamping again
+		if ($user->getData('ithenticateEulaVersion') === $submissionEulaVersion) {
+			return false;
+		}
+
+		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
+		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
+		
+		// Check if user has ever already accepted this EULA version and if so, stamp it to user
+		// Or, try to confirm the EULA for user and upon succeeding, stamp it to user
+		if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
+			$ithenticate->confirmEula($user, $context)) {
+			$this->stampEulaVersionToUser($user, $submissionEulaVersion);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Create a new submission at iThenticate service's end
 	 * 
 	 * @param Request 						$request
@@ -549,11 +549,19 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$file = Services::get('file')->get($submissionFile->getData('fileId'));
+		$pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
+		$file = $pkpFileService->get($submissionFile->getData('fileId'));
+
+		// Not going to allow uploading a zip file to iThenticate service end
+		if ($pkpFileService->getDocumentType($file->mimetype) === DOCUMENT_TYPE_ZIP) {
+			error_log("plagiarims check for file mime type : {$file->mimetype} with submission file id : {$submissionFile->getId()} and submission id : {$submission->getId()} is now allowed");
+			return true;
+		}
+
 		$uploadStatus = $ithenticate->uploadFile(
 			$submissionUuid, 
 			$submissionFile->getData("name", $publication->getData("locale")),
-			Services::get('file')->fs->read($file->path),
+			$pkpFileService->fs->read($file->path),
 		);
 
 		// Upload submission files for successfully created submission at iThenticate's end

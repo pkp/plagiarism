@@ -167,3 +167,6 @@ msgstr "Are you sure you want to submit this file for plagiarism check?"
 
 msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
 msgstr "Plagiarism End User License Agreement Confirmation"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Plagiarims actions Not available"

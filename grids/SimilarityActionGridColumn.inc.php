@@ -71,6 +71,11 @@ class SimilarityActionGridColumn extends GridColumn {
 		$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
 		assert($submissionFile instanceof SubmissionFile);
 
+        // Not going to allow plagiarims action on a zip file
+		if ($this->isSubmissionFileTypeZip($submissionFile)) {
+			return ['label' => __('plugins.generic.plagiarism.similarity.action.invalidFileType')];
+		}
+
         // submission similarity score is available
         if ($submissionFile->getData('ithenticate_similarity_scheduled') === true &&
             $submissionFile->getData('ithenticate_similarity_result')) {
@@ -115,6 +120,12 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		$submissionFileData = $row->getData();
         $submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
+
+		// Not going to allow plagiarims action on a zip file
+		if ($this->isSubmissionFileTypeZip($submissionFile)) {
+			return $cellActions;
+		}
+
         $submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 
@@ -289,6 +300,21 @@ class SimilarityActionGridColumn extends GridColumn {
         }
 
         return false;
+    }
+
+    /**
+	 * Check if submission file type in valid for plagiarims action
+     * Restricted for ZIP file
+	 *
+     * @param SubmissionFile $submissionFile
+     * @return bool
+	 */
+    protected function isSubmissionFileTypeZip($submissionFile) {
+
+        $pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
+		$file = $pkpFileService->get($submissionFile->getData('fileId'));
+
+		return $pkpFileService->getDocumentType($file->mimetype) === DOCUMENT_TYPE_ZIP;
     }
 
 }
