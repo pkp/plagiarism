@@ -295,6 +295,12 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return bool
 	 */
 	public function confirmEulaAcceptance($hookName, $params) {
+
+		// if the auto upload to ithenticate disbale
+		// not going to do the EULA confirmation at submission time
+		if ($this->hasAutoSubmissionDisabled()) {
+			return false;
+		}
 		
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
@@ -379,6 +385,13 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return bool
 	 */
 	public function submitForPlagiarismCheck($hookName, $args) {
+
+		// if the auto upload to ithenticate disbale
+		// not going to upload files to iThenticate at submission time
+		if ($this->hasAutoSubmissionDisabled()) {
+			return false;
+		}
+
 		$request = Application::get()->getRequest();
 		$form =& $args[0]; /** @var SubmissionSubmitStep4Form $form */
 		$submission = $form->submission; /** @var Submission $submission */
@@ -609,71 +622,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * @copydoc Plugin::getActions()
-	 */
-    public function getActions($request, $verb) {
-		$router = $request->getRouter();
-		import('lib.pkp.classes.linkAction.request.AjaxModal');
-        
-		return array_merge(
-			$this->getEnabled() 
-				? [
-					new LinkAction(
-						'settings',
-						new AjaxModal(
-							$router->url(
-								$request, 
-								null, 
-								null, 
-								'manage', 
-								null, 
-								[
-									'verb' => 'settings',
-									'plugin' => $this->getName(),
-									'category' => 'generic'
-								]
-							),
-							$this->getDisplayName()
-						),
-						__('manager.plugins.settings'),
-						null
-					),
-				] : [],
-			parent::getActions($request, $verb)
-		);
-	}
-
-	/**
-	 * @copydoc Plugin::manage()
-	 */
-	public function manage($args, $request) {
-		switch ($request->getUserVar('verb')) {
-			case 'settings':
-				$context = $request->getContext(); /** @var Context $context */
-
-				AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
-				$templateMgr = TemplateManager::getManager($request); /** @var TemplateManager $templateMgr */
-				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
-
-				$this->import('PlagiarismSettingsForm');
-				$form = new PlagiarismSettingsForm($this, $context);
-
-				if ($request->getUserVar('save')) {
-					$form->readInputData();
-					if ($form->validate()) {
-						$form->execute();
-						return new JSONMessage(true);
-					}
-				} else {
-					$form->initData();
-				}
-				return new JSONMessage(true, $form->fetch($request));
-		}
-
-		return parent::manage($args, $request);
-	}
-
-	/**
 	 * Get the cached EULA details form Context
 	 * 
 	 * @param Context 			$context
@@ -832,6 +780,71 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * @copydoc Plugin::getActions()
+	 */
+    public function getActions($request, $verb) {
+		$router = $request->getRouter();
+		import('lib.pkp.classes.linkAction.request.AjaxModal');
+        
+		return array_merge(
+			$this->getEnabled() 
+				? [
+					new LinkAction(
+						'settings',
+						new AjaxModal(
+							$router->url(
+								$request, 
+								null, 
+								null, 
+								'manage', 
+								null, 
+								[
+									'verb' => 'settings',
+									'plugin' => $this->getName(),
+									'category' => 'generic'
+								]
+							),
+							$this->getDisplayName()
+						),
+						__('manager.plugins.settings'),
+						null
+					),
+				] : [],
+			parent::getActions($request, $verb)
+		);
+	}
+
+	/**
+	 * @copydoc Plugin::manage()
+	 */
+	public function manage($args, $request) {
+		switch ($request->getUserVar('verb')) {
+			case 'settings':
+				$context = $request->getContext(); /** @var Context $context */
+
+				AppLocale::requireComponents(LOCALE_COMPONENT_APP_COMMON, LOCALE_COMPONENT_PKP_MANAGER);
+				$templateMgr = TemplateManager::getManager($request); /** @var TemplateManager $templateMgr */
+				$templateMgr->registerPlugin('function', 'plugin_url', [$this, 'smartyPluginUrl']);
+
+				$this->import('PlagiarismSettingsForm');
+				$form = new PlagiarismSettingsForm($this, $context);
+
+				if ($request->getUserVar('save')) {
+					$form->readInputData();
+					if ($form->validate()) {
+						$form->execute();
+						return new JSONMessage(true);
+					}
+				} else {
+					$form->initData();
+				}
+				return new JSONMessage(true, $form->fetch($request));
+		}
+
+		return parent::manage($args, $request);
+	}
+
+	/**
 	 * Get the ithenticate service access as array in format [API_URL, API_KEY]
 	 * 
 	 * @param Context $context
@@ -899,6 +912,19 @@ class PlagiarismPlugin extends GenericPlugin {
 		return $settingName
 			? ($similarityConfigSettings[$settingName] ?? null)
 			: $similarityConfigSettings;
+	}
+
+	/**
+	 * Check if auto upload of submission file has been disable globally or context level
+	 * 
+	 * @return bool
+	 */
+	public function hasAutoSubmissionDisabled() {
+		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
+		$contextPath = $context ? $context->getPath() : 'index';
+
+		return $this->getForcedConfigSetting($contextPath, 'disbaleAutoSubmission')
+			?? $this->getSetting($context->getId(), 'disbaleAutoSubmission');
 	}
 
 	/**

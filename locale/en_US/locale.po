@@ -35,6 +35,12 @@ msgstr "iThenticate API KEY"
 msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
 msgstr "iThenticate API URL is required"
 
+msgid "plugins.generic.plagiarism.manager.settings.disbaleAutoSubmission"
+msgstr "Disbale auto upload of submission files to iThenticate at submission time"
+
+msgid "plugins.generic.plagiarism.manager.settings.disbaleAutoSubmission.description"
+msgstr "By diabling it, submission need to manually upload from workflow section"
+
 msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
 msgstr ""
 "The specified URL is not valid. Please double-check the URL and try again. "

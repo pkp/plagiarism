@@ -38,6 +38,20 @@
 			value=$ithenticateApiKey 
 			label="plugins.generic.plagiarism.manager.settings.apiKey"
 		}
+
+		<p>
+		{fbvFormSection description="plugins.generic.plagiarism.manager.settings.disbaleAutoSubmission.description" list=true}
+			{fbvElement
+				type="checkbox"
+				name="disbaleAutoSubmission"
+				id="disbaleAutoSubmission"
+				checked=$disbaleAutoSubmission
+				label="plugins.generic.plagiarism.manager.settings.disbaleAutoSubmission"
+				translate="true"
+			}
+		{/fbvFormSection}
+		</p>
+
 	{/fbvFormArea}
 
 	{fbvFormArea id="ithenticateSimilarityReportSettings"}
