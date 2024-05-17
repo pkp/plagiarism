@@ -89,16 +89,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			error_log("ithenticate service access not set for context id {$context->getId()}");
 			return false;
 		}
-
-		// Need to register both of TemplateManager display and fetch hook as both of these
-		// get called when presenting the submission 
-		HookRegistry::register('TemplateManager::display', [$this, 'addEulaToChecklist']);
-		HookRegistry::register('TemplateManager::fetch', [$this, 'addEulaToChecklist']);
-
-		HookRegistry::register('Submission::add', [$this, 'stampEulaToSubmission']);
-		HookRegistry::register('Submission::add', [$this, 'stampEulaToSubmittingUser']);
 		
-		HookRegistry::register('submissionsubmitstep4form::display', [$this, 'reConfirmEulaAcceptance']);
+		HookRegistry::register('submissionsubmitstep4form::display', [$this, 'confirmEulaAcceptance']);
 		HookRegistry::register('submissionsubmitstep4form::execute', [$this, 'submitForPlagiarismCheck']);
 
 		HookRegistry::register('Schema::get::' . SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
@@ -294,58 +286,14 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Add the IThenticate EULA url as a checklist of submission process
-	 * 
-	 * @param string $hookName `TemplateManager::display` or `TemplateManager::fetch`
-	 * @param array $params
-	 * 
-	 * @return bool
-	 */
-	public function addEulaToChecklist($hookName, $params) {
-		$templateManager = & $params[0]; /** @var TemplateManager $templateManager */
-		$context = $templateManager->getTemplateVars('currentContext'); /** @var Context $context */
-
-		if (!$context || strtolower($templateManager->getTemplateVars('requestedPage') ?? '') !== 'submission') {
-			return false;
-		}
-
-		$eulaDetails = $this->getContextEulaDetails($context);
-
-		// if EULA confirmation is not required, so no need to show EULA as part of submission checklist
-		if ($eulaDetails['require_eula'] === false) {
-			return false;
-		}
-		
-		foreach($context->getData('submissionChecklist') as $locale => $checklist) {
-			array_push($checklist, [
-				'order' => (collect($checklist)->pluck('order')->sort(SORT_REGULAR)->last() ?? 0) + 1,
-				'content' => __('plugins.generic.plagiarism.submission.checklist.eula', [
-					'localizedEulaUrl' => $eulaDetails[$locale]['url']
-				]),
-			]);
-
-			$context->setData('submissionChecklist', $checklist, $locale);
-		}
-		
-		return false;
-	}
-
-	/**
 	 * Stamp the iThenticate EULA with the submission
 	 * 
-	 * @param string $hookName `Submission::add`
-	 * @param array $args
+	 * @param Context $context
+	 * @param Submission $submission
 	 * 
 	 * @return bool
 	 */
-	public function stampEulaToSubmission($hookName, $params) {
-		$submission =& $params[0]; /** @var Submission $submission */
-		$context = Application::get()->getRequest()->getContext();
-
-		if ($this->getContextEulaDetails($context, 'require_eula') === false) {
-			// EULA confirmation is not required, so no stamping of EULA with the submission
-			return false;
-		}
+	public function stampEulaToSubmission($context, $submission) {
 
 		$eulaDetails = $this->getContextEulaDetails($context, $submission->getData('locale'));
 
@@ -355,28 +303,21 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submissionDao->updateObject($submission);
 
-		return false;
+		return true;
 	}
 
 	/**
-	 * Stamp the iThenticate EULA at the execution of the submission first stage to
-	 * the user who initiated the submission
+	 * Stamp the iThenticate EULA to the submitting user
 	 * 
-	 * @param string $hookName `Submission::add`
-	 * @param array $params
+	 * @param Context 		$context
+	 * @param Submission 	$submission
+	 * @param User|null 	$user
 	 * 
 	 * @return bool
 	 */
-	public function stampEulaToSubmittingUser($hookName, $params) {
-		$submission =& $params[0]; /** @var Submission $submission */
+	public function stampEulaToSubmittingUser($context, $submission, $user = null) {
 		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-		$user = $request->getUser();
-
-		// EULA confirmation is not required, so no stamping of EULA with the submission
-		if ($this->getContextEulaDetails($context, 'require_eula') === false) {
-			return false;
-		}
+		$user ??= $request->getUser();
 
 		$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
 
@@ -394,11 +335,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
 			$ithenticate->confirmEula($user, $context)) {
 			$this->stampEulaVersionToUser($user, $submissionEulaVersion);
-		} else {
-			$this->sendErrorMessage(
-				'Unable to stamp the EULA details to submission submitter at the first stage of submission',
-				$submission->getId()
-			);
+			return true;
 		}
 
 		return false;
@@ -413,7 +350,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * 
 	 * @return bool
 	 */
-	public function reConfirmEulaAcceptance($hookName, $params) {
+	public function confirmEulaAcceptance($hookName, $params) {
 		
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
@@ -426,11 +363,11 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
-
-		// If submission EULA version has already been stamped to user
-		// no need to do the re-confirmation and stamping again
-		if ($user->getData('ithenticateEulaVersion') === $submissionEulaVersion) {
+		// If submission has EULA stamped and user has EULA stamped and both are save version
+		// so there is no need to confirm EULA again
+		if ($submission->getData('ithenticate_eula_version') &&
+			$submission->getData('ithenticate_eula_version') == $user->getData('ithenticateEulaVersion')) {
+			
 			return false;
 		}
 
@@ -442,7 +379,6 @@ class PlagiarismPlugin extends GenericPlugin {
 			'handle',
 			null,
 			[
-				'version' => $submissionEulaVersion,
 				'submissionId' => $submission->getId(),
 			]
 		);
@@ -517,28 +453,13 @@ class PlagiarismPlugin extends GenericPlugin {
 			$this->registerIthenticateWebhook($ithenticate, $context);
 		}
 
-		// If EULA confirmation is not required,
-		// no need to check the EULA stamping to submission and submitter
+		$ithenticate->setApplicableEulaVersion($submission->getData('ithenticate_eula_version'));
+
+		// Check EULA stamped to submission or submitter only if it is required
 		if ($this->getContextEulaDetails($context, 'require_eula') !== false) {
-
-			// if EULA details not stamped to submission, not going to sent it for plagiarism check
-			if (!$submission->getData('ithenticate_eula_version') || !$submission->getData('ithenticate_eula_url')) {
-				$this->sendErrorMessage('Unable to obtain the stamped EULA details to submission', $submission->getId());
-				return false;
-			}
-
-			$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
-			$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
-			
-			// Check if submission EULA stamped to submitter and if not
-			// not going to sent it for plagiarism check
-			if (!$user->getData('ithenticateEulaVersion') ||
-				$user->getData('ithenticateEulaVersion') !== $submissionEulaVersion) {
-				
-				$this->sendErrorMessage(
-					"Unable to complete the itenticate submission as submitting user has not comfirmed or accepted the EULA", 
-					$submission->getId()
-				);
+			// not going to sent it for plagiarism check if EULA not stamped to submission or submitter
+			if (!$submission->getData('ithenticate_eula_version') || !$user->getData('ithenticateEulaVersion')) {
+				$this->sendErrorMessage('Unable to obtain the stamped EULA details to submission or submitter', $submission->getId());
 				return false;
 			}
 		}
@@ -563,7 +484,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submissionDao->updateObject($submission);
 
-		return true;
+		return false;
 	}
 
 	/**

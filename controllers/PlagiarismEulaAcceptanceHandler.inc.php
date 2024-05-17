@@ -30,28 +30,23 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
         $user = $request->getUser();
-        $submissionEulaVersion = $args['version'];
+        $submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submission = $submissionDao->getById($args['submissionId']);
         $confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
         if (!$confirmSubmissionEula) {
             SessionManager::getManager()->getUserSession()->setSessionVar('confirmSubmissionEulaError', true);
-            return $this->redirectToUrl($request, $context, ['submissionId' => $args['submissionId']]);
+            return $this->redirectToUrl(
+                $request,
+                $context,
+                ['submissionId' => $args['submissionId']]
+            );
         }
 
         SessionManager::getManager()->getUserSession()->unsetSessionVar('confirmSubmissionEulaError');
 
-        /** @var \IThenticate $ithenticate */
-        $ithenticate = static::$_plugin->initIthenticate(
-            ...static::$_plugin->getServiceAccess($context)
-        );
-        
-		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
-
-        if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
-			$ithenticate->confirmEula($user, $context)) {
-                
-            static::$_plugin->stampEulaVersionToUser($user, $submissionEulaVersion);
-		}
+        static::$_plugin->stampEulaToSubmission($context, $submission);
+        static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
 
 		return $this->redirectToUrl($request, $context, ['submissionId' => $args['submissionId']]);
 	}

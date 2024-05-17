@@ -206,11 +206,11 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
         }
 
 		if (!$submission->getData('ithenticate_eula_version')) {
-            static::$_plugin->stampEulaToSubmission('', [$submission]);
+			static::$_plugin->stampEulaToSubmission($context, $submission);
         }
 
         if (!$user->getData('ithenticateEulaVersion')) {
-            static::$_plugin->stampEulaToSubmittingUser('', [$submission]);
+			static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
         }
 
 		$onAcceptAction = $args['onAcceptAction'];
