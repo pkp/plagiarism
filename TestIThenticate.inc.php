@@ -7,9 +7,9 @@
  * Copyright (c) 2003-2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @brief   Low-budget mock class for \IThenticate -- set the const `ITHENTICATE_TEST_MODE_ENABLE`
- *          value in the `PlagiarismPlugin` class to `true` to log API usage instead of 
- *          interacting with the iThenticate service.
+ * @brief   Low-budget mock class for \IThenticate -- set the config setting 
+ *          `test_mdoe` to `On` in the `config.inc.php` to log API usage 
+ *          instead of interacting with the iThenticate service.
  */
 
 class TestIThenticate {

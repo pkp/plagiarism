@@ -31,12 +31,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
 
 	/**
-	 * Set the value to `true` to enable test mode that will log instead of interacting with 
-	 * iThenticate API service.
-	 */
-	protected const ITHENTICATE_TEST_MODE_ENABLE = true;
-
-	/**
 	 * List of valid url components
 	 * 
 	 * @var array
@@ -58,15 +52,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		'publication_match_percentage',
 		'submitted_works_match_percentage',
 	];
-
-	/**
-	 * Running in test mode
-	 * 
-	 * @return bool
-	 */
-	public static function isRunningInTestMode() {
-		return static::ITHENTICATE_TEST_MODE_ENABLE;
-	}
 
 	/**
 	 * @copydoc Plugin::register()
@@ -105,6 +90,15 @@ class PlagiarismPlugin extends GenericPlugin {
 		HookRegistry::register('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 
 		return $success;
+	}
+
+	/**
+	 * Running in test mode
+	 * 
+	 * @return bool
+	 */
+	public static function isRunningInTestMode() {
+		return Config::getVar('ithenticate', 'test_mode', false);
 	}
 
 	/**
@@ -731,9 +725,8 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * Create and return an instance of service class responsible to handle the
 	 * communication with iThenticate service.
 	 * 
-	 * If const `ITHENTICATE_TEST_MODE_ENABLE` set to true, it will return an
-	 * instance of mock class `TestIThenticate` instead of actual commucation
-	 * responsible class.
+	 * If the test mode is enable, it will return an instance of mock class 
+	 * `TestIThenticate` instead of actual commucation responsible class.
 	 * 
 	 * @param string $apiUrl
 	 * @param string $apiKey
