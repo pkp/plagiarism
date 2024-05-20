@@ -19,18 +19,18 @@ import("plugins.generic.plagiarism.TestIThenticate");
 
 class ValidatorIthenticateAccess extends Validator {
     
-    /**
+	/**
 	 * The iThenticate API communicating service class instance
 	 * 
 	 * @var \IThenticate|\TestIThenticate
 	 */
-    protected $ithenticate;
+	protected $ithenticate;
 
-    public function __construct($ithenticate) {
-        $this->ithenticate = $ithenticate;
-    }
+	public function __construct($ithenticate) {
+		$this->ithenticate = $ithenticate;
+	}
 
-    public function isValid($value) {
-        return $this->ithenticate->validateAccess();
-    }
+	public function isValid($value) {
+		return $this->ithenticate->validateAccess();
+	}
 } 

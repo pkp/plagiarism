@@ -28,7 +28,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	 */
 	public function launchViewer($args, $request) {
 		$context = $request->getContext();
-        $user = $request->getUser();
+		$user = $request->getUser();
 
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
@@ -38,9 +38,9 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$site = $siteDao->getSite();
 
 		/** @var \IThenticate $ithenticate */
-        $ithenticate = static::$_plugin->initIthenticate(
-            ...static::$_plugin->getServiceAccess($context)
-        );
+		$ithenticate = static::$_plugin->initIthenticate(
+			...static::$_plugin->getServiceAccess($context)
+		);
 
 		$locale = $ithenticate
 			->setApplicableEulaVersion($submission->getData('ithenticate_eula_version'))
@@ -78,9 +78,9 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
 
 		/** @var \IThenticate $ithenticate */
-        $ithenticate = static::$_plugin->initIthenticate(
-            ...static::$_plugin->getServiceAccess($context)
-        );
+		$ithenticate = static::$_plugin->initIthenticate(
+			...static::$_plugin->getServiceAccess($context)
+		);
 
 		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
 			$submissionFile->getData('ithenticate_id'),
@@ -112,9 +112,9 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
 
 		/** @var \IThenticate $ithenticate */
-        $ithenticate = static::$_plugin->initIthenticate(
-            ...static::$_plugin->getServiceAccess($context)
-        );
+		$ithenticate = static::$_plugin->initIthenticate(
+			...static::$_plugin->getServiceAccess($context)
+		);
 
 		$similarityScoreResult = $ithenticate->getSimilarityResult(
 			$submissionFile->getData('ithenticate_id')
@@ -155,9 +155,9 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId')); /** @var Submission $submission*/
 
 		/** @var \IThenticate $ithenticate */
-        $ithenticate = static::$_plugin->initIthenticate(
-            ...static::$_plugin->getServiceAccess($context)
-        );
+		$ithenticate = static::$_plugin->initIthenticate(
+			...static::$_plugin->getServiceAccess($context)
+		);
 
 		if (!static::$_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
 			return new JSONMessage(false);
@@ -185,7 +185,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 
-        $confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
+		$confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
 		if (!$confirmSubmissionEula) {
 
@@ -197,9 +197,9 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				$submissionFile
 			);
 
-            SessionManager::getManager()->getUserSession()->setSessionVar('confirmSubmissionEulaError', true);
+			SessionManager::getManager()->getUserSession()->setSessionVar('confirmSubmissionEulaError', true);
 
-            return new JSONMessage(
+			return new JSONMessage(
 				true,
 				$templateManager->fetch(static::$_plugin->getTemplateResource('confirmEula.tpl'))
 			);
@@ -207,11 +207,11 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 
 		if (!$submission->getData('ithenticate_eula_version')) {
 			static::$_plugin->stampEulaToSubmission($context, $submission);
-        }
+		}
 
-        if (!$user->getData('ithenticateEulaVersion')) {
+		if (!$user->getData('ithenticateEulaVersion')) {
 			static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
-        }
+		}
 
 		$onAcceptAction = $args['onAcceptAction'];
 

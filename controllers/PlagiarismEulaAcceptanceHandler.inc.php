@@ -29,29 +29,29 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
 	public function handle($args, $request) {
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
-        $user = $request->getUser();
-        $submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$user = $request->getUser();
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($args['submissionId']);
-        $confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
+		$confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
-        if (!$confirmSubmissionEula) {
-            SessionManager::getManager()->getUserSession()->setSessionVar('confirmSubmissionEulaError', true);
-            return $this->redirectToUrl(
-                $request,
-                $context,
-                ['submissionId' => $args['submissionId']]
-            );
-        }
+		if (!$confirmSubmissionEula) {
+			SessionManager::getManager()->getUserSession()->setSessionVar('confirmSubmissionEulaError', true);
+			return $this->redirectToUrl(
+				$request,
+				$context,
+				['submissionId' => $args['submissionId']]
+			);
+		}
 
-        SessionManager::getManager()->getUserSession()->unsetSessionVar('confirmSubmissionEulaError');
+		SessionManager::getManager()->getUserSession()->unsetSessionVar('confirmSubmissionEulaError');
 
-        static::$_plugin->stampEulaToSubmission($context, $submission);
-        static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
+		static::$_plugin->stampEulaToSubmission($context, $submission);
+		static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
 
 		return $this->redirectToUrl($request, $context, ['submissionId' => $args['submissionId']]);
 	}
 
-    /**
+	/**
 	 * Generate and get the redirection url
 	 *
 	 * @param Request $request
@@ -60,19 +60,19 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
 	 * 
 	 * @return string
 	 */
-    protected function redirectToUrl($request, $context, $args) {
+	protected function redirectToUrl($request, $context, $args) {
         
-        return $request->redirectUrl(
-            $request->getDispatcher()->url(
-                $request,
-                ROUTE_PAGE,
-                $context->getData('urlPath'),
-                'submission',
-                'wizard',
-                4,
-                $args
-            )
-        );
-    }
+		return $request->redirectUrl(
+			$request->getDispatcher()->url(
+				$request,
+				ROUTE_PAGE,
+				$context->getData('urlPath'),
+				'submission',
+				'wizard',
+				4,
+				$args
+			)
+		);
+	}
     
 }

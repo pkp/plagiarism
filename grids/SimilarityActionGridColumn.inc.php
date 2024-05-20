@@ -29,7 +29,7 @@ class SimilarityActionGridColumn extends GridColumn {
 	 */
 	protected $similarityScoreColumns = [];
 
-    /** 
+	/** 
 	 * The Plagiarism Plugin itself
 	 * 
 	 * @var PlagiarismPlugin
@@ -39,25 +39,25 @@ class SimilarityActionGridColumn extends GridColumn {
 	/**
 	 * Constructor
 	 *
-     * @param PlagiarismPlugin  $plugin         The Plagiarism Plugin itself
+	 * @param PlagiarismPlugin  $plugin         The Plagiarism Plugin itself
 	 * @param array             $scoreColumns   List of columns record to retrieve to show ithenticate's 
 	 *                                          similarity scores 
 	 */
     public function __construct($plugin, $scoreColumns) {
 
-        $this->_plugin = $plugin;
-        $this->similarityScoreColumns = $scoreColumns;
+		$this->_plugin = $plugin;
+		$this->similarityScoreColumns = $scoreColumns;
 
-        $cellProvider = new ColumnBasedGridCellProvider();
+		$cellProvider = new ColumnBasedGridCellProvider();
 
 		parent::__construct(
-            'score',
-            'plugins.generic.plagiarism.similarity.action.column.score.title',
-            null,
-            null, 
-            $cellProvider,
+			'score',
+			'plugins.generic.plagiarism.similarity.action.column.score.title',
+			null,
+			null, 
+			$cellProvider,
 			['width' => 50, 'alignment' => COLUMN_ALIGNMENT_LEFT, 'anyhtml' => true]
-        );
+		);
 	}
 
 	/**
@@ -71,7 +71,7 @@ class SimilarityActionGridColumn extends GridColumn {
 		$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
 		assert($submissionFile instanceof SubmissionFile);
 
-        // Not going to allow plagiarims action on a zip file
+		// Not going to allow plagiarims action on a zip file
 		if ($this->isSubmissionFileTypeZip($submissionFile)) {
 			return ['label' => __('plugins.generic.plagiarism.similarity.action.invalidFileType')];
 		}
@@ -105,162 +105,162 @@ class SimilarityActionGridColumn extends GridColumn {
 	 */
 	public function getCellActions($request, $row, $position = GRID_ACTION_POSITION_DEFAULT) {
 		$cellActions = parent::getCellActions($request, $row, $position);
-        $request = Application::get()->getRequest();
-        $context = $request->getContext();
-        $user = $request->getUser();
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+		$user = $request->getUser();
 
-        // User can not perform any of following actions if not a Journal Manager or Editor
-        //      - Upload file for plagiarims check if failed
-        //      - Schedule similarity report generation if not scheduled already
-        //      - Refresh the similarity report scores
-        //      - Launch similarity report viewer
-        if (!$user->hasRole([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR], $context->getId())) {
+		// User can not perform any of following actions if not a Journal Manager or Editor
+		//      - Upload file for plagiarims check if failed
+		//      - Schedule similarity report generation if not scheduled already
+		//      - Refresh the similarity report scores
+		//      - Launch similarity report viewer
+		if (!$user->hasRole([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR], $context->getId())) {
 			return $cellActions;
 		}
 
 		$submissionFileData = $row->getData();
-        $submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
+		$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
 
 		// Not going to allow plagiarims action on a zip file
 		if ($this->isSubmissionFileTypeZip($submissionFile)) {
 			return $cellActions;
 		}
 
-        $submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 
-        // There was an error and submission not completed, 
-        // Ask for confirmation and try to complete the submission process
-        if (!$submissionFile->getData('ithenticate_id')) {
+		// There was an error and submission not completed, 
+		// Ask for confirmation and try to complete the submission process
+		if (!$submissionFile->getData('ithenticate_id')) {
 
-            // first check if curernt user has already EULA confirmed that is associated with submission
-            // If not confirmed, need to confirm EULA first before uploading submission to iThenticate
+			// first check if curernt user has already EULA confirmed that is associated with submission
+			// If not confirmed, need to confirm EULA first before uploading submission to iThenticate
 
-            if ($this->isEulaConfirmationRequired($context, $submission, $user)) {
+			if ($this->isEulaConfirmationRequired($context, $submission, $user)) {
 
-                $cellActions[] = new LinkAction(
-                    "plagiarism-eula-confirmation-{$submissionFile->getId()}",
-                    new AjaxModal(
-                        $request->getDispatcher()->url(
-                            $request,
-                            ROUTE_COMPONENT,
-                            $context->getData('urlPath'),
-                            'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
-                            'confirmEula',
-                            null,
-                            [
-                                'submissionFileId' => $submissionFile->getId(),
-                                'onAcceptAction' => 'submitSubmission',
-                            ]
-                        ),
-                        __('plugins.generic.plagiarism.similarity.action.confirmEula.title')
-                    ),
-                    __('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
-                );
-                
-                return $cellActions;
+				$cellActions[] = new LinkAction(
+					"plagiarism-eula-confirmation-{$submissionFile->getId()}",
+					new AjaxModal(
+						$request->getDispatcher()->url(
+							$request,
+							ROUTE_COMPONENT,
+							$context->getData('urlPath'),
+							'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+							'confirmEula',
+							null,
+							[
+								'submissionFileId' => $submissionFile->getId(),
+								'onAcceptAction' => 'submitSubmission',
+							]
+						),
+						__('plugins.generic.plagiarism.similarity.action.confirmEula.title')
+					),
+					__('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
+				);
+
+				return $cellActions;
             }
 
-            $cellActions[] = new LinkAction(
-                "plagiarism-submission-submit-{$submissionFile->getId()}",
-                new RemoteActionConfirmationModal(
-                    $request->getSession(),
-                    __('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation'),
-                    __('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title'),
-                    $request->getDispatcher()->url(
-                        $request,
-                        ROUTE_COMPONENT,
-                        $context->getData('urlPath'),
-                        'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
-                        'submitSubmission',
-                        null,
-                        [
-                            'submissionFileId' => $submissionFile->getId(),
-                        ]
-                    )
-                ),
-                __('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
-            );
+			$cellActions[] = new LinkAction(
+				"plagiarism-submission-submit-{$submissionFile->getId()}",
+				new RemoteActionConfirmationModal(
+					$request->getSession(),
+					__('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation'),
+					__('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title'),
+					$request->getDispatcher()->url(
+						$request,
+						ROUTE_COMPONENT,
+						$context->getData('urlPath'),
+						'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+						'submitSubmission',
+						null,
+						[
+							'submissionFileId' => $submissionFile->getId(),
+						]
+					)
+				),
+				__('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
+			);
 
-            return $cellActions;
-        }
+			return $cellActions;
+		}
         
-        // Submission similarity report generation has not scheduled
-        if ($submissionFile->getData('ithenticate_similarity_scheduled') === false) {
-		    $cellActions[] = new LinkAction(
-                "plagiarism-similarity-report-schedule-{$submissionFile->getId()}",
-                new RemoteActionConfirmationModal(
-                    $request->getSession(),
-                    __('plugins.generic.plagiarism.similarity.action.generateReport.confirmation'),
-                    __('plugins.generic.plagiarism.similarity.action.generateReport.title'),
-                    $request->getDispatcher()->url(
-                        $request,
-                        ROUTE_COMPONENT,
-                        $context->getData('urlPath'),
-                        'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
-                        'scheduleSimilarityReport',
-                        null,
-                        [
-                            'submissionFileId' => $submissionFile->getId(),
-                        ]
-                    )
-                ),
-                __('plugins.generic.plagiarism.similarity.action.generateReport.title')
-            );
+		// Submission similarity report generation has not scheduled
+		if ($submissionFile->getData('ithenticate_similarity_scheduled') === false) {
+			$cellActions[] = new LinkAction(
+				"plagiarism-similarity-report-schedule-{$submissionFile->getId()}",
+				new RemoteActionConfirmationModal(
+					$request->getSession(),
+					__('plugins.generic.plagiarism.similarity.action.generateReport.confirmation'),
+					__('plugins.generic.plagiarism.similarity.action.generateReport.title'),
+					$request->getDispatcher()->url(
+						$request,
+						ROUTE_COMPONENT,
+						$context->getData('urlPath'),
+						'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+						'scheduleSimilarityReport',
+						null,
+						[
+							'submissionFileId' => $submissionFile->getId(),
+						]
+					)
+				),
+				__('plugins.generic.plagiarism.similarity.action.generateReport.title')
+			);
 
-            return $cellActions;
-        }
+			return $cellActions;
+		}
 
-        // Generate the action for similarity score refresh
-        $similarityResultRefreshAction = new LinkAction(
-            "plagiarism-similarity-score-refresh-{$submissionFile->getId()}",
-            new RemoteActionConfirmationModal(
-                $request->getSession(),
-                __('plugins.generic.plagiarism.similarity.action.refreshReport.confirmation'),
-                __('plugins.generic.plagiarism.similarity.action.refreshReport.title'),
-                $request->getDispatcher()->url(
-                    $request,
-                    ROUTE_COMPONENT,
-                    $context->getData('urlPath'),
-                    'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
-                    'refreshSimilarityResult',
-                    null,
-                    [
-                        'submissionFileId' => $submissionFile->getId(),
-                    ]
-                )
-            ),
-            __('plugins.generic.plagiarism.similarity.action.refreshReport.title')
-        );
+		// Generate the action for similarity score refresh
+		$similarityResultRefreshAction = new LinkAction(
+			"plagiarism-similarity-score-refresh-{$submissionFile->getId()}",
+			new RemoteActionConfirmationModal(
+				$request->getSession(),
+				__('plugins.generic.plagiarism.similarity.action.refreshReport.confirmation'),
+				__('plugins.generic.plagiarism.similarity.action.refreshReport.title'),
+				$request->getDispatcher()->url(
+					$request,
+					ROUTE_COMPONENT,
+					$context->getData('urlPath'),
+					'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+					'refreshSimilarityResult',
+					null,
+					[
+						'submissionFileId' => $submissionFile->getId(),
+					]
+				)
+			),
+			__('plugins.generic.plagiarism.similarity.action.refreshReport.title')
+		);
 
-        // If similarity score not availabel
-        // show as cell action and upon it's available, show it as part of row action
-        $submissionFile->getData('ithenticate_similarity_result')
-            ? $row->addAction($similarityResultRefreshAction)
-            : array_push($cellActions, $similarityResultRefreshAction);
+		// If similarity score not availabel
+		// show as cell action and upon it's available, show it as part of row action
+		$submissionFile->getData('ithenticate_similarity_result')
+			? $row->addAction($similarityResultRefreshAction)
+			: array_push($cellActions, $similarityResultRefreshAction);
 
-        // Similarity viewer only available upon the availability of similarity report is 
-        if ($submissionFile->getData('ithenticate_similarity_result')) {
-            $row->addAction(
-                new LinkAction(
-                    "plagiarism-similarity-launch-viewer-{$submissionFile->getId()}",
-                    new OpenWindowAction(
-                        $request->getDispatcher()->url(
-                            $request,
-                            ROUTE_COMPONENT,
-                            $context->getData('urlPath'),
-                            'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
-                            'launchViewer',
-                            null,
-                            [
-                                'submissionFileId' => $submissionFile->getId(),
-                            ]
-                        )
-                    ),
-                    __('plugins.generic.plagiarism.similarity.action.launch.viewer.title')
-                )
-            );
-        }
+		// Similarity viewer only available upon the availability of similarity report is 
+		if ($submissionFile->getData('ithenticate_similarity_result')) {
+			$row->addAction(
+				new LinkAction(
+					"plagiarism-similarity-launch-viewer-{$submissionFile->getId()}",
+					new OpenWindowAction(
+						$request->getDispatcher()->url(
+							$request,
+							ROUTE_COMPONENT,
+							$context->getData('urlPath'),
+							'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+							'launchViewer',
+							null,
+							[
+								'submissionFileId' => $submissionFile->getId(),
+							]
+						)
+					),
+					__('plugins.generic.plagiarism.similarity.action.launch.viewer.title')
+				)
+			);
+		}
 
 		return $cellActions;
 	}
@@ -276,45 +276,45 @@ class SimilarityActionGridColumn extends GridColumn {
 	 */
     protected function isEulaConfirmationRequired($context, $submission, $user) {
 
-        // Check if EULA confirmation required for this tenant
-        if ($this->_plugin->getContextEulaDetails($context, 'require_eula') === false) {
-            return false;
-        }
+		// Check if EULA confirmation required for this tenant
+		if ($this->_plugin->getContextEulaDetails($context, 'require_eula') === false) {
+			return false;
+		}
 
-        // If no EULA is stamped with submission
-        // means submission never passed through iThenticate process
-        if (!$submission->getData('ithenticate_eula_version')) {
-            return true;
-        }
+		// If no EULA is stamped with submission
+		// means submission never passed through iThenticate process
+		if (!$submission->getData('ithenticate_eula_version')) {
+			return true;
+		}
 
-        // If no EULA is stamped with submission
-        // means user has never previously interacted with iThenticate process
-        if (!$user->getData('ithenticateEulaVersion')) {
-            return true;
-        }
+		// If no EULA is stamped with submission
+		// means user has never previously interacted with iThenticate process
+		if (!$user->getData('ithenticateEulaVersion')) {
+			return true;
+		}
 
-        // If user and submission EULA do not match
-        // means users previously agreed upon different EULA
-        if ($user->getData('ithenticateEulaVersion') !== $submission->getData('ithenticate_eula_version')) {
-            return true;
-        }
+		// If user and submission EULA do not match
+		// means users previously agreed upon different EULA
+		if ($user->getData('ithenticateEulaVersion') !== $submission->getData('ithenticate_eula_version')) {
+			return true;
+		}
 
-        return false;
+		return false;
     }
 
-    /**
+	/**
 	 * Check if submission file type in valid for plagiarims action
-     * Restricted for ZIP file
+	 * Restricted for ZIP file
 	 *
-     * @param SubmissionFile $submissionFile
-     * @return bool
+	 * @param SubmissionFile $submissionFile
+	 * @return bool
 	 */
-    protected function isSubmissionFileTypeZip($submissionFile) {
+	protected function isSubmissionFileTypeZip($submissionFile) {
 
-        $pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
+		$pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
 
 		return $pkpFileService->getDocumentType($file->mimetype) === DOCUMENT_TYPE_ZIP;
-    }
+	}
 
 }
