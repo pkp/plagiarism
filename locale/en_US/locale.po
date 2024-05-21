@@ -144,15 +144,6 @@ msgstr "Launch Plagiarism Similarity Viewer"
 msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
 msgstr "Overall Match Percentage"
 
-msgid "plugins.generic.plagiarism.similarity.score.column.internet_match_percentage"
-msgstr "Internet Match Percentage"
-
-msgid "plugins.generic.plagiarism.similarity.score.column.publication_match_percentage"
-msgstr "publication Match Percentage"
-
-msgid "plugins.generic.plagiarism.similarity.score.column.submitted_works_match_percentage"
-msgstr "submitted Works Match Percentage"
-
 msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
 msgstr "Schedule Plagiarism Report"
 

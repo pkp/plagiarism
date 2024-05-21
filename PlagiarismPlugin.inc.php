@@ -48,9 +48,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	protected $similarityScoreColumns = [
 		'overall_match_percentage',
-		'internet_match_percentage',
-		'publication_match_percentage',
-		'submitted_works_match_percentage',
 	];
 
 	/**
