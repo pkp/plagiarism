@@ -16,6 +16,7 @@
 import("plugins.generic.plagiarism.controllers.PlagiarismComponentHandler");
 import('lib.pkp.classes.core.JSONMessage'); 
 import('lib.pkp.classes.db.DAORegistry');
+import('classes.notification.NotificationManager');
 import("plugins.generic.plagiarism.IThenticate");
 
 class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
@@ -60,6 +61,16 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			(bool)static::$_plugin->getSimilarityConfigSettings($context, 'allowViewerUpdate')
 		);
 
+		if (!$viewerUrl) {
+			return $request->redirect(
+				null,
+				'user',
+				'authorizationDenied',
+				null,
+				['message' => 'plugins.generic.plagiarism.action.launchViewer.error']
+			);
+		}
+
 		return $request->redirectUrl($viewerUrl);
 	}
 
@@ -89,12 +100,23 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 
 		if (!$scheduleSimilarityReport) {
 			static::$_plugin->sendErrorMessage("Failed to schedule the similarity report generation process for iThenticate submission id " . $submissionFile->getData('ithenticate_id'), $submissionFile->getData('submissionId'));
-			return new JSONMessage(false);
+			$this->generateUserNotification(
+				$request,
+				NOTIFICATION_TYPE_ERROR, 
+				__('plugins.generic.plagiarism.action.scheduleSimilarityReport.error')
+			);
+			return DAO::getDataChangedEvent($submissionFile->getId());
 		}
 
 		$submissionFile->setData('ithenticate_similarity_scheduled', 1);
 		$submissionFileDao->updateObject($submissionFile);
 
+		$this->generateUserNotification(
+			$request,
+			NOTIFICATION_TYPE_SUCCESS, 
+			__('plugins.generic.plagiarism.action.scheduleSimilarityReport.success')
+		);
+		
 		return DAO::getDataChangedEvent($submissionFile->getId());
     }
 
@@ -122,18 +144,34 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 
 		if (!$similarityScoreResult) {
 			static::$_plugin->sendErrorMessage("Unable to retrieve similarity result for submission file id " . $submissionFile->getData('ithenticate_id'), $submissionFile->getData('submissionId'));
-			return new JSONMessage(false);
+			$this->generateUserNotification(
+				$request,
+				NOTIFICATION_TYPE_ERROR, 
+				__('plugins.generic.plagiarism.action.refreshSimilarityResult.error')
+			);
+			return DAO::getDataChangedEvent($submissionFile->getId());
 		}
 
 		$similarityScoreResult = json_decode($similarityScoreResult);
 
 		if ($similarityScoreResult->status !== 'COMPLETE') {
 			static::$_plugin->sendErrorMessage("Similarity result info not yet complete for submission file id " . $submissionFile->getData('ithenticate_id'), $submissionFile->getData('submissionId'));
-			return new JSONMessage(false);
+			$this->generateUserNotification(
+				$request,
+				NOTIFICATION_TYPE_WARNING, 
+				__('plugins.generic.plagiarism.action.refreshSimilarityResult.warning')
+			);
+			return DAO::getDataChangedEvent($submissionFile->getId());
 		}
 
 		$submissionFile->setData('ithenticate_similarity_result', json_encode($similarityScoreResult));
 		$submissionFileDao->updateObject($submissionFile);
+
+		$this->generateUserNotification(
+			$request,
+			NOTIFICATION_TYPE_SUCCESS, 
+			__('plugins.generic.plagiarism.action.refreshSimilarityResult.success')
+		);
 
 		return DAO::getDataChangedEvent($submissionFile->getId());
     }
@@ -160,8 +198,19 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		);
 
 		if (!static::$_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
-			return new JSONMessage(false);
+			$this->generateUserNotification(
+				$request,
+				NOTIFICATION_TYPE_ERROR, 
+				__('plugins.generic.plagiarism.action.submitSubmission.error')
+			);
+			return DAO::getDataChangedEvent($submissionFile->getId());
 		}
+
+		$this->generateUserNotification(
+			$request,
+			NOTIFICATION_TYPE_SUCCESS, 
+			__('plugins.generic.plagiarism.action.submitSubmission.success')
+		);
 
 		return DAO::getDataChangedEvent($submissionFile->getId());
 	}
@@ -293,6 +342,24 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		]);
 
 		return $templateManager;
+	}
+
+	/**
+	 * Generate the user friendly notification upon a response received for an action
+	 *
+	 * @param Request 	$request
+	 * @param int 		$notificationType
+	 * @param string 	$notificationContent
+	 * 
+	 * @return void
+	 */
+	protected function generateUserNotification($request, $notificationType, $notificationContent) {
+		$notificationMgr = new NotificationManager();
+		$notificationMgr->createTrivialNotification(
+			$request->getUser()->getId(), 
+			$notificationType, 
+			['contents' => $notificationContent]
+		);
 	}
 
 }

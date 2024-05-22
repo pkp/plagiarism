@@ -167,3 +167,27 @@ msgstr "Plagiarism End User License Agreement Confirmation"
 
 msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
 msgstr "Plagiarims actions Not available"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.error"
+msgstr "Unable to schedule the iThenticate similarity report generation process."
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr "Successfully schedule the iThenticate similarity report generation process."
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr "Report viewer not currently available, please try again later."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr "Unable to refresh iThenticate similarity score."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr "The iThenticate similarity score has not yet completed."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "Successfully refreshed and updated the iThenticate similarity scores."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr "Unable to upload the submission file to iThenticate. Note that submission file size must be more than 0 MB and less or equal to 100 MB."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Successfully uploaded the submission file to iThenticate."
