@@ -42,15 +42,6 @@ class PlagiarismPlugin extends GenericPlugin {
 	];
 
 	/**
-	 * List of columns record to retrieve to show ithenticate's similarity scores
-	 * 
-	 * @var array
-	 */
-	protected $similarityScoreColumns = [
-		'overall_match_percentage',
-	];
-
-	/**
 	 * @copydoc Plugin::register()
 	 */
 	public function register($category, $path, $mainContextId = null) {
@@ -456,12 +447,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submissionDetailsFilesGridHandler = & $params[0];
 
 		import('plugins.generic.plagiarism.grids.SimilarityActionGridColumn');
-		$submissionDetailsFilesGridHandler->addColumn(
-			new SimilarityActionGridColumn(
-				$this,
-				$this->similarityScoreColumns
-			)
-		);
+		$submissionDetailsFilesGridHandler->addColumn(new SimilarityActionGridColumn($this));
 
 		return false;
 	}
@@ -981,6 +967,19 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 
 		error_log("iThenticate submission {$submissionId} failed: {$message}");
+	}
+
+	/**
+	 * Get the iThenticate logo URL
+	 * 
+	 * @return string
+	 */
+	public function getIThenticateLogoUrl() {
+		return Application::get()->getRequest()->getBaseUrl()
+			. '/'
+			. $this->getPluginPath()
+			. '/'
+			. 'assets/logo/ithenticate-badge-rec-positive.png';
 	}
 
 	/**

@@ -22,13 +22,6 @@ import('lib.pkp.classes.linkAction.request.AjaxModal');
 
 class SimilarityActionGridColumn extends GridColumn {
 	
-	/**
-	 * List of columns record to retrieve to show ithenticate's similarity scores
-	 *
-	 * @var array
-	 */
-	protected $similarityScoreColumns = [];
-
 	/** 
 	 * The Plagiarism Plugin itself
 	 * 
@@ -39,14 +32,11 @@ class SimilarityActionGridColumn extends GridColumn {
 	/**
 	 * Constructor
 	 *
-	 * @param PlagiarismPlugin  $plugin         The Plagiarism Plugin itself
-	 * @param array             $scoreColumns   List of columns record to retrieve to show ithenticate's 
-	 *                                          similarity scores 
+	 * @param PlagiarismPlugin  $plugin The Plagiarism Plugin itself
 	 */
-    public function __construct($plugin, $scoreColumns) {
+    public function __construct($plugin) {
 
 		$this->_plugin = $plugin;
-		$this->similarityScoreColumns = $scoreColumns;
 
 		$cellProvider = new ColumnBasedGridCellProvider();
 
@@ -82,19 +72,19 @@ class SimilarityActionGridColumn extends GridColumn {
             
             $similarityResult = json_decode(
                 $submissionFile->getData('ithenticate_similarity_result'),
-                true
             );
-            $scores = '';
 
-            foreach ($similarityResult as $column => $value) {
-                if (!in_array($column, $this->similarityScoreColumns)) {
-                    continue;
-                }
+			$templateManager = TemplateManager::getManager();
+			$templateManager->assign([
+				'logoUrl' => $this->_plugin->getIThenticateLogoUrl(),
+				'score' => $similarityResult->overall_match_percentage,
+			]);
 
-                $scores = $scores . '<li>' . __("plugins.generic.plagiarism.similarity.score.column.{$column}") . ' : ' . $value .'</li>';
-            }
-
-            return ['label' => "<ul>{$scores}</ul>"];
+            return [
+				'label' => $templateManager->fetch(
+					$this->_plugin->getTemplateResource('similarityScore.tpl')
+				)
+			];
         }
 
         return ['label' => ''];
