@@ -287,7 +287,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function confirmEulaAcceptance($hookName, $params) {
 
-		// if the auto upload to ithenticate disbale
+		// if the auto upload to ithenticate disable
 		// not going to do the EULA confirmation at submission time
 		if ($this->hasAutoSubmissionDisabled()) {
 			return false;
@@ -377,7 +377,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function submitForPlagiarismCheck($hookName, $args) {
 
-		// if the auto upload to ithenticate disbale
+		// if the auto upload to ithenticate disable
 		// not going to upload files to iThenticate at submission time
 		if ($this->hasAutoSubmissionDisabled()) {
 			return false;
@@ -913,8 +913,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
 		$contextPath = $context ? $context->getPath() : 'index';
 
-		return $this->getForcedConfigSetting($contextPath, 'disbaleAutoSubmission')
-			?? $this->getSetting($context->getId(), 'disbaleAutoSubmission');
+		return $this->getForcedConfigSetting($contextPath, 'disableAutoSubmission')
+			?? $this->getSetting($context->getId(), 'disableAutoSubmission');
 	}
 
 	/**

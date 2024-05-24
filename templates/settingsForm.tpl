@@ -40,13 +40,13 @@
 		}
 
 		<p>
-		{fbvFormSection description="plugins.generic.plagiarism.manager.settings.disbaleAutoSubmission.description" list=true}
+		{fbvFormSection description="plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description" list=true}
 			{fbvElement
 				type="checkbox"
-				name="disbaleAutoSubmission"
-				id="disbaleAutoSubmission"
-				checked=$disbaleAutoSubmission
-				label="plugins.generic.plagiarism.manager.settings.disbaleAutoSubmission"
+				name="disableAutoSubmission"
+				id="disableAutoSubmission"
+				checked=$disableAutoSubmission
+				label="plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
 				translate="true"
 			}
 		{/fbvFormSection}

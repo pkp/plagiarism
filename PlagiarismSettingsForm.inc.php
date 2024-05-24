@@ -74,7 +74,7 @@ class PlagiarismSettingsForm extends Form {
 			'ithenticateForced' 	=> $this->_plugin->hasForcedCredentials(),
 			'ithenticateApiUrl' 	=> $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl'),
 			'ithenticateApiKey' 	=> $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey'),
-			'disbaleAutoSubmission' => $this->_plugin->getSetting($this->_context->getId(), 'disbaleAutoSubmission'),
+			'disableAutoSubmission' => $this->_plugin->getSetting($this->_context->getId(), 'disableAutoSubmission'),
 			'addToIndex' 			=> $this->_plugin->getSetting($this->_context->getId(), 'addToIndex'),
 			'excludeQuotes' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeQuotes'),
 			'excludeBibliography' 	=> $this->_plugin->getSetting($this->_context->getId(), 'excludeBibliography'),
@@ -93,7 +93,7 @@ class PlagiarismSettingsForm extends Form {
 		$this->readUserVars([
 			'ithenticateApiUrl',
 			'ithenticateApiKey',
-			'disbaleAutoSubmission',
+			'disableAutoSubmission',
 			'addToIndex',
 			'excludeQuotes',
 			'excludeBibliography',
@@ -140,7 +140,7 @@ class PlagiarismSettingsForm extends Form {
 			$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiKey', $ithenticateApiKey, 'string');
 		}
 
-		$this->_plugin->updateSetting($this->_context->getId(), 'disbaleAutoSubmission', $this->getData('disbaleAutoSubmission'), 'bool');
+		$this->_plugin->updateSetting($this->_context->getId(), 'disableAutoSubmission', $this->getData('disableAutoSubmission'), 'bool');
 
 		$this->_plugin->updateSetting($this->_context->getId(), 'addToIndex', 			$this->getData('addToIndex'), 			'bool');
 		$this->_plugin->updateSetting($this->_context->getId(), 'excludeQuotes', 		$this->getData('excludeQuotes'), 		'bool');
