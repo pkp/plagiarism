@@ -449,6 +449,10 @@ class PlagiarismPlugin extends GenericPlugin {
 		import('plugins.generic.plagiarism.grids.SimilarityActionGridColumn');
 		$submissionDetailsFilesGridHandler->addColumn(new SimilarityActionGridColumn($this));
 
+		import('plugins.generic.plagiarism.grids.RearrangeColumnsFeature');
+		$features =& $params[3]; /** @var array $features */
+		$features[] = new RearrangeColumnsFeature($submissionDetailsFilesGridHandler);
+
 		return false;
 	}
 

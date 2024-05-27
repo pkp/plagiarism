@@ -21,6 +21,8 @@ import('lib.pkp.classes.linkAction.request.RemoteActionConfirmationModal');
 import('lib.pkp.classes.linkAction.request.AjaxModal');
 
 class SimilarityActionGridColumn extends GridColumn {
+
+	public const SIMILARITY_ACTION_GRID_COLUMN_ID = 'score';
 	
 	/** 
 	 * The Plagiarism Plugin itself
@@ -41,12 +43,12 @@ class SimilarityActionGridColumn extends GridColumn {
 		$cellProvider = new ColumnBasedGridCellProvider();
 
 		parent::__construct(
-			'score',
+			self::SIMILARITY_ACTION_GRID_COLUMN_ID,
 			'plugins.generic.plagiarism.similarity.action.column.score.title',
 			null,
 			null, 
 			$cellProvider,
-			['width' => 50, 'alignment' => COLUMN_ALIGNMENT_LEFT, 'anyhtml' => true]
+			['width' => 30, 'alignment' => COLUMN_ALIGNMENT_LEFT, 'anyhtml' => true]
 		);
 	}
 
