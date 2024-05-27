@@ -42,6 +42,16 @@ class PlagiarismPlugin extends GenericPlugin {
 	];
 
 	/**
+	 * Determine if running application is OPS or not
+	 * 
+	 * @return bool
+	 */
+    public static function isOPS()
+    {
+        return strtolower(Application::get()->getName()) === 'ops';
+    }
+
+	/**
 	 * @copydoc Plugin::register()
 	 */
 	public function register($category, $path, $mainContextId = null) {
@@ -247,6 +257,13 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function handleRouteComponent($hookName, $params) {
 		$component =& $params[0];
 
+		if (static::isOPS() && $component === 'grid.articleGalleys.ArticleGalleyGridHandler') {
+			$this->import('controllers.PlagiarismArticleGalleyGridHandler');
+			PlagiarismArticleGalleyGridHandler::setPlugin($this);
+			$params[0] = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
+			return true;
+		}
+
 		if (!in_array($component, $this->validRouteComponentHandlers)) {
 			return false;
 		}
@@ -254,6 +271,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		import($component);
 		$componentName = last(explode('.', $component));
 		$componentName::setPlugin($this);
+
 		return true;
 	}
 

@@ -105,7 +105,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				NOTIFICATION_TYPE_ERROR, 
 				__('plugins.generic.plagiarism.action.scheduleSimilarityReport.error')
 			);
-			return DAO::getDataChangedEvent($submissionFile->getId());
+			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
 		$submissionFile->setData('ithenticateSimilarityScheduled', 1);
@@ -117,7 +117,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			__('plugins.generic.plagiarism.action.scheduleSimilarityReport.success')
 		);
 		
-		return DAO::getDataChangedEvent($submissionFile->getId());
+		return $this->triggerDataChangedEvent($submissionFile);
     }
 
 	/**
@@ -149,7 +149,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				NOTIFICATION_TYPE_ERROR, 
 				__('plugins.generic.plagiarism.action.refreshSimilarityResult.error')
 			);
-			return DAO::getDataChangedEvent($submissionFile->getId());
+			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
 		$similarityScoreResult = json_decode($similarityScoreResult);
@@ -161,7 +161,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				NOTIFICATION_TYPE_WARNING, 
 				__('plugins.generic.plagiarism.action.refreshSimilarityResult.warning')
 			);
-			return DAO::getDataChangedEvent($submissionFile->getId());
+			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
 		$submissionFile->setData('ithenticateSimilarityResult', json_encode($similarityScoreResult));
@@ -173,7 +173,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			__('plugins.generic.plagiarism.action.refreshSimilarityResult.success')
 		);
 
-		return DAO::getDataChangedEvent($submissionFile->getId());
+		return $this->triggerDataChangedEvent($submissionFile);
     }
 
 	/**
@@ -203,7 +203,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				NOTIFICATION_TYPE_ERROR, 
 				__('plugins.generic.plagiarism.action.submitSubmission.error')
 			);
-			return DAO::getDataChangedEvent($submissionFile->getId());
+			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
 		$this->generateUserNotification(
@@ -212,7 +212,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			__('plugins.generic.plagiarism.action.submitSubmission.success')
 		);
 
-		return DAO::getDataChangedEvent($submissionFile->getId());
+		return $this->triggerDataChangedEvent($submissionFile);
 	}
 
 	/**
@@ -360,6 +360,26 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			$notificationType, 
 			['contents' => $notificationContent]
 		);
+	}
+
+	/**
+	 * Trigger the data change event to refresh the grid view
+	 *
+	 * @param SubmissionFile $submissionFile
+	 * @return JSONMessage
+	 */
+	protected function triggerDataChangedEvent($submissionFile) {
+		if (static::$_plugin::isOPS()) {
+			$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /** @var ArticleGalleyDAO $articleGalleyDao */
+			$daoResultFactory = $articleGalleyDao->getByFileId($submissionFile->getId()); /** @var DAOResultFactory $daoResultFactory */
+			$articleGalley = $daoResultFactory->next(); /** @var ArticleGalley $articleGalley */
+			
+			if ($articleGalley) {
+				return DAO::getDataChangedEvent($articleGalley->getId());
+			}
+		}
+
+		return DAO::getDataChangedEvent($submissionFile->getId());
 	}
 
 }

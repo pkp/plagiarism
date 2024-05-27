@@ -136,7 +136,7 @@ msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpda
 msgstr "Allow changes in the similarity viewer to update the similarity score"
 
 msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
-msgstr "Plagiarism Score"
+msgstr "Plagiarism Score/Action"
 
 msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
 msgstr "Launch Plagiarism Similarity Viewer"

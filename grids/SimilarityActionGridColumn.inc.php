@@ -59,8 +59,23 @@ class SimilarityActionGridColumn extends GridColumn {
 	 */
 	public function getTemplateVarsFromRow($row) {
 
-		$submissionFileData = $row->getData();
-		$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
+		if ($this->_plugin::isOPS()) { // For OPS
+			$articleGalley = $row->getData(); /** @var ArticleGalley $articleGalley */
+			
+			if (!isset($articleGalley->_data['submissionFileId'])) {
+				return ['label' => ''];
+			}
+
+			$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
+			$submissionFile = $submissionFileDao->getById($articleGalley->getData('submissionFileId')); /** @var SubmissionFile $submissionFile */
+
+			$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /** @var ArticleGalleyDAO $articleGalleyDao */
+			$articleGalley = $articleGalleyDao->getByFileId($submissionFile->getId()); /** @var ArticleGalley $articleGalley */
+		} else {
+			$submissionFileData = $row->getData();
+			$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */			
+		}
+
 		assert($submissionFile instanceof SubmissionFile);
 
 		// Not going to allow plagiarims action on a zip file
@@ -110,8 +125,19 @@ class SimilarityActionGridColumn extends GridColumn {
 			return $cellActions;
 		}
 
-		$submissionFileData = $row->getData();
-		$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
+		if ($this->_plugin::isOPS()) { // For OPS
+			$articleGalley = $row->getData(); /** @var ArticleGalley $articleGalley */
+
+			if (!isset($articleGalley->_data['submissionFileId'])) {
+				return $cellActions;
+			}
+
+			$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
+			$submissionFile = $submissionFileDao->getById($articleGalley->getData('submissionFileId')); /** @var SubmissionFile $submissionFile */
+		} else {
+			$submissionFileData = $row->getData();
+			$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
+		}
 
 		// Not going to allow plagiarims action on a zip file
 		if ($this->isSubmissionFileTypeZip($submissionFile)) {
