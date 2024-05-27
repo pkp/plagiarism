@@ -136,21 +136,21 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function addPlagiarismCheckDataToSubmissionSchema($hookName, $params) {
 		$schema =& $params[0];
 
-		$schema->properties->ithenticate_eula_version = (object) [
+		$schema->properties->ithenticateEulaVersion = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate EULA version which has been agreed at submission checklist',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
 
-		$schema->properties->ithenticate_eula_url = (object) [
+		$schema->properties->ithenticateEulaUrl = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate EULA url which has been agreen at submission checklist',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
 
-		$schema->properties->ithenticate_submission_completed_at = (object) [
+		$schema->properties->ithenticateSubmissionCompletedAt = (object) [
 			'type' => 'string',
 			'description' => 'The timestamp at which this submission successfully completed uploading all files at iThenticate service end',
 			'apiSummary' => true,
@@ -175,21 +175,21 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function addPlagiarismCheckDataToSubmissionFileSchema($hookName, $params) {
 		$schema =& $params[0];
 
-		$schema->properties->ithenticate_id = (object) [
+		$schema->properties->ithenticateId = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate submission id for submission file',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
 
-		$schema->properties->ithenticate_similarity_scheduled = (object) [
+		$schema->properties->ithenticateSimilarityScheduled = (object) [
 			'type' => 'boolean',
 			'description' => 'The status which identify if the iThenticate similarity process has been scheduled for this submission file',
 			'apiSummary' => true,
 			'validation' => ['nullable'],
 		];
 
-		$schema->properties->ithenticate_similarity_result = (object) [
+		$schema->properties->ithenticateSimilarityResult = (object) [
 			'type' => 'string',
 			'description' => 'The similarity check result for this submission file in json format',
 			'apiSummary' => true,
@@ -211,14 +211,14 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function addIthenticateConfigSettingsToContextSchema($hookName, $params) {
 		$schema =& $params[0];
 
-		$schema->properties->ithenticate_webhook_signing_secret = (object) [
+		$schema->properties->ithenticateWebhookSigningSecret = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate service webook registration signing secret',
 			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
 
-		$schema->properties->ithenticate_webhook_id = (object) [
+		$schema->properties->ithenticateWebhookId = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate service webook id that return back after successful webhook registration',
 			'writeOnly' => true,
@@ -297,8 +297,8 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// If submission has EULA stamped and user has EULA stamped and both are save version
 		// so there is no need to confirm EULA again
-		if ($submission->getData('ithenticate_eula_version') &&
-			$submission->getData('ithenticate_eula_version') == $user->getData('ithenticateEulaVersion')) {
+		if ($submission->getData('ithenticateEulaVersion') &&
+			$submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
 			
 			return false;
 		}
@@ -388,16 +388,16 @@ class PlagiarismPlugin extends GenericPlugin {
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
 
 		// If no webhook previously registered for this Context, register it
-		if (!$context->getData('ithenticate_webhook_id')) {
+		if (!$context->getData('ithenticateWebhookId')) {
 			$this->registerIthenticateWebhook($ithenticate, $context);
 		}
 
-		$ithenticate->setApplicableEulaVersion($submission->getData('ithenticate_eula_version'));
+		$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
 
 		// Check EULA stamped to submission or submitter only if it is required
 		if ($this->getContextEulaDetails($context, 'require_eula') !== false) {
 			// not going to sent it for plagiarism check if EULA not stamped to submission or submitter
-			if (!$submission->getData('ithenticate_eula_version') || !$user->getData('ithenticateEulaVersion')) {
+			if (!$submission->getData('ithenticateEulaVersion') || !$user->getData('ithenticateEulaVersion')) {
 				$this->sendErrorMessage('Unable to obtain the stamped EULA details to submission or submitter', $submission->getId());
 				return false;
 			}
@@ -419,7 +419,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$submission->setData('ithenticate_submission_completed_at', Core::getCurrentDate());
+		$submission->setData('ithenticateSubmissionCompletedAt', Core::getCurrentDate());
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submissionDao->updateObject($submission);
 
@@ -464,8 +464,8 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		$eulaDetails = $this->getContextEulaDetails($context, $submission->getData('locale'));
 
-		$submission->setData('ithenticate_eula_version', $eulaDetails['version']);
-		$submission->setData('ithenticate_eula_url', $eulaDetails['url']);
+		$submission->setData('ithenticateEulaVersion', $eulaDetails['version']);
+		$submission->setData('ithenticateEulaUrl', $eulaDetails['url']);
 
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submissionDao->updateObject($submission);
@@ -486,7 +486,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::get()->getRequest();
 		$user ??= $request->getUser();
 
-		$submissionEulaVersion = $submission->getData('ithenticate_eula_version');
+		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion');
 
 		// If submission EULA version has already been stamped to user
 		// no need to do the confirmation and stamping again
@@ -560,8 +560,8 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$submissionFile->setData('ithenticate_id', $submissionUuid);
-		$submissionFile->setData('ithenticate_similarity_scheduled', 0);
+		$submissionFile->setData('ithenticateId', $submissionUuid);
+		$submissionFile->setData('ithenticateSimilarityScheduled', 0);
 		$submissionFileDao->updateObject($submissionFile);
 
 		return true;
@@ -590,8 +590,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		);
 
 		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
-			$context->setData('ithenticate_webhook_signing_secret', $signingSecret);
-			$context->setData('ithenticate_webhook_id', $webhookId);
+			$context->setData('ithenticateWebhookSigningSecret', $signingSecret);
+			$context->setData('ithenticateWebhookId', $webhookId);
 			Application::get()->getContextDAO()->updateObject($context);
 		} else {
 			error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");

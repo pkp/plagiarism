@@ -44,7 +44,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		);
 
 		$locale = $ithenticate
-			->setApplicableEulaVersion($submission->getData('ithenticate_eula_version'))
+			->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'))
 			->getApplicableLocale(
 				collect([$submission->getData("locale")])
 					->merge($user->getData("locales"))
@@ -54,7 +54,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			);
 
 		$viewerUrl = $ithenticate->createViewerLaunchUrl(
-			$submissionFile->getData('ithenticate_id'),
+			$submissionFile->getData('ithenticateId'),
 			$user,
 			$locale,
 			static::$_plugin->getSubmitterPermission($context, $user),
@@ -94,12 +94,12 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		);
 
 		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
-			$submissionFile->getData('ithenticate_id'),
+			$submissionFile->getData('ithenticateId'),
 			static::$_plugin->getSimilarityConfigSettings($context)
 		);
 
 		if (!$scheduleSimilarityReport) {
-			static::$_plugin->sendErrorMessage("Failed to schedule the similarity report generation process for iThenticate submission id " . $submissionFile->getData('ithenticate_id'), $submissionFile->getData('submissionId'));
+			static::$_plugin->sendErrorMessage("Failed to schedule the similarity report generation process for iThenticate submission id " . $submissionFile->getData('ithenticateId'), $submissionFile->getData('submissionId'));
 			$this->generateUserNotification(
 				$request,
 				NOTIFICATION_TYPE_ERROR, 
@@ -108,7 +108,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			return DAO::getDataChangedEvent($submissionFile->getId());
 		}
 
-		$submissionFile->setData('ithenticate_similarity_scheduled', 1);
+		$submissionFile->setData('ithenticateSimilarityScheduled', 1);
 		$submissionFileDao->updateObject($submissionFile);
 
 		$this->generateUserNotification(
@@ -139,11 +139,11 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		);
 
 		$similarityScoreResult = $ithenticate->getSimilarityResult(
-			$submissionFile->getData('ithenticate_id')
+			$submissionFile->getData('ithenticateId')
 		);
 
 		if (!$similarityScoreResult) {
-			static::$_plugin->sendErrorMessage("Unable to retrieve similarity result for submission file id " . $submissionFile->getData('ithenticate_id'), $submissionFile->getData('submissionId'));
+			static::$_plugin->sendErrorMessage("Unable to retrieve similarity result for submission file id " . $submissionFile->getData('ithenticateId'), $submissionFile->getData('submissionId'));
 			$this->generateUserNotification(
 				$request,
 				NOTIFICATION_TYPE_ERROR, 
@@ -155,7 +155,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$similarityScoreResult = json_decode($similarityScoreResult);
 
 		if ($similarityScoreResult->status !== 'COMPLETE') {
-			static::$_plugin->sendErrorMessage("Similarity result info not yet complete for submission file id " . $submissionFile->getData('ithenticate_id'), $submissionFile->getData('submissionId'));
+			static::$_plugin->sendErrorMessage("Similarity result info not yet complete for submission file id " . $submissionFile->getData('ithenticateId'), $submissionFile->getData('submissionId'));
 			$this->generateUserNotification(
 				$request,
 				NOTIFICATION_TYPE_WARNING, 
@@ -164,7 +164,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			return DAO::getDataChangedEvent($submissionFile->getId());
 		}
 
-		$submissionFile->setData('ithenticate_similarity_result', json_encode($similarityScoreResult));
+		$submissionFile->setData('ithenticateSimilarityResult', json_encode($similarityScoreResult));
 		$submissionFileDao->updateObject($submissionFile);
 
 		$this->generateUserNotification(
@@ -254,7 +254,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			);
         }
 
-		if (!$submission->getData('ithenticate_eula_version')) {
+		if (!$submission->getData('ithenticateEulaVersion')) {
 			static::$_plugin->stampEulaToSubmission($context, $submission);
 		}
 
@@ -309,10 +309,10 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	 */
 	protected function getEulaConfirmationTemplate($request, $args, $context, $submission, $submissionFile) {
 
-		$eulaVersionDetails = $submission->getData('ithenticate_eula_version')
+		$eulaVersionDetails = $submission->getData('ithenticateEulaVersion')
 			? [
-				'version' 	=> $submission->getData('ithenticate_eula_version'),
-				'url' 		=> $submission->getData('ithenticate_eula_url')
+				'version' 	=> $submission->getData('ithenticateEulaVersion'),
+				'url' 		=> $submission->getData('ithenticateEulaUrl')
 			] : static::$_plugin->getContextEulaDetails($context, [
 				$submission->getData('locale'),
 				$request->getSite()->getPrimaryLocale(),

@@ -40,7 +40,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 		$headers = collect(array_change_key_case(getallheaders(), CASE_LOWER));
 		$payload = file_get_contents('php://input');
 
-		if (!$context->getData('ithenticate_webhook_id') || !$context->getData('ithenticate_webhook_signing_secret')) {
+		if (!$context->getData('ithenticateWebhookId') || !$context->getData('ithenticateWebhookSigningSecret')) {
 			static::$_plugin->sendErrorMessage("iThenticate webhook not configured for context id {$context->getId()}");
 			return;
 		}
@@ -55,7 +55,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 			return;
 		}
 
-		if ($headers->get('x-turnitin-signature') !== hash_hmac("sha256", $payload, $context->getData('ithenticate_webhook_signing_secret'))) {
+		if ($headers->get('x-turnitin-signature') !== hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret'))) {
 			static::$_plugin->sendErrorMessage('Invalid iThenticate webhook signature');
 			return;
 		}
@@ -106,7 +106,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 			return;
 		}
 		
-		if ((int)$submissionFile->getData('ithenticate_similarity_scheduled')) {
+		if ((int)$submissionFile->getData('ithenticateSimilarityScheduled')) {
 			static::$_plugin->sendErrorMessage("Similarity report generation process has already been scheduled for iThenticate submission id {$payload->id}", $submissionFile->getData('submissionId'));
 			return;
 		}
@@ -124,7 +124,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 			return;
 		}
 
-		$submissionFile->setData('ithenticate_similarity_scheduled', 1);
+		$submissionFile->setData('ithenticateSimilarityScheduled', 1);
 		$submissionFileDao->updateObject($submissionFile);
 	}
 
@@ -156,7 +156,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 		/** @var SubmissionFileDAO $submissionFileDao */
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
 		$submissionFile = $submissionFileDao->getById($ithenticateSubmission->submission_file_id);
-		$submissionFile->setData('ithenticate_similarity_result', json_encode($payload));
+		$submissionFile->setData('ithenticateSimilarityResult', json_encode($payload));
 		$submissionFileDao->updateObject($submissionFile);
 	}
 
@@ -172,7 +172,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
 
 		return Capsule::table($submissionFileDao->settingsTableName)
-			->where('setting_name', 'ithenticate_id')
+			->where('setting_name', 'ithenticateId')
 			->where('setting_value', $id)
 			->first();
 	}

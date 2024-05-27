@@ -67,11 +67,11 @@ class SimilarityActionGridColumn extends GridColumn {
 		}
 
         // submission similarity score is available
-        if ($submissionFile->getData('ithenticate_similarity_scheduled') === true &&
-            $submissionFile->getData('ithenticate_similarity_result')) {
+        if ($submissionFile->getData('ithenticateSimilarityScheduled') === true &&
+            $submissionFile->getData('ithenticateSimilarityResult')) {
             
             $similarityResult = json_decode(
-                $submissionFile->getData('ithenticate_similarity_result'),
+                $submissionFile->getData('ithenticateSimilarityResult'),
             );
 
 			$templateManager = TemplateManager::getManager();
@@ -121,7 +121,7 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		// There was an error and submission not completed, 
 		// Ask for confirmation and try to complete the submission process
-		if (!$submissionFile->getData('ithenticate_id')) {
+		if (!$submissionFile->getData('ithenticateId')) {
 
 			// first check if curernt user has already EULA confirmed that is associated with submission
 			// If not confirmed, need to confirm EULA first before uploading submission to iThenticate
@@ -176,7 +176,7 @@ class SimilarityActionGridColumn extends GridColumn {
 		}
         
 		// Submission similarity report generation has not scheduled
-		if ($submissionFile->getData('ithenticate_similarity_scheduled') === false) {
+		if ($submissionFile->getData('ithenticateSimilarityScheduled') === false) {
 			$cellActions[] = new LinkAction(
 				"plagiarism-similarity-report-schedule-{$submissionFile->getId()}",
 				new RemoteActionConfirmationModal(
@@ -225,12 +225,12 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		// If similarity score not availabel
 		// show as cell action and upon it's available, show it as part of row action
-		$submissionFile->getData('ithenticate_similarity_result')
+		$submissionFile->getData('ithenticateSimilarityResult')
 			? $row->addAction($similarityResultRefreshAction)
 			: array_push($cellActions, $similarityResultRefreshAction);
 
 		// Similarity viewer only available upon the availability of similarity report is 
-		if ($submissionFile->getData('ithenticate_similarity_result')) {
+		if ($submissionFile->getData('ithenticateSimilarityResult')) {
 			$row->addAction(
 				new LinkAction(
 					"plagiarism-similarity-launch-viewer-{$submissionFile->getId()}",
@@ -273,7 +273,7 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		// If no EULA is stamped with submission
 		// means submission never passed through iThenticate process
-		if (!$submission->getData('ithenticate_eula_version')) {
+		if (!$submission->getData('ithenticateEulaVersion')) {
 			return true;
 		}
 
@@ -285,7 +285,7 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		// If user and submission EULA do not match
 		// means users previously agreed upon different EULA
-		if ($user->getData('ithenticateEulaVersion') !== $submission->getData('ithenticate_eula_version')) {
+		if ($user->getData('ithenticateEulaVersion') !== $submission->getData('ithenticateEulaVersion')) {
 			return true;
 		}
 
