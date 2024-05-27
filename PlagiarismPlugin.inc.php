@@ -405,7 +405,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		/** @var DAOResultIterator $submissionFiles */
 		$submissionFiles = Services::get('submissionFile')->getMany([
-            'submissionIds' => [$submission->getId()],
+			'submissionIds' => [$submission->getId()],
 		]);
 
 		try {
@@ -446,10 +446,10 @@ class PlagiarismPlugin extends GenericPlugin {
 		/** @var EditorSubmissionDetailsFilesGridHandler|EditorReviewFilesGridHandler $submissionDetailsFilesGridHandler */
 		$submissionDetailsFilesGridHandler = & $params[0];
 
-		import('plugins.generic.plagiarism.grids.SimilarityActionGridColumn');
+		$this->import('grids.SimilarityActionGridColumn');
 		$submissionDetailsFilesGridHandler->addColumn(new SimilarityActionGridColumn($this));
 
-		import('plugins.generic.plagiarism.grids.RearrangeColumnsFeature');
+		$this->import('grids.RearrangeColumnsFeature');
 		$features =& $params[3]; /** @var array $features */
 		$features[] = new RearrangeColumnsFeature($submissionDetailsFilesGridHandler);
 
@@ -723,7 +723,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function initIthenticate($apiUrl, $apiKey) {
 
 		if (static::isRunningInTestMode()) {
-			import("plugins.generic.plagiarism.TestIThenticate");
+			$this->import('TestIThenticate');
 			return new \TestIThenticate(
 				$apiUrl,
 				$apiKey,
@@ -732,7 +732,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			);
 		}
 
-		import("plugins.generic.plagiarism.IThenticate");
+		$this->import('IThenticate');
 
 		return new \IThenticate(
 			$apiUrl,
