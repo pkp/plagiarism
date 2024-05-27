@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/grids/SimilarityActionGridColumn.inc.php
+ * @file plugins/generic/plagiarism/grids/RearrangeColumnsFeature.inc.php
  *
  * Copyright (c) 2014-2024 Simon Fraser University
  * Copyright (c) 2000-2024 John Willinsky
