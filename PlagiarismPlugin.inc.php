@@ -52,16 +52,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		if (!($success || $this->getEnabled())) {
 			return false;	
 		}
-
-		$context = $mainContextId
-			? Services::get("context")->get($mainContextId)
-			: Application::get()->getRequest()->getContext();
-
-		// plugin can not function if the iThenticate service access not available at running context, 
-		if (!$this->isServiceAccessAvailable($context)) {
-			error_log("ithenticate service access not set for context id {$context->getId()}");
-			return false;
-		}
 		
 		HookRegistry::register('submissionsubmitstep4form::display', [$this, 'confirmEulaAcceptance']);
 		HookRegistry::register('submissionsubmitstep4form::execute', [$this, 'submitForPlagiarismCheck']);
@@ -277,6 +267,14 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @return bool
 	 */
 	public function confirmEulaAcceptance($hookName, $params) {
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+
+		// plugin can not function if the iThenticate service access not available at global/context level 
+		if (!$this->isServiceAccessAvailable($context)) {
+			error_log("ithenticate service access not set for context id : " . ($context ? $context->getId() : 'undefined'));
+			return false;
+		}
 
 		// if the auto upload to ithenticate disable
 		// not going to do the EULA confirmation at submission time
@@ -284,8 +282,6 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 		
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
 		$user = $request->getUser();
 		$form = & $params[0]; /** @var SubmissionSubmitStep4Form $form */
 		$submission = $form->submission; /** @var Submission $submission */
@@ -368,16 +364,23 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function submitForPlagiarismCheck($hookName, $args) {
 
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+
+		// plugin can not function if the iThenticate service access not available at global/context level
+		if (!$this->isServiceAccessAvailable($context)) {
+			error_log("ithenticate service access not set for context id : " . ($context ? $context->getId() : 'undefined'));
+			return false;
+		}
+
 		// if the auto upload to ithenticate disable
 		// not going to upload files to iThenticate at submission time
 		if ($this->hasAutoSubmissionDisabled()) {
 			return false;
 		}
-
-		$request = Application::get()->getRequest();
+		
 		$form =& $args[0]; /** @var SubmissionSubmitStep4Form $form */
 		$submission = $form->submission; /** @var Submission $submission */
-		$context = $request->getContext();
 		$user = $request->getUser();
 
 		if (!static::isRunningInTestMode() && !$this->isServiceAccessAvailable($context)) {
@@ -436,9 +439,15 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function addActionsToSubmissionFileGrid($hookName, $params) {
 		$request = Application::get()->getRequest();
-		$user = $request->getUser();
 		$context = $request->getContext();
 
+		// plugin can not function if the iThenticate service access not available at global/context level
+		if (!$this->isServiceAccessAvailable($context)) {
+			error_log("ithenticate service access not set for context id : " . ($context ? $context->getId() : 'undefined'));
+			return false;
+		}
+
+		$user = $request->getUser();
 		if (!$user->hasRole([ROLE_ID_MANAGER, ROLE_ID_SUB_EDITOR, ROLE_ID_REVIEWER], $context->getId())) {
 			return false;
 		}
@@ -826,20 +835,26 @@ class PlagiarismPlugin extends GenericPlugin {
 
 	/**
 	 * Get the ithenticate service access as array in format [API_URL, API_KEY]
+	 * Will try to get credentials for current context otherwise use default config
 	 * 
-	 * @param Context $context
-	 * @return array
+	 * @param Context|null $context
+	 * @return array	The service access creds in format as [API_URL, API_KEY]
 	 */
-	public function getServiceAccess($context) {
-		// try to get credentials for current context otherwise use default config
-		list($apiUrl, $apiKey) = $this->hasForcedCredentials()
-			? $this->getForcedCredentials()
-			: [
+	public function getServiceAccess($context = null) {
+
+		if ($this->hasForcedCredentials()) {
+			list($apiUrl, $apiKey) = $this->getForcedCredentials();
+			return [$apiUrl, $apiKey];
+		}
+
+		if ($context && $context instanceof Context) {
+			return [
 				$this->getSetting($context->getId(), 'ithenticateApiUrl'), 
 				$this->getSetting($context->getId(), 'ithenticateApiKey')
 			];
-		
-		return [$apiUrl, $apiKey];
+		}
+
+		return ['', ''];
 	}
 
 	/**
@@ -1003,12 +1018,13 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Check is ithenticate service access details(API URL & KEY) available for given context
+	 * Check is ithenticate service access details(API URL & KEY) available at global level or
+	 * for the given context
 	 * 
-	 * @param Context $context
+	 * @param Context|null $context
 	 * @return bool
 	 */
-	protected function isServiceAccessAvailable($context) {
+	protected function isServiceAccessAvailable($context = null) {
 		return !collect($this->getServiceAccess($context))->filter()->isEmpty();
 	}
 }
