@@ -350,9 +350,6 @@ class PlagiarismPlugin extends GenericPlugin {
 			'plugins.generic.plagiarism.controllers.PlagiarismEulaAcceptanceHandler',
 			'handle',
 			null,
-			[
-				'submissionId' => $submission->getId(),
-			]
 		);
 
 		// As submitting user has not confrimed/accepted the EULA,
@@ -369,6 +366,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		
 		$templateManager = TemplateManager::getManager();
 		$templateManager->assign([
+			'submissionId' => $submission->getId(),
 			'actionUrl' => $actionUrl,
 			'eulaAcceptanceMessage' => __('plugins.generic.plagiarism.submission.eula.acceptance.message', [
 				'localizedEulaUrl' => $eulaVersionDetails['url'],

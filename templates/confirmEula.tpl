@@ -55,29 +55,34 @@
 
     <p>{$eulaAcceptanceMessage}</p>
 	    
-    <div>
-        {fbvElement 
-            type="checkbox" 
-            name="confirmSubmissionEula" 
-            id="confirmSubmissionEula"
-            label="plugins.generic.plagiarism.submission.eula.acceptance.confirm" 
-            translate="true"
-            
-        }
-        
-        {if SessionManager::getManager()->getUserSession()->getSessionVar('confirmSubmissionEulaError')}
-            <span>
-                <label class="sub_label error">
-                    {translate key="plugins.generic.plagiarism.submission.eula.acceptance.error"}
-                </label>
-            </span>
-        {/if}
-    </div>
+    {fbvFormArea id="EulaConfirmationSection"}
+        {fbvFormSection}
+            <input type="hidden" name="submissionId" value="{$submissionId|escape}" />
+            <div>
+                {fbvElement 
+                    type="checkbox" 
+                    name="confirmSubmissionEula" 
+                    id="confirmSubmissionEula"
+                    label="plugins.generic.plagiarism.submission.eula.acceptance.confirm" 
+                    translate="true"
+                    
+                }
+                
+                {if SessionManager::getManager()->getUserSession()->getSessionVar('confirmSubmissionEulaError')}
+                    <span>
+                        <label class="sub_label error">
+                            {translate key="plugins.generic.plagiarism.submission.eula.acceptance.error"}
+                        </label>
+                    </span>
+                {/if}
+            </div>
     
-    {fbvFormButtons 
-        id="eulaConfirmationAcceptance"
-        submitText="plugins.generic.plagiarism.submission.eula.accept.button.title"
-    }
+            {fbvFormButtons 
+                id="eulaConfirmationAcceptance"
+                submitText="plugins.generic.plagiarism.submission.eula.accept.button.title"
+            }
+        {/fbvFormSection}
+	{/fbvFormArea}
 </form>
 
 <style>

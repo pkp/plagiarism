@@ -167,6 +167,8 @@ class SimilarityActionGridColumn extends GridColumn {
 							'confirmEula',
 							null,
 							[
+								'stageId' => $request->getUserVar('stageId'),
+								'submissionId' => $submission->getId(),
 								'submissionFileId' => $submissionFile->getId(),
 								'onAcceptAction' => 'submitSubmission',
 							]
@@ -193,6 +195,8 @@ class SimilarityActionGridColumn extends GridColumn {
 						'submitSubmission',
 						null,
 						[
+							'stageId' => $request->getUserVar('stageId'),
+							'submissionId' => $submission->getId(),
 							'submissionFileId' => $submissionFile->getId(),
 						]
 					)
@@ -219,6 +223,8 @@ class SimilarityActionGridColumn extends GridColumn {
 						'scheduleSimilarityReport',
 						null,
 						[
+							'stageId' => $request->getUserVar('stageId'),
+							'submissionId' => $submission->getId(),
 							'submissionFileId' => $submissionFile->getId(),
 						]
 					)
@@ -244,6 +250,8 @@ class SimilarityActionGridColumn extends GridColumn {
 					'refreshSimilarityResult',
 					null,
 					[
+						'stageId' => $request->getUserVar('stageId'),
+						'submissionId' => $submission->getId(),
 						'submissionFileId' => $submissionFile->getId(),
 					]
 				)
@@ -271,6 +279,8 @@ class SimilarityActionGridColumn extends GridColumn {
 							'launchViewer',
 							null,
 							[
+								'stageId' => $request->getUserVar('stageId'),
+								'submissionId' => $submission->getId(),
 								'submissionFileId' => $submissionFile->getId(),
 							]
 						)

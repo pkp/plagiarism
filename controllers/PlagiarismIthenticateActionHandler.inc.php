@@ -22,6 +22,41 @@ import("plugins.generic.plagiarism.IThenticate");
 class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 
 	/**
+	 * @copydoc PKPHandler::__construct()
+	 */
+	public function __construct() {
+		parent::__construct();
+
+		$this->addRoleAssignment(
+			[
+				ROLE_ID_MANAGER,
+				ROLE_ID_SUB_EDITOR,
+				ROLE_ID_ASSISTANT, 
+				ROLE_ID_SITE_ADMIN
+			],
+			[
+				'launchViewer',
+				'scheduleSimilarityReport',
+				'refreshSimilarityResult',
+				'submitSubmission',
+				'acceptEulaAndExecuteIntendedAction'
+			]
+		);
+	}
+
+	/**
+	 * @copydoc PlagiarismComponentHandler::authorize()
+	 */
+	public function authorize($request, &$args, $roleAssignments) {
+		$this->markRoleAssignmentsChecked();
+
+		import('lib.pkp.classes.security.authorization.SubmissionFileAccessPolicy');
+		$this->addPolicy(new SubmissionFileAccessPolicy($request, $args, $roleAssignments, SUBMISSION_FILE_ACCESS_READ, (int) $args['submissionFileId']));
+		
+		return parent::authorize($request, $args, $roleAssignments);
+	}
+
+	/**
 	 * Launch the iThenticate similarity report viewer
 	 *
 	 * @param array $args
@@ -30,9 +65,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	public function launchViewer($args, $request) {
 		$context = $request->getContext();
 		$user = $request->getUser();
-
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
+		$submissionFile = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 		$siteDao = DAORegistry::getDAO("SiteDAO"); /** @var SiteDAO $siteDao */
@@ -84,9 +117,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 
 		$context = $request->getContext();
 
-		/** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
-		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
+		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
+		$submissionFile = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 
 		/** @var IThenticate $ithenticate */
 		$ithenticate = static::$_plugin->initIthenticate(
@@ -129,9 +161,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
     public function refreshSimilarityResult($args, $request) {
 		$context = $request->getContext();
 
-		/** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
-		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
+		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
+		$submissionFile = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 
 		/** @var IThenticate $ithenticate */
 		$ithenticate = static::$_plugin->initIthenticate(
@@ -186,9 +217,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$context = $request->getContext();
 		$user = $request->getUser();
 
-		/** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
-		$submissionFile = $submissionFileDao->getById($args['submissionFileId']); /** @var SubmissionFile $submissionFile */
+		$submissionFile = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId')); /** @var Submission $submission*/
 
@@ -240,8 +269,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$context = $request->getContext();
 		$user = $request->getUser();
 
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
+		$submissionFile = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 
@@ -287,8 +315,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	public function confirmEula($args, $request) {
 		$context = $request->getContext();
 
-		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
-		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
+		$submissionFile = $this->getAuthorizedContextObject(ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId'));
 
