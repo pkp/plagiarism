@@ -302,9 +302,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
 		}
 
-		$onAcceptAction = $args['onAcceptAction'];
-
-		return $this->{$onAcceptAction}($args, $request);
+		return $this->submitSubmission($args, $request);
 	}
 
 	/**
@@ -369,7 +367,6 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				'version' => $eulaVersionDetails['version'],
 				'submissionFileId' => $submissionFile->getId(),
 				'stageId' => $request->getUserVar('stageId'),
-				'onAcceptAction' => $args['onAcceptAction'],
 			]
 		);
 

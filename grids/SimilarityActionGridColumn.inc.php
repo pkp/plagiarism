@@ -167,10 +167,9 @@ class SimilarityActionGridColumn extends GridColumn {
 							'confirmEula',
 							null,
 							[
-								'stageId' => $request->getUserVar('stageId'),
+								'stageId' => $this->getStageId($request),
 								'submissionId' => $submission->getId(),
 								'submissionFileId' => $submissionFile->getId(),
-								'onAcceptAction' => 'submitSubmission',
 							]
 						),
 						__('plugins.generic.plagiarism.similarity.action.confirmEula.title')
@@ -195,7 +194,7 @@ class SimilarityActionGridColumn extends GridColumn {
 						'submitSubmission',
 						null,
 						[
-							'stageId' => $request->getUserVar('stageId'),
+							'stageId' => $this->getStageId($request),
 							'submissionId' => $submission->getId(),
 							'submissionFileId' => $submissionFile->getId(),
 						]
@@ -223,7 +222,7 @@ class SimilarityActionGridColumn extends GridColumn {
 						'scheduleSimilarityReport',
 						null,
 						[
-							'stageId' => $request->getUserVar('stageId'),
+							'stageId' => $this->getStageId($request),
 							'submissionId' => $submission->getId(),
 							'submissionFileId' => $submissionFile->getId(),
 						]
@@ -250,7 +249,7 @@ class SimilarityActionGridColumn extends GridColumn {
 					'refreshSimilarityResult',
 					null,
 					[
-						'stageId' => $request->getUserVar('stageId'),
+						'stageId' => $this->getStageId($request),
 						'submissionId' => $submission->getId(),
 						'submissionFileId' => $submissionFile->getId(),
 					]
@@ -279,7 +278,7 @@ class SimilarityActionGridColumn extends GridColumn {
 							'launchViewer',
 							null,
 							[
-								'stageId' => $request->getUserVar('stageId'),
+								'stageId' => $this->getStageId($request),
 								'submissionId' => $submission->getId(),
 								'submissionFileId' => $submissionFile->getId(),
 							]
@@ -343,6 +342,21 @@ class SimilarityActionGridColumn extends GridColumn {
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
 		
 		return in_array($file->mimetype, $this->_plugin->uploadRestrictedArchiveMimeTypes);
+	}
+
+	/**
+	 * Get the proper workflow stage id for iThenticate actions
+	 *
+	 * @param Request $request
+	 * @return int
+	 */
+	protected function getStageId($request) {
+
+		if ($this->_plugin::isOPS()) {
+			return WORKFLOW_STAGE_ID_PRODUCTION;
+		}
+
+		return $request->getUserVar('stageId');
 	}
 
 }
