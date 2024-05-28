@@ -3,8 +3,8 @@
 /**
  * @file PlagiarismSettingsForm.inc.php
  *
- * Copyright (c) 2003-2024 Simon Fraser University
- * Copyright (c) 2003-2024 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @brief Plagiarism settings form
@@ -71,38 +71,28 @@ class PlagiarismSettingsForm extends Form {
 	 */
 	public function initData() {
 		$this->_data = [
-			'ithenticateForced' 	=> $this->_plugin->hasForcedCredentials(),
+			'ithenticateForced' 	=> $this->_plugin->hasForcedCredentials($this->_context),
 			'ithenticateApiUrl' 	=> $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl'),
 			'ithenticateApiKey' 	=> $this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey'),
 			'disableAutoSubmission' => $this->_plugin->getSetting($this->_context->getId(), 'disableAutoSubmission'),
-			'addToIndex' 			=> $this->_plugin->getSetting($this->_context->getId(), 'addToIndex'),
-			'excludeQuotes' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeQuotes'),
-			'excludeBibliography' 	=> $this->_plugin->getSetting($this->_context->getId(), 'excludeBibliography'),
-			'excludeCitations' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeCitations'),
-			'excludeAbstract' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeAbstract'),
-			'excludeMethods' 		=> $this->_plugin->getSetting($this->_context->getId(), 'excludeMethods'),
-			'excludeSmallMatches' 	=> $this->_plugin->getSetting($this->_context->getId(), 'excludeSmallMatches'),
-			'allowViewerUpdate' 	=> $this->_plugin->getSetting($this->_context->getId(), 'allowViewerUpdate'),
 		];
+
+		foreach(array_keys($this->_plugin->similaritySettings) as $settingOption) {
+			$this->_data[$settingOption] = $this->_plugin->getSetting($this->_context->getId(), $settingOption);
+		}
 	}
 
 	/**
 	 * Assign form data to user-submitted data.
 	 */
 	public function readInputData() {
-		$this->readUserVars([
+		$this->readUserVars(
+			array_merge([
 			'ithenticateApiUrl',
 			'ithenticateApiKey',
 			'disableAutoSubmission',
-			'addToIndex',
-			'excludeQuotes',
-			'excludeBibliography',
-			'excludeCitations',
-			'excludeAbstract',
-			'excludeMethods',
-			'excludeSmallMatches',
-			'allowViewerUpdate',
-		]);
+			], array_keys($this->_plugin->similaritySettings))
+		);
 	}
 
 	/**
@@ -142,15 +132,14 @@ class PlagiarismSettingsForm extends Form {
 
 		$this->_plugin->updateSetting($this->_context->getId(), 'disableAutoSubmission', $this->getData('disableAutoSubmission'), 'bool');
 
-		$this->_plugin->updateSetting($this->_context->getId(), 'addToIndex', 			$this->getData('addToIndex'), 			'bool');
-		$this->_plugin->updateSetting($this->_context->getId(), 'excludeQuotes', 		$this->getData('excludeQuotes'), 		'bool');
-		$this->_plugin->updateSetting($this->_context->getId(), 'excludeBibliography', 	$this->getData('excludeBibliography'), 	'bool');
-		$this->_plugin->updateSetting($this->_context->getId(), 'excludeCitations', 	$this->getData('excludeCitations'), 	'bool');
-		$this->_plugin->updateSetting($this->_context->getId(), 'excludeAbstract', 		$this->getData('excludeAbstract'), 		'bool');
-		$this->_plugin->updateSetting($this->_context->getId(), 'excludeMethods', 		$this->getData('excludeMethods'), 		'bool');
-		$this->_plugin->updateSetting($this->_context->getId(), 'excludeSmallMatches', 	$this->getData('excludeSmallMatches'), 	'int');
-		$this->_plugin->updateSetting($this->_context->getId(), 'allowViewerUpdate', 	$this->getData('allowViewerUpdate'), 	'bool');
-		
+		foreach($this->_plugin->similaritySettings as $settingName => $settingValueType) {
+			$this->_plugin->updateSetting(
+				$this->_context->getId(),
+				$settingName,
+				$this->getData($settingName),
+				$settingValueType
+			);
+		}
 
 		parent::execute(...$functionArgs);
 	}

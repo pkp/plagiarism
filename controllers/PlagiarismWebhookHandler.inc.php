@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/controllers/PlagiarismWebhookHandler.inc.php
+ * @file controllers/PlagiarismWebhookHandler.inc.php
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2000-2024 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class PlagiarismWebhookHandler
@@ -50,7 +50,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 			return;
 		}
 		
-		if (!in_array($headers->get('x-turnitin-eventtype'), \Ithenticate::DEFAULT_WEBHOOK_EVENTS)) {
+		if (!in_array($headers->get('x-turnitin-eventtype'), IThenticate::DEFAULT_WEBHOOK_EVENTS)) {
 			static::$_plugin->sendErrorMessage("Invalid iThenticate webhook event type {$headers->get('x-turnitin-eventtype')}");
 			return;
 		}

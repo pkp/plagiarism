@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/grids/SimilarityActionGridColumn.inc.php
+ * @file grids/SimilarityActionGridColumn.inc.php
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2000-2024 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class SimilarityActionGridColumn
@@ -84,7 +84,7 @@ class SimilarityActionGridColumn extends GridColumn {
 		}
 
         // submission similarity score is available
-        if ($submissionFile->getData('ithenticateSimilarityScheduled') === true &&
+        if ($submissionFile->getData('ithenticateSimilarityScheduled') == true &&
             $submissionFile->getData('ithenticateSimilarityResult')) {
             
             $similarityResult = json_decode(
@@ -204,7 +204,7 @@ class SimilarityActionGridColumn extends GridColumn {
 		}
         
 		// Submission similarity report generation has not scheduled
-		if ($submissionFile->getData('ithenticateSimilarityScheduled') === false) {
+		if ($submissionFile->getData('ithenticateSimilarityScheduled') == false) {
 			$cellActions[] = new LinkAction(
 				"plagiarism-similarity-report-schedule-{$submissionFile->getId()}",
 				new RemoteActionConfirmationModal(
@@ -295,7 +295,7 @@ class SimilarityActionGridColumn extends GridColumn {
     protected function isEulaConfirmationRequired($context, $submission, $user) {
 
 		// Check if EULA confirmation required for this tenant
-		if ($this->_plugin->getContextEulaDetails($context, 'require_eula') === false) {
+		if ($this->_plugin->getContextEulaDetails($context, 'require_eula') == false) {
 			return false;
 		}
 

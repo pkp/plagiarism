@@ -31,6 +31,22 @@ class PlagiarismPlugin extends GenericPlugin {
 	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
 
 	/**
+	 * Mapping of similarity settings with value type
+	 * 
+	 * @var array
+	 */
+	public $similaritySettings = [
+		'addToIndex' 			=> 'bool',
+		'excludeQuotes' 		=> 'bool',
+		'excludeBibliography' 	=> 'bool',
+		'excludeCitations' 		=> 'bool',
+		'excludeAbstract' 		=> 'bool',
+		'excludeMethods' 		=> 'bool',
+		'excludeSmallMatches' 	=> 'int',
+		'allowViewerUpdate' 	=> 'bool',
+	];
+
+	/**
 	 * List of valid url components
 	 * 
 	 * @var array
@@ -46,8 +62,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * 
 	 * @return bool
 	 */
-    public static function isOPS()
-    {
+    public static function isOPS() {
         return strtolower(Application::get()->getName()) === 'ops';
     }
 
@@ -139,21 +154,21 @@ class PlagiarismPlugin extends GenericPlugin {
 		$schema->properties->ithenticateEulaVersion = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate EULA version which has been agreed at submission checklist',
-			'apiSummary' => true,
+			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
 
 		$schema->properties->ithenticateEulaUrl = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate EULA url which has been agreen at submission checklist',
-			'apiSummary' => true,
+			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
 
 		$schema->properties->ithenticateSubmissionCompletedAt = (object) [
 			'type' => 'string',
 			'description' => 'The timestamp at which this submission successfully completed uploading all files at iThenticate service end',
-			'apiSummary' => true,
+			'writeOnly' => true,
 			'validation' => [
 				'date:Y-m-d H:i:s',
 				'nullable',
@@ -178,21 +193,21 @@ class PlagiarismPlugin extends GenericPlugin {
 		$schema->properties->ithenticateId = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate submission id for submission file',
-			'apiSummary' => true,
+			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
 
 		$schema->properties->ithenticateSimilarityScheduled = (object) [
 			'type' => 'boolean',
 			'description' => 'The status which identify if the iThenticate similarity process has been scheduled for this submission file',
-			'apiSummary' => true,
+			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
 
 		$schema->properties->ithenticateSimilarityResult = (object) [
 			'type' => 'string',
 			'description' => 'The similarity check result for this submission file in json format',
-			'apiSummary' => true,
+			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
 
@@ -305,7 +320,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submission = $form->submission; /** @var Submission $submission */
 
 		// EULA confirmation is not required, so no need for the checking of EULA acceptance
-		if ($this->getContextEulaDetails($context, 'require_eula') === false) {
+		if ($this->getContextEulaDetails($context, 'require_eula') == false) {
 			return false;
 		}
 
@@ -338,7 +353,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$eulaVersionDetails = $this->getContextEulaDetails($context, [
 			$submission->getData('locale'),
 			$request->getSite()->getPrimaryLocale(),
-			\IThenticate::DEFAULT_EULA_LANGUAGE
+			IThenticate::DEFAULT_EULA_LANGUAGE
 		]);
 		
 		$templateManager = TemplateManager::getManager();
@@ -406,7 +421,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
+		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
 
 		// If no webhook previously registered for this Context, register it
 		if (!$context->getData('ithenticateWebhookId')) {
@@ -525,7 +540,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
+		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
 		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
 		
 		// Check if user has ever already accepted this EULA version and if so, stamp it to user
@@ -575,7 +590,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// Not going to allow uploading a zip file to iThenticate service end
 		if ($pkpFileService->getDocumentType($file->mimetype) === DOCUMENT_TYPE_ZIP) {
-			error_log("plagiarims check for file mime type : {$file->mimetype} with submission file id : {$submissionFile->getId()} and submission id : {$submission->getId()} is now allowed");
+			error_log("plagiarims check for file mime type : {$file->mimetype} with submission file id : {$submissionFile->getId()} and submission id : {$submission->getId()} is not allowed");
 			return true;
 		}
 
@@ -601,7 +616,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Register the webhook for this context
 	 * 
-	 * @param \IThenticate|\TestIThenticate $ithenticate
+	 * @param IThenticate|TestIThenticate $ithenticate
 	 * @param Context|null 					$context
 	 * 
 	 * @return void
@@ -621,9 +636,11 @@ class PlagiarismPlugin extends GenericPlugin {
 		);
 
 		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
-			$context->setData('ithenticateWebhookSigningSecret', $signingSecret);
-			$context->setData('ithenticateWebhookId', $webhookId);
-			Application::get()->getContextDAO()->updateObject($context);
+			$contextService = Services::get('context'); /** @var \PKP\Services\PKPContextService $contextService */
+			$context = $contextService->edit($context, [
+				'ithenticateWebhookSigningSecret' => $signingSecret,
+				'ithenticateWebhookId' => $webhookId
+			], $request);
 		} else {
 			error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");
 		}
@@ -698,7 +715,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function retrieveEulaDetails($cache, $cacheId) {
 		$context = Application::get()->getRequest()->getContext();
-		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var \IThenticate $ithenticate */
+		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
 		$eulaDetails = [];
 
 		$eulaDetails['require_eula'] = $ithenticate->getEnabledFeature('tenant.require_eula');
@@ -745,13 +762,13 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @param string $apiUrl
 	 * @param string $apiKey
 	 * 
-	 * @return \IThenticate|\TestIThenticate
+	 * @return IThenticate|TestIThenticate
 	 */
 	public function initIthenticate($apiUrl, $apiKey) {
 
 		if (static::isRunningInTestMode()) {
 			$this->import('TestIThenticate');
-			return new \TestIThenticate(
+			return new TestIThenticate(
 				$apiUrl,
 				$apiKey,
 				static::PLUGIN_INTEGRATION_NAME,
@@ -761,7 +778,7 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		$this->import('IThenticate');
 
-		return new \IThenticate(
+		return new IThenticate(
 			$apiUrl,
 			$apiKey,
 			static::PLUGIN_INTEGRATION_NAME,
@@ -860,8 +877,8 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function getServiceAccess($context = null) {
 
-		if ($this->hasForcedCredentials()) {
-			list($apiUrl, $apiKey) = $this->getForcedCredentials();
+		if ($this->hasForcedCredentials($context)) {
+			list($apiUrl, $apiKey) = $this->getForcedCredentials($context);
 			return [$apiUrl, $apiKey];
 		}
 
@@ -878,10 +895,10 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Fetch credentials from config.inc.php, if available
 	 * 
+	 * @param Context|null $context
 	 * @return array api url and api key, or null(s)
 	 */
-	public function getForcedCredentials() {
-		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
+	public function getForcedCredentials($context = null) {
 		$contextPath = $context ? $context->getPath() : 'index';
 
 		$apiUrl = $this->getForcedConfigSetting($contextPath, 'api_url');
@@ -893,10 +910,11 @@ class PlagiarismPlugin extends GenericPlugin {
 	/**
 	 * Check and determine if plagiarism checking service creds has been set forced in config.inc.php
 	 * 
+	 * @param Context|null $context
 	 * @return bool
 	 */
-	public function hasForcedCredentials() {
-		list($apiUrl, $apiKey) = $this->getForcedCredentials();
+	public function hasForcedCredentials($context = null) {
+		list($apiUrl, $apiKey) = $this->getForcedCredentials($context);
 		return !empty($apiUrl) && !empty($apiKey);
 	}
 
@@ -910,17 +928,12 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function getSimilarityConfigSettings($context, $settingName = null) {
 		$contextPath = $context->getPath();
+		$similarityConfigSettings = [];
 
-		$similarityConfigSettings = [
-			'addToIndex' 			=> $this->getForcedConfigSetting($contextPath, 'addToIndex') 			?? $this->getSetting($context->getId(), 'addToIndex'),
-			'excludeQuotes' 		=> $this->getForcedConfigSetting($contextPath, 'excludeQuotes') 		?? $this->getSetting($context->getId(), 'excludeQuotes'),
-			'excludeBibliography' 	=> $this->getForcedConfigSetting($contextPath, 'excludeBibliography') 	?? $this->getSetting($context->getId(), 'excludeBibliography'),
-			'excludeCitations' 		=> $this->getForcedConfigSetting($contextPath, 'excludeCitations') 		?? $this->getSetting($context->getId(), 'excludeCitations'),
-			'excludeAbstract' 		=> $this->getForcedConfigSetting($contextPath, 'excludeAbstract') 		?? $this->getSetting($context->getId(), 'excludeAbstract'),
-			'excludeMethods' 		=> $this->getForcedConfigSetting($contextPath, 'excludeMethods') 		?? $this->getSetting($context->getId(), 'excludeMethods'),
-			'excludeSmallMatches' 	=> $this->getForcedConfigSetting($contextPath, 'excludeSmallMatches') 	?? $this->getSetting($context->getId(), 'excludeSmallMatches'),
-			'allowViewerUpdate'		=> $this->getForcedConfigSetting($contextPath, 'allowViewerUpdate') 	?? $this->getSetting($context->getId(), 'allowViewerUpdate'),
-		];
+		foreach(array_keys($this->similaritySettings) as $settingOption) {
+			$similarityConfigSettings[$settingOption] = $this->getForcedConfigSetting($contextPath, $settingOption)
+				?? $this->getSetting($context->getId(), $settingOption);
+		}
 
 		return $settingName
 			? ($similarityConfigSettings[$settingName] ?? null)

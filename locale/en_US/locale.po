@@ -67,7 +67,7 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
 msgstr "An unspecified error occurred while processing the submissions."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
-msgstr "The submisison does not contain text to generate a Similarity Report or the word count of the submissions is 0 ."
+msgstr "The submission does not contain text to generate a Similarity Report or the word count of the submissions is 0 ."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
 msgstr "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)."

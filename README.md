@@ -19,7 +19,7 @@ This plugin permits automatic submission of uploaded manuscripts to the [iThenti
 5. The Editor logs in to OJS/OMP/OPS installation, go to the submission list and open the workflow stage for the submission
    * In the submission files grid view, Editor/Journal Manager can see the similarity scores if the similarity process has completed.
    * Editor/Journal Manager can also launch the iThenticate's similarity viewer as an additional action.
-6. In addition to all of above, if the auto upload to iThenticate is disable, Editor/Journal Manager and upload each of submisison file one by one from the workflow stage.
+6. In addition to all of above, if the auto upload to iThenticate is disable, Editor/Journal Manager and upload each of submission file one by one from the workflow stage.
 
 ## Similarity Check Settings
 
@@ -48,21 +48,28 @@ The config.inc.php settings format is:
 
 [ithenticate]
 
-; Enable iThenticate to submit manuscripts after submit step 4
+; Enable iThenticate to upload submission files at the final stage or later manually 
+; if auto upload to iThenticate disable globally or Journal/Server/Press level
 ; ithenticate = On
 
-; Credentials can be set by context : specify journal path
+; Credentials can be set by context : specify Journal/Server/Press path
 ; Unique turnitin api url
-; api_url[MyJournal_path] = ""
+; api_url[Journal_or_Server_or_Press_path] = ""
 ; The API key to authorize the api calls
-; api_key[MyJournal_path] = ""
+; api_key[Journal_or_Server_or_Press_path] = ""
 
 ; Unique ithenticate api url
-; Make sure to provice the schema(http:// or https://) with the url and no trailing slash
+; Make sure to provide the schema(http:// or https://) with the url and no trailing slash
 ; api_url = "https://some-ithenticate-account.com"
 
 ; The API key to authorize the api calls
 ; api_key = "YOUR_API_KEY"
+
+; To disable auto upload of submisison files to iThenticate service, uncomment following line
+; disableAutoSubmission = On
+; It is possible to disable auto upload at specific Journal/Server/Press level rathar than globally
+; disableAutoSubmission[Journal_or_Server_or_Press_path] = On
+
 
 ; Submission similarity check settings can also configured as global or journel level
 ; To set a similarity check config on global level, just set the setting value as

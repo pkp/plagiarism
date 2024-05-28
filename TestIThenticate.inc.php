@@ -3,11 +3,11 @@
 /**
  * @file TestIThenticate.inc.php
  *
- * Copyright (c) 2003-2024 Simon Fraser University
- * Copyright (c) 2003-2024 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @brief   Low-budget mock class for \IThenticate -- set the config setting 
+ * @brief   Low-budget mock class for IThenticate -- set the config setting 
  *          `test_mdoe` to `On` in the `config.inc.php` to log API usage 
  *          instead of interacting with the iThenticate service.
  */
@@ -15,12 +15,12 @@
 class TestIThenticate {
 
     /**
-     * @copydoc \IThenticate::$eulaVersion
+     * @copydoc IThenticate::$eulaVersion
      */
     protected $eulaVersion = 'v1beta';
 
     /**
-     * @copydoc \IThenticate::$eulaVersionDetails
+     * @copydoc IThenticate::$eulaVersionDetails
      */
     protected $eulaVersionDetails = [
         "version" => "v1beta",
@@ -55,22 +55,22 @@ class TestIThenticate {
     ];
 
     /**
-     * @copydoc \IThenticate::$suppressApiRequestException
+     * @copydoc IThenticate::$suppressApiRequestException
      */
     protected $suppressApiRequestException = true;
 
     /**
-     * @copydoc \IThenticate::DEFAULT_EULA_VERSION
+     * @copydoc IThenticate::DEFAULT_EULA_VERSION
      */
     public const DEFAULT_EULA_VERSION = 'latest';
     
     /**
-     * @copydoc \IThenticate::DEFAULT_EULA_LANGUAGE
+     * @copydoc IThenticate::DEFAULT_EULA_LANGUAGE
      */
     public const DEFAULT_EULA_LANGUAGE = 'en-US';
 
     /**
-     * @copydoc \IThenticate::DEFAULT_WEBHOOK_EVENTS
+     * @copydoc IThenticate::DEFAULT_WEBHOOK_EVENTS
      */
     public const DEFAULT_WEBHOOK_EVENTS = [
         'SUBMISSION_COMPLETE',
@@ -81,7 +81,7 @@ class TestIThenticate {
     ];
 
     /**
-     * @copydoc \IThenticate::SUBMISSION_PERMISSION_SET
+     * @copydoc IThenticate::SUBMISSION_PERMISSION_SET
      */
     public const SUBMISSION_PERMISSION_SET = [
         'ADMINISTRATOR',
@@ -94,14 +94,14 @@ class TestIThenticate {
     ];
 
     /**
-     * @copydoc \IThenticate::__construct()
+     * @copydoc IThenticate::__construct()
      */
     public function __construct($apiUrl, $apiKey, $integrationName, $integrationVersion, $eulaVersion = null) {
         error_log("Constructing iThenticate with API URL : {$apiUrl}, API Key : {$apiKey}, Integration Name : {$integrationName}, Integration Version : {$integrationVersion} and EUlA Version : {$eulaVersion}");
     }
 
     /**
-     * @copydoc \IThenticate::withoutSuppressingApiRequestException()
+     * @copydoc IThenticate::withoutSuppressingApiRequestException()
      */
     public function withoutSuppressingApiRequestException() {
         $this->suppressApiRequestException = false;
@@ -110,7 +110,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::getEnabledFeature()
+     * @copydoc IThenticate::getEnabledFeature()
      */
     public function getEnabledFeature($feature = null) {
         
@@ -175,7 +175,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::validateAccess()
+     * @copydoc IThenticate::validateAccess()
      */
     public function validateAccess(&$result = null) {
         error_log("Confirming the service access validation for given access details");
@@ -183,7 +183,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::confirmEula()
+     * @copydoc IThenticate::confirmEula()
      */
     public function confirmEula($user, $context) {
         error_log("Confirming EULA for user {$user->getId()} with language ".$this->getApplicableLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
@@ -191,7 +191,7 @@ class TestIThenticate {
     }
     
     /**
-     * @copydoc \IThenticate::createSubmission()
+     * @copydoc IThenticate::createSubmission()
      */
     public function createSubmission($site, $submission, $user, $author, $authorPermission, $submitterPermission) {
 
@@ -209,7 +209,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::uploadFile()
+     * @copydoc IThenticate::uploadFile()
      */
     public function uploadFile($submissionTacId, $fileName, $fileContent) {
         error_log("Uploading submission file named {$fileName} for submission UUID {$submissionTacId}");
@@ -217,7 +217,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::scheduleSimilarityReportGenerationProcess()
+     * @copydoc IThenticate::scheduleSimilarityReportGenerationProcess()
      */
     public function scheduleSimilarityReportGenerationProcess($submissionUuid, $settings = []) {
         error_log(
@@ -231,7 +231,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::getSimilarityResult()
+     * @copydoc IThenticate::getSimilarityResult()
      */
     public function getSimilarityResult($submissionUuid) {
         error_log("Similarity report result retrived for iThenticate submission id : {$submissionUuid}");
@@ -250,7 +250,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::createViewerLaunchUrl()
+     * @copydoc IThenticate::createViewerLaunchUrl()
      */
     public function createViewerLaunchUrl($submissionUuid, $user, $locale, $viewerPermission, $allowUpdateInViewer) {
         error_log("Similarity report viewer launch url generated for iThenticate submission id : {$submissionUuid} with locale : {$locale}, viewer permission : {$viewerPermission} and update viewer permission : {$allowUpdateInViewer}");
@@ -258,7 +258,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::verifyUserEulaAcceptance()
+     * @copydoc IThenticate::verifyUserEulaAcceptance()
      */
     public function verifyUserEulaAcceptance($user, $version) {
         error_log("Verifying if user with id {$user->getId()} has already confirmed the given EULA version {$version}");
@@ -266,7 +266,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::validateEulaVersion()
+     * @copydoc IThenticate::validateEulaVersion()
      */
     public function validateEulaVersion($version) {
         error_log("Validating/Retrieving the given EULA version {$version}");
@@ -274,7 +274,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::registerWebhook()
+     * @copydoc IThenticate::registerWebhook()
      */
     public function registerWebhook($signingSecret, $url, $events = self::DEFAULT_WEBHOOK_EVENTS) {
         error_log(
@@ -289,21 +289,21 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::getEulaDetails()
+     * @copydoc IThenticate::getEulaDetails()
      */
     public function getEulaDetails() {
         return $this->eulaVersionDetails;
     }
 
     /**
-     * @copydoc \IThenticate::getApplicableEulaVersion()
+     * @copydoc IThenticate::getApplicableEulaVersion()
      */
     public function getApplicableEulaVersion() {
         return $this->eulaVersion;
     }
 
     /**
-     * @copydoc \IThenticate::setApplicableEulaVersion()
+     * @copydoc IThenticate::setApplicableEulaVersion()
      */
     public function setApplicableEulaVersion($version) {
         $this->eulaVersion = $version;
@@ -312,7 +312,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::getApplicableEulaUrl()
+     * @copydoc IThenticate::getApplicableEulaUrl()
      */
     public function getApplicableEulaUrl($locales = null) {
         if (!$this->eulaVersion) {
@@ -331,7 +331,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::getApplicableLocale()
+     * @copydoc IThenticate::getApplicableLocale()
      */
     public function getApplicableLocale($locales, $eulaVersion = null) {
         if (!$this->getEulaDetails() && !$this->validateEulaVersion($eulaVersion ?? $this->eulaVersion)) {
@@ -353,7 +353,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::isCorrespondingLocaleAvailable()
+     * @copydoc IThenticate::isCorrespondingLocaleAvailable()
      */
     protected function getCorrespondingLocaleAvailable($locale) {
         $eulaLangs = $this->eulaVersionDetails['available_languages'];
@@ -363,7 +363,7 @@ class TestIThenticate {
     }
 
     /**
-     * @copydoc \IThenticate::validatePermission()
+     * @copydoc IThenticate::validatePermission()
      */
     protected function validatePermission($permission, $permissionSet) {
         return in_array($permission, $permissionSet);

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/controllers/PlagiarismIthenticateActionHandler.inc.php
+ * @file controllers/PlagiarismIthenticateActionHandler.inc.php
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2000-2024 John Willinsky
+ * Copyright (c) 2024 Simon Fraser University
+ * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
  * @class PlagiarismIthenticateActionHandler
@@ -38,7 +38,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$siteDao = DAORegistry::getDAO("SiteDAO"); /** @var SiteDAO $siteDao */
 		$site = $siteDao->getSite();
 
-		/** @var \IThenticate $ithenticate */
+		/** @var IThenticate $ithenticate */
 		$ithenticate = static::$_plugin->initIthenticate(
 			...static::$_plugin->getServiceAccess($context)
 		);
@@ -88,7 +88,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
 
-		/** @var \IThenticate $ithenticate */
+		/** @var IThenticate $ithenticate */
 		$ithenticate = static::$_plugin->initIthenticate(
 			...static::$_plugin->getServiceAccess($context)
 		);
@@ -133,7 +133,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO');
 		$submissionFile = $submissionFileDao->getById($args['submissionFileId']);
 
-		/** @var \IThenticate $ithenticate */
+		/** @var IThenticate $ithenticate */
 		$ithenticate = static::$_plugin->initIthenticate(
 			...static::$_plugin->getServiceAccess($context)
 		);
@@ -192,7 +192,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
 		$submission = $submissionDao->getById($submissionFile->getData('submissionId')); /** @var Submission $submission*/
 
-		/** @var \IThenticate $ithenticate */
+		/** @var IThenticate $ithenticate */
 		$ithenticate = static::$_plugin->initIthenticate(
 			...static::$_plugin->getServiceAccess($context)
 		);
@@ -316,7 +316,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			] : static::$_plugin->getContextEulaDetails($context, [
 				$submission->getData('locale'),
 				$request->getSite()->getPrimaryLocale(),
-				\IThenticate::DEFAULT_EULA_LANGUAGE
+				IThenticate::DEFAULT_EULA_LANGUAGE
 			]);
 		
 		$actionUrl = $request->getDispatcher()->url(
