@@ -197,6 +197,17 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			...static::$_plugin->getServiceAccess($context)
 		);
 
+		// If no webhook previously registered for this Context, register it
+		if (!$context->getData('ithenticateWebhookId')) {
+			static::$_plugin->registerIthenticateWebhook($ithenticate, $context);
+		}
+
+		// As the submission has been already and should be stamped with an EULA at the
+		// confirmation stage, need to set it
+		if ($submission->getData('ithenticateEulaVersion')) {
+			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+		}
+
 		if (!static::$_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
 			$this->generateUserNotification(
 				$request,

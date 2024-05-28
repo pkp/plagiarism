@@ -519,7 +519,13 @@ class PlagiarismPlugin extends GenericPlugin {
 	 */
 	public function stampEulaToSubmission($context, $submission) {
 
-		$eulaDetails = $this->getContextEulaDetails($context, $submission->getData('locale'));
+		$request = Application::get()->getRequest();
+
+		$eulaDetails = $this->getContextEulaDetails($context, [
+			$submission->getData('locale'),
+			$request->getSite()->getPrimaryLocale(),
+			IThenticate::DEFAULT_EULA_LANGUAGE
+		]);
 
 		$submission->setData('ithenticateEulaVersion', $eulaDetails['version']);
 		$submission->setData('ithenticateEulaUrl', $eulaDetails['url']);
@@ -658,6 +664,23 @@ class PlagiarismPlugin extends GenericPlugin {
 
 	/**
 	 * Get the cached EULA details form Context
+	 * The eula details structure is in the following format
+	 * [
+	 *   'require_eula' => null/true/false, // null => not possible to retrived, 
+	 * 										// true => EULA confirmation required, 
+	 * 										// false => EULA confirmation not required
+	 *   'en_US' => [
+	 *     'version' => '',
+	 *     'url' => '',
+	 *   ],
+	 *   ...
+	 * ]
+	 * 
+	 * Based on the `key` param defined, it will return in following format
+	 * 	- 	if null, will return the whole details in above structure
+	 * 	- 	if array, will try to find the first matching `key` index value and return that
+	 * 	- 	if array and not found any match or if string, will return value based on last
+	 * 		array index or string value and considering the default value along with it
 	 * 
 	 * @param Context 			$context
 	 * @param string|array|null $keys
@@ -680,8 +703,6 @@ class PlagiarismPlugin extends GenericPlugin {
 			$cache->flush();
 		}
 
-		// $cache->flush();
-
 		$eulaDetails = $cache->get($context->getId());
 
 		if (!$keys) {
@@ -690,9 +711,9 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		if (is_array($keys)) {
 			foreach ($keys as $key) {
-				$value = data_get($eulaDetails, $keys);
-				if (!$value) {
-					continue;
+				$value = data_get($eulaDetails, $key);
+				if ($value) {
+					return $value;
 				}
 			}
 		}
