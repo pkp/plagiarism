@@ -39,7 +39,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 				'scheduleSimilarityReport',
 				'refreshSimilarityResult',
 				'submitSubmission',
-				'acceptEulaAndExecuteIntendedAction'
+				'acceptEulaAndExecuteIntendedAction',
+				'confirmEula',
 			]
 		);
 	}
@@ -367,12 +368,14 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			[
 				'version' => $eulaVersionDetails['version'],
 				'submissionFileId' => $submissionFile->getId(),
+				'stageId' => $request->getUserVar('stageId'),
 				'onAcceptAction' => $args['onAcceptAction'],
 			]
 		);
 
 		$templateManager = TemplateManager::getManager();
 		$templateManager->assign([
+			'submissionId' => $submission->getId(),
 			'actionUrl' => $actionUrl,
 			'eulaAcceptanceMessage' => __('plugins.generic.plagiarism.submission.eula.acceptance.message', [
 				'localizedEulaUrl' => $eulaVersionDetails['url'],
