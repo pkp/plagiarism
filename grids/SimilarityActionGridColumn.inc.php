@@ -78,8 +78,8 @@ class SimilarityActionGridColumn extends GridColumn {
 
 		assert($submissionFile instanceof SubmissionFile);
 
-		// Not going to allow plagiarims action on a zip file
-		if ($this->isSubmissionFileTypeZip($submissionFile)) {
+		// Not going to allow plagiarism action on a zip file
+		if ($this->isSubmissionFileTypeRestricted($submissionFile)) {
 			return ['label' => __('plugins.generic.plagiarism.similarity.action.invalidFileType')];
 		}
 
@@ -117,7 +117,7 @@ class SimilarityActionGridColumn extends GridColumn {
 		$user = $request->getUser();
 
 		// User can not perform any of following actions if not a Journal Manager or Editor
-		//      - Upload file for plagiarims check if failed
+		//      - Upload file for plagiarism check if failed
 		//      - Schedule similarity report generation if not scheduled already
 		//      - Refresh the similarity report scores
 		//      - Launch similarity report viewer
@@ -139,8 +139,8 @@ class SimilarityActionGridColumn extends GridColumn {
 			$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
 		}
 
-		// Not going to allow plagiarims action on a zip file
-		if ($this->isSubmissionFileTypeZip($submissionFile)) {
+		// Not going to allow plagiarism action on a zip file
+		if ($this->isSubmissionFileTypeRestricted($submissionFile)) {
 			return $cellActions;
 		}
 
@@ -321,18 +321,18 @@ class SimilarityActionGridColumn extends GridColumn {
     }
 
 	/**
-	 * Check if submission file type in valid for plagiarims action
+	 * Check if submission file type in valid for plagiarism action
 	 * Restricted for ZIP file
 	 *
 	 * @param SubmissionFile $submissionFile
 	 * @return bool
 	 */
-	protected function isSubmissionFileTypeZip($submissionFile) {
+	protected function isSubmissionFileTypeRestricted($submissionFile) {
 
 		$pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
-
-		return $pkpFileService->getDocumentType($file->mimetype) === DOCUMENT_TYPE_ZIP;
+		
+		return in_array($file->mimetype, $this->_plugin->uploadRestrictedArchiveMimeTypes);
 	}
 
 }

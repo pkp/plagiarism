@@ -166,7 +166,7 @@ msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
 msgstr "Plagiarism End User License Agreement Confirmation"
 
 msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
-msgstr "Plagiarims actions Not available"
+msgstr "plagiarism actions Not available"
 
 msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.error"
 msgstr "Unable to schedule the iThenticate similarity report generation process."

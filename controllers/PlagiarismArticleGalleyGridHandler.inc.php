@@ -44,7 +44,7 @@ class PlagiarismArticleGalleyGridHandler extends ArticleGalleyGridHandler {
 	}
 
 	/**
-	 * @copydoc GridHandler::initialize()
+	 * @copydoc ArticleGalleyGridHandler::initialize()
 	 */
 	public function initialize($request, $args = null) {
 		parent::initialize($request, $args);

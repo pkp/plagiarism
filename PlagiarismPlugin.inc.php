@@ -47,6 +47,17 @@ class PlagiarismPlugin extends GenericPlugin {
 	];
 
 	/**
+	 * List of archive mime type that will not be uploaded to iThenticate service
+	 * 
+	 * @var array
+	 */
+	public $uploadRestrictedArchiveMimeTypes = [
+		'application/gzip',
+		'application/zip',
+		'application/x-tar',
+	];
+
+	/**
 	 * List of valid url components
 	 * 
 	 * @var array
@@ -588,9 +599,8 @@ class PlagiarismPlugin extends GenericPlugin {
 		$pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
 
-		// Not going to allow uploading a zip file to iThenticate service end
-		if ($pkpFileService->getDocumentType($file->mimetype) === DOCUMENT_TYPE_ZIP) {
-			error_log("plagiarims check for file mime type : {$file->mimetype} with submission file id : {$submissionFile->getId()} and submission id : {$submission->getId()} is not allowed");
+		if (in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes)) {
+			error_log("plagiarism check for file mime type : {$file->mimetype} with submission file id : {$submissionFile->getId()} and submission id : {$submission->getId()} is not allowed");
 			return true;
 		}
 

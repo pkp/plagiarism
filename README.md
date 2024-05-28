@@ -23,7 +23,7 @@ This plugin permits automatic submission of uploaded manuscripts to the [iThenti
 
 ## Similarity Check Settings
 
-There are several iTheticate similarity check settings that can be configured via the plugin.
+There are several iThenticate similarity check settings that can be configured via the plugin.
 1. Similarity Check Options
    * `addToIndex` -- The submission will be added to all valid node groups for future matching
    * `excludeQuotes` -- Text in quotes of the submission will not count as similar content
@@ -80,6 +80,6 @@ The config.inc.php settings format is:
 ```
 
 ## Restrictions
-1. Submission submitting user must confirm the iThenticate End User License Agreement to sent files to iThenticate service for plagiarims checking
-2. Upload of zip/tar/gzip is not allowed.
-3. Uploading of file size less that 0 MB and more that 100 MB will cause failure as per iTheticate's restriction
+1. Submission submitting user must confirm the iThenticate End User License Agreement to sent files to iThenticate service for plagiarism checking.
+2. zip/tar/gzip will not be upload to iThenticate service for plagiarism checking.
+3. Uploading of file size more that 100 MB will cause failure as per iThenticate's restriction.
