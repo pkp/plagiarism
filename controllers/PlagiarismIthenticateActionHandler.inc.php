@@ -114,7 +114,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	 * @param array $args
 	 * @param Request $request
 	 */
-    public function scheduleSimilarityReport($args, $request) {
+	public function scheduleSimilarityReport($args, $request) {
 
 		$context = $request->getContext();
 
@@ -159,7 +159,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	 * @param array $args
 	 * @param Request $request
 	 */
-    public function refreshSimilarityResult($args, $request) {
+	public function refreshSimilarityResult($args, $request) {
 		$context = $request->getContext();
 
 		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */

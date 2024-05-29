@@ -79,8 +79,8 @@ class PlagiarismEulaAcceptanceHandler extends PlagiarismComponentHandler {
 	 * Generate and get the redirection url
 	 *
 	 * @param Request $request
-     * @param Context $context
-     * @param array $args
+	 * @param Context $context
+	 * @param array $args
 	 * 
 	 * @return string
 	 */

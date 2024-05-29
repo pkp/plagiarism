@@ -22,6 +22,9 @@ import('lib.pkp.classes.linkAction.request.AjaxModal');
 
 class SimilarityActionGridColumn extends GridColumn {
 
+	/** 
+	 * The grid column id name where similarity score/action will be visible
+	 */
 	public const SIMILARITY_ACTION_GRID_COLUMN_ID = 'score';
 	
 	/** 
@@ -292,16 +295,16 @@ class SimilarityActionGridColumn extends GridColumn {
 		return $cellActions;
 	}
 
-    /**
+	/**
 	 * Check for the requrement of EULA confirmation
 	 *
-     * @param Context       $context
-     * @param Submission    $submission
-     * @param User          $user
-     * 
-     * @return bool
+	 * @param Context       $context
+	 * @param Submission    $submission
+	 * @param User          $user
+	 * 
+	 * @return bool
 	 */
-    protected function isEulaConfirmationRequired($context, $submission, $user) {
+	protected function isEulaConfirmationRequired($context, $submission, $user) {
 
 		// Check if EULA confirmation required for this tenant
 		if ($this->_plugin->getContextEulaDetails($context, 'require_eula') == false) {

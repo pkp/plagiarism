@@ -18,7 +18,7 @@ import('controllers.grid.articleGalleys.ArticleGalleyGridHandler');
 
 class PlagiarismArticleGalleyGridHandler extends ArticleGalleyGridHandler {
 
-    /** 
+	/** 
 	 * The Plagiarism Plugin itself
 	 * 
 	 * @var PlagiarismPlugin 
@@ -49,7 +49,7 @@ class PlagiarismArticleGalleyGridHandler extends ArticleGalleyGridHandler {
 	public function initialize($request, $args = null) {
 		parent::initialize($request, $args);
 		
-        static::$_plugin->import('grids.SimilarityActionGridColumn');
-        $this->addColumn(new SimilarityActionGridColumn(static::$_plugin));
+		static::$_plugin->import('grids.SimilarityActionGridColumn');
+		$this->addColumn(new SimilarityActionGridColumn(static::$_plugin));
 	}
 }

@@ -26,10 +26,16 @@ class ValidatorIthenticateAccess extends Validator {
 	 */
 	protected $ithenticate;
 
+	/**
+	 * Constructor
+	 */
 	public function __construct($ithenticate) {
 		$this->ithenticate = $ithenticate;
 	}
 
+	/**
+	 * @copydoc Validator::isValid()
+	 */
 	public function isValid($value) {
 		return $this->ithenticate->validateAccess();
 	}
