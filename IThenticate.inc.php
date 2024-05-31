@@ -176,7 +176,7 @@ class IThenticate
         if (!isset($result) && !$this->validateAccess($result)) {
             return $this->suppressApiRequestException
                 ? []
-                : throw new \Exception('unbale to validate access details');
+                : throw new \Exception('unable to validate access details');
         }
 
         if (!$feature) {

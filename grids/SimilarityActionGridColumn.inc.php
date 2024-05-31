@@ -39,7 +39,7 @@ class SimilarityActionGridColumn extends GridColumn {
 	 *
 	 * @param PlagiarismPlugin  $plugin The Plagiarism Plugin itself
 	 */
-    public function __construct($plugin) {
+	public function __construct($plugin) {
 
 		$this->_plugin = $plugin;
 
@@ -61,11 +61,12 @@ class SimilarityActionGridColumn extends GridColumn {
 	 * @copydoc ColumnBasedGridCellProvider::getTemplateVarsFromRowColumn()
 	 */
 	public function getTemplateVarsFromRow($row) {
-
+		$request = Application::get()->getRequest();
+		
 		if ($this->_plugin::isOPS()) { // For OPS
 			$articleGalley = $row->getData(); /** @var ArticleGalley $articleGalley */
 			
-			if (!isset($articleGalley->_data['submissionFileId'])) {
+			if (!$articleGalley->getData('submissionFileId')) {
 				return ['label' => ''];
 			}
 
@@ -98,6 +99,19 @@ class SimilarityActionGridColumn extends GridColumn {
 			$templateManager->assign([
 				'logoUrl' => $this->_plugin->getIThenticateLogoUrl(),
 				'score' => $similarityResult->overall_match_percentage,
+				'viewerUrl' => $request->getDispatcher()->url(
+					$request,
+					ROUTE_COMPONENT,
+					$request->getContext()->getData('urlPath'),
+					'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+					'launchViewer',
+					null,
+					[
+						'stageId' => $this->getStageId($request),
+						'submissionId' => $submissionFile->getData('submissionId'),
+						'submissionFileId' => $submissionFile->getId(),
+					]
+				)
 			]);
 
             return [
@@ -131,7 +145,7 @@ class SimilarityActionGridColumn extends GridColumn {
 		if ($this->_plugin::isOPS()) { // For OPS
 			$articleGalley = $row->getData(); /** @var ArticleGalley $articleGalley */
 
-			if (!isset($articleGalley->_data['submissionFileId'])) {
+			if (!$articleGalley->getData('submissionFileId')) {
 				return $cellActions;
 			}
 
@@ -231,7 +245,7 @@ class SimilarityActionGridColumn extends GridColumn {
 						]
 					)
 				),
-				__('plugins.generic.plagiarism.similarity.action.generateReport.title')
+				__('plugins.generic.plagiarism.similarity.action.generateReport.title'),
 			);
 
 			return $cellActions;
@@ -261,36 +275,11 @@ class SimilarityActionGridColumn extends GridColumn {
 			__('plugins.generic.plagiarism.similarity.action.refreshReport.title')
 		);
 
-		// If similarity score not availabel
+		// If similarity score not available
 		// show as cell action and upon it's available, show it as part of row action
 		$submissionFile->getData('ithenticateSimilarityResult')
 			? $row->addAction($similarityResultRefreshAction)
 			: array_push($cellActions, $similarityResultRefreshAction);
-
-		// Similarity viewer only available upon the availability of similarity report is 
-		if ($submissionFile->getData('ithenticateSimilarityResult')) {
-			$row->addAction(
-				new LinkAction(
-					"plagiarism-similarity-launch-viewer-{$submissionFile->getId()}",
-					new OpenWindowAction(
-						$request->getDispatcher()->url(
-							$request,
-							ROUTE_COMPONENT,
-							$context->getData('urlPath'),
-							'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
-							'launchViewer',
-							null,
-							[
-								'stageId' => $this->getStageId($request),
-								'submissionId' => $submission->getId(),
-								'submissionFileId' => $submissionFile->getId(),
-							]
-						)
-					),
-					__('plugins.generic.plagiarism.similarity.action.launch.viewer.title')
-				)
-			);
-		}
 
 		return $cellActions;
 	}

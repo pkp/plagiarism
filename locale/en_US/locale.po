@@ -30,7 +30,7 @@ msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
 msgstr "iThenticate API URL"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiKey"
-msgstr "iThenticate API KEY"
+msgstr "iThenticate API key"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
 msgstr "iThenticate API URL is required"
@@ -39,20 +39,20 @@ msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
 msgstr "Disable auto upload of submission files to iThenticate at submission time"
 
 msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
-msgstr "By disabling auto upload to iThenticate, submission need to manually upload from workflow section"
+msgstr "If auto upload to iThenticate is disabled, submission files need to be sent manually from submission workflow"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
 msgstr ""
-"The specified URL is not valid. Please double-check the URL and try again. "
+"The specified API URL is not valid. Please double-check the URL and try again. "
 "(Hint: Try adding http:// to the beginning of the URL.)"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
-msgstr "iThenticate API KEY is required"
+msgstr "The iThenticate API key is required"
 
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
 msgstr ""
-"The specified API URL/KEY is invalid and can not establish connection to iThenticate API service."
-"Please double-check the API URL/KEY and try again."
+"The specified API URL/key is invalid or a connection to iThenticate API service cannot be established."
+"Please double-check the API URL/key and try again."
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."
@@ -67,16 +67,16 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
 msgstr "An unspecified error occurred while processing the submissions."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
-msgstr "The submission does not contain text to generate a Similarity Report or the word count of the submissions is 0 ."
+msgstr "The submission does not contain text to generate a Similarity Report or the word count of the submission is 0."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
-msgstr "The submission does not have enough text to generate a Similarity Report (a submission must contain at least 20 words)."
+msgstr "The submission does not have enough text to generate a Similarity Report. A submission must contain at least 20 words."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
-msgstr "The submission has too much text to generate a Similarity Report (after extracted text is converted to UTF-8, the submission must contain less than 2MB of text)."
+msgstr "The submission has too much text to generate a Similarity Report. After extracted text is converted to UTF-8, the submission must contain less than 2MB of text."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
-msgstr "The submission has too many pages to generate a Similarity Report (a submission cannot contain more than 800 pages)."
+msgstr "The submission has too many pages to generate a Similarity Report. A submission cannot contain more than 800 pages."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
 msgstr "The uploaded file requires a password in order to be opened."
@@ -85,7 +85,7 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
 msgstr "The uploaded file appears to be corrupt."
 
 msgid "plugins.generic.plagiarism.general.errorMessage"
-msgstr "Request processing error : {$errorMessage}"
+msgstr "Request processing error: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.submission.checklist.eula"
 msgstr "iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
@@ -97,7 +97,7 @@ msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
 msgstr "I have read the end user license agreement and accept it."
 
 msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
-msgstr "Must need to confirm and accept the EULA."
+msgstr "The EULA must be confirmed before continuing."
 
 msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
 msgstr "Confirm and Continue"
@@ -106,16 +106,16 @@ msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Submission similarity check settings"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
-msgstr "Note that if any of the following setting set in the config file at global or journal level, that will take precedence over what set here."
+msgstr "Note that if any of the following settings are set in the configuration file at the global or journal/server/press level, those settings will take precedence over this form."
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
-msgstr "The submission will be added to all valid node groups for future matching"
+msgstr "Submissions will be indexed in the accounts repository and will be available for comparison in Similarity Reports by other users within your organization"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
 msgstr "Text in quotes of the submission will not count as similar content"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
-msgstr "Text in a bibliography sectionm of the submission will not count as similar content"
+msgstr "Text in a bibliography section of the submission will not count as similar content"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
 msgstr "Text in the abstract section of the submission will not count as similar content"
@@ -124,7 +124,7 @@ msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
 msgstr "Text in the method section of the submission will not count as similar content"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
-msgstr "The citations of the submission will be excuded from similarity check"
+msgstr "The citations of the submission will be excluded from similarity check"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
 msgstr "Exclude small match count"
@@ -133,13 +133,16 @@ msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMat
 msgstr "Similarity matches that match less than the specified amount of words will not count as similar content"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
-msgstr "Allow changes in the similarity viewer to update the similarity score"
+msgstr "Changes made in reports will be saved for the next time the report is viewed"
 
 msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
 msgstr "Plagiarism Score/Action"
 
 msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
 msgstr "Launch Plagiarism Similarity Viewer"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Similarity Match"
 
 msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
 msgstr "Overall Match Percentage"
@@ -154,7 +157,7 @@ msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
 msgstr "Refresh Plagiarism Similarity Score"
 
 msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
-msgstr "Are you sure you want to refresh Plagiarism similarity score?"
+msgstr "Are you sure you want to refresh the Plagiarism similarity score?"
 
 msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
 msgstr "Conduct Plagiarism Check"
@@ -166,28 +169,64 @@ msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
 msgstr "Plagiarism End User License Agreement Confirmation"
 
 msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
-msgstr "plagiarism actions Not available"
-
-msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.error"
-msgstr "Unable to schedule the iThenticate similarity report generation process."
+msgstr "Plagiarism checking not available"
 
 msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
-msgstr "Successfully schedule the iThenticate similarity report generation process."
+msgstr "Successfully scheduled the iThenticate similarity report generation process."
 
 msgid "plugins.generic.plagiarism.action.launchViewer.error"
 msgstr "Report viewer not currently available, please try again later."
 
 msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
-msgstr "Unable to refresh iThenticate similarity score."
+msgstr "Unable to refresh iThenticate similarity score for submission file id : {$submissionFileId}."
 
 msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
-msgstr "The iThenticate similarity score has not yet completed."
+msgstr "The iThenticate similarity report has not yet completed for submission file id : {$submissionFileId}."
 
 msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
 msgstr "Successfully refreshed and updated the iThenticate similarity scores."
 
 msgid "plugins.generic.plagiarism.action.submitSubmission.error"
-msgstr "Unable to upload the submission file to iThenticate. Note that submission file size must be more than 0 MB and less or equal to 100 MB."
+msgstr "Unable to upload the submission file to iThenticate. Note that submission file size must be at most 100 MB."
 
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Successfully uploaded the submission file to iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr "iThenticate webhook not configured for context id {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Missing required iThenticate webhook headers"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Invalid iThenticate webhook event type {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Invalid iThenticate webhook signature"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr "Invalid iThenticate submission id {$submissionUuid} given for webhook event {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr "The given submission file id : {$submissionFileId} does not exists for context id : {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr "Unable to schedule the similarity report generation for file id {$submissionFileId} with error : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr "Similarity report generation process has already been scheduled for submission file id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr "Failed to schedule the similarity report generation process for submission file id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "The stamped EULA inforamtion is missing for the submission or submitting user."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr "Unable to complete the uploading of all files at iThenticate service for plagiarism check."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr "Could not create the submission at iThenticate for submission file id : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr "Could not complete the file upload at iThenticate for submission file id  : {$submissionFileId}"

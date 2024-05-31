@@ -388,7 +388,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * The steps follows as:
 	 * 	- Check if proper service credentials(API Url and Key) are available
 	 *  - Register webhook for context if not already registered
-	 *  - Check for EULA confrimation requirement
+	 *  - Check for EULA confirmation requirement
 	 * 		- Check if EULA is stamped to submission
 	 * 			- if not stamped, not allowed to submit at iThenticate
 	 * 		- Check if EULA is stamped to submitting user
@@ -425,11 +425,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submission = $form->submission; /** @var Submission $submission */
 		$user = $request->getUser();
 
-		if (!static::isRunningInTestMode() && !$this->isServiceAccessAvailable($context)) {
-			$this->sendErrorMessage("ithenticate service access not set for context id {$context->getId()}", $submission->getId());
-			return false;
-		}
-
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
 
 		// If no webhook previously registered for this Context, register it
@@ -443,7 +438,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		if ($this->getContextEulaDetails($context, 'require_eula') !== false) {
 			// not going to sent it for plagiarism check if EULA not stamped to submission or submitter
 			if (!$submission->getData('ithenticateEulaVersion') || !$user->getData('ithenticateEulaVersion')) {
-				$this->sendErrorMessage('Unable to obtain the stamped EULA details to submission or submitter', $submission->getId());
+				$this->sendErrorMessage(__('plugins.generic.plagiarism.stamped.eula.missing'), $submission->getId());
 				return false;
 			}
 		}
@@ -460,7 +455,8 @@ class PlagiarismPlugin extends GenericPlugin {
 				}
 			}
 		} catch (\Throwable $exception) {
-			$this->sendErrorMessage($exception->getMessage(), $submission->getId());
+			error_log('submit for plagiarism check failed with excaption ' . $exception->__toString());
+			$this->sendErrorMessage(__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'), $submission->getId());
 			return false;
 		}
 
@@ -596,7 +592,12 @@ class PlagiarismPlugin extends GenericPlugin {
 		);
 
 		if (!$submissionUuid) {
-			$this->sendErrorMessage("Could not create the submission at iThenticate for file id {$submissionFile->getId()}", $submission->getId());
+			$this->sendErrorMessage(
+				__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
+					'submissionFileId' => $submissionFile->getId(),
+				]), 
+				$submission->getId()
+			);
 			return false;
 		}
 
@@ -604,7 +605,6 @@ class PlagiarismPlugin extends GenericPlugin {
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
 
 		if (in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes)) {
-			error_log("plagiarism check for file mime type : {$file->mimetype} with submission file id : {$submissionFile->getId()} and submission id : {$submission->getId()} is not allowed");
 			return true;
 		}
 
@@ -616,7 +616,12 @@ class PlagiarismPlugin extends GenericPlugin {
 
 		// Upload submission files for successfully created submission at iThenticate's end
 		if (!$uploadStatus) {
-			$this->sendErrorMessage('Could not complete the file upload at iThenticate for file id ' . $submissionFile->getData("name", $publication->getData("locale")), $submission->getId());
+			$this->sendErrorMessage(
+				__('plugins.generic.plagiarism.ithenticate.file.upload.failed', [
+					'submissionFileId' => $submissionFile->getId(),
+				]), 
+				$submission->getId()
+			);
 			return false;
 		}
 

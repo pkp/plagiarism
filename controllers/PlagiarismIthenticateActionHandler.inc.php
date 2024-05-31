@@ -132,12 +132,10 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		);
 
 		if (!$scheduleSimilarityReport) {
-			static::$_plugin->sendErrorMessage("Failed to schedule the similarity report generation process for iThenticate submission id " . $submissionFile->getData('ithenticateId'), $submissionFile->getData('submissionId'));
-			$this->generateUserNotification(
-				$request,
-				NOTIFICATION_TYPE_ERROR, 
-				__('plugins.generic.plagiarism.action.scheduleSimilarityReport.error')
-			);
+			$message = __('plugins.generic.plagiarism.webhook.similarity.schedule.failure', [
+				'submissionFileId' => $submissionFile->getId(),
+			]);
+			$this->generateUserNotification($request, NOTIFICATION_TYPE_ERROR, $message);
 			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
@@ -175,24 +173,20 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		);
 
 		if (!$similarityScoreResult) {
-			static::$_plugin->sendErrorMessage("Unable to retrieve similarity result for submission file id " . $submissionFile->getData('ithenticateId'), $submissionFile->getData('submissionId'));
-			$this->generateUserNotification(
-				$request,
-				NOTIFICATION_TYPE_ERROR, 
-				__('plugins.generic.plagiarism.action.refreshSimilarityResult.error')
-			);
+			$message = __('plugins.generic.plagiarism.action.refreshSimilarityResult.error', [
+				'submissionFileId' => $submissionFile->getId(),
+			]);
+			$this->generateUserNotification($request, NOTIFICATION_TYPE_ERROR, $message);
 			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
 		$similarityScoreResult = json_decode($similarityScoreResult);
 
 		if ($similarityScoreResult->status !== 'COMPLETE') {
-			static::$_plugin->sendErrorMessage("Similarity result info not yet complete for submission file id " . $submissionFile->getData('ithenticateId'), $submissionFile->getData('submissionId'));
-			$this->generateUserNotification(
-				$request,
-				NOTIFICATION_TYPE_WARNING, 
-				__('plugins.generic.plagiarism.action.refreshSimilarityResult.warning')
-			);
+			$message = __('plugins.generic.plagiarism.action.refreshSimilarityResult.warning', [
+				'submissionFileId' => $submissionFile->getId(),
+			]);
+			$this->generateUserNotification($request, NOTIFICATION_TYPE_WARNING, $message);
 			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
