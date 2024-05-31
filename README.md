@@ -25,13 +25,14 @@ This plugin permits automatic submission of uploaded manuscripts to the [iThenti
 
 There are several iThenticate similarity check settings that can be configured via the plugin.
 1. Similarity Check Options
-   * `addToIndex` -- The submission will be added to all valid node groups for future matching
+   * `addToIndex` -- Submissions will be indexed in the accounts repository and will be available for comparison in Similarity Reports by other users within your organization
    * `excludeQuotes` -- Text in quotes of the submission will not count as similar content
    * `excludeBibliography` -- Text in a bibliography section of the submission will not count as similar content
    * `excludeAbstract` -- Text in the abstract section of the submission will not count as similar content
    * `excludeMethods` -- Text in the method section of the submission will not count as similar content
-   * `excludeCitations` -- The citations of the submission will be excuded from similarity check
-   * `excludeSmallMatches` -- Similarity matches that match less than the specified number of words will not count as similar content
+   * `excludeCitations` -- The citations of the submission will be excluded from similarity check
+   * `excludeSmallMatches` -- Similarity matches that match less than the specified amount of words will not count as similar content
+   * `allowViewerUpdate` -- Changes made in reports will be saved for the next time the report is viewed
    * ![Available Similarity Check Options](images/similarity-check-settings.png)
 2. Each of this settings can also be configured at global or Journal/Press/Server level from the `config.inc.php` file.
 
