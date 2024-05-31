@@ -71,6 +71,8 @@ The config.inc.php settings format is:
 ; Other settings can be configured here; see README.md for all options.
 ```
 
+> NOTE : Changing the api credentails (api url and/or api key) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process.
+
 ## Restrictions
 1. The submitting user must confirm the iThenticate End User License Agreement to send files to iThenticate service for plagiarism checking.
 2. zip/tar/gzip files will not be uploaded to iThenticate.
