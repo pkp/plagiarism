@@ -13,6 +13,7 @@
 import('lib.pkp.classes.form.Form');
 import('plugins.generic.plagiarism.PlagiarismPlugin');
 import('plugins.generic.plagiarism.classes.form.validation.FormValidatorIthenticateAccess');
+import('plugins.generic.plagiarism.IThenticate');
 
 class PlagiarismSettingsForm extends Form {
 
@@ -62,6 +63,18 @@ class PlagiarismSettingsForm extends Form {
 			);
 		}
 
+		$this->addCheck(
+			new FormValidatorCustom(
+				$this,
+				'excludeSmallMatches',
+				'required', 
+				'plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min',
+				function($excludeSmallMatches) {
+					return (int) $excludeSmallMatches >= IThenticate::EXCLUDE_SAMLL_MATCHES_MIN;
+				}
+			)
+		);
+
 		$this->addCheck(new FormValidatorPost($this));
 		$this->addCheck(new FormValidatorCSRF($this));
 	}
@@ -79,6 +92,11 @@ class PlagiarismSettingsForm extends Form {
 
 		foreach(array_keys($this->_plugin->similaritySettings) as $settingOption) {
 			$this->_data[$settingOption] = $this->_plugin->getSetting($this->_context->getId(), $settingOption);
+		}
+		
+		// set the default value `8` for `excludeSmallMatches` as per iThenticate guide
+		if ((int) $this->_data['excludeSmallMatches'] < IThenticate::EXCLUDE_SAMLL_MATCHES_MIN) {
+			$this->_data['excludeSmallMatches'] = IThenticate::EXCLUDE_SAMLL_MATCHES_MIN;
 		}
 	}
 

@@ -66,8 +66,6 @@
 			{fbvElement type="checkbox" name="excludeCitations" 	id="excludeCitations" 		checked=$excludeCitations 		label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations" 		translate="true"}
 			{fbvElement type="checkbox" name="excludeAbstract" 		id="excludeAbstract" 		checked=$excludeAbstract 		label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract" 		translate="true"}
 			{fbvElement type="checkbox" name="excludeMethods" 		id="excludeMethods" 		checked=$excludeMethods 		label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods" 		translate="true"}
-			{fbvElement type="checkbox" name="allowViewerUpdate" 	id="allowViewerUpdate" 		checked=$allowViewerUpdate 		label="plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate" 	translate="true"}
-			
 			{fbvFormSection description="plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"}
 				{fbvElement 
 					type="text" 
@@ -76,6 +74,7 @@
 					label="plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
 				}
 			{/fbvFormSection}
+			{fbvElement type="checkbox" name="allowViewerUpdate" 	id="allowViewerUpdate" 		checked=$allowViewerUpdate 		label="plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate" 	translate="true"}
 		{/fbvFormSection}
 	{/fbvFormArea}
 

@@ -117,6 +117,14 @@ class IThenticate
     ];
 
     /**
+     * The minimum value of similarity report's view_setting's `exclude_small_matches` option
+     * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
+     * 
+     * @var int
+     */
+    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+
+    /**
      * The entity(e.g. submission owner, submitter etc) to id prefix mapping
      * This helps to identify the type of entity associated with requesting system
      * For example, `author/1` rather than only `1` identify as author entity of requesting system
@@ -400,7 +408,9 @@ class IThenticate
                         'exclude_methods'                   => $settings['excludeMethods']                  ?? false,
                         'exclude_custom_sections'           => $settings['excludeCustomSections']           ?? false,
                         'exclude_preprints'                 => $settings['excludePreprints']                ?? false,
-                        'exclude_small_matches'             => $settings['excludeSmallMatches']             ?? 8,
+                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SAMLL_MATCHES_MIN  
+                                                                ? (int) $settings['excludeSmallMatches'] 
+                                                                : self::EXCLUDE_SAMLL_MATCHES_MIN,
                         'exclude_internet'                  => $settings['excludeInternet']                 ?? false,
                         'exclude_publications'              => $settings['excludePublications']             ?? false,
                         'exclude_crossref'                  => $settings['excludeCrossref']                 ?? false,

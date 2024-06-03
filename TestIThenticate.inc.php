@@ -94,6 +94,14 @@ class TestIThenticate {
     ];
 
     /**
+     * The minimum value of similarity report's view_setting's `exclude_small_matches` option
+     * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
+     * 
+     * @var int
+     */
+    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+
+    /**
      * @copydoc IThenticate::__construct()
      */
     public function __construct($apiUrl, $apiKey, $integrationName, $integrationVersion, $eulaVersion = null) {

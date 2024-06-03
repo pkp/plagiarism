@@ -31,7 +31,7 @@ There are several iThenticate similarity check settings that can be configured v
    * `excludeAbstract` -- Text in the abstract section of the submission will not count as similar content
    * `excludeMethods` -- Text in the method section of the submission will not count as similar content
    * `excludeCitations` -- The citations of the submission will be excluded from similarity check
-   * `excludeSmallMatches` -- Similarity matches that match less than the specified amount of words will not count as similar content
+   * `excludeSmallMatches` -- Similarity matches that match less than the specified amount of words will not count as similar content. Mimimum value is 8.
    * `allowViewerUpdate` -- Changes made in reports will be saved for the next time the report is viewed
    * ![Available Similarity Check Options](images/similarity-check-settings.png)
 2. Each of this settings can also be configured at global or Journal/Press/Server level from the `config.inc.php` file.
