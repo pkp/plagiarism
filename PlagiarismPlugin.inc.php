@@ -42,37 +42,52 @@ class PlagiarismPlugin extends GenericPlugin {
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanEnable()
+	 * If credentials are stored in config.inc.php, these force the plugin to enabled.
 	 */
 	function getCanEnable($contextId = null) {
-		return !Config::getVar('ithenticate', 'ithenticate');
+		list($user, $pass) = $this->getForcedCredentials($contextId);
+		// if config.inc.php supplies both user and password, the journal cannot enable/disable
+		return !($user && $pass);
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanDisable()
+	 * If credentials are stored in config.inc.php, these force the plugin to enabled.
 	 */
 	function getCanDisable($contextId = null) {
-		return !Config::getVar('ithenticate', 'ithenticate');
+		return $this->getCanEnable($contextId);
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getEnabled()
+	 * If credentials are stored in config.inc.php, these force the plugin to enabled.
 	 */
 	function getEnabled($contextId = null) {
-		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
+		return parent::getEnabled($contextId) || !$this->getCanEnable($contextId);
 	}
 
 	/**
 	 * Fetch credentials from config.inc.php, if available
+	 * @param $contextId int Optional Context Id, autodetect from Request if not supplied, but existing site-wide settings will override any context
 	 * @return array username and password, or null(s)
 	**/
-	function getForcedCredentials() {
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-		$contextPath = $context->getPath();
-		$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']',
-				Config::getVar('ithenticate', 'username'));
-		$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']',
-				Config::getVar('ithenticate', 'password'));
+	function getForcedCredentials($contextId) {
+		$username = Config::getVar('ithenticate', 'username');
+		$password = Config::getVar('ithenticate', 'password');
+		if (!$username || !$password) {
+			if (!$contextId) {
+				$request = Application::get()->getRequest();
+				$context = $request->getContext();
+			} else {
+				$contextDao = Application::getContextDAO();
+				$context = $contextDao->getById($contextId);
+			}
+			if ($context) {
+				$contextPath = $context->getPath();
+				$username = Config::getVar('ithenticate', 'username[' . $contextPath . ']');
+				$password = Config::getVar('ithenticate', 'password[' . $contextPath . ']');
+			}
+		}
 		return [$username, $password];
 	}
 
@@ -95,6 +110,36 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 		error_log('iThenticate submission '.$submissionid.' failed: '.$message);
 	}
+		
+	/**
+	 * Connects to iThenticate and validates interop prerequisites
+	 * @param $username string iThenticate username
+	 * @param $password string iThenticate password
+	 * @param $groupname string An iThenticate folder group which will be created if not already existing
+	 * @return Ithenticate iThenticate connection object
+	 * @throws PlagiarismIthenticateException
+	 */
+	public function ithenticateConnect($username, $password, $groupname) {
+		require_once(dirname(__FILE__) . '/vendor/autoload.php');
+		import('plugins.generic.plagiarism.PlagiarismIthenticateException');
+
+		$ithenticate = null;
+		try {
+			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+		} catch (Exception $e) {
+			throw new PlagiarismIthenticateException($e->getMessage(), 0, $e, null);
+		}
+		// Make sure there's a group list for this context, creating if necessary.
+		$groupList = $ithenticate->fetchGroupList();
+		if (!($groupId = array_search($groupname, $groupList))) {
+			// No folder group found for the context; create one.
+			$groupId = $ithenticate->createGroup($groupname);
+			if (!$groupId) {
+				throw new PlagiarismIthenticateException('Could not create folder group for context ' . $contextName . ' on iThenticate.', 0, null, $ithenticate);
+			}
+		}
+		return $ithenticate;
+	}
 
 	/**
 	 * Send submission files to iThenticate.
@@ -109,33 +154,24 @@ class PlagiarismPlugin extends GenericPlugin {
 		$submission = $submissionDao->getById($request->getUserVar('submissionId'));
 		$publication = $submission->getCurrentPublication();
 
-		require_once(dirname(__FILE__) . '/vendor/autoload.php');
-
 		// try to get credentials for current context otherwise use default config
         	$contextId = $context->getId();
-		list($username, $password) = $this->getForcedCredentials();
+		list($username, $password) = $this->getForcedCredentials($context->getId());
 		if (empty($username) || empty($password)) {
 			$username = $this->getSetting($contextId, 'ithenticateUser');
 			$password = $this->getSetting($contextId, 'ithenticatePass');
 		}
 
+		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
+
 		$ithenticate = null;
 		try {
-			$ithenticate = new \bsobbe\ithenticate\Ithenticate($username, $password);
+			$ithenticate = $this->ithenticateConnect($username, $password, $contextName);
+			$groupList = $ithenticate->fetchGroupList();
+			$groupId = array_search($contextName, $groupList);
 		} catch (Exception $e) {
 			$this->sendErrorMessage($submission->getId(), $e->getMessage());
 			return false;
-		}
-		// Make sure there's a group list for this context, creating if necessary.
-		$groupList = $ithenticate->fetchGroupList();
-		$contextName = $context->getLocalizedName($context->getPrimaryLocale());
-		if (!($groupId = array_search($contextName, $groupList))) {
-			// No folder group found for the context; create one.
-			$groupId = $ithenticate->createGroup($contextName);
-			if (!$groupId) {
-				$this->sendErrorMessage($submission->getId(), 'Could not create folder group for context ' . $contextName . ' on iThenticate.');
-				return false;
-			}
 		}
 
 		// Create a folder for this submission.
@@ -255,3 +291,4 @@ class TestIthenticate {
 		return true;
 	}
 }
+
