@@ -84,9 +84,16 @@ class PlagiarismPlugin extends GenericPlugin {
 		$success = parent::register($category, $path, $mainContextId);
 
 		$this->addLocaleData();
-		
-		if (!($success || $this->getEnabled())) {
-			return false;	
+
+		// if plugin hasn't registered, not allow loading plugin
+		if (!$success) {
+			return false;
+		}
+
+		// Plugin has been registered but not enabled
+		// will allow to load plugin but no plugin feature will be executed
+		if (!$this->getEnabled($mainContextId)) {
+			return $success;
 		}
 		
 		HookRegistry::register('submissionsubmitstep4form::display', [$this, 'confirmEulaAcceptance']);
@@ -133,21 +140,29 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @copydoc LazyLoadPlugin::getCanEnable()
 	 */
 	public function getCanEnable($contextId = null) {
-		return !Config::getVar('ithenticate', 'ithenticate');
+		if (!Config::getVar('ithenticate', 'ithenticate')) {
+			return false;
+		}
+
+		return !$this->getEnabled($contextId);
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanDisable()
 	 */
 	public function getCanDisable($contextId = null) {
-		return !Config::getVar('ithenticate', 'ithenticate');
+		if (!Config::getVar('ithenticate', 'ithenticate')) {
+			return false;
+		}
+
+		return !$this->getEnabled($contextId);
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getEnabled()
 	 */
 	public function getEnabled($contextId = null) {
-		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
+		return parent::getEnabled($contextId) && Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**

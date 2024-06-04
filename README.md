@@ -10,7 +10,9 @@ This plugin permits automatic submission of uploaded manuscripts to the [iThenti
    * or, paid directly to iThenticate
 2. Install the plugin via the Plugin Gallery
 3. Configure the plugin (see below)
-   * Enable the plugin via config.inc.php or in a specific journal/press/preprint context
+   * Enable the iThenticate service from `config.inc.php` by setting `ithenticate` to `On`.
+   * Enable the plugin from Plugin Gallery by clicking on the checkbox. 
+   * ![Example Enabling Plugin](images/enable-plugin.png)
    * Configure the plugin with the **API URL** and **API KEY** you get from ithenticate.com
    * ![Example Settings configuration](images/ithenticate-settings.png)
 4. The author logs in and makes a submission
@@ -49,9 +51,9 @@ The config.inc.php settings format is:
 
 [ithenticate]
 
-; Enable iThenticate to upload submission files for plagiarism checking.
-; if auto upload to iThenticate disable globally or Journal/Server/Press level
-; ithenticate = On
+; Enable/Disable iThenticate service to upload submission files for plagiarism checking.
+; Unsetting this will turn off the plugin globally.
+ithenticate = On
 
 ; Global iThenticate API URL
 ; api_url = "https://some-ithenticate-account.com"
@@ -71,7 +73,7 @@ The config.inc.php settings format is:
 ; Other settings can be configured here; see README.md for all options.
 ```
 
-> NOTE : Changing the api credentails (api url and/or api key) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process.
+> NOTE : Changing the api credentails (api_url and/or api_key) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process.
 
 ## Restrictions
 1. The submitting user must confirm the iThenticate End User License Agreement to send files to iThenticate service for plagiarism checking.
