@@ -558,6 +558,11 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::get()->getRequest();
 		$user ??= $request->getUser();
 
+		if (is_null($submission->getData('ithenticateEulaVersion'))) {
+			$submissionDao = DAORegistry::getDAO("SubmissionDAO"); /** @var SubmissionDAO $submissionDao */
+			$submission = $submissionDao->getById(1); /** @var Submission $submission */
+		}
+
 		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion');
 
 		// If submission EULA version has already been stamped to user

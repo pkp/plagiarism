@@ -747,13 +747,13 @@ class IThenticate
      * 
      * @param  string   $entity     The entity name (e.g. owner/submitter etc).
      * @param  mixed    $id         Entity id associated with requesting system.
-     * @param  bool     $silent     Silently return the passed `$id` is no matching entity mapping
-     *                              not found. Default to `true` and when set to `false`, will throw
+     * @param  bool     $silent     Silently return the passed `$id` if no matching entity mapping
+     *                              not found. Default to `false` and when set to `true`, will not throw
      *                              exception.
      * 
      * @return mixed
      */
-    protected function getGeneratedId($entity, $id, $silent = true) {
+    protected function getGeneratedId($entity, $id, $silent = false) {
         if (!in_array($entity, array_keys(static::ENTITY_ID_PREFIXES))) {
             if ($silent) {
                 return $id;
