@@ -140,29 +140,29 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @copydoc LazyLoadPlugin::getCanEnable()
 	 */
 	public function getCanEnable($contextId = null) {
-		if (!Config::getVar('ithenticate', 'ithenticate')) {
-			return false;
-		}
-
-		return !$this->getEnabled($contextId);
+		return !Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getCanDisable()
 	 */
 	public function getCanDisable($contextId = null) {
-		if (!Config::getVar('ithenticate', 'ithenticate')) {
-			return false;
-		}
-
-		return !$this->getEnabled($contextId);
+		return !Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**
 	 * @copydoc LazyLoadPlugin::getEnabled()
 	 */
 	public function getEnabled($contextId = null) {
-		return parent::getEnabled($contextId) && Config::getVar('ithenticate', 'ithenticate');
+		if (!Config::getVar('general', 'installed')) {
+			return false;
+		}
+
+		if (Config::getVar('ithenticate', 'ithenticate') && !parent::getEnabled($contextId)) {
+			$this->setEnabled(true);
+		}
+		
+		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
 	}
 
 	/**
