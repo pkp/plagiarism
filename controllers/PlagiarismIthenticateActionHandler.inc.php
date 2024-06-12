@@ -131,7 +131,6 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 		// see more at https://developers.turnitin.com/turnitin-core-api/best-practice/retry-polling
 		if (!$submissionFile->getData('ithenticateSubmissionAcceptedAt')) {
 			$submissionInfo = $ithenticate->getSubmissionInfo($submissionFile->getData('ithenticateId'));
-			ray($submissionInfo);
 
 			// submission info not available to schedule report generation process
 			if (!$submissionInfo) {
@@ -161,7 +160,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 						break;
 					case 'ERROR' :
 						$similaritySchedulingError = property_exists($submissionInfo, 'error_code')
-							? __("plugins.generic.plagiarism.submission.status.{$submissionInfo->error_code}")
+							? __("plugins.generic.plagiarism.ithenticate.submission.error.{$submissionInfo->error_code}")
 							: __('plugins.generic.plagiarism.submission.status.ERROR');
 						break;
 				}
