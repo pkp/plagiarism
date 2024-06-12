@@ -225,6 +225,29 @@ class TestIThenticate {
     }
 
     /**
+     * @copydoc IThenticate::getSubmissionInfo()
+     */
+    public function getSubmissionInfo($submissionUuid) {
+
+        return '{
+            "id": "'.$submissionUuid.'",
+            "owner": "a9c14691-9523-4f44-b5fc-4a673c5d4a35",
+            "title": "History 101 Final Esssay",
+            "status": "COMPLETE",
+            "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "page_count": 3,
+            "word_count": 145,
+            "character_count": 760,
+            "created_time": "2023-08-30T22:13:41Z",
+            "capabilities" : [
+                  "INDEX",
+                  "VIEWER",
+                  "SIMILARITY"
+              ]
+          }';
+    }
+
+    /**
      * @copydoc IThenticate::scheduleSimilarityReportGenerationProcess()
      */
     public function scheduleSimilarityReportGenerationProcess($submissionUuid, $settings = []) {

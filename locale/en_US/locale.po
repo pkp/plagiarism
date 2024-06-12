@@ -233,3 +233,15 @@ msgstr "Could not create the submission at iThenticate for submission file id : 
 
 msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
 msgstr "Could not complete the file upload at iThenticate for submission file id  : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Submission details is unavailable."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Submission has been created but no file has been uploaded"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "File contents have been uploaded and the submission is still being processed"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "An error occurred during submission processing."

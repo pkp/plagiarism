@@ -126,6 +126,62 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 			...static::$_plugin->getServiceAccess($context)
 		);
 
+		// If no confirmation of submission file completed the processing at iThenticate service'e end
+		// we first need to check it's processing status to see has set to `COMPLETED`
+		// see more at https://developers.turnitin.com/turnitin-core-api/best-practice/retry-polling
+		if (!$submissionFile->getData('ithenticateSubmissionAcceptedAt')) {
+			$submissionInfo = $ithenticate->getSubmissionInfo($submissionFile->getData('ithenticateId'));
+			ray($submissionInfo);
+
+			// submission info not available to schedule report generation process
+			if (!$submissionInfo) {
+				$this->generateUserNotification(
+					$request,
+					NOTIFICATION_TYPE_ERROR,
+					__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
+						'submissionFileId' => $submissionFile->getId(),
+						'error' => __('plugins.generic.plagiarism.submission.status.unavailable'),
+					])
+				);
+				return $this->triggerDataChangedEvent($submissionFile);
+			}
+
+			$submissionInfo = json_decode($submissionInfo);
+
+			// submission has not completed yet to schedule report generation process
+			if ($submissionInfo->status !== 'COMPLETE') {
+				$similaritySchedulingError = '';
+
+				switch($submissionInfo->status) {
+					case 'CREATED' :
+						$similaritySchedulingError = __('plugins.generic.plagiarism.submission.status.CREATED');
+						break;
+					case 'PROCESSING' :
+						$similaritySchedulingError = __('plugins.generic.plagiarism.submission.status.PROCESSING');
+						break;
+					case 'ERROR' :
+						$similaritySchedulingError = property_exists($submissionInfo, 'error_code')
+							? __("plugins.generic.plagiarism.submission.status.{$submissionInfo->error_code}")
+							: __('plugins.generic.plagiarism.submission.status.ERROR');
+						break;
+				}
+
+				$this->generateUserNotification(
+					$request,
+					NOTIFICATION_TYPE_ERROR,
+					__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
+						'submissionFileId' => $submissionFile->getId(),
+						'error' => $similaritySchedulingError,
+					])
+				);
+
+				return $this->triggerDataChangedEvent($submissionFile);
+			}
+
+			$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
+			$submissionFileDao->updateObject($submissionFile);
+		}
+
 		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
 			$submissionFile->getData('ithenticateId'),
 			static::$_plugin->getSimilarityConfigSettings($context)

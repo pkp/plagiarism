@@ -123,6 +123,10 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler {
 			);
 			return;
 		}
+
+		$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
+		$submissionFileDao->updateObject($submissionFile);
+		$submissionFile = $submissionFileDao->getById($submissionFile->getId());
 		
 		if ((int)$submissionFile->getData('ithenticateSimilarityScheduled')) {
 			static::$_plugin->sendErrorMessage(

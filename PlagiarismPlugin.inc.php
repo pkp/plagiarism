@@ -237,6 +237,16 @@ class PlagiarismPlugin extends GenericPlugin {
 			'validation' => ['nullable'],
 		];
 
+		$schema->properties->ithenticateSubmissionAcceptedAt = (object) [
+			'type' => 'string',
+			'description' => 'The timestamp at which this submission file successfully accepted at iThenticate service end',
+			'writeOnly' => true,
+			'validation' => [
+				'date:Y-m-d H:i:s',
+				'nullable',
+			],
+		];
+
 		return false;
 	}
 

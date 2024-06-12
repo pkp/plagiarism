@@ -361,6 +361,33 @@ class IThenticate
     }
 
     /**
+     * Get the submission details
+     * @see https://developers.turnitin.com/docs/tca#get-submission-info
+     *
+     * @param string $submissionTacId   The submission UUID return back from service
+     * @return string|null              On successful retrieval of submission details it will return
+     *                                  details JSON data and on failure, will return null.
+     */
+    public function getSubmissionInfo($submissionUuid) {
+
+        $response = $this->makeApiRequest(
+            'GET',
+            $this->getApiPath("submissions/{$submissionUuid}"),
+            [
+                'headers' => $this->getRequiredHeaders(),
+                'verify' => false,
+                'exceptions' => false,
+            ]
+        );
+
+        if ($response->getStatusCode() === 200) {
+            return $response->getBody()->getContents();
+        }
+
+        return null;
+    }
+
+    /**
      * Schedule the similarity report generation process
      * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
      *
