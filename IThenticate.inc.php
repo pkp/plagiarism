@@ -386,9 +386,7 @@ class IThenticate
 
                     // section `generation_settings` settings
                     'generation_settings' => [
-                        'search_repositories' => $this->getEnabledFeature(
-                            'similarity.generation_settings.search_repositories'
-                        ) ?? [
+                        'search_repositories' => [
                             'INTERNET',
                             'SUBMITTED_WORK',
                             'PUBLICATION',
@@ -474,13 +472,6 @@ class IThenticate
                     'viewer_user_id' => $this->getGeneratedId('submitter', $user->getId()),
                     'locale' => $locale,
                     'viewer_default_permission_set' => $viewerPermission,
-                    'viewer_permissions' => [
-                        'may_view_submission_full_source' => true,
-                        'may_view_match_submission_info' => true,
-                        'may_view_flags_panel' => true,
-                        'may_view_document_details_panel' => true,
-                        'may_view_sections_exclusion_panel' => true,
-                    ],
                     'similarity' => [
                         'view_settings' => [
                             'save_changes' => $allowUpdateInViewer
