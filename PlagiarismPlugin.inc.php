@@ -154,10 +154,17 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @copydoc LazyLoadPlugin::getEnabled()
 	 */
 	public function getEnabled($contextId = null) {
+		
+		// This check is required as plugin can be forced enable by setting `ithenticate` to `On`
+		// in the config file which cuase the hooks to run but unavailable
+		// in the installation mode by setting `installed` to `Off`
 		if (!Config::getVar('general', 'installed')) {
 			return false;
 		}
 
+		// This allow to force enable the plugin into the system if `ithenticate` set to `On` but the plugin
+		// itself still disable as in `plugin_setings` table, the `enabled` value not set or set to `0`
+		// for more details, see https://github.com/pkp/plagiarism/issues/49
 		if (Config::getVar('ithenticate', 'ithenticate') && !parent::getEnabled($contextId)) {
 			$this->setEnabled(true);
 		}
