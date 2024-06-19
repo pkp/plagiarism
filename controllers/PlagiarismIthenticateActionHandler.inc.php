@@ -306,11 +306,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	}
 
 	/**
-	 * Accept the EULA, stamp it to proper entity (Submission/User or both) and may run
-	 * one of following intended action
-	 * 	- Upload submission file
-	 * 	- Schedule similarity report generation process
-	 *  - Refresh the similarity report scores
+	 * Accept the EULA, stamp it to proper entity (Submission/User or both) and upload
+	 * submission file
 	 *
 	 * @param array $args
 	 * @param Request $request
@@ -355,7 +352,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler {
 	}
 
 	/**
-	 * Show the EULA confirmation modal before the intended action
+	 * Show the EULA confirmation modal before the uploading submission file to iThenticate
 	 *
 	 * @param array $args
 	 * @param Request $request

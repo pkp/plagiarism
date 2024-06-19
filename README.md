@@ -4,24 +4,26 @@ For OJS/OMP/OPS 3.x
 
 ## Overview
 
-This plugin permits automatic submission of uploaded manuscripts to the [iThenticate service](http://www.ithenticate.com/) for plagiarism checking.
+This plugin permits automatic or manula submission of uploaded manuscripts to the [iThenticate service](http://www.ithenticate.com/) for plagiarism checking. 
+
 1. You need an account on ithenticate.com (costs involved)
    * paid via Crossref Similarity Check
    * or, paid directly to iThenticate
-2. Install the plugin via the Plugin Gallery
-3. Configure the plugin (see below)
+2. Configure the API credentials following this [guide](https://help.turnitin.com/ithenticate/administrator/api-custom.htm)
+3. Install the plugin via the Plugin Gallery
+4. Configure the plugin (see below)
    * Enable the iThenticate service from `config.inc.php` by setting `ithenticate` to `On`.
    * Enable the plugin from Plugin Gallery by clicking on the checkbox. 
    * ![Example Enabling Plugin](images/enable-plugin.png)
-   * Configure the plugin with the **API URL** and **API KEY** you get from ithenticate.com
+   * Configure the plugin with the **API URL** and **API KEY** you get from ithenticate.com at plugin's setting page or in the config file.
    * ![Example Settings configuration](images/ithenticate-settings.png)
-4. The author logs in and makes a submission
+5. The author logs in and makes a submission
    * At Step 4 of the submission process, submitting user must confirm iThenticate's End User License Agreement to complete the submission.
    * The submission files will be sent to iThenticate in Step 4 of the submission process.
-5. The Editor logs in to OJS/OMP/OPS installation and opens the Submission workflow page.
+6. The Editor logs in to OJS/OMP/OPS installation and opens the Submission workflow page.
    * In the submission files grid view, the Editor can see the similarity scores if the similarity process has completed.
    * The Editor can also launch iThenticate's similarity viewer.
-6. If auto upload to iThenticate is disabled, the Editor can send each submission file to iThenticate from the workflow stage.
+7. If auto upload to iThenticate is disabled, the Editor can send each submission file to iThenticate from the workflow stage.
 
 ## Similarity Check Settings
 
@@ -73,7 +75,7 @@ ithenticate = On
 ; Other settings can be configured here; see README.md for all options.
 ```
 
-> NOTE : Changing the api credentails (api_url and/or api_key) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process.
+> NOTE : Changing the api credentails (`api_url` and/or `api_key`) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process.
 
 ## Restrictions
 1. The submitting user must confirm the iThenticate End User License Agreement to send files to iThenticate service for plagiarism checking.
