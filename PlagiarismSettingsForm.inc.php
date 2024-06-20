@@ -132,16 +132,19 @@ class PlagiarismSettingsForm extends Form {
 
 		if (!empty(array_filter([$ithenticateApiUrl, $ithenticateApiKey]))) {
 
+			// access updated or new access entered, need to update webhook registration
 			if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
 				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey) {
-				
-				// access updated or new access entered, need to update webhook registration	
-				$this->_plugin->registerIthenticateWebhook(
-					$this->_plugin->initIthenticate(
-						$this->getData('ithenticateApiUrl'),
-						$this->getData('ithenticateApiKey')
-					)
-				);
+
+				$ithenticate = $this->_plugin->initIthenticate($ithenticateApiUrl, $ithenticateApiKey);
+
+				// If there is a already registered webhook for this context, need to delete it first
+				// before creating a new one as webhook URL remains same which will return 409(HTTP_CONFLICT)
+				if ($this->_context->getData('ithenticateWebhookId')) {
+					$ithenticate->deleteWebhook($this->_context->getData('ithenticateWebhookId'));
+				}
+
+				$this->_plugin->registerIthenticateWebhook($ithenticate);
 			}
 
 			$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiUrl', $ithenticateApiUrl, 'string');

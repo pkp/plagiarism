@@ -367,7 +367,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			return false;
 		}
 
-		// If submission has EULA stamped and user has EULA stamped and both are save version
+		// If submission has EULA stamped and user has EULA stamped and both are same version
 		// so there is no need to confirm EULA again
 		if ($submission->getData('ithenticateEulaVersion') &&
 			$submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {

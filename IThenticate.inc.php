@@ -571,6 +571,9 @@ class IThenticate
      * Register webhook end point
      * @see https://developers.turnitin.com/docs/tca#create-webhook
      *
+     * NOTE :   with same webhook url, it will return response with status code 409(HTTP_CONFLICT)
+     *          So it's important to verify one before create a new one
+     * 
      * @param string $signingSecret
      * @param string $url
      * @param array  $events
@@ -599,6 +602,24 @@ class IThenticate
         }
 
         return null;
+    }
+
+    /**
+     * Delete webhook end point
+     * @see https://developers.turnitin.com/docs/tca#delete-webhook
+     *
+     * @param string $webhookId
+     * @return bool
+     */
+    public function deleteWebhook($webhookId) {
+
+        $response = $this->makeApiRequest('DELETE', $this->getApiPath("webhooks/{$webhookId}"), [
+            'headers' => $this->getRequiredHeaders(),
+            'verify' => false,
+            'exceptions' => false,
+        ]);
+
+        return $response && $response->getStatusCode() === 204;
     }
 
     /**

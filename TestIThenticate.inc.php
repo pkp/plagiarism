@@ -320,6 +320,14 @@ class TestIThenticate {
     }
 
     /**
+     * @copydoc IThenticate::deleteWebhook()
+     */
+    public function deleteWebhook($webhookId) {
+        error_log("ithenticate webhook with id : {$webhookId} removed");
+        return true;
+    }
+
+    /**
      * @copydoc IThenticate::getEulaDetails()
      */
     public function getEulaDetails() {

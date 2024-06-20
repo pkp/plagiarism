@@ -306,7 +306,7 @@ class SimilarityActionGridColumn extends GridColumn {
 			return true;
 		}
 
-		// If no EULA is stamped with submission
+		// If no EULA is stamped with submitting user
 		// means user has never previously interacted with iThenticate process
 		if (!$user->getData('ithenticateEulaVersion')) {
 			return true;
