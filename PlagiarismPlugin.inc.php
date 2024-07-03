@@ -675,7 +675,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	 * @param IThenticate|TestIThenticate $ithenticate
 	 * @param Context|null 					$context
 	 * 
-	 * @return void
+	 * @return bool
 	 */
 	public function registerIthenticateWebhook($ithenticate, $context = null) {
 
@@ -683,7 +683,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$context ??= $request->getContext();
 
 		$signingSecret = \Illuminate\Support\Str::random(12);
-		$webhookUrl = $request->getDispatcher()->url(
+		$webhookUrl = Application::get()->getDispatcher()->url(
 			$request,
 			ROUTE_COMPONENT,
 			$context->getData('urlPath'),
@@ -697,9 +697,13 @@ class PlagiarismPlugin extends GenericPlugin {
 				'ithenticateWebhookSigningSecret' => $signingSecret,
 				'ithenticateWebhookId' => $webhookId
 			], $request);
-		} else {
-			error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");
+
+			return true;
 		}
+
+		error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");
+
+		return false;
 	}
 
 	/**
@@ -838,7 +842,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function initIthenticate($apiUrl, $apiKey) {
 
 		if (static::isRunningInTestMode()) {
-			$this->import('TestIThenticate');
+			import('plugins.generic.plagiarism.TestIThenticate');
 			return new TestIThenticate(
 				$apiUrl,
 				$apiKey,
@@ -847,7 +851,7 @@ class PlagiarismPlugin extends GenericPlugin {
 			);
 		}
 
-		$this->import('IThenticate');
+		import('plugins.generic.plagiarism.IThenticate');
 
 		return new IThenticate(
 			$apiUrl,

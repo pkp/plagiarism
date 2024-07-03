@@ -67,6 +67,9 @@ ithenticate = On
 ; api_url[Journal_or_Server_or_Press_path] = "https://some-ithenticate-account.com"
 ; api_key[Journal_or_Server_or_Press_path] = "YOUR_API_KEY"
 
+; To update webhook after changing the API URL or/both KEY defined in the config file,
+; run the command `php plugins/generic/plagiarism/tools/registerWebhooks.php`.
+
 ; To globally disable auto upload of submission files to iThenticate service, uncomment following line.
 ; disableAutoSubmission = On
 ; It is possible to disable auto upload at specific Journal/Server/Press level rather than globally
@@ -75,7 +78,7 @@ ithenticate = On
 ; Other settings can be configured here; see README.md for all options.
 ```
 
-> NOTE : Changing the api credentails (`api_url` and/or `api_key`) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process.
+> NOTE : Changing the api credentails (`api_url` and/or `api_key`) in the `config.inc.php` file will not update the webhook settings automatically and will require action from the submission workflow section to complete plagiarism similarity score generation process. However it is possible to use the command line tool to update it from CLI via command `php plugins/generic/plagiarism/tools/registerWebhooks.php` to update webhook for forced credentails.
 
 ## Restrictions
 1. The submitting user must confirm the iThenticate End User License Agreement to send files to iThenticate service for plagiarism checking.
