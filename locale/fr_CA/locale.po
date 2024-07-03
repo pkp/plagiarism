@@ -19,3 +19,6 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugiciel de détection de plagiat iThenticate"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr "Plagiarism EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
