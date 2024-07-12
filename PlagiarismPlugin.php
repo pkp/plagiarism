@@ -14,7 +14,6 @@
 
 namespace APP\plugins\generic\plagiarism;
 
-use APP\core\Services;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\PlagiarismSubmissionSubmitListener;
 use APP\template\TemplateManager;
@@ -203,21 +202,21 @@ class PlagiarismPlugin extends GenericPlugin
 			return;
 		}
 
-		$submissionFiles = Services::get('submissionFile')->getMany([
+		$submissionFiles = app()->get('submissionFile')->getMany([
 			'submissionIds' => [$submission->getId()],
 		]);
 		$authors = $publication->getData('authors');
 		$author = array_shift($authors);
 
 		foreach ($submissionFiles as $submissionFile) {
-			$file = Services::get('file')->get($submissionFile->getData('fileId'));
+			$file = app()->get('file')->get($submissionFile->getData('fileId'));
 
 			$submittedDocumentIdentifier = $ithenticate->submitDocument(
 				$submissionFile->getLocalizedData('name'),
 				$author->getLocalizedGivenName(),
 				$author->getLocalizedFamilyName(),
 				$submissionFile->getLocalizedData('name'),
-				Services::get('file')->fs->read($file->path),
+				app()->get('file')->fs->read($file->path),
 				$folderId
 			);
 
