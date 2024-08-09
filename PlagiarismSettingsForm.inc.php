@@ -133,7 +133,7 @@ class PlagiarismSettingsForm extends Form {
 		// if proper api url and api key provided and if there is no forced credentails defined in 
 		// `config.inc.php` at global or for this context
 		if (!empty(array_filter([$ithenticateApiUrl, $ithenticateApiKey])) &&
-			!$this->_plugin->hasForcedCredentials($this->_context->getId())) {
+			!$this->_plugin->hasForcedCredentials($this->_context)) {
 
 			// access updated or new access entered, need to update webhook registration
 			if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
