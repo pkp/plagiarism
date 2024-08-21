@@ -1,15 +1,16 @@
+# Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-01-15 07:53+0000\n"
+"PO-Revision-Date: 2024-08-22 23:40+0000\n"
 "Last-Translator: Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>\n"
 "Language-Team: Indonesian <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/id_ID/>\n"
+"plagiarism/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -17,3 +18,30 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugin Uji Plagiarisme iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Username iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Password iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Username iThenticate wajib diisi"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "Password iThenticate wajib diisi"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Pengaturan iThenticate ditemukan di dalam file config.inc.php dan pengaturan "
+"di sini tudak akan digunakan."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Unggah submisi {$submissionId} ke iThenticate gagal dengan error: "
+"{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Pengaturan akun yang ditujukan untuk mengunggah pengiriman ke iThenticate. "
+"Hubungi administrator iThenticate Anda untuk detail lebih lanjut."
