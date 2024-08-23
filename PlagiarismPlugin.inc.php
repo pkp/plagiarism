@@ -102,6 +102,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		HookRegistry::register('Schema::get::' . SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
 		HookRegistry::register('Schema::get::' . SCHEMA_SUBMISSION_FILE, [$this, 'addPlagiarismCheckDataToSubmissionFileSchema']);
 		HookRegistry::register('Schema::get::' . SCHEMA_CONTEXT, [$this, 'addIthenticateConfigSettingsToContextSchema']);
+		HookRegistry::register('SubmissionFile::edit', [$this, 'updateIthenticateRevisionHistory']);
 		
 		HookRegistry::register('userdao::getAdditionalFieldNames', [$this, 'handleAdditionalEulaConfirmationFieldNames']);
 
@@ -223,6 +224,13 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function addPlagiarismCheckDataToSubmissionFileSchema($hookName, $params) {
 		$schema =& $params[0];
 
+		$schema->properties->ithenticateFileId = (object) [
+			'type' => 'integer',
+			'description' => 'The file id from the files table',
+			'writeOnly' => true,
+			'validation' => ['nullable'],
+		];
+
 		$schema->properties->ithenticateId = (object) [
 			'type' => 'string',
 			'description' => 'The iThenticate submission id for submission file',
@@ -254,6 +262,13 @@ class PlagiarismPlugin extends GenericPlugin {
 			],
 		];
 
+		$schema->properties->ithenticateRevisionHistory = (object) [
+			'type' => 'string',
+			'description' => 'The similarity check action history on the previous revisions of this submission file',
+			'writeOnly' => true,
+			'validation' => ['nullable'],
+		];
+
 		return false;
 	}
 
@@ -282,6 +297,57 @@ class PlagiarismPlugin extends GenericPlugin {
 			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
+
+		return false;
+	}
+
+	/**
+	 * Add plagiarism action history for revision files.
+	 * Only contains action history for files that has been sent for plagiarism check.
+	 * 
+	 * @param string $hookName `SubmissionFile::edit`
+	 * @param array $params
+	 * 
+	 * @return bool
+	 */
+	public function updateIthenticateRevisionHistory($hookName, $params) {
+		$submissionFile = & $params[0]; /** @var SubmissionFile $submissionFile */
+		$submissionFileDao = DAORegistry::getDAO('SubmissionFileDAO'); /** @var SubmissionFileDAO $submissionFileDao */
+		$currentSubmissionFile = $submissionFileDao->getById($submissionFile->getId()); /** @var SubmissionFile $currentSubmissionFile */
+
+		// Do not track for plagiarism revision history until marked for tracking
+		if (is_null($currentSubmissionFile->getData('ithenticateFileId'))) {
+			return false;
+		}
+
+		// If file has not changed, no change in plagiarism revision history
+		if ($currentSubmissionFile->getId() === $submissionFile->getData('fileId')) {
+			return false;
+		}
+
+		// new file revision added, so add/update itnenticate revision hisotry
+		$revisionHistory = json_decode($currentSubmissionFile->getData('ithenticateRevisionHistory') ?? '{}', true);
+		$submissionFile->setData('ithenticateFileId', $submissionFile->getData('fileId'));
+
+		// If the previous file not sent schedule for plagiarism check
+		// no need to store it's plagiarism revision history
+		if (is_null($currentSubmissionFile->getData('ithenticateId'))) {
+			return false;
+		}
+
+		array_push($revisionHistory, [
+			'ithenticateFileId' => $currentSubmissionFile->getData('ithenticateFileId'),
+			'ithenticateId' => $currentSubmissionFile->getData('ithenticateId'),
+			'ithenticateSimilarityResult' => $currentSubmissionFile->getData('ithenticateSimilarityResult'),
+			'ithenticateSimilarityScheduled' => $currentSubmissionFile->getData('ithenticateSimilarityScheduled'),
+			'ithenticateSubmissionAcceptedAt' => $currentSubmissionFile->getData('ithenticateSubmissionAcceptedAt'),
+		]);
+		
+		$submissionFile->setData('ithenticateRevisionHistory', json_encode($revisionHistory));
+		$submissionFile->setData('ithenticateId', null);
+		$submissionFile->setData('ithenticateSimilarityResult', null);
+		$submissionFile->setData('ithenticateSimilarityScheduled', 0);
+		$submissionFile->setData('ithenticateSubmissionAcceptedAt', null);
 
 		return false;
 	}
@@ -663,6 +729,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 
 		$submissionFile->setData('ithenticateId', $submissionUuid);
+		$submissionFile->setData('ithenticateFileId', $submissionFile->getData('fileId'));
 		$submissionFile->setData('ithenticateSimilarityScheduled', 0);
 		$submissionFileDao->updateObject($submissionFile);
 
