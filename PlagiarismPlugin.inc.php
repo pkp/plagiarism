@@ -641,12 +641,17 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::get()->getRequest();
 		$user ??= $request->getUser();
 
-		if (is_null($submission->getData('ithenticateEulaVersion'))) {
-			$submissionDao = DAORegistry::getDAO("SubmissionDAO"); /** @var SubmissionDAO $submissionDao */
-			$submission = $submissionDao->getById(1); /** @var Submission $submission */
-		}
-
 		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion');
+
+		if (is_null($submissionEulaVersion)) {
+			$eulaDetails = $this->getContextEulaDetails($context, [
+				$submission->getData('locale'),
+				$request->getSite()->getPrimaryLocale(),
+				IThenticate::DEFAULT_EULA_LANGUAGE
+			]);
+
+			$submissionEulaVersion = $eulaDetails['version'];
+		}
 
 		// If submission EULA version has already been stamped to user
 		// no need to do the confirmation and stamping again
