@@ -321,7 +321,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		}
 
 		// If file has not changed, no change in plagiarism revision history
-		if ($currentSubmissionFile->getId() === $submissionFile->getData('fileId')) {
+		if ($currentSubmissionFile->getData('fileId') === $submissionFile->getData('fileId')) {
 			return false;
 		}
 
@@ -1096,8 +1096,10 @@ class PlagiarismPlugin extends GenericPlugin {
 		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
 		$contextPath = $context ? $context->getPath() : 'index';
 
-		return $this->getForcedConfigSetting($contextPath, 'disableAutoSubmission')
-			?? $this->getSetting($context->getId(), 'disableAutoSubmission');
+		return (bool)(
+			$this->getForcedConfigSetting($contextPath, 'disableAutoSubmission')
+				?? $this->getSetting($context->getId(), 'disableAutoSubmission')
+		);
 	}
 
 	/**
