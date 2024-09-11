@@ -68,7 +68,6 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 	{
 		$this->markRoleAssignmentsChecked();
 
-		import('lib.pkp.classes.security.authorization.SubmissionFileAccessPolicy');
 		$this->addPolicy(
 			new SubmissionFileAccessPolicy(
 				$request,
