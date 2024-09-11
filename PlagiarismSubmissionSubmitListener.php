@@ -14,21 +14,24 @@
 
 namespace APP\plugins\generic\plagiarism;
 
-use APP\core\Application;
 use APP\facades\Repo;
 use PKP\observers\events\SubmissionSubmitted;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use Illuminate\Events\Dispatcher;
+use PKP\user\User;
 
 class PlagiarismSubmissionSubmitListener
 {
     protected PlagiarismPlugin $plugin;
-
-    public function __construct(PlagiarismPlugin $plugin)
+    
+    protected User $user;
+    
+    public function __construct(PlagiarismPlugin $plugin, User $user)
     {
         $this->plugin = $plugin;
+        $this->user = $user;
     }
-
+    
     /**
      * Maps methods with correspondent events to listen
      */
@@ -39,18 +42,14 @@ class PlagiarismSubmissionSubmitListener
             [static::class, 'handle']
         );
     }
-
+    
     /**
      * Handle the listener call
      */
     public function handle(SubmissionSubmitted $event): void
     {
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
-        $this->plugin->stampEulaToSubmittingUser(
-            $event->context,
-            $event->submission,
-            Application::get()->getRequest()->getUser()
-        );
+        $this->plugin->stampEulaToSubmittingUser($event->context, $event->submission, $this->user);
         
         $this->plugin->submitForPlagiarismCheck(
             $event->context,

@@ -19,7 +19,7 @@
             alt="{translate key="plugins.generic.plagiarism.similarity.match.title"}"
         />
     </a>
-    <span>{$score}%</span>
+    <span>{$score|escape}%</span>
 </span>
 
 <style>

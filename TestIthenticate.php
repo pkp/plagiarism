@@ -130,7 +130,7 @@ class TestIThenticate
                 API Key : {$apiKey} \n
                 Integration Name : {$integrationName} \n
                 Integration Version : {$integrationVersion} \n 
-                EUlA Version : {$eulaVersion}"
+                EULA Version : {$eulaVersion}"
             )
         );
     }

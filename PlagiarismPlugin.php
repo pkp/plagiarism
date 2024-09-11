@@ -143,102 +143,15 @@ class PlagiarismPlugin extends GenericPlugin
 		Hook::add('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 		Hook::add('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 
-		Event::subscribe(new PlagiarismSubmissionSubmitListener($this));
+		Event::subscribe(
+			new PlagiarismSubmissionSubmitListener(
+				$this,
+				Application::get()->getRequest()->getUser()
+			)
+		);
 		Hook::add('TemplateManager::display', [$this, 'addEulaAcceptanceConfirmation']);
 
 		return $success;
-	}
-
-	public function addEulaAcceptanceConfirmation(string $hookName, array $params): bool
-	{
-		$templateManager =& $params[0]; /** @var TemplateManager $templateManager */
-		$templatePath = $params[1]; /** @var string $templatePath */
-
-		if ($templateManager->getTemplateVars('requestedPage') !== 'submission' || $templatePath !== 'submission/wizard.tpl') {
-			return Hook::CONTINUE;
-		}
-
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-
-		// plugin can not function if the iThenticate service access not available at global/context level 
-		if (!$this->isServiceAccessAvailable($context)) {
-			error_log("ithenticate service access not set for context id : " . ($context ? $context->getId() : 'undefined'));
-			return Hook::CONTINUE;
-		}
-
-		// if the auto upload to ithenticate disable
-		// not going to do the EULA confirmation at submission time
-		if ($this->hasAutoSubmissionDisabled()) {
-			return Hook::CONTINUE;
-		}
-
-		// EULA confirmation is not required, so no need for the checking of EULA acceptance
-		if ($this->getContextEulaDetails($context, 'require_eula') == false) {
-			return Hook::CONTINUE;
-		}
-
-		$submission = $templateManager->getTemplateVars('submission'); /** @var Submission $submission */
-		$user = Repo::user()->get($request->getUser()->getId());
-
-		// If submission has EULA stamped and user has EULA stamped and both are same version
-		// so there is no need to confirm EULA again
-		if ($submission->getData('ithenticateEulaVersion') &&
-			$submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
-			
-			return Hook::CONTINUE;
-		}
-
-		$eulaVersionDetails = $this->getContextEulaDetails($context, [
-			$submission->getData('locale'),
-			$request->getSite()->getPrimaryLocale(),
-			IThenticate::DEFAULT_EULA_LANGUAGE
-		]);
-
-		$steps = $templateManager->getState('steps'); /** @var array $steps */
-		
-		$reviewStep = collect($steps)->filter(fn ($step) => $step['id'] === 'review');
-		$reviewStepIndex = $reviewStep->keys()->first();
-		$reviewStepSections = collect($reviewStep->first())->get('sections');
-		$reviewStepSectionConfirm = collect($reviewStepSections)
-			->filter(fn ($section) => $section['id'] === FORM_CONFIRM_SUBMISSION);
-
-		if ($reviewStepSectionConfirm->count() <= 0) {
-			$confirmForm = new ConfirmSubmission(
-				FormComponent::ACTION_EMIT,
-				$context,
-				[
-					'localizedEulaUrl' => $eulaVersionDetails['url'],
-				]
-			);
-
-			$reviewStepSections[] = [
-				'id' => $confirmForm->id,
-                'name' => __('author.submit.confirmation'),
-                'type' => PKPSubmissionHandler::SECTION_TYPE_CONFIRM,
-                'description' => '<p>' . __('submission.wizard.confirm') . '</p>',
-                'form' => $confirmForm->getConfig(),
-			];
-		} else {
-			
-			$reviewStepSectionConfirmIndex = array_key_first($reviewStepSectionConfirm->toArray());
-			$reviewStepSectionConfirm = $reviewStepSectionConfirm->first();
-			$reviewStepSectionConfirm['form'] = (new ConfirmSubmission(
-				$reviewStepSectionConfirm['form']['action'],
-				Application::get()->getRequest()->getContext(),
-				[
-					'localizedEulaUrl' => $eulaVersionDetails['url'],
-				]
-			))->getConfig();
-			
-			$reviewStepSections[$reviewStepSectionConfirmIndex] = $reviewStepSectionConfirm;
-		}
-
-		$steps[$reviewStepIndex]['sections'] = $reviewStepSections;
-
-		$templateManager->setState(['steps' => $steps]);
-		
-		return Hook::CONTINUE;
 	}
 
 	/**
@@ -458,6 +371,105 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
+	 * Attach the EULA confirmation if require at the final stage of submission
+	 * 
+	 * @param string $hookName `TemplateManager::display`
+	 */
+	public function addEulaAcceptanceConfirmation(string $hookName, array $params): bool
+	{
+		$templateManager =& $params[0]; /** @var TemplateManager $templateManager */
+		$templatePath = $params[1]; /** @var string $templatePath */
+
+		if ($templateManager->getTemplateVars('requestedPage') !== 'submission' || $templatePath !== 'submission/wizard.tpl') {
+			return Hook::CONTINUE;
+		}
+
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+
+		// plugin can not function if the iThenticate service access not available at global/context level 
+		if (!$this->isServiceAccessAvailable($context)) {
+			error_log("ithenticate service access not set for context id : " . ($context ? $context->getId() : 'undefined'));
+			return Hook::CONTINUE;
+		}
+
+		// if the auto upload to ithenticate disable
+		// not going to do the EULA confirmation at submission time
+		if ($this->hasAutoSubmissionDisabled()) {
+			return Hook::CONTINUE;
+		}
+
+		// EULA confirmation is not required, so no need for the checking of EULA acceptance
+		if ($this->getContextEulaDetails($context, 'require_eula') == false) {
+			return Hook::CONTINUE;
+		}
+
+		$submission = $templateManager->getTemplateVars('submission'); /** @var Submission $submission */
+		$user = Repo::user()->get($request->getUser()->getId());
+
+		// If submission has EULA stamped and user has EULA stamped and both are same version
+		// so there is no need to confirm EULA again
+		if ($submission->getData('ithenticateEulaVersion') &&
+			$submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
+			
+			return Hook::CONTINUE;
+		}
+
+		$eulaVersionDetails = $this->getContextEulaDetails($context, [
+			$submission->getData('locale'),
+			$request->getSite()->getPrimaryLocale(),
+			IThenticate::DEFAULT_EULA_LANGUAGE
+		]);
+
+		$steps = $templateManager->getState('steps'); /** @var array $steps */
+		
+		$reviewStep = collect($steps)->filter(fn ($step) => $step['id'] === 'review');
+		$reviewStepIndex = $reviewStep->keys()->first();
+		$reviewStepSections = collect($reviewStep->first())->get('sections');
+		$reviewStepSectionConfirm = collect($reviewStepSections)
+			->filter(fn ($section) => $section['id'] === FORM_CONFIRM_SUBMISSION);
+
+		// The confirm submission form may not pushed to `steps state of Template` if no
+		// copyright defined but we still need it to confrim the EULA as final confirmation process
+		if ($reviewStepSectionConfirm->count() <= 0) {
+			$confirmForm = new ConfirmSubmission(
+				FormComponent::ACTION_EMIT,
+				$context,
+				[
+					'localizedEulaUrl' => $eulaVersionDetails['url'],
+				]
+			);
+
+			$reviewStepSections[] = [
+				'id' => $confirmForm->id,
+                'name' => __('author.submit.confirmation'),
+                'type' => PKPSubmissionHandler::SECTION_TYPE_CONFIRM,
+                'description' => '<p>' . __('submission.wizard.confirm') . '</p>',
+                'form' => $confirmForm->getConfig(),
+			];
+		} else {
+			
+			$reviewStepSectionConfirmIndex = array_key_first($reviewStepSectionConfirm->toArray());
+			$reviewStepSectionConfirm = $reviewStepSectionConfirm->first();
+			$reviewStepSectionConfirm['form'] = (new ConfirmSubmission(
+				$reviewStepSectionConfirm['form']['action'],
+				Application::get()->getRequest()->getContext(),
+				[
+					'localizedEulaUrl' => $eulaVersionDetails['url'],
+				]
+			))->getConfig();
+			
+			$reviewStepSections[$reviewStepSectionConfirmIndex] = $reviewStepSectionConfirm;
+		}
+
+		$steps[$reviewStepIndex]['sections'] = $reviewStepSections;
+
+		$templateManager->setState(['steps' => $steps]);
+		
+		return Hook::CONTINUE;
+	}
+
+	/**
 	 * Add plagiarism action history for revision files.
 	 * Only contains action history for files that has been sent for plagiarism check.
 	 * 
@@ -509,9 +521,6 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Handle the plugin specific route component requests
 	 * 
 	 * @param string $hookName `LoadComponentHandler`
-	 * @param array $params
-	 * 
-	 * @return bool
 	 */
 	public function handleRouteComponent(string $hookName, array $params): bool
 	{
@@ -616,11 +625,9 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Add ithenticate related data and actions to submission file grid view
 	 * 
 	 * @param string $hookName `editorsubmissiondetailsfilesgridhandler::initfeatures` or `editorreviewfilesgridhandler::initfeatures`
-	 * @param array $params
-	 * 
-	 * @return bool
 	 */
-	public function addActionsToSubmissionFileGrid($hookName, $params) {
+	public function addActionsToSubmissionFileGrid(string $hookName, array $params): bool
+	{
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 
@@ -648,11 +655,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Stamp the iThenticate EULA with the submission
-	 * 
-	 * @param Context $context
-	 * @param Submission $submission
-	 * 
-	 * @return bool
 	 */
 	public function stampEulaToSubmission(Context $context, Submission $submission): bool
 	{
@@ -674,12 +676,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Stamp the iThenticate EULA to the submitting user
-	 * 
-	 * @param Context 		$context
-	 * @param Submission 	$submission
-	 * @param User|null 	$user
-	 * 
-	 * @return bool
 	 */
 	public function stampEulaToSubmittingUser(Context $context, Submission $submission, ?User $user = null): bool
 	{
@@ -701,7 +697,7 @@ class PlagiarismPlugin extends GenericPlugin
 		// If submission EULA version has already been stamped to user
 		// no need to do the confirmation and stamping again
 		if ($user->getData('ithenticateEulaVersion') === $submissionEulaVersion) {
-			return false;
+			return true;
 		}
 
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
@@ -720,14 +716,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Create a new submission at iThenticate service's end
-	 * 
-	 * @param PKPRequest 					$request
-	 * @param User 							$user
-	 * @param Submission 					$submission
-	 * @param SubmissionFile 				$submissionFile
-	 * @param IThenticate|TestIThenticate 	$ithenticate
-	 * 
-	 * @return bool
 	 */
 	public function createNewSubmission(
 		PKPRequest $request,
@@ -795,11 +783,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Register the webhook for this context
-	 * 
-	 * @param IThenticate|TestIThenticate $ithenticate
-	 * @param Context|null 					$context
-	 * 
-	 * @return bool
 	 */
 	public function registerIthenticateWebhook(IThenticate|TestIThenticate $ithenticate, ?Context $context = null): bool
 	{
@@ -850,11 +833,6 @@ class PlagiarismPlugin extends GenericPlugin
 	 * 	- 	if array and not found any match or if string, will return value based on last
 	 * 		array index or string value and considering the default value along with it
 	 * 
-	 * @param Context 			$context
-	 * @param string|array|null $keys
-	 * @param mixed 			$default
-	 * 
-	 * @return mixed
 	 */
 	public function getContextEulaDetails(
 		Context $context,
@@ -912,10 +890,6 @@ class PlagiarismPlugin extends GenericPlugin
 	 *   ...
 	 * ]
 	 * 
-	 * @param GenericCache 	$cache
-	 * @param mixed 		$cacheId
-	 * 
-	 * @return array
 	 */
 	public function retrieveEulaDetails(GenericCache $cache, mixed $cacheId): array
 	{
@@ -1061,7 +1035,6 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Get the ithenticate service access as array in format [API_URL, API_KEY]
 	 * Will try to get credentials for current context otherwise use default config
 	 * 
-	 * @param Context|null $context
 	 * @return array	The service access creds in format as [API_URL, API_KEY]
 	 */
 	public function getServiceAccess(?Context $context = null): array
@@ -1084,7 +1057,6 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Fetch credentials from config.inc.php, if available
 	 * 
-	 * @param Context|null $context
 	 * @return array api url and api key, or null(s)
 	 */
 	public function getForcedCredentials(?Context $context = null): array
@@ -1111,11 +1083,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Get the configuration settings(all or specific) for ithenticate similarity report generation process
-	 * 
-	 * @param Context 		$context
-	 * @param string|null 	$settingName
-	 * 
-	 * @return array|string|null
 	 */
 	public function getSimilarityConfigSettings(Context $context, ?string $settingName = null): array|string|null
 	{
@@ -1134,8 +1101,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Check if auto upload of submission file has been disable globally or context level
-	 * 
-	 * @return bool
 	 */
 	public function hasAutoSubmissionDisabled(): bool
 	{
@@ -1150,11 +1115,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Get the submission submitter's appropriate permission based on role in the submission context
-	 * 
-	 * @param Context 	$context
-	 * @param User 		$user
-	 * 
-	 * @return string
 	 */
 	public function getSubmitterPermission(Context $context, User $user): string
 	{	
@@ -1217,8 +1177,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Get the iThenticate logo URL
-	 * 
-	 * @return string
 	 */
 	public function getIThenticateLogoUrl(): string
 	{
@@ -1231,11 +1189,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Get the forced config at global or context level if defined
-	 * 
-	 * @param string $contextPath
-	 * @param string $configKeyName
-	 * 
-	 * @return mixed
 	 */
 	protected function getForcedConfigSetting(string $contextPath, string $configKeyName): mixed
 	{
@@ -1249,9 +1202,6 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Check is ithenticate service access details(API URL & KEY) available at global level or
 	 * for the given context
-	 * 
-	 * @param Context|null $context
-	 * @return bool
 	 */
 	protected function isServiceAccessAvailable(?Context $context = null): bool
 	{
