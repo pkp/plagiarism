@@ -77,16 +77,14 @@ class SimilarityActionGridColumn extends GridColumn
 		$request = Application::get()->getRequest();
 		
 		if ($this->_plugin::isOPS()) { // For OPS
-			$articleGalley = $row->getData(); /** @var ArticleGalley $articleGalley */
+			$galley = $row->getData(); /** @var \PKP\galley\Galley $galley */
 			
-			if (!$articleGalley->getData('submissionFileId')) {
+			if (!$galley->getData('submissionFileId')) {
 				return ['label' => ''];
 			}
 
-			$submissionFile = Repo::submissionFile()->get($articleGalley->getData('submissionFileId')); /** @var SubmissionFile $submissionFile */
-
-			$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /** @var ArticleGalleyDAO $articleGalleyDao */
-			$articleGalley = $articleGalleyDao->getByFileId($submissionFile->getId()); /** @var ArticleGalley $articleGalley */
+			/** @var SubmissionFile $submissionFile */
+			$submissionFile = Repo::submissionFile()->get($galley->getData('submissionFileId'));
 		} else {
 			$submissionFileData = $row->getData();
 			$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */			

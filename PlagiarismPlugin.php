@@ -526,7 +526,7 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		$component =& $params[0];
 
-		if (static::isOPS() && $component === 'grid.articleGalleys.ArticleGalleyGridHandler') {
+		if (static::isOPS() && $component === 'grid.preprintGalleys.PreprintGalleyGridHandler') {
 			PlagiarismArticleGalleyGridHandler::setPlugin($this);
 			$params[0] = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
 			return Hook::ABORT;

@@ -15,11 +15,11 @@
 
 namespace APP\plugins\generic\plagiarism\controllers;
 
-use APP\controllers\grid\articleGalleys\ArticleGalleyGridHandler;
+use APP\controllers\grid\preprintGalleys\PreprintGalleyGridHandler;
 use APP\plugins\generic\plagiarism\grids\SimilarityActionGridColumn;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 
-class PlagiarismArticleGalleyGridHandler extends ArticleGalleyGridHandler
+class PlagiarismArticleGalleyGridHandler extends PreprintGalleyGridHandler
 {
 	/** 
 	 * The Plagiarism Plugin itself

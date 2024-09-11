@@ -450,12 +450,18 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 	protected function triggerDataChangedEvent(SubmissionFile $submissionFile): JSONMessage
 	{
 		if (static::$_plugin::isOPS()) {
-			$articleGalleyDao = DAORegistry::getDAO('ArticleGalleyDAO'); /** @var ArticleGalleyDAO $articleGalleyDao */
-			$daoResultFactory = $articleGalleyDao->getByFileId($submissionFile->getId()); /** @var DAOResultFactory $daoResultFactory */
-			$articleGalley = $daoResultFactory->next(); /** @var ArticleGalley $articleGalley */
+			$submission = Repo::submission()->get($submissionFile->getData("submissionId"));
+			$publication = $submission->getCurrentPublication();
+
+			$galley = Repo::galley()
+				->getCollector()
+				->filterByPublicationIds([$publication->getId()])
+				->getMany()
+				->filter(fn ($gallye) => $gallye->getData("submissionFileId") == $submissionFile->getId())
+				->first();
 			
-			if ($articleGalley) {
-				return DAO::getDataChangedEvent($articleGalley->getId());
+			if ($galley) {
+				return DAO::getDataChangedEvent($galley->getId());
 			}
 		}
 
