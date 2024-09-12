@@ -23,26 +23,8 @@ class PlagiarismArticleGalleyGridHandler extends PreprintGalleyGridHandler
 {
 	/** 
 	 * The Plagiarism Plugin itself
-	 * 
-	 * @var PlagiarismPlugin 
 	 */
-	protected static $_plugin;
-
-	/**
-	 * Get the plugin
-	 */
-	public static function getPlugin(): PlagiarismPlugin
-	{
-		return static::$_plugin;
-	}
-
-	/**
-	 * Set the Plugin
-	 */
-	public static function setPlugin(PlagiarismPlugin $plugin): void
-	{
-		static::$_plugin = $plugin;
-	}
+	protected PlagiarismPlugin $_plugin;
 
 	/**
 	 * @copydoc ArticleGalleyGridHandler::initialize()
@@ -51,10 +33,6 @@ class PlagiarismArticleGalleyGridHandler extends PreprintGalleyGridHandler
 	{
 		parent::initialize($request, $args);
 		
-		$this->addColumn(new SimilarityActionGridColumn(static::$_plugin));
+		$this->addColumn(new SimilarityActionGridColumn($this->_plugin));
 	}
-}
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\controllers\PlagiarismArticleGalleyGridHandler', '\PlagiarismArticleGalleyGridHandler');
 }

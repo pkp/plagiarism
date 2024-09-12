@@ -59,7 +59,3 @@ class RearrangeColumnsFeature extends GridFeature
 		reset($this->gridHandler->_columns)->addFlag('firstColumn', true);
 	}
 }
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\grids\RearrangeColumnsFeature', '\RearrangeColumnsFeature');
-}

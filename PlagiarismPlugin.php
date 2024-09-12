@@ -525,10 +525,11 @@ class PlagiarismPlugin extends GenericPlugin
 	public function handleRouteComponent(string $hookName, array $params): bool
 	{
 		$component =& $params[0];
+		$componentInstance = & $params[2];
 
 		if (static::isOPS() && $component === 'grid.preprintGalleys.PreprintGalleyGridHandler') {
-			PlagiarismArticleGalleyGridHandler::setPlugin($this);
-			$params[0] = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
+			$componentInstance = new PlagiarismArticleGalleyGridHandler($this);
+			$component = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
 			return Hook::ABORT;
 		}
 
@@ -538,9 +539,9 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$componentName = last(explode('.', $component));
 
-		match($componentName) {
-			'PlagiarismWebhookHandler' => PlagiarismWebhookHandler::setPlugin($this),
-			'PlagiarismIthenticateActionHandler' => PlagiarismIthenticateActionHandler::setPlugin($this),
+		$componentInstance = match($componentName) {
+			'PlagiarismWebhookHandler' => new PlagiarismWebhookHandler($this),
+			'PlagiarismIthenticateActionHandler' => new PlagiarismIthenticateActionHandler($this),
 		};
 
 		return Hook::ABORT;

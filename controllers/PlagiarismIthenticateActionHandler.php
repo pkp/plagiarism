@@ -17,6 +17,7 @@ namespace APP\plugins\generic\plagiarism\controllers;
 use APP\core\Application;
 use APP\core\Request;
 use APP\facades\Repo;
+use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\notification\NotificationManager;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
@@ -34,14 +35,14 @@ use PKP\submissionFile\SubmissionFile;
 use PKP\security\authorization\SubmissionFileAccessPolicy;
 use PKP\security\Role;
 
-
 class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 {
 	/**
 	 * @copydoc PKPHandler::__construct()
 	 */
-	public function __construct() {
-		parent::__construct();
+	public function __construct(PlagiarismPlugin $plugin)
+	{
+		parent::__construct($plugin);
 
 		$this->addRoleAssignment(
 			[
@@ -94,8 +95,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		$site = $siteDao->getSite();
 
 		/** @var IThenticate $ithenticate */
-		$ithenticate = static::$_plugin->initIthenticate(
-			...static::$_plugin->getServiceAccess($context)
+		$ithenticate = $this->_plugin->initIthenticate(
+			...$this->_plugin->getServiceAccess($context)
 		);
 
 		$locale = $ithenticate
@@ -112,8 +113,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			$submissionFile->getData('ithenticateId'),
 			$user,
 			$locale,
-			static::$_plugin->getSubmitterPermission($context, $user),
-			(bool)static::$_plugin->getSimilarityConfigSettings($context, 'allowViewerUpdate')
+			$this->_plugin->getSubmitterPermission($context, $user),
+			(bool)$this->_plugin->getSimilarityConfigSettings($context, 'allowViewerUpdate')
 		);
 
 		if (!$viewerUrl) {
@@ -138,8 +139,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 
 		/** @var IThenticate $ithenticate */
-		$ithenticate = static::$_plugin->initIthenticate(
-			...static::$_plugin->getServiceAccess($context)
+		$ithenticate = $this->_plugin->initIthenticate(
+			...$this->_plugin->getServiceAccess($context)
 		);
 
 		// If no confirmation of submission file completed the processing at iThenticate service'e end
@@ -199,7 +200,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 
 		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
 			$submissionFile->getData('ithenticateId'),
-			static::$_plugin->getSimilarityConfigSettings($context)
+			$this->_plugin->getSimilarityConfigSettings($context)
 		);
 
 		if (!$scheduleSimilarityReport) {
@@ -231,8 +232,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 
 		/** @var IThenticate $ithenticate */
-		$ithenticate = static::$_plugin->initIthenticate(
-			...static::$_plugin->getServiceAccess($context)
+		$ithenticate = $this->_plugin->initIthenticate(
+			...$this->_plugin->getServiceAccess($context)
 		);
 
 		$similarityScoreResult = $ithenticate->getSimilarityResult(
@@ -281,13 +282,13 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
 
 		/** @var IThenticate $ithenticate */
-		$ithenticate = static::$_plugin->initIthenticate(
-			...static::$_plugin->getServiceAccess($context)
+		$ithenticate = $this->_plugin->initIthenticate(
+			...$this->_plugin->getServiceAccess($context)
 		);
 
 		// If no webhook previously registered for this Context, register it
 		if (!$context->getData('ithenticateWebhookId')) {
-			static::$_plugin->registerIthenticateWebhook($ithenticate, $context);
+			$this->_plugin->registerIthenticateWebhook($ithenticate, $context);
 		}
 
 		// As the submission has been already and should be stamped with an EULA at the
@@ -296,7 +297,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
 		}
 
-		if (!static::$_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
 			$this->generateUserNotification(
 				$request,
 				PKPNotification::NOTIFICATION_TYPE_ERROR, 
@@ -342,16 +343,16 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 
 			return new JSONMessage(
 				true,
-				$templateManager->fetch(static::$_plugin->getTemplateResource('confirmEula.tpl'))
+				$templateManager->fetch($this->_plugin->getTemplateResource('confirmEula.tpl'))
 			);
         }
 
 		if (!$submission->getData('ithenticateEulaVersion')) {
-			static::$_plugin->stampEulaToSubmission($context, $submission);
+			$this->_plugin->stampEulaToSubmission($context, $submission);
 		}
 
 		if (!$user->getData('ithenticateEulaVersion')) {
-			static::$_plugin->stampEulaToSubmittingUser($context, $submission, $user);
+			$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user);
 		}
 
 		return $this->submitSubmission($args, $request);
@@ -378,7 +379,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 
 		return new JSONMessage(
 			true,
-			$templateManager->fetch(static::$_plugin->getTemplateResource('confirmEula.tpl'))
+			$templateManager->fetch($this->_plugin->getTemplateResource('confirmEula.tpl'))
 		);
 	}
 
@@ -398,7 +399,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			? [
 				'version' 	=> $submission->getData('ithenticateEulaVersion'),
 				'url' 		=> $submission->getData('ithenticateEulaUrl')
-			] : static::$_plugin->getContextEulaDetails($context, [
+			] : $this->_plugin->getContextEulaDetails($context, [
 				$submission->getData('locale'),
 				$request->getSite()->getPrimaryLocale(),
 				IThenticate::DEFAULT_EULA_LANGUAGE
@@ -448,7 +449,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 	 */
 	protected function triggerDataChangedEvent(SubmissionFile $submissionFile): JSONMessage
 	{
-		if (static::$_plugin::isOPS()) {
+		if ($this->_plugin::isOPS()) {
 			$submission = Repo::submission()->get($submissionFile->getData("submissionId"));
 			$publication = $submission->getCurrentPublication();
 
@@ -467,8 +468,4 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		return DAO::getDataChangedEvent($submissionFile->getId());
 	}
 
-}
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateActionHandler', '\PlagiarismIthenticateActionHandler');
 }

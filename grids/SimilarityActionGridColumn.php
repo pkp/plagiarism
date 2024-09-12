@@ -362,7 +362,3 @@ class SimilarityActionGridColumn extends GridColumn
 	}
 
 }
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\grids\SimilarityActionGridColumn', '\SimilarityActionGridColumn');
-}

@@ -49,26 +49,26 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$payload = file_get_contents('php://input');
 
 		if (!$context->getData('ithenticateWebhookId') || !$context->getData('ithenticateWebhookSigningSecret')) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.configuration.missing', [
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.configuration.missing', [
 				'contextId' => $context->getId(),
 			]));
 			return;
 		}
 
 		if (!$headers->has(['x-turnitin-eventtype', 'x-turnitin-signature'])) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.headers.missing'));
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.headers.missing'));
 			return;
 		}
 		
 		if (!in_array($headers->get('x-turnitin-eventtype'), IThenticate::DEFAULT_WEBHOOK_EVENTS)) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.event.invalid', [
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.event.invalid', [
 				'event' => $headers->get('x-turnitin-eventtype'),
 			]));
 			return;
 		}
 
 		if ($headers->get('x-turnitin-signature') !== hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret'))) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.signature.invalid'));
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.signature.invalid'));
 			return;
 		}
 
@@ -99,7 +99,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$ithenticateSubmission = $this->getIthenticateSubmission($payload->id);
 
 		if (!$ithenticateSubmission) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
 				'submissionUuid' => $payload->id,
 				'event' => $event,
 			]));
@@ -109,7 +109,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
 
 		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
 				'submissionFileId' => $submissionFile->getId(),
 				'contextId' => $context->getId(),
 			]));
@@ -118,7 +118,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 
 		if ($payload->status !== 'COMPLETE') {
 			// If the status not `COMPLETE`, then it's `ERROR`
-			static::$_plugin->sendErrorMessage(
+			$this->_plugin->sendErrorMessage(
 				__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
 					'submissionFileId' => $submissionFile->getId(),
 					'error' => __("plugins.generic.plagiarism.ithenticate.submission.error.{$payload->error_code}"),
@@ -134,7 +134,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$submissionFile = Repo::submissionFile()->get($submissionFile->getId());
 		
 		if ((int)$submissionFile->getData('ithenticateSimilarityScheduled')) {
-			static::$_plugin->sendErrorMessage(
+			$this->_plugin->sendErrorMessage(
 				__('plugins.generic.plagiarism.webhook.similarity.schedule.previously', [
 					'submissionFileId' => $submissionFile->getId(),
 				]),
@@ -143,16 +143,16 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			return;
 		}
 		
-		list($apiUrl, $apiKey) = static::$_plugin->getServiceAccess($context);
-		$ithenticate = static::$_plugin->initIthenticate($apiUrl, $apiKey);
+		list($apiUrl, $apiKey) = $this->_plugin->getServiceAccess($context);
+		$ithenticate = $this->_plugin->initIthenticate($apiUrl, $apiKey);
 
 		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
 			$payload->id,
-			static::$_plugin->getSimilarityConfigSettings($context)
+			$this->_plugin->getSimilarityConfigSettings($context)
 		);
 
 		if (!$scheduleSimilarityReport) {
-			static::$_plugin->sendErrorMessage(
+			$this->_plugin->sendErrorMessage(
 				__('plugins.generic.plagiarism.webhook.similarity.schedule.failure', [
 					'submissionFileId' => $submissionFile->getId(),
 				]),
@@ -187,7 +187,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$ithenticateSubmission = $this->getIthenticateSubmission($payload->submission_id);
 
 		if (!$ithenticateSubmission) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
 				'submissionUuid' => $payload->submission_id,
 				'event' => $event,
 			]));
@@ -197,7 +197,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
 
 		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			static::$_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
+			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
 				'submissionFileId' => $submissionFile->getId(),
 				'contextId' => $context->getId(),
 			]));
@@ -236,8 +236,4 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			->where('setting_value', $id)
 			->first();
 	}
-}
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler', '\PlagiarismWebhookHandler');
 }

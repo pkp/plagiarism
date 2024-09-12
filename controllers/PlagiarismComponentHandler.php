@@ -23,25 +23,15 @@ class PlagiarismComponentHandler extends PKPHandler
 {
 	/** 
 	 * The Plagiarism Plugin itself
-	 * 
-	 * @var PlagiarismPlugin 
 	 */
-	protected static $_plugin;
+	protected PlagiarismPlugin $_plugin;
 
-	/**
-	 * Get the plugin
+	/** 
+	 * Constructor
 	 */
-	public static function getPlugin(): PlagiarismPlugin
+	public function __construct(PlagiarismPlugin $plugin)
 	{
-		return static::$_plugin;
-	}
-
-	/**
-	 * Set the Plugin
-	 */
-	public static function setPlugin(PlagiarismPlugin $plugin): void
-	{
-		static::$_plugin = $plugin;
+		$this->_plugin = $plugin;
 	}
 
 	/**
@@ -54,8 +44,4 @@ class PlagiarismComponentHandler extends PKPHandler
 		
 		return parent::authorize($request, $args, $roleAssignments);
 	}
-}
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler', '\PlagiarismComponentHandler');
 }
