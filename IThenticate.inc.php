@@ -182,21 +182,28 @@ class IThenticate
         static $result;
 
         if (!isset($result) && !$this->validateAccess($result)) {
-            return $this->suppressApiRequestException
-                ? []
-                : throw new \Exception('unable to validate access details');
+            if ($this->suppressApiRequestException) {
+                return [];
+            }
+
+            throw new \Exception('unable to validate access details');
         }
 
         if (!$feature) {
             return json_decode($result, true);
         }
 
+        $self = $this;
         return data_get(
             json_decode($result, true),
             $feature,
-            fn () => $this->suppressApiRequestException
-                ? null
-                : throw new \Exception("Feature details {$feature} does not exist")
+            function () use ($self, $feature) {
+                if ($self->suppressApiRequestException) {
+                    return null;
+                }
+
+                throw new \Exception("Feature details {$feature} does not exist");
+            }
         );
     }
 
@@ -684,9 +691,11 @@ class IThenticate
                 )
             );
 
-            $this->suppressApiRequestException
-                ? error_log($exception->__toString())
-                : throw $exception;
+            if ($this->suppressApiRequestException) {
+                error_log($exception->__toString());
+            } else {
+                throw $exception;
+            }
         }
 
         return $response;

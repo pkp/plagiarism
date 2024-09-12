@@ -170,12 +170,17 @@ class TestIThenticate {
             return json_decode($result, true);
         }
 
+        $self = $this;
         $featureStatus = data_get(
             json_decode($result, true),
             $feature,
-            fn () => $this->suppressApiRequestException
-                ? null
-                : throw new \Exception("Feature details {$feature} does not exist")
+            function () use ($self, $feature) {
+                if ($self->suppressApiRequestException) {
+                    return null;
+                }
+
+                throw new \Exception("Feature details {$feature} does not exist");
+            }
         );
 
         error_log("iThenticate specific enable feature details {$featureStatus}");
