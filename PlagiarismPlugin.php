@@ -524,9 +524,9 @@ class PlagiarismPlugin extends GenericPlugin
 	 */
 	public function handleRouteComponent(string $hookName, array $params): bool
 	{
-		$component =& $params[0];
-		$componentInstance = & $params[2];
-
+		$component =& $params[0]; /** @var string $component */
+		$componentInstance =& $params[2]; /** @var mixed $componentInstance */
+		
 		if (static::isOPS() && $component === 'grid.preprintGalleys.PreprintGalleyGridHandler') {
 			$componentInstance = new PlagiarismArticleGalleyGridHandler($this);
 			$component = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";

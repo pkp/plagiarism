@@ -26,8 +26,17 @@ class PlagiarismArticleGalleyGridHandler extends PreprintGalleyGridHandler
 	 */
 	protected PlagiarismPlugin $_plugin;
 
+	/** 
+	 * @copydoc PreprintGalleyGridHandler::__construct()
+	 */
+	public function __construct(PlagiarismPlugin $plugin)
+	{
+		parent::__construct();
+		$this->_plugin = $plugin;
+	}
+
 	/**
-	 * @copydoc ArticleGalleyGridHandler::initialize()
+	 * @copydoc PreprintGalleyGridHandler::initialize()
 	 */
 	public function initialize($request, $args = null)
 	{
