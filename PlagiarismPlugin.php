@@ -156,8 +156,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Running in test mode
-	 * 
-	 * @return bool
 	 */
 	public static function isRunningInTestMode(): bool
 	{
@@ -1072,9 +1070,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Check and determine if plagiarism checking service creds has been set forced in config.inc.php
-	 * 
-	 * @param Context|null $context
-	 * @return bool
 	 */
 	public function hasForcedCredentials(?Context $context = null): bool
 	{
@@ -1139,8 +1134,6 @@ class PlagiarismPlugin extends GenericPlugin
 	 * 
 	 * @param string 	$message 		The error/exception message to set as notification and log in error file
 	 * @param int|null 	$submissionid 	The submission id for which error/exception has generated
-	 * 
-	 * @return void
 	 */
 	public function sendErrorMessage(string $message, ?int $submissionId = null): void
 	{

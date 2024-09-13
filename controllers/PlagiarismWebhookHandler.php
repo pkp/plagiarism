@@ -210,11 +210,6 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 
 	/**
 	 * Verify if the given submission file is associated with current running/set context
-	 * 
-	 * @param Context $context
-	 * @param SubmissionFile $submissionFile
-	 * 
-	 * @return bool
 	 */
 	protected function verifySubmissionFileAssociationWithContext(Context $context, SubmissionFile $submissionFile): bool
 	{

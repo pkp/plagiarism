@@ -82,7 +82,7 @@ class RegisterWebhooks extends CommandLineTool
             // 		- Run webhook update for all contexts 
             // If there is no global level config, then check if each context level config
             // 		- Run webhook update only for those specific context
-            // if no global level or context level config defined, e.g. configs are managed via plugin setting from
+            // if no global level or context level config defined, e.g. configs are managed via plugin setting form
             //		- nothing to do as plugin's setting will handle webhook update on config update
 
             $contextService = Services::get("context"); /** @var \APP\Services\ContextService $contextService */
@@ -98,11 +98,6 @@ class RegisterWebhooks extends CommandLineTool
 
     /**
      * Update the webhook details for given context
-     * 
-     * @param Context 			$context
-     * @param PlagiarismPlugin	$plagiarismPlugin
-     * 
-     * @return void
      */
     protected function updateWebhook(Context $context, PlagiarismPlugin $plagiarismPlugin): void
     {
@@ -117,7 +112,7 @@ class RegisterWebhooks extends CommandLineTool
         );
 
         // If there is a already registered webhook for this context, need to delete it first
-        // before creating a new one as webhook URL remains same which will return 409(HTTP_CONFLICT)
+        // before creating a new one as webhook URL when remains same, will return 409(HTTP_CONFLICT)
         $existingWebhookId = $context->getData('ithenticateWebhookId');
         if ($existingWebhookId) {
             $ithenticate->deleteWebhook($existingWebhookId);

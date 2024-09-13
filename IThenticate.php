@@ -26,61 +26,45 @@ class IThenticate
 {
     /** 
      * The base api url in the format of schema://host
-     * 
-     * @var string
      */
     protected string $apiUrl;
 
     /**
      * The required API Key to make the request
      * @see https://developers.turnitin.com/docs/tca#required-headers
-     * 
-     * @var string
      */
     protected string $apiKey;
 
     /**
      * Describes the platform/plugin integrating with TCA
      * @see https://developers.turnitin.com/docs/tca#required-headers
-     * 
-     * @var string
      */
     protected string $integrationName;
 
     /**
      * The version of the code that is integrating with TCA
      * @see https://developers.turnitin.com/docs/tca#required-headers
-     * 
-     * @var string
      */
     protected string $integrationVersion;
     
     /**
      * The EULA(end user license agreement) that user need to confirmm before making request
-     * 
-     * @var string|null
      */
     protected ?string $eulaVersion = null;
 
     /**
      * The EULA details for a specific version
-     * 
-     * @var array|null
      */
     protected ?array $eulaVersionDetails = null;
 
     /**
      * Base API path
      * The string `API_URL` need to be replaced with provided api url to generate fully qualified base url
-     * 
-     * @var string
      */
     protected string $apiBasePath = "API_URL/api/v1/";
 
     /**
      * Should suppress the exception on api request and log request details and exception instead
-     * 
-     * @var bool
      */
     protected bool $suppressApiRequestException = true;
 
@@ -150,12 +134,6 @@ class IThenticate
 
     /**
      * Create a new instance
-     * 
-     * @param string        $apiUrl
-     * @param string        $apiKey
-     * @param string        $integrationName
-     * @param string        $integrationVersion
-     * @param string|null   eulaVersion
      */
     public function __construct(
         string $apiUrl,
@@ -174,8 +152,6 @@ class IThenticate
 
     /**
      * Will deactivate the exception suppression on api request and throw exception
-     * 
-     * @return self
      */
     public function withoutSuppressingApiRequestException(): static
     {
@@ -193,7 +169,6 @@ class IThenticate
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * 
      * @param  mixed $feature The specific or nested feature details to get
-     * @return string|array|null
      * 
      * @throws \Exception
      */
@@ -227,7 +202,6 @@ class IThenticate
      * 
      * @param  mixed $result    This may contains the returned enabled feature details from 
      *                          request validation api end point if validated successfully.
-     * @return bool
      */
     public function validateAccess(mixed &$result = null): bool
     {
@@ -249,11 +223,6 @@ class IThenticate
     /**
      * Confirm the EULA on the user's behalf for given version
      * @see https://developers.turnitin.com/docs/tca#accept-eula-version
-     * 
-     * @param User      $user
-     * @param Context   $context
-     *
-     * @return bool
      */
     public function confirmEula(User $user, Context $context): bool
     {    
@@ -365,8 +334,6 @@ class IThenticate
      * @param string $submissionTacId The submission UUID return back from service
      * @param string $fileName
      * @param mixed  fileContent   
-     *
-     * @return bool
      */
     public function uploadFile(string $submissionTacId, string $fileName, mixed $fileContent): bool
     {
@@ -420,8 +387,6 @@ class IThenticate
      *
      * @param string    $submissionUuid The submission UUID return back from service
      * @param array     $settings       The specific few settings
-     * 
-     * @return bool
      */
     public function scheduleSimilarityReportGenerationProcess(string $submissionUuid, array $settings = []): bool
     {
@@ -482,7 +447,6 @@ class IThenticate
      * @see https://developers.turnitin.com/docs/tca#get-similarity-report-info
      *
      * @param string $submissionUuid The submission UUID return back from service
-     * @return string|null
      */
     public function getSimilarityResult(string $submissionUuid): ?string
     {
@@ -509,9 +473,6 @@ class IThenticate
      * @param string    $locale                 The preferred locale
      * @param string    $viewerPermission       The viewing user permission
      * @param bool      $allowUpdateInViewer    Should allow to update in the viewer and save it which will
-     *                                          cause the update of similarity score
-     * 
-     * @return string|null
      */
     public function createViewerLaunchUrl(
         string $submissionUuid,
@@ -553,11 +514,6 @@ class IThenticate
     /**
      * Verify if user has already confirmed the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-acceptance-info
-     *
-     * @param Author|User   $user
-     * @param string        $version
-     *
-     * @return bool
      */
     public function verifyUserEulaAcceptance(Author|User $user, string $version): bool
     {
@@ -576,9 +532,6 @@ class IThenticate
     /**
      * Validate/Retrieve the given EULA version
      * @see https://developers.turnitin.com/docs/tca#get-eula-version-info
-     *
-     * @param string $version
-     * @return bool
      */
     public function validateEulaVersion(string $version): bool
     {
@@ -606,10 +559,6 @@ class IThenticate
      *
      * NOTE :   with same webhook url, it will return response with status code 409(HTTP_CONFLICT)
      *          So it's important to verify one before create a new one
-     * 
-     * @param string $signingSecret
-     * @param string $url
-     * @param array  $events
      * 
      * @return string|null The UUID of register webhook if succeed or null if failed
      */
@@ -644,9 +593,6 @@ class IThenticate
     /**
      * Delete webhook end point
      * @see https://developers.turnitin.com/docs/tca#delete-webhook
-     *
-     * @param string $webhookId
-     * @return bool
      */
     public function deleteWebhook(string $webhookId): bool
     {
@@ -661,8 +607,6 @@ class IThenticate
 
     /**
      * Get the stored EULA details
-     * 
-     * @return array|null
      */
     public function getEulaDetails(): ?array
     {
@@ -671,9 +615,6 @@ class IThenticate
 
     /**
      * Get the applicable EULA version
-     * 
-     * @return string
-     * @throws \Exception
      */
     public function getApplicableEulaVersion(): string
     {
@@ -686,9 +627,6 @@ class IThenticate
 
     /**
      * Set the applicable EULA version
-     * 
-     * @param string $version
-     * @return self
      */
     public function setApplicableEulaVersion(string $version): static
     {
@@ -739,9 +677,6 @@ class IThenticate
     /**
      * Get the applicable EULA Url
      * 
-     * @param  string|array|null $locale
-     * @return string
-     * 
      * @throws \Exception
      */
     public function getApplicableEulaUrl(string|array|null $locales = null): string
@@ -764,11 +699,6 @@ class IThenticate
     /**
      * Convert given submission/context locale to service compatible and acceptable locale format
      * @see https://developers.turnitin.com/docs/tca#eula
-     * 
-     * @param string|array $locales
-     * @param string|null  $eulaVersion
-     * 
-     * @return string
      */
     public function getApplicableLocale(string|array $locales, ?string $eulaVersion = null): string
     {
@@ -792,9 +722,6 @@ class IThenticate
 
     /**
      * Get the corresponding available locale or return null
-     * 
-     * @param string $locales
-     * @return string|null
      */
     protected function getCorrespondingLocaleAvailable(string $locale): ?string
     {
@@ -807,8 +734,6 @@ class IThenticate
     /**
      * Get the required headers that need to be sent with every request at service's end
      * @see https://developers.turnitin.com/docs/tca#required-headers
-     * 
-     * @return array
      */
     protected function getRequiredHeaders(): array
     {
@@ -821,8 +746,6 @@ class IThenticate
 
     /**
      * Generate and return the final API end point to make request
-     * 
-     * @return \GuzzleHttp\Psr7\Uri
      */
     protected function getApiPath($apiPathSegment): \GuzzleHttp\Psr7\Uri
     {
@@ -838,8 +761,6 @@ class IThenticate
      * @param  bool     $silent     Silently return the passed `$id` if no matching entity mapping
      *                              not found. Default to `false` and when set to `true`, will not throw
      *                              exception.
-     * 
-     * @return mixed
      */
     protected function getGeneratedId(string $entity, mixed $id, bool $silent = false): mixed
     {

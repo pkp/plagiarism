@@ -5,7 +5,8 @@
  * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
- * Intermediate stage before final submission stage to view EULA
+ * Serve as the EULA confirmation step as modal when uploading for plagiarism
+ * check from workflow
  *}
 <script type="text/javascript">
 	$(function() {ldelim}

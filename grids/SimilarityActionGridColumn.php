@@ -48,8 +48,6 @@ class SimilarityActionGridColumn extends GridColumn
 
 	/**
 	 * Constructor
-	 *
-	 * @param PlagiarismPlugin  $plugin The Plagiarism Plugin itself
 	 */
 	public function __construct(PlagiarismPlugin $plugin) {
 
@@ -295,12 +293,6 @@ class SimilarityActionGridColumn extends GridColumn
 
 	/**
 	 * Check for the requrement of EULA confirmation
-	 *
-	 * @param Context       $context
-	 * @param Submission    $submission
-	 * @param User          $user
-	 * 
-	 * @return bool
 	 */
 	protected function isEulaConfirmationRequired(Context $context, Submission $submission, User $user): bool
 	{
@@ -334,9 +326,6 @@ class SimilarityActionGridColumn extends GridColumn
 	/**
 	 * Check if submission file type in valid for plagiarism action
 	 * Restricted for ZIP file
-	 *
-	 * @param SubmissionFile $submissionFile
-	 * @return bool
 	 */
 	protected function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
 	{
@@ -348,9 +337,6 @@ class SimilarityActionGridColumn extends GridColumn
 
 	/**
 	 * Get the proper workflow stage id for iThenticate actions
-	 *
-	 * @param Request $request
-	 * @return int
 	 */
 	protected function getStageId(PKPRequest $request): int
 	{
