@@ -322,6 +322,8 @@ class IThenticate
         if ($response && $response->getStatusCode() === 201) {
             $result = json_decode($response->getBody()->getContents());
             return $result->id;
+        } else {
+            error_log((string)$response->getBody()->getContents());
         }
 
         return null;
