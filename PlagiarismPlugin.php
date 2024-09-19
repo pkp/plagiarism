@@ -143,12 +143,7 @@ class PlagiarismPlugin extends GenericPlugin
 		Hook::add('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 		Hook::add('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 
-		Event::subscribe(
-			new PlagiarismSubmissionSubmitListener(
-				$this,
-				Application::get()->getRequest()->getUser()
-			)
-		);
+		Event::subscribe(new PlagiarismSubmissionSubmitListener($this));
 		Hook::add('TemplateManager::display', [$this, 'addEulaAcceptanceConfirmation']);
 
 		return $success;

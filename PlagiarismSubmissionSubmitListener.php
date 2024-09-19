@@ -25,12 +25,9 @@ class PlagiarismSubmissionSubmitListener
 {
     protected PlagiarismPlugin $plugin;
     
-    protected User $user;
-    
-    public function __construct(PlagiarismPlugin $plugin, User $user)
+    public function __construct(PlagiarismPlugin $plugin)
     {
         $this->plugin = $plugin;
-        $this->user = $user;
     }
     
     /**
@@ -53,9 +50,7 @@ class PlagiarismSubmissionSubmitListener
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,
             $event->submission,
-            $this->user->getId()
-                ? $this->user
-                : Application::get()->getRequest()->getUser()
+            Application::get()->getRequest()->getUser()
         );
         
         $this->plugin->submitForPlagiarismCheck(
