@@ -875,7 +875,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		//     'url' => '',
 		//   ],
 		//   ...
-		if ($eulaDetails['require_eula'] === true &&
+		if ($eulaDetails['require_eula'] == true &&
 			$ithenticate->validateEulaVersion($ithenticate::DEFAULT_EULA_VERSION)) {
 
 			foreach($context->getSupportedSubmissionLocaleNames() as $localeKey => $localeName) {
@@ -884,14 +884,14 @@ class PlagiarismPlugin extends GenericPlugin {
 					'url' 		=> $ithenticate->getApplicableEulaUrl($localeKey),
 				];
 			}
-		}
 
-		// Also store the default iThenticate language version details
-		if (!isset($eulaDetails[$ithenticate::DEFAULT_EULA_LANGUAGE])) {
-			$eulaDetails[$ithenticate::DEFAULT_EULA_LANGUAGE] = [
-				'version' 	=> $ithenticate->getApplicableEulaVersion(),
-				'url' 		=> $ithenticate->getApplicableEulaUrl($ithenticate::DEFAULT_EULA_LANGUAGE),
-			];
+			// Also store the default iThenticate language version details
+			if (!isset($eulaDetails[$ithenticate::DEFAULT_EULA_LANGUAGE])) {
+				$eulaDetails[$ithenticate::DEFAULT_EULA_LANGUAGE] = [
+					'version' 	=> $ithenticate->getApplicableEulaVersion(),
+					'url' 		=> $ithenticate->getApplicableEulaUrl($ithenticate::DEFAULT_EULA_LANGUAGE),
+				];
+			}
 		}
 
 		$cache->setEntireCache([$cacheId => $eulaDetails]);
