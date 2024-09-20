@@ -459,8 +459,15 @@ class TestIThenticate
     {
         $eulaLangs = $this->eulaVersionDetails['available_languages'];
         $locale = str_replace("_", "-", substr($locale, 0, 5));
-        
-        return in_array($locale, $eulaLangs) ? $locale : null;
+
+        return in_array($locale, $eulaLangs)
+            ? $locale
+            : collect($eulaLangs)
+                ->filter(
+                    fn(string $lang) => strtolower(
+                        collect(explode("-", $lang))->first()
+                    ) === strtolower(collect(explode("-", $locale))->first())
+                )->first();
     }
 
     /**
