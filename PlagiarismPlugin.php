@@ -410,6 +410,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$eulaVersionDetails = $this->getContextEulaDetails($context, [
 			$submission->getData('locale'),
+			$context->getPrimaryLocale(),
 			$request->getSite()->getPrimaryLocale(),
 			IThenticate::DEFAULT_EULA_LANGUAGE
 		]);
@@ -581,10 +582,13 @@ class PlagiarismPlugin extends GenericPlugin
 			$this->registerIthenticateWebhook($ithenticate, $context);
 		}
 
-		$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+		// Only set applicable EULA if EULA required
+		if ($this->getContextEulaDetails($context, 'require_eula') == true) {
+			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+		}
 
 		// Check EULA stamped to submission or submitter only if it is required
-		if ($this->getContextEulaDetails($context, 'require_eula') !== false) {
+		if ($this->getContextEulaDetails($context, 'require_eula') != false) {
 			// not going to sent it for plagiarism check if EULA not stamped to submission or submitter
 			if (!$submission->getData('ithenticateEulaVersion') || !$user->getData('ithenticateEulaVersion')) {
 				$this->sendErrorMessage(__('plugins.generic.plagiarism.stamped.eula.missing'), $submission->getId());
@@ -656,6 +660,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$eulaDetails = $this->getContextEulaDetails($context, [
 			$submission->getData('locale'),
+			$context->getPrimaryLocale(),
 			$request->getSite()->getPrimaryLocale(),
 			IThenticate::DEFAULT_EULA_LANGUAGE
 		]);
@@ -681,6 +686,7 @@ class PlagiarismPlugin extends GenericPlugin
 		if (is_null($submissionEulaVersion)) {
 			$eulaDetails = $this->getContextEulaDetails($context, [
 				$submission->getData('locale'),
+				$context->getPrimaryLocale(),
 				$request->getSite()->getPrimaryLocale(),
 				IThenticate::DEFAULT_EULA_LANGUAGE
 			]);
@@ -749,9 +755,18 @@ class PlagiarismPlugin extends GenericPlugin
 			return true;
 		}
 
+		$submissionFileName = $submissionFile->getData("name", $publication->getData("locale"))
+			?? collect([$context->getPrimaryLocale()])
+				->merge($context->getData("supportedSubmissionLocales") ?? [])
+				->merge([$request->getSite()->getPrimaryLocale()])
+				->unique()
+				->map(fn(string $locale): ?string => $submissionFile->getData("name", $locale))
+				->filter()
+				->first();
+            
 		$uploadStatus = $ithenticate->uploadFile(
 			$submissionUuid, 
-			$submissionFile->getData("name", $publication->getData("locale")),
+			$submissionFileName,
 			$pkpFileService->fs->read($file->path),
 		);
 
@@ -1153,7 +1168,7 @@ class PlagiarismPlugin extends GenericPlugin
 			->filterByRoleIds([Role::ROLE_ID_MANAGER])
 			->getMany();
 
-		while ($manager = $managers->next()) {
+		foreach ($managers as $manager) {
 			$notificationManager->createTrivialNotification(
 				$manager->getId(),
 				PKPNotification::NOTIFICATION_TYPE_ERROR,

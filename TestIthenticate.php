@@ -20,8 +20,9 @@ use APP\submission\Submission;
 use Exception;
 use Illuminate\Support\Str;
 use PKP\author\Author;
-use PKP\site\Site;
+use PKP\config\Config;
 use PKP\context\Context;
+use PKP\site\Site;
 use PKP\user\User;
 
 class TestIThenticate
@@ -29,7 +30,7 @@ class TestIThenticate
     /**
      * @copydoc IThenticate::$eulaVersion
      */
-    protected ?string $eulaVersion = 'v1beta';
+    protected ?string $eulaVersion = null;
 
     /**
      * @copydoc IThenticate::$eulaVersionDetails
@@ -124,13 +125,22 @@ class TestIThenticate
         ?string $eulaVersion = null
     )
     {
+        // These following 2 conditions are to facilitate the mock the EULA requirement
+        if ($eulaVersion) {
+            $this->eulaVersion = $eulaVersion;
+        }
+
+        if (!$eulaVersion) {
+            $this->eulaVersion = Config::getVar('ithenticate', 'test_mode_eula', true) ? 'v1beta' : null;
+        }
+        
         error_log(
             sprintf(
                 "Constructing iThenticate with API URL : {$apiUrl} \n
                 API Key : {$apiKey} \n
                 Integration Name : {$integrationName} \n
                 Integration Version : {$integrationVersion} \n 
-                EULA Version : {$eulaVersion}"
+                EULA Version : {$this->eulaVersion}"
             )
         );
     }
@@ -151,7 +161,9 @@ class TestIThenticate
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
     {   
-        static $result = '{
+        static $result;
+
+        $result = '{
             "similarity": {
                 "viewer_modes": {
                     "match_overview": true,
@@ -183,7 +195,7 @@ class TestIThenticate
                 }
             },
             "tenant": {
-                "require_eula": true
+                "require_eula": '.($this->eulaVersion ? "true" : "false").'
             },
             "product_name": "Turnitin Originality",
             "access_options": [

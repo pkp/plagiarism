@@ -23,6 +23,7 @@ use APP\submission\Submission;
 use APP\template\TemplateManager;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
+use Illuminate\Support\Arr;
 use PKP\context\Context;
 use PKP\core\Core;
 use PKP\db\DAO;
@@ -99,11 +100,18 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			...$this->_plugin->getServiceAccess($context)
 		);
 
+		// If EULA is required and submission has EULA stamped, we set the applicable EULA
+		// Otherwise get the current EULA from default one and set the applicable
+		// Basically we need to retrieve the available langs details from EULA details
+		static::$_plugin->getContextEulaDetails($context, 'require_eula') == true &&
+		$submission->getData('ithenticateEulaVersion')
+			? $ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'))
+			: $ithenticate->validateEulaVersion($ithenticate::DEFAULT_EULA_VERSION);
+
 		$locale = $ithenticate
-			->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'))
 			->getApplicableLocale(
 				collect([$submission->getData("locale")])
-					->merge($user->getData("locales"))
+					->merge(Arr::wrap($user->getData("locales")))
 					->merge([$context->getPrimaryLocale(), $site->getPrimaryLocale()])
 					->unique()
 					->toArray()
