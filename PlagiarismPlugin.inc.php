@@ -718,10 +718,19 @@ class PlagiarismPlugin extends GenericPlugin {
 		if (in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes)) {
 			return true;
 		}
+		
+		$submissionFileName = $submissionFile->getData("name", $publication->getData("locale"))
+			?? collect([$context->getPrimaryLocale()])
+				->merge($context->getData("supportedSubmissionLocales") ?? [])
+				->merge([$request->getSite()->getPrimaryLocale()])
+				->unique()
+				->map(fn ($locale) => $submissionFile->getData("name", $locale))
+				->filter()
+				->first();
 
 		$uploadStatus = $ithenticate->uploadFile(
 			$submissionUuid, 
-			$submissionFile->getData("name", $publication->getData("locale")),
+			$submissionFileName,
 			$pkpFileService->fs->read($file->path),
 		);
 
