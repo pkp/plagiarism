@@ -17,7 +17,7 @@ class TestIThenticate {
     /**
      * @copydoc IThenticate::$eulaVersion
      */
-    protected $eulaVersion = 'v1beta';
+    protected $eulaVersion = null;
 
     /**
      * @copydoc IThenticate::$eulaVersionDetails
@@ -105,7 +105,17 @@ class TestIThenticate {
      * @copydoc IThenticate::__construct()
      */
     public function __construct($apiUrl, $apiKey, $integrationName, $integrationVersion, $eulaVersion = null) {
-        error_log("Constructing iThenticate with API URL : {$apiUrl}, API Key : {$apiKey}, Integration Name : {$integrationName}, Integration Version : {$integrationVersion} and EUlA Version : {$eulaVersion}");
+        
+        // These following 2 conditions are to facilitate the mock the EULA requirement
+        if ($eulaVersion) {
+            $this->eulaVersion = $eulaVersion;
+        }
+
+        if (!$eulaVersion) {
+            $this->eulaVersion = Config::getVar('ithenticate', 'test_mode_eula', true) ? 'v1beta' : null;
+        }
+
+        error_log("Constructing iThenticate with API URL : {$apiUrl}, API Key : {$apiKey}, Integration Name : {$integrationName}, Integration Version : {$integrationVersion} and EUlA Version : {$this->eulaVersion}");
     }
 
     /**
@@ -122,7 +132,9 @@ class TestIThenticate {
      */
     public function getEnabledFeature($feature = null) {
         
-        static $result = '{
+        static $result;
+
+        $result = '{
             "similarity": {
                 "viewer_modes": {
                     "match_overview": true,
@@ -154,7 +166,7 @@ class TestIThenticate {
                 }
             },
             "tenant": {
-                "require_eula": true
+                "require_eula": '.($this->eulaVersion ? "true" : "false").'
             },
             "product_name": "Turnitin Originality",
             "access_options": [

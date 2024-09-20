@@ -530,7 +530,10 @@ class PlagiarismPlugin extends GenericPlugin {
 			$this->registerIthenticateWebhook($ithenticate, $context);
 		}
 
-		$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+		// Only set applicable EULA if EULA required
+		if ($this->getContextEulaDetails($context, 'require_eula') == true) {
+			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+		}
 
 		// Check EULA stamped to submission or submitter only if it is required
 		if ($this->getContextEulaDetails($context, 'require_eula') !== false) {
