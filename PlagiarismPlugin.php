@@ -607,13 +607,14 @@ class PlagiarismPlugin extends GenericPlugin
 					return false;
 				}
 			}
+
+			$submission->setData('ithenticateSubmissionCompletedAt', Core::getCurrentDate());
 		} catch (Throwable $exception) {
 			error_log('submit for plagiarism check failed with excaption ' . $exception->__toString());
 			$this->sendErrorMessage(__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'), $submission->getId());
 			return false;
 		}
 
-		$submission->setData('ithenticateSubmissionCompletedAt', Core::getCurrentDate());
 		Repo::submission()->edit($submission, []);
 
 		return true;
