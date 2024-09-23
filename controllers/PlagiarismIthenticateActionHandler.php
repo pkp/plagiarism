@@ -19,7 +19,7 @@ use APP\core\Request;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\notification\NotificationManager;
-use APP\notification\Notification;
+use PKP\notification\Notification;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
 use APP\plugins\generic\plagiarism\IThenticate;
