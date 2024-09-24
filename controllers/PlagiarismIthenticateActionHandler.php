@@ -113,6 +113,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 					->merge(Arr::wrap($user->getData("locales")))
 					->merge([$context->getPrimaryLocale(), $site->getPrimaryLocale()])
 					->unique()
+					->filter()
 					->toArray()
 			);
 
