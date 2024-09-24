@@ -102,7 +102,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		// If EULA is required and submission has EULA stamped, we set the applicable EULA
 		// Otherwise get the current EULA from default one and set the applicable
 		// Basically we need to retrieve the available langs details from EULA details
-		static::$_plugin->getContextEulaDetails($context, 'require_eula') == true &&
+		$this->_plugin->getContextEulaDetails($context, 'require_eula') == true &&
 		$submission->getData('ithenticateEulaVersion')
 			? $ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'))
 			: $ithenticate->validateEulaVersion($ithenticate::DEFAULT_EULA_VERSION);
