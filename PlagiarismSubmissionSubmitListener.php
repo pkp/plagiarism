@@ -3,8 +3,8 @@
 /**
  * @file plugins/generic/plagiarism/PlagiarismSubmissionSubmitListener.php
  *
- * Copyright (c) 2013-2023 Simon Fraser University
- * Copyright (c) 2013-2023 John Willinsky
+ * Copyright (c) 2013-2024 Simon Fraser University
+ * Copyright (c) 2013-2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class PlagiarismSubmissionSubmitListener
@@ -14,19 +14,22 @@
 
 namespace APP\plugins\generic\plagiarism;
 
+use APP\core\Application;
+use APP\facades\Repo;
 use PKP\observers\events\SubmissionSubmitted;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use Illuminate\Events\Dispatcher;
+use PKP\user\User;
 
 class PlagiarismSubmissionSubmitListener
 {
     protected PlagiarismPlugin $plugin;
-
+    
     public function __construct(PlagiarismPlugin $plugin)
     {
         $this->plugin = $plugin;
     }
-
+    
     /**
      * Maps methods with correspondent events to listen
      */
@@ -37,12 +40,22 @@ class PlagiarismSubmissionSubmitListener
             [static::class, 'handle']
         );
     }
-
+    
     /**
      * Handle the listener call
      */
     public function handle(SubmissionSubmitted $event): void
     {
-        $this->plugin->sendSubmissionFiles($event->context, $event->submission);
+        $this->plugin->stampEulaToSubmission($event->context, $event->submission);
+        $this->plugin->stampEulaToSubmittingUser(
+            $event->context,
+            $event->submission,
+            Application::get()->getRequest()->getUser()
+        );
+        
+        $this->plugin->submitForPlagiarismCheck(
+            $event->context,
+            Repo::submission()->get($event->submission->getId())
+        );
     }
 }
