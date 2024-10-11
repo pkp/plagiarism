@@ -1,10 +1,10 @@
 # Pierre Lasou <pierre.lasou@bibl.ulaval.ca>, 2023.
 # Marie-Hélène Vézina [UdeMontréal] <marie-helene.vezina@umontreal.ca>, 2023.
+# Emma U <emmaupkp@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-04-24 10:30+0000\n"
-"Last-Translator: Marie-Hélène Vézina [UdeMontréal] <marie-helene."
-"vezina@umontreal.ca>\n"
+"PO-Revision-Date: 2024-10-11 20:33+0000\n"
+"Last-Translator: Emma U <emmaupkp@gmail.com>\n"
 "Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/fr_CA/>\n"
 "Language: fr_CA\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -34,11 +34,10 @@ msgstr "Le nom d'utilisateur iThenticate est obligatoire"
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "Le mot de passe iThenticate est obligatoire"
 
-#, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
-"Des paramètres iThenticate ont été trouvés dans le fichier config.inc.php, "
-"les paramètres de cette page ne seront pas utilisés."
+"Des paramètres iThenticate ont été trouvés dans config.inc.php, les "
+"paramètres de cette page ne seront pas utilisés."
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
