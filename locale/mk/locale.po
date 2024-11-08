@@ -1,15 +1,16 @@
+# Teodora Fildishevska <t.fildishevska@gmail.com>, 2023.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-02-06 04:07+0000\n"
+"PO-Revision-Date: 2023-03-15 12:48+0000\n"
 "Last-Translator: Teodora Fildishevska <t.fildishevska@gmail.com>\n"
 "Language-Team: Macedonian <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/mk_MK/>\n"
-"Language: mk_MK\n"
+"plagiarism/mk/>\n"
+"Language: mk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n==1 || n%10==1 ? 0 : 1;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.13.1\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -18,3 +19,30 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate плагин за детектирање на плагијат"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate лозинка"
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate корисничко име"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "Задолжително е iThenticate корисничко име"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "Задолжителна е iThenticate лозинка"
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Поставувањето на поднесокот {$submissionId} на iThenticate не успеа со "
+"грешка: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Поставки за профилот што се користи за прикачување на поднесоци на "
+"iThenticate. Контактирајте го вашиот администратор на iThenticate за детали."
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Поставките за iThenticate се пронајдени во config.inc.php и поставките овде "
+"нема да се користат."

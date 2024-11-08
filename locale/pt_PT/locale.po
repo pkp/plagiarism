@@ -1,0 +1,50 @@
+# Weblate Admin <alec@smecher.bc.ca>, 2023.
+# José Carvalho <jcarvalho@keep.pt>, 2023.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-05-30 09:49+0000\n"
+"Last-Translator: José Carvalho <jcarvalho@keep.pt>\n"
+"Language-Team: Portuguese (Portugal) <http://translate.pkp.sfu.ca/projects/"
+"plugins/plagiarism/pt_PT/>\n"
+"Language: pt_PT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.13.1\n"
+
+msgid "plugins.generic.plagiarism.displayName"
+msgstr "Plugin Detetor de Plágio iThenticate"
+
+msgid "plugins.generic.plagiarism.description"
+msgstr ""
+"Envie todas as submissões para o iThenticate para serem verificadas quanto a "
+"possível plágio."
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Configurações da conta usada para fazer upload de submissões para o "
+"iThenticate. Entre em contacto com o administrador do iThenticate para obter "
+"detalhes."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "Nome de utilizador iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "Senha do iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "O nome de utilizador do iThenticate é obrigatório"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "A senha do iThenticate é obrigatória"
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"O carregamento da submissão {$submissionId} para o iThenticate falhou com o "
+"erro: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Foram encontradas configurações do iThenticate no ficheiro config.inc.php, "
+"as configurações aqui introduzidas serão ignoradas."

@@ -1,0 +1,49 @@
+# Pia Piontkowitz <pia.piontkowitz@rub.de>, 2023.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2023-04-26 13:49+0000\n"
+"Last-Translator: Pia Piontkowitz <pia.piontkowitz@rub.de>\n"
+"Language-Team: German <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.13.1\n"
+
+msgid "plugins.generic.plagiarism.displayName"
+msgstr "iThenticate Plagiatsdetektor Plugin"
+
+msgid "plugins.generic.plagiarism.description"
+msgstr ""
+"Alle Einreichungen zur Überprüfung möglicher Plagiate an iThenticate "
+"schicken."
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Einstellungen für den Account, der zum Upload von Einreichungen an "
+"iThenticate verwendet wird. Kontaktieren Sie Ihren iThenticate admin für "
+"Details."
+
+msgid "plugins.generic.plagiarism.manager.settings.username"
+msgstr "iThenticate Username"
+
+msgid "plugins.generic.plagiarism.manager.settings.password"
+msgstr "iThenticate Passwort"
+
+msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
+msgstr "iThenticate Username ist erforderlich"
+
+msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
+msgstr "iThenticate Passwort ist erforderlich"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate Einstellungen wurden in config.inc.php gefunden. Die "
+"Einstellungen hier werden nicht verwendet."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Der Upload der Einreichung {$submissionId} an iThenticate ist "
+"fehlgeschlagen. Fehler: {$errorMessage}"
