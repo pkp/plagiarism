@@ -1,17 +1,17 @@
-# Primož Svetek <primoz.svetek@gmail.com>, 2022.
+# Primož Svetek <primoz.svetek@gmail.com>, 2022, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-08-14 09:25+0000\n"
+"PO-Revision-Date: 2024-11-13 12:29+0000\n"
 "Last-Translator: Primož Svetek <primoz.svetek@gmail.com>\n"
 "Language-Team: Slovenian <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/sl_SI/>\n"
-"Language: sl_SI\n"
+"plagiarism/sl/>\n"
+"Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || n"
-"%100==4 ? 2 : 3;\n"
-"X-Generator: Weblate 4.13.1\n"
+"Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
+"n%100==4 ? 2 : 3;\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "Pošlje vse prispevke na iThenticate, da se preverijo za plagiatorstvo."
@@ -45,3 +45,122 @@ msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
 "Nastavitve za račun, ki se uporablja za pošiljanje prispevkov v iThenticate. "
 "Za več informacij se obrnite na vašega iThenticate administratorja."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API ključ"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Izključi avtomatsko nalaganje datotek na iThenticate med oddajanjem "
+"prispevkov"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Podatni API URL ni veljaven. Prosimo preverite URL in poskusite ponovno. "
+"(Namig: Mogoče morate dodati http:// na začetek URL.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "iThenticate API ključ je obvezen"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Prispevek ne vsebuje besedila za generiranje Similarity Report-a ali pa je "
+"število besed prispevka enako 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Prispevek ne vsebuje dovolj besedila za generiranje Similarity Report-a. "
+"Prispevek mora vsebovati vsaj 20 besed."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Prispevek vsebuje preveč strani za generiranje Similarity Report-a. "
+"Prispevek mora vsebovati manj kot 800 strani."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Naložena datoteka zahteva geslo za odpiranje."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Napaka pri zahtevi za obdelavo: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Pred končanjem oddaje morate prebrati in sprejeti <a target=\"_blank\" href="
+"\"{$localizedEulaUrl}\">iThenticate EULA</a>."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Sem prebral in se strinjam z licenčno pogodbo za končnega uporabnika."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagiatorstvo EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Pred nadaljevanjem morate potrditi EULA."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Potrdi in nadaljuj"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Nastavitve za preverjanje podobnosti prispevka"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Prispevki bodo indeksirani v repozitoriju računov in bodo na voljo za "
+"primerjavo v Similarity Report-ih drugim uporabnikom v vaši organizaciji"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Besedilo v narekovajih se ne bo štelo kot podobna vsebina"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr "Besedilo v razdelku z bibliografijo se ne bo štelo kot podobna vsebina"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr "Besedilo v razdelku o metodah se ne bo štelo kot podobna vsebina"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Pri preverjanju podobnosti ne bodo upoštevane navedbe iz citatov"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Naložena datoteka je videti pokvarjena."
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">povezava</a>"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API URL"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "iThenticate API URL je obvezen"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Če je avtomatsko nalaganje datotek na iThenticate izključeno, morajo biti "
+"datoteke prispevkov ročno oddane preko delovnega toka prispevkov"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Upoštevajte, da nastavitve na globalnem nivoju oziroma nivoju revije/strež"
+"nika/založbe, ki so v nastavitveni datoteki, prevladajo nad nastavitvami v "
+"tem obrazcu."
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Podana API URL in/ali ključ sta neveljavnja ali pa dostop do iThenticate "
+"servisa ni bil mogoč. Prosimo preverite API URL in ključ tej poskusite "
+"ponovno."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "Besedilo v razdelku s povzetkom se ne bo štelo kot podobna vsebina"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Naložen tip datoteke ni podprt."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Med obdelavo prispevkov je prislo do neopredeljene napake."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Prispevek vsebuej preveč besedila za generiranje Similarity Report-a. Ko je "
+"besedilo spremenjeno v UTF-8, mora vsebovati manj kot 2MB besedila."
