@@ -1,8 +1,8 @@
-# Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>, 2024.
+# Maria Lamury <marialamury@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-08-22 23:40+0000\n"
-"Last-Translator: Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>\n"
+"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"Last-Translator: Maria Lamury <marialamury@gmail.com>\n"
 "Language-Team: Indonesian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/id/>\n"
 "Language: id\n"
@@ -19,29 +19,80 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugin Uji Plagiarisme iThenticate"
 
-msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "Username iThenticate"
-
-msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "Password iThenticate"
-
-msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "Username iThenticate wajib diisi"
-
-msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "Password iThenticate wajib diisi"
-
-msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
 msgstr ""
-"Pengaturan iThenticate ditemukan di dalam file config.inc.php dan pengaturan "
-"di sini tudak akan digunakan."
+"Nonaktifkan unggahan otomatis dari file pengiriman ke iThenticate pada waktu "
+"pengiriman"
 
-msgid "plugins.generic.plagiarism.errorMessage"
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
 msgstr ""
-"Unggah submisi {$submissionId} ke iThenticate gagal dengan error: "
-"{$errorMessage}"
+"URL API yang ditentukan tidak valid. Periksa ulang URL dan coba lagi. "
+"(Petunjuk: Coba tambahkan http:// di depan URL.)"
 
-msgid "plugins.generic.plagiarism.manager.settings.description"
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "The iThenticate API key diperlukan"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
 msgstr ""
-"Pengaturan akun yang ditujukan untuk mengunggah pengiriman ke iThenticate. "
-"Hubungi administrator iThenticate Anda untuk detail lebih lanjut."
+"Naskah tidak memiliki cukup teks untuk membuat Laporan Similarity. Naskah "
+"setidaknya harus berisi 20 kata."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Terjadi kesalahan yang tidak dapat ditentukan saat memproses naskah."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "File yang diunggah memerlukan kata sandi agar dapat dibuka."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "File yang diunggah tampaknya rusak."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Kesalahan pemrosesan permintaan: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Anda harus membaca dan menerima <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">iThenticate EULA</a> sebelum lanjut untuk "
+"menyelesaikan pengajuan."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Saya sudah membaca perjanjian lisensi pengguna dan menerimanya."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagiarisme EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Sebelum lanjut, EULA harus dikonfirmasi terlebih dahulu."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Konfirmasi dan Lanjutkan"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Jika unggahan otomatis ke iThenticate dinonaktifkan, maka file pengiriman "
+"dapat dikirim secara manual dari alur kerja pengiriman"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Terdapat terlalu banyak teks pada naskah untuk menghasilkan Laporan "
+"Similarity. Setelah teks yang diekstrak diubah menjadi UTF-8, naskah "
+"tersebut harus berisi teks kurang dari 2MB."
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"URL/API Key yang ditentukan tidak valid atau koneksi ke layanan API "
+"iThenticate tidak muncul. Periksa kembali URL/kunci API dan coba lagi."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Jumlah halaman pada naskah terlalu banyak untuk menghasilkan Laporan "
+"Similarity. Jumlah halaman yang dikirimkan tidak boleh lebih dari 800 "
+"halaman."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Jenis file yang diunggah tidak mendukung."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Naskah tidak memuat teks untuk menghasilkan Laporan Similarity atau jumlah "
+"kata dari pengiriman adalah 0."
