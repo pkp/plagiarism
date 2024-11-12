@@ -1,15 +1,16 @@
+# Maria Lamury <marialamury@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-01-15 07:53+0000\n"
-"Last-Translator: Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>\n"
+"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"Last-Translator: Maria Lamury <marialamury@gmail.com>\n"
 "Language-Team: Indonesian <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/id_ID/>\n"
+"plagiarism/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -17,3 +18,81 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugin Uji Plagiarisme iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Nonaktifkan unggahan otomatis dari file pengiriman ke iThenticate pada waktu "
+"pengiriman"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"URL API yang ditentukan tidak valid. Periksa ulang URL dan coba lagi. "
+"(Petunjuk: Coba tambahkan http:// di depan URL.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "The iThenticate API key diperlukan"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Naskah tidak memiliki cukup teks untuk membuat Laporan Similarity. Naskah "
+"setidaknya harus berisi 20 kata."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Terjadi kesalahan yang tidak dapat ditentukan saat memproses naskah."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "File yang diunggah memerlukan kata sandi agar dapat dibuka."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "File yang diunggah tampaknya rusak."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Kesalahan pemrosesan permintaan: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Anda harus membaca dan menerima <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">iThenticate EULA</a> sebelum lanjut untuk "
+"menyelesaikan pengajuan."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Saya sudah membaca perjanjian lisensi pengguna dan menerimanya."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagiarisme EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Sebelum lanjut, EULA harus dikonfirmasi terlebih dahulu."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Konfirmasi dan Lanjutkan"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Jika unggahan otomatis ke iThenticate dinonaktifkan, maka file pengiriman "
+"dapat dikirim secara manual dari alur kerja pengiriman"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Terdapat terlalu banyak teks pada naskah untuk menghasilkan Laporan "
+"Similarity. Setelah teks yang diekstrak diubah menjadi UTF-8, naskah "
+"tersebut harus berisi teks kurang dari 2MB."
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"URL/API Key yang ditentukan tidak valid atau koneksi ke layanan API "
+"iThenticate tidak muncul. Periksa kembali URL/kunci API dan coba lagi."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Jumlah halaman pada naskah terlalu banyak untuk menghasilkan Laporan "
+"Similarity. Jumlah halaman yang dikirimkan tidak boleh lebih dari 800 "
+"halaman."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Jenis file yang diunggah tidak mendukung."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Naskah tidak memuat teks untuk menghasilkan Laporan Similarity atau jumlah "
+"kata dari pengiriman adalah 0."
