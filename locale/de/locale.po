@@ -2,7 +2,7 @@
 # Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"PO-Revision-Date: 2024-11-13 13:15+0000\n"
 "Last-Translator: Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>\n"
 "Language-Team: German <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/de/>\n"
@@ -112,7 +112,7 @@ msgstr ""
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Die bestätigte Endnutzer-Lizenzvereinbarung fehlt für die Einreichung oder "
-"den einreichenden Nutzer"
+"den einreichenden Nutzer."
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
 msgstr ""
@@ -304,3 +304,31 @@ msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMat
 msgstr ""
 "Ähnlichkeitstreffer, welche zu weniger als der angegebenen Wortanzahl "
 "übereinstimmen werden nicht als ähnlicher Inhalt gezählt"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Hochladen der Datei bei iThenticate bei Einreichungsdatei Nummer "
+"{$submissionFileId} konnte nicht fertiggestellt werden"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Dateiinhalte wurden hochgeladen und die Einreichung wird noch verarbeitet"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Ein Fehler ist während der Verarbeitung der Einreichung aufgetreten."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Vollständiges Hochladen aller Dateien zum iThenticate Dienst für "
+"Plagiatsprüfung nicht möglich."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Es konnte keine Einreichung bei iThenticate für die Einreichungsdatei mit "
+"der Nummer {$submissionFileId} erstellt werden"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Einreichungsdetails sind nicht verfügbar."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Einreichung wurde erstellt, aber es wurden keine Dateien hochgeladen"
