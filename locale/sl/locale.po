@@ -1,7 +1,7 @@
 # Primož Svetek <primoz.svetek@gmail.com>, 2022, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"PO-Revision-Date: 2024-11-15 07:44+0000\n"
 "Last-Translator: Primož Svetek <primoz.svetek@gmail.com>\n"
 "Language-Team: Slovenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/sl/>\n"
@@ -164,3 +164,149 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
 msgstr ""
 "Prispevek vsebuej preveč besedila za generiranje Similarity Report-a. Ko je "
 "besedilo spremenjeno v UTF-8, mora vsebovati manj kot 2MB besedila."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Izključi štetje majhnih ujemanj"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Mora biti celo število z najmanšjo vrednostjo 8"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr "Spremembe poročila bodo shranjene za prihodnji vpogled v poročilo"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Plagiatorska ocena/ukrep"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Zagon pregledovalnika podobnosti plagiatov"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Ujemanje podobnosti"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Ste prepričani, da želite generirati poročilo o plagiatorstvu?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Posodobi oceno podobnosti plagiatorstva"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Izvedi preverjanje plagiatorstva"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Ste prepričani, da želite poslati to datoteko v preverjanje plagiatorstva?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Potrditev licenčne pogodbe o plagiatorstvu za končnega uporabnika"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Preverjanje plagiatorstva ni na voljo"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr "Uspešno nastavljeno generiranje iThenticate poročila o plagiatorstvu."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Posodobitev iThenticate rezultata za plagiatorstvo za datoteko id : "
+"{$submissionFileId} ni bila mogoča."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"iThenticate poročilo o podobnosti še ni zaključeno za datoteko id : "
+"{$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "Uspešno posodobljen iThenticate rezultat."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Datoteka je bila uspšno naložena na iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr "iThenticate spletni dostop ni nastavljen za kontekst id {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Manjka glava obvezenega spletnega dostopa do iThenticate-a"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Neveljaven tip dogodka iThenticate spletnega dostopa {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Neveljaven podpis iThenticate spletnega dostopa"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Neveljaven iThenticate id prispevka {$submissionUuid} za spletni dogodek "
+"{$event}"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Podani id datoteke : {$submissionFileId} ne obstaja za kontekst id : "
+"{$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Načrtovana priprava poročila o podobnosti za datoteko id {$submissionFileId} "
+"je bila neuspešna z napako : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Nastavitev generiranja poročila o podobnosti za datoteko id "
+"{$submissionFileId} ni bilo uspešno"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Kreiranje oddaje na iThenticate za datoteko id : {$submissionFileId} ni bilo "
+"mogoče"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Podrobnosti oddajanja niso na voljo."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Oddajanje je bilo kreirano, vendar ni bila naložena nobena datoteka"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Prišlo je do napake med obdelavo oddajanja."
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "Vsebina datoteke je bila naložena in oddaja je v procesu obdelave"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "Strinjanje z EULA manjka za prispevek ali uporabnika."
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Generiranje Similarity reporta je bilo že nastavljeno za datoteko prispevka "
+"z IDjem {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Podobnosti, ki se ujemajo z manj kot določenim številom besed, se ne bodo "
+"štela kot podobna vsebina"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Skupni odstotek ujemanj"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Načrtuj poročilo o plagiatorstvu"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Ste prepričani, da želite posodobiti oceno podobnosti plagiatorstva?"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Pregledovalnik poročila trenutno ni na voljo, poskusite ponovno kasneje."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Pošiljanje datoteke na iThenticate ni bilo uspešno. Upoštevajte, da mora "
+"biti velikost datoteke manj kot 100 MB."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Nalagnaje vseh datotek na iThenticate strežnik za preverjanje podobnosti ni "
+"bilo uspešno."
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Nalaganje datoteke na iThenticate za datoteko id : {$submissionFileId} ni "
+"bilo uspešno"
