@@ -1,7 +1,7 @@
-# Antti-Jussi Nygård <ajnyga@gmail.com>, 2023.
+# Antti-Jussi Nygård <ajnyga@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-03-08 06:48+0000\n"
+"PO-Revision-Date: 2024-11-13 12:29+0000\n"
 "Last-Translator: Antti-Jussi Nygård <ajnyga@gmail.com>\n"
 "Language-Team: Finnish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/fi/>\n"
@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate, lisäosa plagiaatin tunnistamiseksi"
@@ -20,29 +20,83 @@ msgstr ""
 "Lähetä kaikki käsikirjoitukset iThenticate-palveluun tarkistettavaksi "
 "plagioinnin varalta."
 
-msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "iThenticate-käyttäjänimi"
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "iThenticate API:n URL-osoite vaaditaan"
 
-msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "iThenticate-salasana"
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Mikäli automaattinen lataaminen on pois päältä, käsikirjoitustiedostot pitää "
+"lähettää manuaalisesti käsikirjoituksen työnkulusta"
 
-msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "iThenticate-käyttäjänimi vaaditaan"
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "iThenticate API-avain vaaditaan"
 
-msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "iThenticate-salasana vaaditaan"
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Annettu osoite tai API-avain ei ole kelvollinen tai yhteyttä iThenticate-"
+"palvelun rajapintaan ei pystytty luomaan. Ole hyvä ja tarkista annettu "
+"osoite ja avain ja yritä uudelleen."
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate-asetukset löytyivät config.inc.php-tiedostosta, eikä tässä "
+"olevia asetuksia käytetä."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Käsikirjoitus ei sisällä tekstiä, josta voisi luoda raportin tai sanamäärä "
+"on 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Käsikirjoituksessa on liian paljon tekstiä raportin luomiseen. Kun teksti on "
+"muutettu UTF-8-muotoon, käsikirjoituksen tekstin koko ei voi olla suurempi "
+"kuin 2 megatavua."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Käsikirjoituksessa on liian monta sivua raportin luomiseen. "
+"Käsikirjoituksessa saa olla korkeintaan 800 sivua."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Ladatun tiedoston avaaminen vaatii salasanan."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Ladattu tiedosto on vioittunut."
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Asetukset tilille, jota käytetään käsikirjoitusten lataamiseen iThenticate-"
+"palveluun. Lisätietoja saat iThenticate-palvelun ylläpitäjältä"
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "Käsikirjoituksen {$submissionId} lataaminen iThenticate-palveluun "
 "epäonnistui virheellä: {$errorMessage}"
 
-msgid "plugins.generic.plagiarism.manager.settings.description"
-msgstr ""
-"Asetukset tilille, jota käytetään käsikirjoitusten lataamiseen iThenticate-"
-"palveluun. Lisätietoja saat iThenticate-palvelun ylläpitäjältä."
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API:n URL-osoite"
 
-msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API-avain"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
 msgstr ""
-"iThenticate-asetukset löytyivät config.inc.php-tiedostosta, eikä tässä "
-"olevia asetuksia käytetä."
+"Ota käsikirjoitustiedostojen automaattinen lataaminen iThenticate-palveluun "
+"pois käytöstä käsikirjoituksen lähetyksen yhteydessä"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Annettu API:n URL-osoite ei ole kelvollinen. Ole hyvä ja tarkista osoite ja "
+"yritä uudelleen (Vihje: varmista, että osoitteen alussa on http:// )"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Ladattua tiedostotyyppiä ei tueta."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Käsikirjoituksen käsittelyssä tapahtui määrittelemätön virhe."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Käskirjoituksessa ei ole tarpeeksi tekstiä raportin luomiseen. "
+"Käsikirjoituksessa pitää olla vähintään 20 sanaa."
