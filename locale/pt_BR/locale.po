@@ -1,8 +1,9 @@
 # Diego José Macêdo <diegojmacedo@gmail.com>, 2022.
+# Devlin Biezus <devlinbiezus@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-08-10 03:22+0000\n"
-"Last-Translator: Diego José Macêdo <diegojmacedo@gmail.com>\n"
+"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"Last-Translator: Devlin Biezus <devlinbiezus@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <http://translate.pkp.sfu.ca/projects/"
 "plugins/plagiarism/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -10,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -47,3 +48,37 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "O upload da submissão {$submissionId} para iThenticate falhou com o erro: "
 "{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "Chave API iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "O URL da API do iThenticate é obrigatório"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Se o upload automático para o iThenticate está desativado, os arquivos de "
+"submissão precisam ser enviados manualmente a partir do fluxo de trabalho da "
+"submissão"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "A Chave da API do iThenticate é obrigatória"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"A URL da API especificada é inválida ou a conexão com o serviço de API do "
+"iThenticate não pôde ser estabelecida. Por favor, verifique a URL ou a chave "
+"da API e tente novamente."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "URL da API do iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Desativar o upload automático dos arquivos de submissões para o iThenticate "
+"na momento da submissão"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"A URL da API especificada não é válida. Por favor, verifique a URL e tente "
+"novamente. (Dica: Experimente adicionar http:// ao início da URL.)"
