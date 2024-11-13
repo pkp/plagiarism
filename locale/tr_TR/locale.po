@@ -1,9 +1,10 @@
 # Hüseyin Körpeoğlu <yoruyenturk@hotmail.com>, 2022.
 # Muge Bakioglu <mugebakioglu@gmail.com>, 2024.
+# Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-13 12:29+0000\n"
-"Last-Translator: Muge Bakioglu <mugebakioglu@gmail.com>\n"
+"PO-Revision-Date: 2024-11-13 13:15+0000\n"
+"Last-Translator: Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>\n"
 "Language-Team: Turkish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/tr/>\n"
 "Language: tr\n"
@@ -305,6 +306,7 @@ msgstr ""
 "{$submissionFileId} numaralı gönderim dosyası için benzerlik raporu "
 "oluşturma planlaması başarısız oldu"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Gönderim veya gönderen kullanıcı için damgalı Son Kullanıcı Lisans "
