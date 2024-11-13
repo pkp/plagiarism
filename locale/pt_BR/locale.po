@@ -2,7 +2,7 @@
 # Devlin Biezus <devlinbiezus@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"PO-Revision-Date: 2024-11-13 13:15+0000\n"
 "Last-Translator: Devlin Biezus <devlinbiezus@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <http://translate.pkp.sfu.ca/projects/"
 "plugins/plagiarism/pt_BR/>\n"
@@ -82,3 +82,98 @@ msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
 msgstr ""
 "A URL da API especificada não é válida. Por favor, verifique a URL e tente "
 "novamente. (Dica: Experimente adicionar http:// ao início da URL.)"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "O tipo de arquivo enviado não é suportado."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr ""
+"Um erro não especificado ocorreu durante o processamento das submissões."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"A submissão não contém texto para gerar um Relatório de Similaridade ou a "
+"contagem de palavras da submissão é 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"A submissão contém texto demais para gerar um Relatório de Similaridade. "
+"Após o texto extraído ser convertido para UTF-8, a submissão deve conter "
+"menos de 2MB de texto."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"A submissão não contém texto suficiente para gerar um Relatório de "
+"Similaridade. A submissão deve conter pelo menos 20 palavras."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"A submissão contém páginas demais para gerar um Relatório de Similaridade. A "
+"submissão não pode conter mais de 800 páginas."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "O arquivo enviado exige uma senha para ser aberto."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "O arquivo enviado parece estar corrompido."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Erro ao processar a solicitação: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"Contrato de Licença do Usuário Final (EULA) do iThenticate <a target=\"_blank"
+"\" href=\"{$localizedEulaUrl}\">link</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Você deve ler e aceitar o <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">Contrato de Licença de Usuário Final (EULA) do iThenticate</a> antes de "
+"prosseguir para finalizar a submissão."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Eu li o contrato de licença de usuário final e o aceito."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Contrato de Licença de Usuário Final (EULA) para Plágio"
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Confirmar e Continuar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Configurações de verificação de similaridade da submissão"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Submissões serão indexadas no repositório da conta e estarão disponíveis "
+"para comparação nos Relatórios de Similaridade para outros usuários da sua "
+"organização"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Texto entre aspas na submissão não contará como conteúdo similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Texto na seção de referências bibliográficas da submissão não contará como "
+"conteúdo similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "Texto na seção do resumo da submissão não contará como conteúdo similar"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr ""
+"O Contrato de Licença de Usuário Final (EULA) deve ser confirmado antes de "
+"continuar."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Note que, se alguma das configurações a seguir estiver definida no arquivo "
+"de configuração em nível global ou de periódico/servidor/editora, essas "
+"configurações terão precedência sobre este formulário."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Texto na seção de metodologia da submissão não contará como conteúdo similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "As citações da submissão serão excluídas da verificação de similaridade"
