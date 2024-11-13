@@ -2,7 +2,7 @@
 # Devlin Biezus <devlinbiezus@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-13 13:15+0000\n"
+"PO-Revision-Date: 2024-11-15 07:44+0000\n"
 "Last-Translator: Devlin Biezus <devlinbiezus@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <http://translate.pkp.sfu.ca/projects/"
 "plugins/plagiarism/pt_BR/>\n"
@@ -177,3 +177,161 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
 msgstr "As citações da submissão serão excluídas da verificação de similaridade"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Deve ser um valor inteiro (sem fração) com valor mínimo de 8"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Mudanças feitas nos relatórios serão salvas para a próxima vez que o "
+"relatório for visualizado"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Pontuação de Plágio/Ação"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Iniciar Visualizador de Similaridade de Plágio"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Correspondência de Similaridade"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Porcentagem Total de Correspondência"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Agendar Relatório de Plágio"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Atualizar a Pontuação de Similaridade de Plágio"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Tem certeza que deseja atualizar a Pontuação de Similaridade de Plágio?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Realizar Verificação de Plágio"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Confirmação do Contrato de Licença de Usuário Final para Plágio"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Verificação de plágio não disponível"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"O processo de geração do relatório de similaridade do iThenticate foi "
+"agendado com sucesso."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Não foi possível atualizar a pontuação de similaridade do iThenticate para o "
+"arquivo submetido, ID: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"O relatório de similaridade do iThenticate ainda não foi concluído para o "
+"arquivo submetido, ID : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Não foi possível enviar o arquivo de submissão ao iThenticate. Note que o "
+"arquivo de submissão deve conter, no máximo, 100 MB."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Arquivo de submissão enviado com sucesso ao iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"Webhook do iThenticate não configurado para o ID de contexto {$contextId}."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Faltando cabeçalhos obrigatórios do webhook do iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Assinatura do webhook do iThenticate inválida"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"ID de submissão do iThenticate inválido ({$submissionUuid}) fornecido para o "
+"evento de webhook {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Não foi possível agendar o relatório de similaridade para ID de arquivo "
+"{$submissionFileId} devido ao erro : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"O processo de geração do relatório de similaridade já foi agendado para o "
+"arquivo de submissão com ID {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Não foi possível completar o envio de todos os arquivos para o serviço do "
+"iThenticate para a verificação de plágio."
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Não foi possível completar o envio para o iThenticate do arquivo de "
+"submissão com ID: {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Os detalhes da submissão não estão disponíveis."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "A submissão foi criada, mas nenhum arquivo foi enviado"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Excluir pequenas correspondências"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr ""
+"Pontuações de similaridade do iThenticate atualizadas e renovadas com "
+"sucesso."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Correspondências de similaridade que coincidem com menos do que a quantidade "
+"especificada de palavras não serão contadas como conteúdo similar"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Tipo de evento do webhook do iThenticate inválido: {$event}"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Tem certeza de que deseja gerar um Relatório de Plágio?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Tem certeza que deseja submeter esse arquivo para verificação de plágio?"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"A visualização do relatório não está disponível no momento, por favor, tente "
+"novamente mais tarde."
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"O ID do arquivo de submissão fornecido : {$submissionFileId} não existe para "
+"o ID de contexto : {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Falha ao agendar a geração do relatório de similaridade para o arquivo de "
+"submissão com ID {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"As informações gravadas no Contrato de Licença do Usuário Final estão "
+"ausentes para a submissão ou para o usuário que realizou a submissão."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Não foi possível criar a submissão no iThenticate para o arquivo de "
+"submissão com ID : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Os conteúdos do arquivo foram enviados e a submissão ainda está sendo "
+"processada"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Ocorreu um erro durante o processamento da submissão."
