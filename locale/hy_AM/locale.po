@@ -3,8 +3,8 @@
 # Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-13 13:15+0000\n"
-"Last-Translator: Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>\n"
+"PO-Revision-Date: 2024-11-15 07:44+0000\n"
+"Last-Translator: Tigran Zargaryan <tigran@flib.sci.am>\n"
 "Language-Team: Armenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/hy/>\n"
 "Language: hy\n"
@@ -322,7 +322,6 @@ msgstr ""
 "Նմանության հաշվետվության ստեղծման գործընթացն արդեն ծրագրված է ներկայացման "
 "նիշք ID {$submissionFileId} համար"
 
-#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "EULA-ի կնիքով տեղեկատվությունը բացակայում է ներկայացվող կամ ներկայացնող "
