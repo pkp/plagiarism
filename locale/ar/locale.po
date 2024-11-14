@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2024-11-13 12:29+0000\n"
+"PO-Revision-Date: 2024-11-15 07:44+0000\n"
 "Last-Translator: \"M. Ali\" <vorteem@gmail.com>\n"
 "Language-Team: Arabic <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/ar/>\n"
@@ -107,3 +107,49 @@ msgstr ""
 "طلب التقديم يحتوي على نصوص أكثر من المتوقع ليتسنى توليد تقرير التشابه. بعد "
 "استخراج النص وتحويله إلى نسق UTF-8، ينبغي أن يحتوي طلب التقديم على أقل من "
 "2MB من النصوص."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "الملف المرفوع يتطلب كلمة مرور من أجل فتحه."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "الملف المرفوع يبدو تالفًا."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "خطأ عند معالجة الطلب: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "لقد قرأت اتفاقية ترخيص المستخدم ووافقت عليها."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "اتفاقية ترخيص المستخدم النهائي Plagiarism"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "اتفاقية ترخيص المستخدم النهائي ينبغي تأكيد الموافقة عليها قبل المتابعة."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "إعدادات فحص تشابه طلبات التقديم"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"اتفاقية ترخيص المستخدم النهائي لـ iThenticate <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">الرابط</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"ينبغي عليك قراءة اتفاقية ترخيص المستخدم النهائي لـ <a target=\"_blank\" href="
+"\"{$localizedEulaUrl}\">iThenticate وقبولها</a> قبل المتابعة إلى إنهاء طلب "
+"التقديم."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "تأكيد ومتابعة"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"لاحظ بأن أي من الإعدادات الآتية لو تم ضبطه في ملف التهيئة على مستوى العموم "
+"أو على مستوى المجلة/المخدم/دار النشر، فإنه هناك سيأخذ الأولوية على ما يتواجد "
+"في هذا النموذج."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"ستتم فهرسة طلبات التقديم في مستودع الحسابات وسيتكون متاحة لأغراض المقارنة في "
+"تقارير التشابه عبر المستخدمين الآخرين في منظمتك"
