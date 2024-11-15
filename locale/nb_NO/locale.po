@@ -2,7 +2,7 @@
 # Johanna Skaug <johanna.skaug@ub.uio.no>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-15 07:44+0000\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
 "Last-Translator: Johanna Skaug <johanna.skaug@ub.uio.no>\n"
 "Language-Team: Norwegian Bokmål <http://translate.pkp.sfu.ca/projects/"
 "plugins/plagiarism/nb_NO/>\n"
@@ -88,3 +88,6 @@ msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.descrip
 msgstr ""
 "Hvis automatisk opplasting til iThenticate er deaktivert, må du manuelt "
 "sende filer fra innleveringsarbeidsfyten."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Det oppsto en uspesifisert feil under behandling av innleveringen."
