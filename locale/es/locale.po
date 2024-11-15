@@ -1,12 +1,13 @@
 # Dago Salas <dago.salas@gmail.com>, 2024.
 # Arley Soto <asoto@biteca.com>, 2024.
+# Adolfo Muñoz Aguilar <adolfo@uco.es>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2024-11-15 07:44+0000\n"
-"Last-Translator: Arley Soto <asoto@biteca.com>\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
+"Last-Translator: Adolfo Muñoz Aguilar <adolfo@uco.es>\n"
 "Language-Team: Spanish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/es/>\n"
 "Language: es\n"
@@ -153,9 +154,8 @@ msgstr ""
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
 msgstr "Debe ser un número entero (sin fracción) con valor mínimo 8"
 
-#, fuzzy
 msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
-msgstr "Plagio Score/Action"
+msgstr "Puntuación/Acción de plagio"
 
 msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
 msgstr "Abrir el visor Plagiarism Similarity Viewer"
@@ -217,11 +217,10 @@ msgstr "Tipo de evento de webhook de iThenticate no válido {$event}"
 msgid "plugins.generic.plagiarism.webhook.signature.invalid"
 msgstr "Firma de webhook de iThenticate no válida"
 
-#, fuzzy
 msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
 msgstr ""
-"Invalid iThenticate submission id {$submissionUuid} given for webhook event "
-"{$event}"
+"Identificador de envio iThenticate {$submissionUuid} para el evento webhook "
+"{$event} no es válido"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
@@ -233,11 +232,8 @@ msgstr ""
 "No se pudo programar el proceso de generación del informe de similitud para "
 "el ID del archivo de envío {$submissionFileId}"
 
-#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
-msgstr ""
-"The stamped EULA information is missing for the submission or submitting "
-"user."
+msgstr "Falta la firma EULA o el usuario que realiza el envío."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
 msgstr ""
