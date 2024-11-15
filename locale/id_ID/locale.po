@@ -1,8 +1,9 @@
 # Maria Lamury <marialamury@gmail.com>, 2024.
+# Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-15 07:44+0000\n"
-"Last-Translator: Maria Lamury <marialamury@gmail.com>\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
+"Last-Translator: Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>\n"
 "Language-Team: Indonesian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/id/>\n"
 "Language: id\n"
@@ -26,7 +27,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
 msgstr ""
-"URL API yang ditentukan tidak valid. Periksa ulang URL dan coba lagi. "
+"URL API yang dimasukkan tidak valid. Periksa ulang URL dan coba lagi. "
 "(Petunjuk: Coba tambahkan http:// di depan URL.)"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
@@ -81,8 +82,8 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
 msgstr ""
-"URL/API Key yang ditentukan tidak valid atau koneksi ke layanan API "
-"iThenticate tidak muncul. Periksa kembali URL/API key dan coba lagi."
+"URL/API Key yang diberikan tidak valid atau koneksi ke layanan API "
+"iThenticate tidak terhubung. Periksa kembali URL/API key dan coba lagi."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
 msgstr ""
@@ -90,7 +91,7 @@ msgstr ""
 "Kesamaan. Jumlah halaman yang dikirimkan tidak boleh lebih dari 800 halaman."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
-msgstr "Jenis file yang diunggah tidak mendukung."
+msgstr "Jenis file yang diunggah tidak didukung."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
 msgstr ""
@@ -299,7 +300,7 @@ msgstr ""
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
 "Pengaturan iThenticate ditemukan di config.inc.php dan pengaturan di sini "
-"tidak akan digunakan"
+"tidak akan digunakan."
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
