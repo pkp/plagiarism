@@ -1,7 +1,7 @@
 # Mirko Spiroski <mspiroski@id-press.eu>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-15 07:44+0000\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
 "Last-Translator: Mirko Spiroski <mspiroski@id-press.eu>\n"
 "Language-Team: Macedonian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/mk/>\n"
@@ -73,3 +73,246 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "Поставувањето на поднесокот {$submissionId} на iThenticate не успеа со "
 "грешка: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Поставената датотека бара лозинка за да се отвори."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Цитатите на поднесокот ќе бидат исклучени од проверка на сличност"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Натпревар за сличност"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Вкупен процент на совпаѓање"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Распоред на извештај за плагијат"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Плагијат Потврда за Договор за лиценца за краен корисник"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Неважечки тип на настан iThenticate webhook {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Не може да се закаже генерирање извештај за сличност за ID на датотека "
+"{$submissionFileId} со грешка: {$error}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Поднесокот не содржи текст за да создаде Извештај за сличност или бројот на "
+"зборови во поднесокот е 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Поднесокот нема доволно текст за да се создаде Извештај за сличност. "
+"Поднесокот мора да содржи најмалку 20 зборови."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Поднесокот има премногу текст за да се содаде Извештај за сличност. После "
+"екстракцијата на претворениот текст во UTF-8, поднесокот мора да содржи "
+"помалку од 2МБ текст."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Поднесокот има премногу страници за да генерира Извештај за сличност. "
+"Поднесокот не може да содржи повеќе од 800 страници."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Поставената датотека се чини дека е оштетена."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Грешка при обработката на барањето: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate ЕУЛА <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Мора да ја прочитате и прифатите <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">iThenticate EULA</a> пред да продолжите со "
+"финализирање на поднесувањето."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Го прочитав договорот за лиценца за крајниот корисник и го прифатив."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Плагијаризам ЕУЛА"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "EULA мора да се потврди пред да се продолжи."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Потврди и продолжи"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Поставки за проверка на сличност на поднесување"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Забележете дека ако некоја од следните поставки е поставена во "
+"конфигурациската датотека на глобално ниво или на ниво на списание/сервер/"
+"прес, тие поставки ќе имаат предност пред оваа форма."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Поднесоците ќе бидат индексирани во складиштето за сметки и ќе бидат "
+"достапни за споредба во Извештаите за сличност од други корисници во вашата "
+"организација"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Текстот во наводници на поднесокот нема да се смета за слична содржина"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Текстот во библиографскиот дел од поднесокот нема да се смета за слична "
+"содржина"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"Текстот во апстрактниот дел од поднесокот нема да се смета за слична содржина"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Текстот во делот за методи на поднесокот нема да се смета за слична содржина"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Исклучи мал број на натпревари"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Поклопувањата на сличности што се совпаѓаат помалку од наведената количина "
+"зборови нема да се сметаат за слична содржина"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Мора да биде цел број (без дропка) со минимална вредност 8"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Промените направени во извештаите ќе се зачуваат следниот пат кога ќе се "
+"прегледа извештајот"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Резултат/акција за плагијат"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Стартувајте го Прегледувачот за сличности на плагијати"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Дали сте сигурни дека сакате да го генерирате извештајот за плагијат?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Освежете ја оценката за сличност за плагијат"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr ""
+"Дали сте сигурни дека сакате да го освежите резултатот за сличност со "
+"плагијат?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Спроведете проверка на плагијат"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Дали сте сигурни дека сакате да ја поднесете оваа датотека за проверка на "
+"плагијат?"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Проверката на плагијат не е достапна"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Успешно го закажа процесот на создавање извештај за сличност iThenticate."
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Пријавениот прегледувач моментално не е достапен, обидете се повторно "
+"подоцна."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Не може да се освежи резултатот за сличност iThenticate за идентификација на "
+"датотеката за поднесување: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Извештајот за сличност iThenticate сè уште не е завршен за идентификација на "
+"датотеката за поднесување: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "Успешно освежени и ажурирани оценките за сличност iThenticate."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Не може да се постави датотеката за поднесување на iThenticate. Имајте "
+"предвид дека големината на датотеката за поднесување мора да биде најмногу "
+"100 MB."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Датотеката за поднесување е успешно поставена на iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr "iThenticate webhook не е конфигуриран за контекстуален ID {$contextId}."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Недостасуваат потребните заглавија на веб-кука iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Неважечки потпис на веб-кука iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Даден е неважечки ID за поднесување iThenticate {$submissionUuid} за "
+"настанот на веб-кука {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Дадената идентификација на датотеката за поднесување: {$submissionFileId} не "
+"постои за идентификација на контекст: {$contextId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Недостасуваат печатени информации за EULA за корисникот за поднесување или "
+"поднесување."
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Процесот на генерирање извештаи за сличност веќе е закажан за id на "
+"датотеката за поднесување {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Не успеа да се закаже процесот на генерирање извештаи за сличност за ID на "
+"датотеката за поднесување {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Не може да се заврши поставувањето на сите датотеки на услугата iThenticate "
+"за проверка на плагијат."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Не можев да го креирам поднесокот на iThenticate ID на датотеката за "
+"поднесување: {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Не може да се заврши поставувањето на датотеката на iThenticate за "
+"идентификација на датотеката за поднесување: {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Деталите за поднесување се недостапни."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Поднесокот е создаден, но ниедна датотека не е поставена"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Содржината на датотеката е поставена и поднесувањето сè уште се обработува"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Настана грешка при обработката на поднесувањето."
