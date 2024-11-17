@@ -1,7 +1,7 @@
 # Muge Bakioglu <mugebakioglu@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-15 07:44+0000\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
 "Last-Translator: Muge Bakioglu <mugebakioglu@gmail.com>\n"
 "Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/fr_CA/>\n"
@@ -205,3 +205,124 @@ msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
 "Les paramètres de iThenticate ont été trouvés dans config.inc.php et les "
 "paramètres ici ne seront pas utilisés."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Paramètres de vérification de similarité"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Effectuer la Vérification de Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Êtes-vous sûr de vouloir soumettre ce fichier à la vérification de plagiat ?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Confirmation du Contrat de Licence Utilisateur Final pour le Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "La vérification de plagiat n'est pas disponible"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Le processus de génération du rapport de similarité iThenticate a été "
+"planifié avec succès."
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Le visualisateur de rapport n'est pas disponible pour le moment, veuillez "
+"réessayer plus tard."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Impossible d'actualiser le score de similarité iThenticate pour le fichier "
+"de soumission id : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr ""
+"Les scores de similarité iThenticate ont été actualisés et mis à jour avec "
+"succès."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Impossible de télécharger le fichier de soumission vers iThenticate. Notez "
+"que la taille du fichier de soumission doit être au maximum de 100 Mo."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Le fichier de soumission a été téléchargé avec succès vers iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"Le webhook iThenticate n'est pas configuré pour le contexte {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Le type d'événement du webhook iThenticate invalide {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "La signature du webhook iThenticate invalide"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"L'ID de fichier de soumission donné : {$submissionFileId} n'existe pas pour "
+"l'ID de contexte : {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Impossible de planifier la génération du rapport de similarité pour l'ID de "
+"fichier {$submissionFileId} avec l'erreur : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Échec de la planification du processus de génération du rapport de "
+"similarité pour le fichier de soumission : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Impossible de compléter le téléchargement de tous les fichiers vers le "
+"service iThenticate pour la vérification de plagiat."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Impossible de créer la soumission sur iThenticate pour le fichier de "
+"soumission : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Une erreur s'est produite pendant le traitement de la soumission."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Le rapport de similarité iThenticate n'est pas encore terminé pour le "
+"fichier de soumission id : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "En-têtes requis pour le webhook iThenticate manquants"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"L'ID de soumission iThenticate {$submissionUuid} donné pour l'événement du "
+"webhook {$event} n'est pas valide"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Le processus de génération du rapport de similarité a déjà été planifié pour "
+"le fichier de soumission {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Les informations estampillées du CLUF sont manquantes pour la soumission ou "
+"pour l'utilisateur ayant soumis le fichier."
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Impossible de compléter le téléchargement du fichier vers iThenticate pour "
+"le fichier de soumission id : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Les détails de la soumission sont indisponibles."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "La soumission a été créée mais aucun fichier n'a été téléchargé"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Le contenu du fichier a été téléchargé et la soumission est encore en cours "
+"de traitement"
