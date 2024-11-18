@@ -2,8 +2,8 @@
 # "Jesper B. Thestrup" <jbt@kb.dk>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-18 07:21+0000\n"
-"Last-Translator: \"Jesper B. Thestrup\" <jbt@kb.dk>\n"
+"PO-Revision-Date: 2024-11-18 07:22+0000\n"
+"Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/da/>\n"
 "Language: da\n"
@@ -89,5 +89,5 @@ msgstr "Der opstod en uspecificeret fejl under behandlingen af indsendelserne."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
 msgstr ""
-"Indsendelsen indeholder ikke tekst til at generere en lighedsrapport, eller "
-"indsendelsens ordantal er 0."
+"Indsendelsen indeholder ikke tekst til at generere en tekstslighedsrapport, "
+"eller antallet af ord i indsendelsens er 0."
