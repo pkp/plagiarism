@@ -2,8 +2,8 @@
 # "Jesper B. Thestrup" <jbt@kb.dk>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-11-18 07:22+0000\n"
-"Last-Translator: \"Jesper B. Thestrup\" <jbt@kb.dk>\n"
+"PO-Revision-Date: 2024-11-18 07:24+0000\n"
+"Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/da/>\n"
 "Language: da\n"
@@ -94,5 +94,5 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
 msgstr ""
-"Indsendelsen har ikke nok tekst til at generere en lighedsrapport. En "
-"aflevering skal indeholde mindst 20 ord."
+"Indsendelsen har ikke nok tekst til at generere en tekstslighedsrapport. En "
+"indsendelse skal indeholde mindst 20 ord."
