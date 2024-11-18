@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "PO-Revision-Date: 2024-11-18 07:22+0000\n"
-"Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
+"Last-Translator: \"Jesper B. Thestrup\" <jbt@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/da/>\n"
 "Language: da\n"
@@ -91,3 +91,8 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TE
 msgstr ""
 "Indsendelsen indeholder ikke tekst til at generere en tekstslighedsrapport, "
 "eller antallet af ord i indsendelsens er 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Indsendelsen har ikke nok tekst til at generere en lighedsrapport. En "
+"aflevering skal indeholde mindst 20 ord."
