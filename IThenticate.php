@@ -6,7 +6,7 @@
  * Copyright (c) 2024 Simon Fraser University
  * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
- * 
+ *
  * @class IThenticate
  *
  * @brief Service class to handle API communication with iThenticate service
@@ -24,7 +24,7 @@ use PKP\user\User;
 
 class IThenticate
 {
-    /** 
+    /**
      * The base api url in the format of schema://host
      */
     protected string $apiUrl;
@@ -46,7 +46,7 @@ class IThenticate
      * @see https://developers.turnitin.com/docs/tca#required-headers
      */
     protected string $integrationVersion;
-    
+
     /**
      * The EULA(end user license agreement) that user need to confirmm before making request
      */
@@ -70,14 +70,14 @@ class IThenticate
 
     /**
      * The default EULA version placeholder to retrieve the current latest version
-     * 
+     *
      * @var string
      */
     public const DEFAULT_EULA_VERSION = 'latest';
-    
+
     /**
      * The default EULA confirming language
-     * 
+     *
      * @var string
      */
     public const DEFAULT_EULA_LANGUAGE = 'en-US';
@@ -85,7 +85,7 @@ class IThenticate
     /**
      * The default webhook events for which webhook request will be received
      * @see https://developers.turnitin.com/docs/tca#event-types
-     * 
+     *
      * @var array
      */
     public const DEFAULT_WEBHOOK_EVENTS = [
@@ -99,7 +99,7 @@ class IThenticate
     /**
      * The list of valid permission for owner and submitter when creating a new submission
      * @see https://developers.turnitin.com/docs/tca#create-a-submission
-     * 
+     *
      * @var array
      */
     public const SUBMISSION_PERMISSION_SET = [
@@ -115,7 +115,7 @@ class IThenticate
     /**
      * The minimum value of similarity report's view_setting's `exclude_small_matches` option
      * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
-     * 
+     *
      * @var int
      */
     public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
@@ -124,7 +124,7 @@ class IThenticate
      * The entity(e.g. submission owner, submitter etc) to id prefix mapping
      * This helps to identify the type of entity associated with requesting system
      * For example, `author/1` rather than only `1` identify as author entity of requesting system
-     * 
+     *
      * @var array
      */
     public const ENTITY_ID_PREFIXES = [
@@ -167,9 +167,9 @@ class IThenticate
      *  - to get specific feature as `similarity`, call as getEnabledFeature('similarity')
      *  - to get nested feature as `viewer_modes` in `similarity`, call as getEnabledFeature('similarity.viewer_modes')
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
-     * 
+     *
      * @param  mixed $feature The specific or nested feature details to get
-     * 
+     *
      * @throws \Exception
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
@@ -199,8 +199,8 @@ class IThenticate
      * Validate the service access by retrieving the enabled feature
      * @see https://developers.turnitin.com/docs/tca#get-features-enabled
      * @see https://developers.turnitin.com/turnitin-core-api/best-practice/exposing-tca-settings
-     * 
-     * @param  mixed $result    This may contains the returned enabled feature details from 
+     *
+     * @param  mixed $result    This may contains the returned enabled feature details from
      *                          request validation api end point if validated successfully.
      */
     public function validateAccess(mixed &$result = null): bool
@@ -225,7 +225,7 @@ class IThenticate
      * @see https://developers.turnitin.com/docs/tca#accept-eula-version
      */
     public function confirmEula(User $user, Context $context): bool
-    {    
+    {
         $response = $this->makeApiRequest(
             'POST',
             $this->getApiPath("eula/{$this->getApplicableEulaVersion()}/accept"),
@@ -245,11 +245,11 @@ class IThenticate
 
         return $response ? $response->getStatusCode() === 200 : false;
     }
-    
+
     /**
      * Create a new submission at service's end
      * @see https://developers.turnitin.com/docs/tca#create-a-submission
-     * 
+     *
      * @param Site          $site                   The core site of submission system
      * @param Submission    $submission             The article submission to check for plagiarism
      * @param User          $user                   The user who is making submitting the submission
@@ -257,9 +257,9 @@ class IThenticate
      * @param string        $authorPermission       Submission author/owner permission set
      * @param string        $submitterPermission    Submission submitter permission set
      *
-     * @return string|null              if succeed, it will return the created submission UUID from 
+     * @return string|null              if succeed, it will return the created submission UUID from
      *                                  service's end and at failure, will return null
-     * 
+     *
      * @throws \Exception
      */
     public function createSubmission(
@@ -335,7 +335,7 @@ class IThenticate
      *
      * @param string $submissionTacId The submission UUID return back from service
      * @param string $fileName
-     * @param mixed  fileContent   
+     * @param mixed  fileContent
      */
     public function uploadFile(string $submissionTacId, string $fileName, mixed $fileContent): bool
     {
@@ -427,8 +427,8 @@ class IThenticate
                         'exclude_methods'                   => $settings['excludeMethods']                  ?? false,
                         'exclude_custom_sections'           => $settings['excludeCustomSections']           ?? false,
                         'exclude_preprints'                 => $settings['excludePreprints']                ?? false,
-                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SAMLL_MATCHES_MIN  
-                                                                ? (int) $settings['excludeSmallMatches'] 
+                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SAMLL_MATCHES_MIN
+                                                                ? (int) $settings['excludeSmallMatches']
                                                                 : self::EXCLUDE_SAMLL_MATCHES_MIN,
                         'exclude_internet'                  => $settings['excludeInternet']                 ?? false,
                         'exclude_publications'              => $settings['excludePublications']             ?? false,
@@ -504,7 +504,7 @@ class IThenticate
                 'exceptions' => false,
             ]
         );
-        
+
         if ($response && $response->getStatusCode() === 200) {
             $result = json_decode($response->getBody()->getContents());
             return $result->viewer_url;
@@ -527,7 +527,7 @@ class IThenticate
                 'exceptions' => false,
             ]
         );
-        
+
         return $response ? $response->getStatusCode() === 200 : false;
     }
 
@@ -541,10 +541,10 @@ class IThenticate
             'headers' => $this->getRequiredHeaders(),
             'exceptions' => false,
         ]);
-        
+
         if ($response->getStatusCode() === 200) {
             $this->eulaVersionDetails = json_decode($response->getBody()->getContents(), true);
-            
+
             if (!$this->eulaVersion) {
                 $this->eulaVersion = $this->eulaVersionDetails['version'];
             }
@@ -561,7 +561,7 @@ class IThenticate
      *
      * NOTE :   with same webhook url, it will return response with status code 409(HTTP_CONFLICT)
      *          So it's important to verify one before create a new one
-     * 
+     *
      * @return string|null The UUID of register webhook if succeed or null if failed
      */
     public function registerWebhook(
@@ -639,13 +639,13 @@ class IThenticate
 
     /**
      * Make the api request
-     * 
+     *
      * @param string                                $method  HTTP method.
      * @param string|\Psr\Http\Message\UriInterface $uri     URI object or string.
      * @param array                                 $options Request options to apply. See \GuzzleHttp\RequestOptions.
-     * 
+     *
      * @return \Psr\Http\Message\ResponseInterface|null
-     * 
+     *
      * @throws \Throwable
      */
     public function makeApiRequest(
@@ -678,7 +678,7 @@ class IThenticate
 
     /**
      * Get the applicable EULA Url
-     * 
+     *
      * @throws \Exception
      */
     public function getApplicableEulaUrl(string|array|null $locales = null): string
@@ -728,15 +728,16 @@ class IThenticate
     protected function getCorrespondingLocaleAvailable(string $locale): ?string
     {
         $eulaLangs = $this->eulaVersionDetails['available_languages'];
-        $locale = str_replace("_", "-", substr($locale, 0, 5));
+        $language = \Locale::getPrimaryLanguage($locale);
+        $region = \Locale::getRegion($locale) ?? null;
+        $localeAndRegion = $language . '-' . $region;
 
-        return in_array($locale, $eulaLangs)
-            ? $locale
+        return in_array($localeAndRegion, $eulaLangs)
+            ? $localeAndRegion
             : collect($eulaLangs)
                 ->filter(
-                    fn(string $lang) => strtolower(
-                        collect(explode("-", $lang))->first()
-                    ) === strtolower(collect(explode("-", $locale))->first())
+                    fn(string $lang) =>
+                        collect(explode("-", $lang))->first() === $language
                 )->first();
     }
 
@@ -764,7 +765,7 @@ class IThenticate
 
     /**
      * Generate and return unique entity id by concatenating the prefix to given id
-     * 
+     *
      * @param  string   $entity     The entity name (e.g. owner/submitter etc).
      * @param  mixed    $id         Entity id associated with requesting system.
      * @param  bool     $silent     Silently return the passed `$id` if no matching entity mapping
@@ -792,10 +793,10 @@ class IThenticate
 
     /**
      * Validate the existence of a permission against a given permission set
-     * 
+     *
      * @param  string   $permission     The specific permission to check for existence
      * @param  array    $permissionSet  The permission list to check against
-     * 
+     *
      * @return bool True/False if the permission exists in the given permission set
      */
     protected function validatePermission(string $permission, array $permissionSet): bool
