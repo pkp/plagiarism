@@ -1,0 +1,334 @@
+# Emma U <emmaupkp@gmail.com>, 2024.
+# Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>, 2024.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-11-13 13:15+0000\n"
+"Last-Translator: Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>\n"
+"Language-Team: German <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.18.2\n"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API key"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Die angegebene API URL ist nicht gültig. Bitte prüfen Sie die URL und "
+"versuchen Sie es erneut. (Tipp: Versuchen sie http:// am Anfang der URL zu "
+"ergänzen.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "Der iThenticate API key ist eine Pflichtangabe"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate Einstellungen in der config.inc.php wurden gefunden, daher "
+"werden die hier getroffenen Einstellungen nicht verwendet."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Der hochgeladene Dateityp wird nicht unterstützt."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr ""
+"Die hochgeladene Datei benötigt ein Passwort um geöffnet werden zu können."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Die hochgeladene Datei scheint beschädigt zu sein."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Einstellungen für die Ähnlichkeitsprüfung von Einreichungen"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr ""
+"Text in Anführungszeichen innerhalb der Einreichung wird nicht als ähnlicher "
+"Inhalt gezählt"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"Text im Abstrakt-Abschnitt der Einreichung wird nicht als ähnlicher Inhalt "
+"gezählt"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Kleine Trefferzahlen ausschließen"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Nur ganze Zahlen größer oder gleich 8 zulässig"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Ähnlichkeitstreffer"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Plagiatsprüfung einplanen"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Aktualisiere Plagiatsähnlichkeits-Wert"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr ""
+"Sind Sie sicher, dass Sie den Plagiatsähnlichkeits-Wert aktualisieren "
+"möchten?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Plagiatsorüfung ausführen"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Plagiats-Endnutzerlizenzvereinbarungs-Bestätigung"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Plagiatsprüfung nicht verfügbar"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Berichtsanzeige aktuell nicht verfügbar, bitte versuchen Sie es später "
+"erneut."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "iThenticate Ähnlichkeitswerte erfolgreich aktualisiert und angepasst."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Hochladen der eingereichten Datei zu iThenticate nicht möglich. Beachten "
+"Sie, dass die Größe der eingereichte Dateien maximal 100MB betragen darf."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Einreichungsdatei erfolgreich bei iThenticate hochgeladen."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Fehlende benötigte iThenticate webhook header"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Ungültige iThenticate webhook Signatur"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Einplanen des Ähnlichkeitsberichtes für die Datei mit der Nummer "
+"{$submissionFileId} fehlgeschlagen"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Die bestätigte Endnutzer-Lizenzvereinbarung fehlt für die Einreichung oder "
+"den einreichenden Nutzer."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Änderungen, welche an Berichten gemacht werden, werden für die nächste "
+"Ansicht des Reports gespeichert"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Plagiats-Score/Aktion"
+
+msgid "plugins.generic.plagiarism.displayName"
+msgstr "iThenticate Plagiatsprüfungsplugin"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Starte Plagiats/Ähnlichkeits-Anzeige"
+
+msgid "plugins.generic.plagiarism.description"
+msgstr ""
+"Alle Einreichungen zu iThenticate schicken, um sie auf mögliche Plagiate zu "
+"prüfen."
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Gesamttrefferzahl in Prozent"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Einstellungen für den Account, welcher zum Upload der Einreichungen bei "
+"iThenticate genutzt wird. Kontaktieren Sie Ihren iThenticate-Administrator "
+"für weitere Informationen."
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Sind Sie sich sicher, dass Sie einen Plagiatreport generieren möchten?"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API URL"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "Die iThenticate API URL ist eine Pflichtangabe"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Sind Sie sich sicher, dass Sie diese Datei für eine Plagiatsprüfung "
+"einreichen wollen?"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Automatischen Upload für Einreichungen bei iThenticate nach Einreichungen "
+"deaktivieren"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Falls der automatische Upload zu iThenticate deaktiviert ist, müssen die "
+"Einreichungsdateien manuell aus dem Einreichungsworkflow gesendet werden"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Die angegebene API URL/der angegebene API key ist ungültig oder die "
+"Verbindung zum iThenticate-API-Dienst kann nicht hergestellt werden. Bitte "
+"prüfen Sie die API URL/den API key und versuchen Sie es erneut."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Hochladen der Einreichung {$submissionId} zu iThenticate mit folgendem "
+"Fehler fehlgeschlagen: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr ""
+"Ein unspezifischer Fehler ist während der Verarbeitung der Einreichung "
+"aufgetreten."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Die Einreichung enthält keinen Text um einen Ähnlichkeitsbericht zu "
+"erstellen oder die Anzahl der Wörter in der Einreichung ist 0."
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Generierung des iThenticate Ähnlichkeitsberichtes erfolgreich eingeplant."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Die Einreichung enthält nicht genügend Text um einen Ähnlichkeitsbericht zu "
+"erstellen. Die Einreichung muss mindestens 20 Wörter umfassen."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Aktualisierung des iThenticate Ähnlichkeitswertes für die Einreichung mit "
+"der Nummer {$submissionFileId} nicht möglich."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Die Einreichung hat zu viel Text um einen Ähnlichkeitsbericht zu erstellen. "
+"Nach der Konvertierung des Textes in UTF-8 darf die Einreichung nicht mehr "
+"als 2MB Text enthalten."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Die Einreichung hat zu viele Seiten um einen Ähnlichkeitsbericht zu "
+"erstellen. Eine Einreichung kann nicht mehr als 800 Seiten haben."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Der iThenticate Ähnlichkeitsbericht wurde für die Einreichung mit der Nummer "
+"{$submissionFileId} noch nicht fertiggestellt."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Fehler bei der Verarbeitung der Anfrage: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"iThenticate webhook ist nicht für den Kontext mit der Nummer {$contextId} "
+"eingerichtet."
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate Endnutzer-Lizenzvertrag <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">link</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Sie müssen die <a target=\"_blank\" href=\"{$localizedEulaUrl}\">iThenticate "
+"Endnutzer-Lizenzvereinbarung</a> lesen und akzeptieren, bevor sie die "
+"Einreichung finalisieren können."
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Ungültiger iThenticate webhook Ereignistyp {$event}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Ich habe die Endnutzer-Lizenzvereinbarung gelesen und akzeptiere sie."
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Ungültige iThenticate Einreichungsid {$submissionUuid} für das webhook-"
+"Ereignis {$event}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagiats-Endbenutzer-Lizenzvereinbarung"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr ""
+"Der Endnutzer-Lizenzvereinbarung muss zugestimmt werden, bevor fortgefahren "
+"werden kann."
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Die gewählte Einreichungsdateinummer: {$submissionFileId} existiert nicht "
+"für den Kontext Nummer {$contextId}"
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Bestätigen und Fortfahren"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Einplanen des Ähnlichkeitsberichtes für die Datei mit der Nummer "
+"{$submissionFileId} nicht möglich. Fehler: {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Der Ähnlichkeitsbericht für die Datei mit der Einreichungsdateinummer "
+"{$submissionFileId} wurde bereits eingeplant"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Beachten Sie, dass die folgenden Einstellungen durch jeweilige Einstellungen "
+"auf der globalen bzw. Journal/Server/Verlags-Ebene eingestellt sind, "
+"überschrieben werden."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Einreichungen werden im Verzeichnis des Accounts indexiert und sind für den "
+"Vergleich des Ähnlichkeitsberichtes für andere Nutzer der selben Einrichtung "
+"verfügbar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Text im Referenzen-Abschnitt der Einreichung wird nicht als ähnlicher Inhalt "
+"gezählt"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Text im Methodik-Abschnitt der Einreichung wird nicht als ähnlicher Inhalt "
+"gezählt"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr ""
+"Die Zitationen in der Einreichungen werden von der Ähnlichkeitsprüfung "
+"ausgeschlossen"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Ähnlichkeitstreffer, welche zu weniger als der angegebenen Wortanzahl "
+"übereinstimmen werden nicht als ähnlicher Inhalt gezählt"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Hochladen der Datei bei iThenticate bei Einreichungsdatei Nummer "
+"{$submissionFileId} konnte nicht fertiggestellt werden"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Dateiinhalte wurden hochgeladen und die Einreichung wird noch verarbeitet"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Ein Fehler ist während der Verarbeitung der Einreichung aufgetreten."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Vollständiges Hochladen aller Dateien zum iThenticate Dienst für "
+"Plagiatsprüfung nicht möglich."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Es konnte keine Einreichung bei iThenticate für die Einreichungsdatei mit "
+"der Nummer {$submissionFileId} erstellt werden"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Einreichungsdetails sind nicht verfügbar."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Einreichung wurde erstellt, aber es wurden keine Dateien hochgeladen"
