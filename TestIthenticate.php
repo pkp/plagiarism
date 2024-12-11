@@ -5,11 +5,11 @@
  * Copyright (c) 2024 Simon Fraser University
  * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
- * 
+ *
  * @class TestIThenticate
  *
- * @brief   Low-budget mock class for IThenticate -- set the config setting 
- *          `test_mdoe` to `On` in the `config.inc.php` to log API usage 
+ * @brief   Low-budget mock class for IThenticate -- set the config setting
+ *          `test_mdoe` to `On` in the `config.inc.php` to log API usage
  *          instead of interacting with the iThenticate service.
  */
 
@@ -76,7 +76,7 @@ class TestIThenticate
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
      */
     public const DEFAULT_EULA_VERSION = 'latest';
-    
+
     /**
      * @copydoc IThenticate::DEFAULT_EULA_LANGUAGE
      */
@@ -109,7 +109,7 @@ class TestIThenticate
     /**
      * The minimum value of similarity report's view_setting's `exclude_small_matches` option
      * @see https://developers.turnitin.com/docs/tca#generate-similarity-report
-     * 
+     *
      * @var int
      */
     public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
@@ -133,13 +133,13 @@ class TestIThenticate
         if (!$eulaVersion) {
             $this->eulaVersion = Config::getVar('ithenticate', 'test_mode_eula', true) ? 'v1beta' : null;
         }
-        
+
         error_log(
             sprintf(
                 "Constructing iThenticate with API URL : {$apiUrl} \n
                 API Key : {$apiKey} \n
                 Integration Name : {$integrationName} \n
-                Integration Version : {$integrationVersion} \n 
+                Integration Version : {$integrationVersion} \n
                 EULA Version : {$this->eulaVersion}"
             )
         );
@@ -160,7 +160,7 @@ class TestIThenticate
      * @copydoc IThenticate::getEnabledFeature()
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
-    {   
+    {
         static $result;
 
         $result = '{
@@ -236,11 +236,11 @@ class TestIThenticate
      * @copydoc IThenticate::confirmEula()
      */
     public function confirmEula(User $user, Context $context): bool
-    {    
+    {
         error_log("Confirming EULA for user {$user->getId()} with language ".$this->getApplicableLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
         return true;
     }
-    
+
     /**
      * @copydoc IThenticate::createSubmission()
      */
@@ -378,8 +378,8 @@ class TestIThenticate
         error_log(
             sprintf(
                 "Register webhook end point with singing secret : %s, url : %s and events : [%s]",
-                $signingSecret, 
-                $url, 
+                $signingSecret,
+                $url,
                 implode(', ',$events)
             )
         );
@@ -470,15 +470,16 @@ class TestIThenticate
     protected function getCorrespondingLocaleAvailable(string $locale): ?string
     {
         $eulaLangs = $this->eulaVersionDetails['available_languages'];
-        $locale = str_replace("_", "-", substr($locale, 0, 5));
+        $language = \Locale::getPrimaryLanguage($locale);
+        $region = \Locale::getRegion($locale) ?? null;
+        $localeAndRegion = $language . '-' . $region;
 
-        return in_array($locale, $eulaLangs)
-            ? $locale
+        return in_array($localeAndRegion, $eulaLangs)
+            ? $localeAndRegion
             : collect($eulaLangs)
                 ->filter(
-                    fn(string $lang) => strtolower(
-                        collect(explode("-", $lang))->first()
-                    ) === strtolower(collect(explode("-", $locale))->first())
+                    fn(string $lang) =>
+                        collect(explode("-", $lang))->first() === $language
                 )->first();
     }
 
