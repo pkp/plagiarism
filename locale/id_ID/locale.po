@@ -1,19 +1,313 @@
+# Maria Lamury <marialamury@gmail.com>, 2024.
+# Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-01-15 07:53+0000\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
 "Last-Translator: Ramli Baharuddin <ramli.baharuddin@relawanjurnal.id>\n"
 "Language-Team: Indonesian <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/id_ID/>\n"
+"plagiarism/id/>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.9.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Kirim semua naskah ke iThenticate untuk diperiksa kemungkinan plagiarismenya."
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "Plugin Uji Plagiarisme iThenticate"
+msgstr "Plugin Deteksi Plagiarisme iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Nonaktifkan unggahan otomatis dari file pengiriman ke iThenticate pada waktu "
+"pengiriman"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"URL API yang dimasukkan tidak valid. Periksa ulang URL dan coba lagi. "
+"(Petunjuk: Coba tambahkan http:// di depan URL.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "API Key iThenticate diperlukan"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Naskah tidak memiliki cukup teks untuk membuat Laporan Kesamaan. Naskah "
+"setidaknya harus berisi 20 kata."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr ""
+"Terjadi kesalahan yang tidak dapat ditentukan pada saat memproses naskah."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "File yang diunggah membutuhkan kata sandi agar dapat dibuka."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "File yang diunggah mungkin rusak."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Kesalahan proses permintaan: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Anda harus membaca dan menerima <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">iThenticate EULA</a> sebelum lanjut untuk "
+"menyelesaikan pengajuan."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Saya sudah membaca perjanjian lisensi pengguna dan menerimanya."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagiarisme EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "EULA harus dikonfirmasi terlebih dahulu sebelum dilanjutkan."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Konfirmasi dan Lanjutkan"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Jika unggahan otomatis ke iThenticate dinonaktifkan, maka file dapat dikirim "
+"secara manual dari alur kerja pengiriman"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Terdapat terlalu banyak teks pada naskah untuk menghasilkan Laporan "
+"Kesamaan. Setelah teks yang diekstrak diubah menjadi UTF-8, naskah tersebut "
+"harus berisi teks yang kurang dari 2MB."
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"URL/API Key yang diberikan tidak valid atau koneksi ke layanan API "
+"iThenticate tidak terhubung. Periksa kembali URL/API key dan coba lagi."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Terlalu banyak jumlah halaman pada naskah untuk menghasilkan Laporan "
+"Kesamaan. Jumlah halaman yang dikirimkan tidak boleh lebih dari 800 halaman."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Jenis file yang diunggah tidak didukung."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Naskah tidak memuat teks untuk menghasilkan Laporan Kesamaan atau jumlah "
+"kata dari pengiriman adalah 0."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "URL API iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "API key iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "URL API iThenticate diperlukan"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"EULA Ithenticate <a target=\"_blank\" href=\"{$localizedEulaUrl}\">tautan</a>"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Harus berupa bilangan bulat (tanpa pecahan) dengan nilai minimum 8"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Perubahan yang dibuat dalam laporan akan disimpan untuk dilihat di waktu "
+"berikutnya"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Pengaturan pengecekan kesamaan naskah"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr ""
+"Teks dalam tanda kutip pada naskah tidak akan dianggap sebagai konten yang "
+"sama"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Teks pada bagian daftar pustaka dari naskah tidak akan dianggap sebagai "
+"konten yang sama"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"Teks pada bagian abstrak dari naskah tidak akan dianggap sebagai konten yang "
+"sama"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Harap diperhatikan jika salah satu pengaturan berikut ditetapkan dalam file "
+"konfigurasi secara global atau jurnal/server/pers, pengaturan tersebut akan "
+"lebih diutamakan daripada formulir ini."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Naskah akan diindeks di akun repositori dan akan tersedia sebagai "
+"perbandingan dalam Laporan Kesamaa oleh pengguna lain dalam organisasi anda"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Teks pada bagian metode dari naskah tidak akan dianggap sebagai konten yang "
+"sama"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Sitasi dari naskah akan dikeluarkan dari pengecekan kesamaan"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Pengecualian untuk jumlah kecocokan yang sedikit"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Kesamaan yang cocok dengan jumlah kata yang kurang dari yang ditentukan "
+"tidak akan dianggap sebagai konten yang sama"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Tampilkan Viewer Kesamaan Plagiarisme"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Kesamaan Cocok"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Melakukan Pengecekan Plagiarisme"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Pemeriksaan plagiarisme tidak tersedia"
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Berhasil mengunggah file naskah ke iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr "Webhook iThenticate tidak dikonfigurasi untuk konteks id {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Header webhook iThenticate yang diperlukan tidak dapat ditemukan"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Tipe event webhook iThenticate {$event} tidak valid"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Kode unik webhook iThenticate tidak valid"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Apakah anda yakin untuk menampilkan laporan Plagiarisme?"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr "Tampilan laporan saat ini tidak tersedia, silakan dicoba kembali."
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Perbarui Skor Kesamaan Plagiarisme"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Apakah anda yakin ingin memperbaharui skor kesamaan Plagiarisme?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Konfirmasi Perjanjian Lisensi Pengguna Plagiarisme"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr "Berhasil menjadwalkan proses pembuatan laporan kesamaan iThenticate."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Laporan kesamaan iThenticate tidak lengkap untuk file id naskah : "
+"{$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "Berhasil memperbaharui dan mengupdate skor kesamaan iThenticate."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Tidak dapat menyelesaikan pengunggahan semua file pada layanan iThenticate "
+"untuk pengecekan plagiarisme."
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Detail pengajuan tidak tersedia."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Pengajuan telah dibuat tetapi tidak ada file yang telah diunggah"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Terjadi kesalahan selama proses pengiriman."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Tidak dapat membuat pengiriman pada iThenticate untuk naskah file id : "
+"{$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Tidak dapat menyelesaikan penggunggahan file pada iThenticate untuk naskah "
+"file id : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "File telah diunggah dan pengiriman masih dalam proses"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Skor plagiarisme/Tindakan"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"ID pengiriman iThenticate {$submissionUuid} yang tidak valid diberikan untuk "
+"webhook event {$event}"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Persentase Kecocokan Secara Keseluruhan"
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Tidak dapat mengunggah file naskah ke iThenticate. Harap diperhatikan bahwa "
+"ukuran maksimal file naskah adalah 100 MB."
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"File ID pengiriman yang diberikan : {$submissionFileId} tidak ada untuk "
+"konteks ID : {$contextId}"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Jadwalkan Laporan Plagiarisme"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Apakah anda yakin ingin mengirimkan file ini untuk pengecekan plagiarisme?"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Tidak dapat menjadwalkan pembuatan laporan kesamaan untuk file id "
+"{$submissionFileId} dengan error : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Gagal menjadwalkan proses pembuatan laporan kesamaan untuk naskah file id "
+"{$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Informasi EULA yang dicap tidak ada pada saat pengiriman atau pengguna yang "
+"mengirimkan."
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Proses pembuatan laporan kesamaan telah dijadwalkan untuk file id pengiriman "
+"{$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Tidak dapat memperbaharui skor kesamaan iThenticate untuk file id naskah : "
+"{$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Pengaturan iThenticate ditemukan di config.inc.php dan pengaturan di sini "
+"tidak akan digunakan."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"Pengunggahan naskah {$submissionId} ke iThenticate gagal dengan error : "
+"{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Pengaturan akun yang digunakan untuk mengunggah naskah ke iThenticate. "
+"Hubungi administrator iThenticate anda untuk keterangan lebih lanjut."

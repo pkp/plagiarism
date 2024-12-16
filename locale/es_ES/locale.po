@@ -1,18 +1,328 @@
+# Dago Salas <dago.salas@gmail.com>, 2024.
+# Arley Soto <asoto@biteca.com>, 2024.
+# Adolfo Muñoz Aguilar <adolfo@uco.es>, 2024.
+# Darío Hereñú <magallania@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: \n"
-"Language-Team: \n"
+"POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
+"PO-Revision-Date: 2024-12-05 18:53+0000\n"
+"Last-Translator: Darío Hereñú <magallania@gmail.com>\n"
+"Language-Team: Spanish <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/es/>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2020-02-13T00:58:11+00:00\n"
-"Language: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Módulo de Detección de Plagio de iThenticate"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr "Permite enviar artículos a iThenticate para verificar posibles plagios."
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Configuración de la cuenta utilizada para subir los envíos a iThenticate. "
+"Contacte con su administrador de iThenticate para más detalles."
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Desactivar la carga automática de archivos de envío a iThenticate en el "
+"momento del envío"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "Clave API de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "Se requiere la clave API de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"La URL/clave API especificada no es válida o no se puede establecer una "
+"conexión con el servicio API de iThenticate."
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"La carga del envío {$submissionId} hacia iThenticate ha fallado con el error:"
+" {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "El tipo de archivo cargado no es compatible."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Se ha producido un error no especificado al procesar los envíos."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "URL de la API de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "Se requiere la URL de la API de iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Si la carga automática a iThenticate está desactivada, los archivos de envío "
+"deben ser enviados manualmente desde el flujo de trabajo de envío"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"La URL de la API especificada no es válida. Compruebe la URL e inténtelo de "
+"nuevo. (Sugerencia: Pruebe a añadir http:// al principio de la URL.)"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"El envío no contiene texto para generar un Informe de Similitud o el "
+"recuento de palabras del envío es 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"El envío no tiene suficiente texto para generar un Informe de Similitud. Un "
+"envío debe contener al menos 20 palabras."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"El envío tiene demasiado texto para generar un Informe de Similitud. Después "
+"de que el texto extraído sea convertido a UTF-8, el envío debe contener "
+"menos de 2MB de texto."
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Se han encontrado los ajustes de iThenticate en config.inc.php y, por tanto, "
+"no se utilizarán estos ajustes."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "El archivo cargado requiere una contraseña para poder abrirse."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"El envío tiene demasiadas páginas para generar un Informe de Similitud. Un "
+"envío no puede contener más de 800 páginas."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Error de procesamiento de solicitud: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">enlace</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Debe leer y aceptar el <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">iThenticate EULA</a> antes de proceder a finalizar el envío."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "He leído el acuerdo de licencia de usuario final y lo acepto."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagio EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Confirmar y continuar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Los envíos se indexarán en el repositorio de cuentas y estarán disponibles "
+"para que sean comparados en los Informes de Similitud por otros usuarios de "
+"su organización"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "El texto entre comillas del envío no contará como contenido similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"El texto en una sección de bibliografía del envío no contará como contenido "
+"similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"El texto de la sección de resumen del envío no contará como contenido similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"El texto en la sección de método del envío no contará como contenido similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Excluir recuento de coincidencias pequeñas"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Las coincidencias de similitud que coincidan con menos palabras que la "
+"cantidad especificada no contarán como contenido similar"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Debe ser un número entero (sin fracción) con valor mínimo 8"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Puntuación/Acción de plagio"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Abrir el visor Plagiarism Similarity Viewer"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Coincidencia de similitud"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Porcentaje general de coincidencia"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Actualizar puntuación de similitud (Plagiarism Similarity Score)"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr ""
+"¿Está seguro de que desea actualizar la puntuación de similitud de plagio ("
+"Plagiarism similarity score)?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Realizar verificación de plagio (Plagiarism Check)"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Comprobación de plagio no disponible"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Se programó con éxito el proceso de generación del informe de similitud de "
+"iThenticate."
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"El visor de informes no está disponible actualmente. Vuelva a intentarlo más "
+"tarde."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"El informe de similitud de iThenticate aún no se ha completado para el ID "
+"del archivo de envío: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "Actualizada con éxito la puntuación de similitud de iThenticate."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Se cargó exitosamente el archivo de envío a iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"El webhook de iThenticate no está configurado para el ID de contexto "
+"{$contextId}."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Faltan encabezados requeridos del webhook de iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Tipo de evento de webhook de iThenticate no válido {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Firma de webhook de iThenticate no válida"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Identificador de envio iThenticate {$submissionUuid} para el evento webhook "
+"{$event} no es válido"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"No se puede programar la generación del informe de similitud para el ID de "
+"archivo {$submissionFileId} con error: {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"No se pudo programar el proceso de generación del informe de similitud para "
+"el ID del archivo de envío {$submissionFileId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "Falta la firma EULA o el usuario que realiza el envío."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"No se pudo crear el envío en iThenticate para el ID del archivo de envío: "
+"{$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"No se pudo completar la carga del archivo en iThenticate para el ID del "
+"archivo de envío: {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Los detalles del envío no están disponibles."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Se ha creado el envío pero no se ha subido ningún archivo"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Se produjo un error durante el procesamiento del envío."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "El archivo cargado parece estar corrupto."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "El EULA debe ser confirmado antes de continuar."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Configuración de envío Similarity Check"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Tenga en cuenta que si cualquiera de las siguientes configuraciones se "
+"establece en el archivo de configuración a nivel global o de revista/"
+"servidor/editorial (press), esas configuraciones tendrán prioridad sobre "
+"este formulario."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Las citas del envío serán excluidas de la verificación de similitud"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Los cambios realizados en los informes se guardarán para la próxima vez que "
+"se vea el informe"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Programar informe de plagio"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "¿Está seguro/a de que desea generar el informe de plagio?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"¿Está seguro de que desea enviar este archivo para una verificación de "
+"plagio (plagiarism check)?"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr ""
+"Confirmación del acuerdo de licencia de usuario final contra plagio ("
+"Plagiarism End User License Agreement Confirmation)"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"No se puede actualizar la puntuación de similitud de iThenticate para el ID "
+"del archivo de envío: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"No se puede cargar el archivo de envío a iThenticate. Tenga en cuenta que el "
+"tamaño del archivo de envío debe ser como máximo de 100 MB."
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"El ID del archivo de envío proporcionado: {$submissionFileId} no existe para "
+"el ID de contexto: {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"El proceso de generación del informe de similitud ya se ha programado para "
+"el ID del archivo de envío {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"No se puede completar la carga de todos los archivos en el servicio "
+"iThenticate para comprobar el plagio."
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "El contenido del archivo se ha subido y el envío aún se está procesando"

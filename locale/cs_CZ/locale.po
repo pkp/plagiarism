@@ -1,16 +1,17 @@
-# Jiří Dlouhý <jiri.dlouhy@czp.cuni.cz>, 2022.
+# Jiří Dlouhý <jiri.dlouhy@czp.cuni.cz>, 2022, 2024.
+# Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-08-10 03:22+0000\n"
+"PO-Revision-Date: 2024-11-15 07:44+0000\n"
 "Last-Translator: Jiří Dlouhý <jiri.dlouhy@czp.cuni.cz>\n"
 "Language-Team: Czech <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/cs_CZ/>\n"
-"Language: cs_CZ\n"
+"plagiarism/cs/>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -45,3 +46,272 @@ msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
 "Nastavení účtu používaného k odesílání příspěvků do služby iThenticate. "
 "Podrobnosti získáte od správce iThenticate."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "Klíč API iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Zakázat automatické nahrávání souborů pro odeslání do iThenticate v při "
+"podání příspěvku"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Zadaná adresa URL rozhraní API není platná. Překontrolujte prosím adresu URL "
+"a zkuste to znovu. (Tip: Zkuste na začátek adresy URL přidat adresu http://.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "Je vyžadování API klíč iThenticate"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Nahraný typ souboru není podporován."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Při zpracování příspěvků došlo k blíže neurčené chybě."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Před pokračováním je třeba potvrdit smlouvu EULA."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Příspěvek má příliš mnoho stránek na to, aby bylo možné vygenerovat zprávu o "
+"podobnosti. Příspěvek nemůže obsahovat více než 800 stran."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Nahraný soubor vyžaduje k otevření heslo."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Nahraný soubor se zdá být poškozen."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Chyba při zpracování požadavku: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">odkaz</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Před dokončením odeslání příspěvku si musíte přečíst a přijmout <a target="
+"\"_blank\" href=\"{$localizedEulaUrl}\">iThenticate EULA</a>."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr ""
+"Přečetl/a jsem si licenční smlouvu s koncovým uživatelem a souhlasím s ní."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Potvrdit a pokračovat"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Nastavení kontroly podobnosti příspěvků"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Mějte na paměti, že pokud je v konfiguračním souboru na globální úrovni nebo "
+"na úrovni časopisu/serveru/tisku nastaveno některé z následujících "
+"nastavení, bude mít toto nastavení přednost před tímto formulářem."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Text v uvozovkách v příspěvku se nepovažuje za podobný obsah"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "Text v sekci abstrakt se nepočítá jako podobný obsah"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Vyloučit malý počet shod"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Podobnosti, které odpovídají méně než zadanému počtu slov, nebudou "
+"považovány za podobný obsah"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr "Změny provedené v sestavách se uloží pro příští zobrazení sestavy"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Plagiátorství hodnocení/akce"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Spustit prohlížeč podobnosti plagiátů"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Shoda podobností"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Celkové procento shody"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Plánování hlášení o plagiátorství"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Jste si jisti, že chcete vygenerovat zprávu o plagiátorství?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Obnovit skóre podobnosti plagiátů"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Opravdu chcete obnovit skóre podobnosti plagiátorství?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Provést kontrolu plagiátorství"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Prohlížeč zpráv není momentálně k dispozici, zkuste to, prosím, později."
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr "Opravdu chcete tento soubor odeslat ke kontrole plagiátorství?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Potvrzení licenční smlouvy s koncovým uživatelem o plagiátorství"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr ""
+"Úspěšně obnoveno a aktualizováno bodování podobnosti v systému iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr "iThenticate webhook není nakonfigurován pro kontext id {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Chybějící požadované hlavičky webhooku iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Neplatný typ události iThenticate webhook {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Neplatný podpis webhooku iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Zadaný soubor příspěvku s id {$submissionFileId} neexistuje pro id kontextu :"
+" {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Nelze naplánovat generování zprávy o podobnosti pro id souboru "
+"{$submissionFileId} s chybou : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Nepodařilo se naplánovat proces generování zprávy o podobnosti pro soubor "
+"příspěvku s id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Chybí potvrzení s informacemi o smlouvě EULA pro odesílajícího nebo "
+"odesílaný příspěvek."
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Nepodařilo se dokončit nahrávání souboru na iThenticate pro souboru "
+"příspěvku s id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Podrobnosti o příspěvku nejsou k dispozici."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Příspěvek byl vytvořen, ale nebyl nahrán žádný soubor"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "Obsah souboru byl nahrán a příspěvek se stále zpracovává"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Při zpracování příspěvku došlo k chybě."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "URL adresa API iThenticate"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "EULA pro plagiarismus"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "Je vyžadováno URL API iThenticate"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Kontrola plagiátorství není k dispozici"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Úspěšně naplánovaný proces generování zprávy o podobnostech iThenticate."
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Pokud je automatické odesílání do iThenticate zakázáno, je třeba odeslat "
+"soubory v rámci workflow ručně"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Předložené příspěvky budou indexovány v úložišti účtů a budou k dispozici "
+"pro porovnání v přehledech podobnosti ostatními uživateli ve vaší organizaci"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Zadaná adresa URL/klíč API je neplatná nebo nelze navázat spojení se službou "
+"iThenticate API. Překontrolujte prosím adresu URL/klíč API a zkuste to znovu."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Text v bibliografické části příspěvku se nezapočítává jako podobný obsah"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr "Text v sekci metody se nepočítá jako podobný obsah"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Nelze obnovit skóre podobnosti iThenticate pro soubor příspěvku s id: "
+"{$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Citace v podání budou vyloučeny z kontroly podobnosti"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Zpráva o podobnosti iThenticate ještě nebyla dokončena pro soubor příspěvku "
+"s id: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Příspěvek neobsahuje text pro vygenerování zprávy o podobnosti nebo počet "
+"slov podání je 0."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Nelze nahrát soubor pro odeslání do služby iThenticate. Všimněte si, že "
+"velikost předkládaného souboru může být maximálně 100 MB."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Příspěvek neobsahuje dostatek textu pro vygenerování zprávy o podobnosti. "
+"Příspěvek musí obsahovat alespoň 20 slov."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Úspěšné nahrání souboru příspěvku do systému iThenticate."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Příspěvek obsahuje příliš mnoho textu na to, aby bylo možné vygenerovat "
+"zprávu o podobnosti. Po převedení extrahovaného textu do UTF-8 musí "
+"příspěvek obsahovat méně než 2 MB textu."
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Neplatné id podání iThenticate {$submissionUuid} zadané pro událost webhook "
+"{$event}"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Musí to být celé číslo (bez zlomku) s minimální hodnotou 8"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Proces generování zprávy o podobnosti byl již naplánován pro soubor "
+"příspěvku id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Nelze dokončit nahrávání všech souborů do služby iThenticate pro kontrolu "
+"plagiátorství."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Nepodařilo se vytvořit podání na iThenticate pro soubor příspěvku s id "
+"{$submissionFileId}"

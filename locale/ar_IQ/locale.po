@@ -1,20 +1,21 @@
 # M. Ali <vorteem@gmail.com>, 2022.
+# "M. Ali" <vorteem@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-13T00:58:11+00:00\n"
-"PO-Revision-Date: 2022-10-01 04:01+0000\n"
-"Last-Translator: M. Ali <vorteem@gmail.com>\n"
+"PO-Revision-Date: 2024-12-10 19:22+0000\n"
+"Last-Translator: \"M. Ali\" <vorteem@gmail.com>\n"
 "Language-Team: Arabic <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/ar_IQ/>\n"
-"Language: ar_IQ\n"
+"plagiarism/ar/>\n"
+"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "إضافة كشف السرقة الأدبية iThenticate"
@@ -48,3 +49,160 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "فشلت عملية رفع طلب التقديم {$submissionId} إلى iThenticate مع إرجاع الخطأ "
 "الآتي: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "عنوان رابط واجهة برمجة التطبيق لـ iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "مفتاح واجهة برمجة التطبيق لـ iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "عنوان رابط واجهة برمجة التطبيق لـ iThenticate مطلوب حتمًا"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr "تعطيل الرفع التقائي للملفات إلى iThenticate خلال وقت التسليم"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"عند تعطيل الرفع التلقائي إلى iThenticate، ستكون ملفات التقديم بحاجة إلى "
+"إرسالها يدويًا من خلال مجريات التقديم التقليدية"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "نوع الملف المرفوع غير مدعوم."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "وقع خطأ غير محدد عند معالجة طلبات التقديم."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"طلب التقديم لا يحتوي على نص من أجل توليد تقرير التشابه أو إن عدد كلمات طلب "
+"التقديم تساوي صفرًا."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"طلب التقديم يحتوي على صفحات أكثر مما متوقع لتوليد تقرير التشابه. طلب التقديم "
+"لا يمكن أن يزيد على 800 صفحة."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"عنوان رابط واجهة برمجة التطبيق المعطى غير صالح. يرجى التحقق أكثر من صحة "
+"الرابط ثم المحاولة مجددًا. (تلميح: حاول إضافة http:// إلى بداية العنوان.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "مفتاح واجهة برمجة التطبيق لـ iThenticate مطلوب حتمًا"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"عنوان/مفتاح واجهة برمجة التطبيق المعطيين غير صالحين أو إن الاتصال مع خدمة "
+"واجهة برمجة التطبيق لـ iThenticate لا يمكن إنشاؤه. يرجى التأكد أكثر من "
+"صحتهما ثم المحاولة مجددًا."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"طلب التقديم لا يحتوي على ما يكفي من النصوص لتوليد تقرير التشابه. طلب التقديم "
+"ينبغي أن يحتوي على ما لا يقل عن 20 كلمة."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"طلب التقديم يحتوي على نصوص أكثر من المتوقع ليتسنى توليد تقرير التشابه. بعد "
+"استخراج النص وتحويله إلى نسق UTF-8، ينبغي أن يحتوي طلب التقديم على أقل من "
+"2MB من النصوص."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "الملف المرفوع يتطلب كلمة مرور من أجل فتحه."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "الملف المرفوع يبدو تالفًا."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "خطأ عند معالجة الطلب: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "لقد قرأت اتفاقية ترخيص المستخدم ووافقت عليها."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "اتفاقية ترخيص المستخدم النهائي Plagiarism"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "اتفاقية ترخيص المستخدم النهائي ينبغي تأكيد الموافقة عليها قبل المتابعة."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "إعدادات فحص تشابه طلبات التقديم"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"اتفاقية ترخيص المستخدم النهائي لـ iThenticate <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">الرابط</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"ينبغي عليك قراءة اتفاقية ترخيص المستخدم النهائي لـ <a target=\"_blank\" href="
+"\"{$localizedEulaUrl}\">iThenticate وقبولها</a> قبل المتابعة إلى إنهاء طلب "
+"التقديم."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "تأكيد ومتابعة"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"لاحظ بأن أي من الإعدادات الآتية لو تم ضبطه في ملف التهيئة على مستوى العموم "
+"أو على مستوى المجلة/المخدم/دار النشر، فإنه هناك سيأخذ الأولوية على ما يتواجد "
+"في هذا النموذج."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"ستتم فهرسة طلبات التقديم في مستودع الحسابات وسيتكون متاحة لأغراض المقارنة في "
+"تقارير التشابه عبر المستخدمين الآخرين في منظمتك"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "النص ما بين علامتي الاقتباس لن يُعتبر محتوى مشابهًا"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr "النص في مقطع الطريقة لطلب التقديم لن يعتبر محتوى مشابهًا"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "إقتباسات طلب التقديم سيتم استثناؤها من فحص التشابه"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "استبعاد عدد التشابه البسيط"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "درجة/إجراء فحص الاستلال"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "تشغيل معاين فحص الاستلال"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "تطابق التشابه"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "النسبة المئوية الإجمالية للتطابق"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "تقرير فحص الاستلال المجدول"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "هل أنت متأكد من رغبتك في توليد تقرير فحص الاستلال؟"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "إعادة تنشيط درجة فحص الاستلال"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr "النص في مقطع السيرة الذاتية لن يعتبر محتوى مشابهًا"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "النص في مقطع الخلاصة لن يعتبر محتوى مشابهًا"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "ينبغي أن يكون رقمًا صحيحًا (بدون أي كسر) بما لا يقل عن 8"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"التغييرات المتخذة في التقارير سيتم حفظها من أجل المعاينة في المرة القادمة"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "هل أنت متأكد من رغبتك في إعادة تنشيط درجة فحص الاستلال؟"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"تطابقات التشابه التي تقل عن المقدار المحدد من الكلمات لن تعتبر محتوى مشابهًا"
