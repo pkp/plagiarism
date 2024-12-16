@@ -1,0 +1,307 @@
+# Mahmut  VURAL <mahmut.vural@outlook.com>, 2024.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
+"Last-Translator: Mahmut  VURAL <mahmut.vural@outlook.com>\n"
+"Language-Team: Kyrgyz <http://translate.pkp.sfu.ca/projects/plugins/"
+"plagiarism/ky/>\n"
+"Language: ky\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.18.2\n"
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Талап кылынган iThenticate вебхук баштары жок"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"{$event} вебхук окуясы үчүн жараксыз iThenticate тапшыруу идентификатору "
+"{$submissionUuid} берилген"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Ката : {$error} бар {$submissionFileId} идентификатору үчүн окшоштук отчетун "
+"түзүү пландаштырылган жок"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Окшоштук отчетун түзүү процесси {$submissionFileId} тапшыруу файлы үчүн "
+"мурунтан эле пландаштырылган"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"{$submissionFileId} тапшыруу файлынын идентификатору үчүн окшоштук отчетун "
+"түзүү процесси пландаштырылган жок"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Тапшыруучу же тапшыруучу колдонуучу үчүн мөөрү басылган EULA маалыматы жок."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Плагиатты текшерүү үчүн iThenticate кызматында бардык файлдарды жүктөө "
+"аягына чыга албай жатат."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Тапшыруу түзүлдү, бирок эч кандай файл жүктөлгөн жок"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"iThenticate'ге тапшырууларды жүктөө үчүн колдонулган каттоо эсебинин "
+"орнотуулары. Чоо-жайын билүү үчүн iThenticate администраторуңузга кайрылыңыз."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API ачкычы"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Тапшыруу убагында iThenticate'ге тапшыруу файлдарын автоматтык түрдө "
+"жүктөөнү өчүрүү"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Көрсөтүлгөн API URL дареги жараксыз. URL дарегин эки жолу текшерип, кайра "
+"аракет кылыңыз. (Кеңеш: URL'дин башына http:// кошуп көрүңүз.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Көрсөтүлгөн API URL/ачкычы жараксыз же iThenticate API кызматына байланыш "
+"түзүлбөй жатат. API URL/ачкычын эки жолу текшерип, кайра аракет кылыңыз."
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"iThenticate орнотуулары config.inc.php сайтында табылган жана бул жердеги "
+"орнотуулар колдонулбайт."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Тапшыруулар эсептердин репозиторийинде индекстелет жана уюмуңуздагы башка "
+"колдонуучулардын Окшоштук отчетторунда салыштыруу үчүн жеткиликтүү болот"
+
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr ""
+"{$submissionId} тапшыруусун iThenticate'ге жүктөө катасы менен ишке ашпай "
+"калды: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Берилген тырмакчадагы текст окшош мазмун катары эсептелбейт"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Жүктөлүп берилген файлдын түрү колдоого алынбайт."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Тапшыруу Окшоштук отчетун түзүү үчүн текстти камтыбайт же тапшыруунун "
+"сөздөрүнүн саны 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Тапшырууда Окшоштук отчетун түзүү үчүн жетиштүү текст жок. Берүү кеминде 20 "
+"сөздү камтышы керек."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Билдирүүнүн библиография бөлүмүндөгү текст окшош мазмун катары эсептелбейт"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Жүктөлгөн файлды ачуу үчүн сырсөз талап кылынат."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Жүктөлгөн файл бузулган окшойт."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Сурамды иштетүү катасы: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "Берүүнүн абстракттуу бөлүгүндөгү текст окшош мазмун катары эсептелбейт"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">шилтеме</a>"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr "Тапшыруудагы ыкма бөлүмүндөгү текст окшош мазмун катары эсептелбейт"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Тапшырманы аягына чыгаруудан мурун <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">iThenticate EULA</a> менен таанышып, кабыл алышыңыз "
+"керек."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Тапшыруу окшоштугун текшерүү жөндөөлөрү"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Берилген цитаталар окшоштук текшерүүсүнөн чыгарылат"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Чакан дал келүү санын кошпоңуз"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Көрсөтүлгөн сөздөрдөн азыраак дал келген окшоштуктар окшош мазмун катары "
+"эсептелбейт"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr ""
+"Минималдуу мааниси 8 болгон бүтүн сан (эч кандай бөлчөксүз) болушу керек"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Отчетторго киргизилген өзгөртүүлөр отчетту кийинки жолу көрүү үчүн сакталат"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Окшоштук дал келүү"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Жалпы дал келүү пайызы"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Чын эле Плагиат отчетун түзгүңүз келеби?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Плагиат окшоштук упайын жаңыртуу"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Чын эле Плагиат окшоштук упайын жаңырткыңыз келеби?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Плагиат Акыркы колдонуучунун лицензиялык келишимин тастыктоо"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr "Кабарлоочу учурда жеткиликтүү эмес, кийинчерээк кайра аракет кылыңыз."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"iThenticate окшоштук баяндамасы тапшыруу файлынын идентификатору үчүн аягына "
+"чыга элек: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "iThenticate окшоштук упайлары ийгиликтүү жаңыртылды жана жаңыртылды."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Тапшыруу файлы iThenticate'ке ийгиликтүү жүктөлдү."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Төмөнкү орнотуулардын кайсынысы болбосун конфигурация файлында глобалдык же "
+"журнал/сервер/пресс деңгээлинде коюлса, ал орнотуулар бул формага караганда "
+"артыкчылыкка ээ болорун эске алыңыз."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API URL"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "iThenticate API URL талап кылынат"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"iThenticate'ге авто жүктөө өчүрүлгөн болсо, тапшыруу файлдары тапшыруу иш "
+"процессинен кол менен жөнөтүлүшү керек"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "iThenticate API ачкычы талап кылынат"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Тапшырмаларды иштеп чыгууда такталбаган ката кетти."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Окшоштук отчетун түзүү үчүн тапшырууда өтө көп текст бар. Чыгарылган текст "
+"UTF-8ге айландырылгандан кийин, тапшыруу 2МБдан азыраак текстти камтышы "
+"керек."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Окшоштук отчетун түзүү үчүн тапшыруунун өтө көп беттери бар. Тапшыруу 800 "
+"беттен ашык болбошу керек."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr ""
+"Мен акыркы колдонуучу лицензия келишимин окуп чыктым жана аны кабыл алдым."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Плагиат EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Улантуудан мурун EULA ырасталышы керек."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Ырастоо жана Улантуу"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Плагиат Упай/Аракет"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Плагиат окшоштугун көрүүчүнү ишке киргизиңиз"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Плагиат отчетун графиги"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Плагиатты текшерүү"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr "Чын эле бул файлды плагиатты текшерүүгө тапшыргыңыз келеби?"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Плагиатты текшерүү мүмкүн эмес"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr "iThenticate окшоштук отчетун түзүү процесси ийгиликтүү пландаштырылды."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Тапшыруу файлынын id : {$submissionFileId} үчүн iThenticate окшоштук упайын "
+"жаңыртуу мүмкүн эмес."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Тапшыруу файлын iThenticate жүктөө мүмкүн эмес. Тапшыруу файлынын көлөмү эң "
+"көп дегенде 100 МБ болушу керек экенин эске алыңыз."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"iThenticate вебхуку {$contextId} контекст идентификатору үчүн "
+"конфигурацияланган эмес."
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Жараксыз iThenticate webhook окуя түрү {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "iThenticate вебхук колтамгасы жараксыз"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Берилген тапшыруу файлынын id : {$submissionFileId} контекст идентификатору "
+"үчүн жок : {$contextId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Тапшыруу файлынын идентификатору үчүн iThenticate'де тапшыруу түзүлбөй койду:"
+" {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Тапшыруу файлынын идентификатору үчүн iThenticate файлды жүктөө аягына "
+"чыккан жок: {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Тапшыруу чоо-жайы жеткиликсиз."
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "Файлдын мазмуну жүктөлүп берилди жана тапшыруу дагы эле иштетилүүдө"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Тапшыруу процессинде ката кетти."
+
+msgid "plugins.generic.plagiarism.displayName"
+msgstr "iThenticate плагиат детекторунун плагини"
+
+msgid "plugins.generic.plagiarism.description"
+msgstr ""
+"Мүмкүн болгон плагиатты текшерүү үчүн iThenticate'ге бардык тапшырууларды "
+"жөнөтүңүз."

@@ -1,16 +1,17 @@
-# Alexandra Fogtmann-Schulz <alfo@kb.dk>, 2022.
+# Alexandra Fogtmann-Schulz <alfo@kb.dk>, 2022, 2024.
+# "Jesper B. Thestrup" <jbt@kb.dk>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-08-10 03:22+0000\n"
+"PO-Revision-Date: 2024-11-20 08:40+0000\n"
 "Last-Translator: Alexandra Fogtmann-Schulz <alfo@kb.dk>\n"
 "Language-Team: Danish <http://translate.pkp.sfu.ca/projects/plugins/"
-"plagiarism/da_DK/>\n"
-"Language: da_DK\n"
+"plagiarism/da/>\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
@@ -18,7 +19,7 @@ msgstr ""
 "plagiering."
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "iThenticate Plagiarism Detector Plugin"
+msgstr "iThenticate Plagieringsdetector Plugin"
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
@@ -46,3 +47,283 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "Upload af indsendelsen {$submissionId} til iThenticate mislykkedes pga. "
 "følgende fejl: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API URL"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API key"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "iThenticate API URL er påkrævet"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Deaktiver automatisk upload af indsendelsesfiler til iThenticate på "
+"indsendelsestidspunktet"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Hvis automatisk upload til iThenticate er deaktiveret, skal du manuelt sende "
+"indsendelsesfiler fra indsendelsesworkflowet"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "iThenticate API key er påkrævet"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Den uploadede filtype er ikke supporteret."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Den angivne API URL er ikke gyldig. Dobbelttjek venligst URL'en og prøv "
+"igen. (Hint: prøv at tilføje https:// til begyndelsen af URL'en.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Den angivne API URL/key er enten ugyldig, eller der kan ikke skabes "
+"forbindelse til iThenticate API servicen. Dobbelttjek venligst API URL/key "
+"og prøv igen."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Der opstod en uspecificeret fejl under behandlingen af indsendelserne."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Indsendelsen indeholder ikke tekst til at generere en tekstlighedsrapport, "
+"eller antallet af ord i indsendelsens er 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Indsendelsen har ikke nok tekst til at generere en tekstlighedsrapport. En "
+"indsendelse skal indeholde mindst 20 ord."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Indsendelsen har for meget tekst til at generere en tekstlighedsrapport. "
+"Efter teksten konverteres til UTF-8, skal indsendelsen indeholde mindre end "
+"2 MB tekst."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"iThenticate tekstlighedsrapporten er endnu ikke færdig for indsendelsesfilen "
+"med id : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Det angivne indsendelsesfil-id : {$submissionFileId} eksisterer ikke for "
+"kontekst-id : {$contextId}"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "iThenticate tekstlighedspoint blev succesfuldt opdateret."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Ude af stand til at uploade indsendelsesfilen til iThenticate. Bemærk, at "
+"indsendelsesfilen max må have en filstørrelse på 100 MB."
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Ugyldig iThenticate 'webhook' begivenhedstype {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Ugyldig iThenticate indsendelsesid {$submissionUuid} for 'webhook' "
+"begivenhed {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Der er allerede skemalagt en generering af tekstlighedsrapport for "
+"indsendelsen med fil-id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Kunne ikke skemalægge generering af tekstlighedsrapporten for indsendelsen "
+"med fil-id {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Ude af stand til at færdiggøre upload af alle filer til iThenticate servicen "
+"for plagieringstjek."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Indsendelsen er blevet lavet, men ingen fil er blevet uploadet"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "Filindhold er blevet uploadet og indsendelsen bliver stadig processeret"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Den uploadede fil kræver et kodeord for at blive åbnet."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Den uploadede fil lader til at være beskadiget."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Anmodningsbehandlingsfejl: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate slutbrugerlicensaftale (EULA) <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">link</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Jeg har læst slutbrugerlicensaftalen (EULA) og accepterer den."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Slutbrugerlicensaftalen (EULA) skal bekræftes før du kan fortsætte."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Bekræft og fortsæt"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Indsendelse tekstlighedstjek indstillinger"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr ""
+"Tekst i citationstegn i indsendelsen vil ikke tælle med i opgørelsen af "
+"tekstlighed"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Tekst i metodesektionen af indsendelsen vil ikke tælle med i opgørelsen af "
+"tekstlighed"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Ekskludér lavt match-antal"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Ændringer lavet i rapporten vil blive gemt til næste gang rapporten vises"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Plagieringspoint/handling"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Start plagiering tekstlighedsvisning"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Er du sikker på, at du vil generere plagieringsrapporten?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Udfør plagieringstjek"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Plagiering slutbrugerlicensaftale bekræftelse"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Plagieringstjek ikke tilgængeligt"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Ude af stand til at opdatere iThenticate tekstlighedspoint for "
+"indsendelsesfil med id : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Uploadede succesfuldt indsendelsesfilen til iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"iThenticate 'webhook' er ikke konfigureret for kontekst-id {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Manglende påkrævet iThenticate 'webhook headers'"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Ugyldig iThenticate 'webhook' signatur"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Ude af stand til at skemalægge generering af tekstlighedsrapport for fil-id "
+"{$submissionFileId} med fejlen : {$error}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Kunne ikke danne indsendelsen ved iThenticate for indsendelsesfil med id : "
+"{$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Kunne ikke færdiggøre filuploade ved iThenticate for indsendelsesfilen med "
+"id : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Indsendelsesdetaljer er utilgængelige."
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Der opstod en fejl under processeringen af indsendelsen."
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Information om den stemplede slutbrugerlicensaftale (EULA) mangler for "
+"indsendelsen eller brugeren, der indsender."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Bemærk, at hvis nogle af de følgende indstillinger er indstillet i "
+"konfigurationsfilen globalt eller for tidsskriftet/serveren/udgiveren, vil "
+"de indstillinger blive anvendt fremfor dem, der angives nedenfor."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Indsendelsen har for mange sider til at generere en tekstlighedsrapport. En "
+"indsendelse må ikke indeholde mere end 800 sider."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Du skal læse og acceptere <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">iThenticate slutbrugerlicensaftalen (EULA)</a> før du kan fortsætte og "
+"færdiggøre indsendelsen."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Plagiering slutbrugerlicensaftale (EULA)"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"Tekst i resumésektionen af indsendelsen vil ikke tælle med i opgørelsen af "
+"tekstlighed"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Tekst i bibliografisektionen af indsendelsen vil ikke tælle med i opgørelsen "
+"af tekstlighed"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Indsendelser vil blive indekseret i kontoens repositorium og vil være "
+"tilgængelige til sammenligning i tekstlighedsrapporter lavet af andre "
+"brugere i din organisation"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Tekstlighedsmatch, der matcher mindre end det specificerede antal af ord vil "
+"ikke tælle med i opgørelsen af tekstlighed"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Citationer i indsendelsen vil blive ekskluderet fra tekstlighedstjekket"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Skal være et heltal (uden en brøk) med minimumsværdi 8"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Tekstlighedsmatch"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Overordnet match procent"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Skemalæg plagieringsrapport"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Er du sikker på, at du vil opdatere plagiat-tekstlighedspoint?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Opdater plagiat-tekslighedspoint"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr "Er du sikker på, at du vil sende denne fil til plagieringstjek?"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Processen med at generere iThenticate tekstlighedsrapporten blev succesfuldt "
+"skemalagt."
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr "Rapportvisning er ikke tilgængelig lige nu, prøv venligst igen senere."

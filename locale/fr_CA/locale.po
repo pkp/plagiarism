@@ -1,10 +1,8 @@
-# Pierre Lasou <pierre.lasou@bibl.ulaval.ca>, 2023.
-# Marie-Hélène Vézina [UdeMontréal] <marie-helene.vezina@umontreal.ca>, 2023.
-# Emma U <emmaupkp@gmail.com>, 2024.
+# Muge Bakioglu <mugebakioglu@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2024-10-11 20:33+0000\n"
-"Last-Translator: Emma U <emmaupkp@gmail.com>\n"
+"PO-Revision-Date: 2024-11-18 07:21+0000\n"
+"Last-Translator: Muge Bakioglu <mugebakioglu@gmail.com>\n"
 "Language-Team: French (Canada) <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/fr_CA/>\n"
 "Language: fr_CA\n"
@@ -22,30 +20,309 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugiciel de détection de plagiat iThenticate"
 
-msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "Nom d'utilisateur iThenticate"
-
-msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "Mot de passe iThenticate"
-
-msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "Le nom d'utilisateur iThenticate est obligatoire"
-
-msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "Le mot de passe iThenticate est obligatoire"
-
-msgid "plugins.generic.plagiarism.manager.settings.areForced"
-msgstr ""
-"Des paramètres iThenticate ont été trouvés dans config.inc.php, les "
-"paramètres de cette page ne seront pas utilisés."
-
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
-"L'envoi de la soumission {$submissionId} vers iThenticate a échoué : "
-"{$errorMessage}"
+"Le téléchargement de la soumission {$submissionId} vers iThenticate a échoué "
+"avec l'erreur: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "Clé API iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "L'URL de l'API iThenticate est requise"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"L'URL de l'API spécifiée n'est pas valide. Veuillez vérifier l'URL et "
+"réessayer. (Indice : Essayez d'ajouter http:// au début de l'URL.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "La clé API iThenticate est requise"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"L'URL/clé API spécifiée n'est pas valide ou la connexion au service API "
+"iThenticate ne peut pas être établie. Veuillez vérifier l'URL/clé API et "
+"réessayer."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Le type de fichier téléchargé n'est pas pris en charge."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"La soumission ne contient pas de texte permettant de générer un rapport de "
+"similarité ou le nombre de mots de la soumission est de 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"La soumission contient trop de texte pour générer un rapport de similarité. "
+"Après conversion du texte extrait en UTF-8, la soumission doit contenir "
+"moins de 2 Mo de texte."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"La soumission contient trop de pages pour générer un rapport de similarité. "
+"Une soumission ne peut pas contenir plus de 800 pages."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Le fichier téléchargé nécessite un mot de passe pour être ouvert."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Le fichier téléchargé semble être corrompu."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Erreur de traitement de la demande : {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "J'ai lu et j'accepte le contrat de licence d'utilisateur final."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "CLUF de Plagiat"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Le CLUF doit être confirmé avant de continuer."
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Confirmer et Continuer"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Notez que si l'un des paramètres suivants est défini dans le fichier de "
+"configuration au niveau global ou au niveau du journal/serveur/presse, ces "
+"paramètres auront la priorité sur ce formulaire."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr ""
+"Le texte entre guillemets de la soumission ne sera pas compté comme contenu "
+"similaire"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"Le texte dans la section résumé de la soumission ne sera pas compté comme "
+"contenu similaire"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr ""
+"Les citations de la soumission seront exclues de la vérification de "
+"similarité"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Exclure les faibles correspondances"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Doit être un entier (sans fraction) avec une valeur minimale de 8"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Score de Plagiat/Action"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Lancer le Visualiseur de Similarité de Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Correspondance de Similarité"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Planifier le Rapport de Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Rafraîchir le Score de Similarité du Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Êtes-vous sûr de vouloir générer le rapport de Plagiat ?"
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
-"Paramètre pour le compte utilisé pour envoyer les soumissions vers "
-"iThenticate. Contacter votre administrateur iThenticate pour obtenir des "
-"détails."
+"Paramètres du compte utilisé pour télécharger les soumissions dans "
+"iThenticate. Contactez votre administrateur iThenticate pour plus de détails."
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "URL de l'API iThenticate"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Désactiver le téléchargement automatique des fichiers de soumission vers "
+"iThenticate pendant la soumission"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Si le téléchargement automatique vers iThenticate est désactivé, les "
+"fichiers de soumission devront être envoyés manuellement dans le flux de "
+"travail de soumission"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"Le CLUF de iThenticate <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">link</a>"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr ""
+"Une erreur non spécifiée s'est produite lors du traitement des soumissions."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"La soumission ne contient pas suffisamment de texte pour générer un rapport "
+"de similarité. Une soumission doit contenir au moins 20 mots."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Vous devez lire et accepter <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">i le CLUF de iThenticate </a> avant de procéder à la finalisation de la "
+"soumission."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Le texte dans la section bibliographie de la soumission ne sera pas "
+"considéré comme un contenu similaire"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Les soumissions seront indexées dans le référentiel des comptes et pourront "
+"être comparées dans les rapports de similarité par d'autres utilisateurs au "
+"sein de votre organisation"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Le texte dans la section méthode de la soumission ne sera pas compté comme "
+"contenu similaire"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Les correspondances de similarité contenant moins que le nombre de mots "
+"spécifié ne seront pas prises en compte comme contenu similaire"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Les modifications apportées aux rapports seront sauvegardées pour la "
+"prochaine consultation du rapport"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Le Pourcentage de Similarité Globale"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Êtes-vous sûr de vouloir rafraîchir le score de similarité du plagiat ?"
+
+msgid "plugins.generic.plagiarism.manager.settings.areForced"
+msgstr ""
+"Les paramètres de iThenticate ont été trouvés dans config.inc.php et les "
+"paramètres ici ne seront pas utilisés."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Paramètres de vérification de similarité"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Effectuer la Vérification de Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Êtes-vous sûr de vouloir soumettre ce fichier à la vérification de plagiat ?"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Confirmation du Contrat de Licence Utilisateur Final pour le Plagiat"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "La vérification de plagiat n'est pas disponible"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Le processus de génération du rapport de similarité iThenticate a été "
+"planifié avec succès."
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Le visualisateur de rapport n'est pas disponible pour le moment, veuillez "
+"réessayer plus tard."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Impossible d'actualiser le score de similarité iThenticate pour le fichier "
+"de soumission id : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr ""
+"Les scores de similarité iThenticate ont été actualisés et mis à jour avec "
+"succès."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Impossible de télécharger le fichier de soumission vers iThenticate. Notez "
+"que la taille du fichier de soumission doit être au maximum de 100 Mo."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Le fichier de soumission a été téléchargé avec succès vers iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"Le webhook iThenticate n'est pas configuré pour le contexte {$contextId} ."
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Le type d'événement du webhook iThenticate invalide {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "La signature du webhook iThenticate invalide"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"L'ID de fichier de soumission donné : {$submissionFileId} n'existe pas pour "
+"l'ID de contexte : {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Impossible de planifier la génération du rapport de similarité pour l'ID de "
+"fichier {$submissionFileId} avec l'erreur : {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Échec de la planification du processus de génération du rapport de "
+"similarité pour le fichier de soumission : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Impossible de compléter le téléchargement de tous les fichiers vers le "
+"service iThenticate pour la vérification de plagiat."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Impossible de créer la soumission sur iThenticate pour le fichier de "
+"soumission : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Une erreur s'est produite pendant le traitement de la soumission."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Le rapport de similarité iThenticate n'est pas encore terminé pour le "
+"fichier de soumission id : {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "En-têtes requis pour le webhook iThenticate manquants"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"L'ID de soumission iThenticate {$submissionUuid} donné pour l'événement du "
+"webhook {$event} n'est pas valide"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Le processus de génération du rapport de similarité a déjà été planifié pour "
+"le fichier de soumission {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Les informations estampillées du CLUF sont manquantes pour la soumission ou "
+"pour l'utilisateur ayant soumis le fichier."
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Impossible de compléter le téléchargement du fichier vers iThenticate pour "
+"le fichier de soumission id : {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Les détails de la soumission sont indisponibles."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "La soumission a été créée mais aucun fichier n'a été téléchargé"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Le contenu du fichier a été téléchargé et la soumission est encore en cours "
+"de traitement"

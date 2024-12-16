@@ -1,8 +1,9 @@
 # Artashes Mirzoyan <amirzoyan@sci.am>, 2022.
-# Tigran Zargaryan <tigran@flib.sci.am>, 2022, 2023.
+# Tigran Zargaryan <tigran@flib.sci.am>, 2022, 2024.
+# Sebastian Schmidt <sebastian.schmidt@slub-dresden.de>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-04-07 08:48+0000\n"
+"PO-Revision-Date: 2024-11-15 07:44+0000\n"
 "Last-Translator: Tigran Zargaryan <tigran@flib.sci.am>\n"
 "Language-Team: Armenian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/hy/>\n"
@@ -11,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.13.1\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.description.seeReadme"
 msgstr ""
@@ -51,5 +52,286 @@ msgstr "iThenticate օգտանուն"
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
-"Հաշվի կարգավորումներ, որոնք օգտագործվում են ներբեռնումներ iThenticate-ում: "
-"Մանրամասների համար կապվեք ձեր iThenticate ադմինիստրատորի հետ:"
+"Հաշվի կարգավորումներ, որոնք օգտագործվում են iThenticate-ում ներկայացումներ "
+"ներբեռնելու համար: Մանրամասների համար կապվեք ձեր iThenticate կառավարչի հետ:"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "iThenticate API URL"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "iThenticate API բանալի"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Անջատեք ներկայացման նիշքերի ինքնաշխատ վերբեռնումը iThenticate-ում "
+"ներկայացման պահին"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "iThenticate API ստեղնը պարտադիր է"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Վերբեռնված նիշքի տեսակը չի աջակցվում:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Ներկայացումները մշակելիս չճշտված սխալ է տեղի ունեցել:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Ներկայացումը չի պարունակում տեքստ՝ նմանության զեկույց ստեղծելու համար, կամ "
+"ներկայացման բառերի քանակը 0 է:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Ներկայացումը չափազանց շատ տեքստ պետք է գեներացնի՝ նմանության հաշվետվություն "
+"ստեղծելու համար: Այն բանից հետո, երբ հանված տեքստը փոխարկվում է UTF-8-ի, "
+"ներկայացումը պետք է պարունակի 2 ՄԲ-ից պակաս տեքստ:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Վերբեռնված նիշքը բացելու համար գաղտնաբառ է պահանջվում:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Վերբեռնված նիշքը կարծես վնասված է:"
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Հայտի մշակման սխալ՝ {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Գրագողություն EULA"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Շարունակելուց առաջ EULA-ն պետք է հաստատվի:"
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Հաստատեք և շարունակեք"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Ներկայացման նմանության ստուգման կարգավորումները"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr ""
+"Ներկայացման չակերտների մեջ նշված տեքստը չի համարվի համանման բովանդակություն"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr ""
+"Ներկայացման մատենագիտության բաժնում տեքստը չի համարվի համանման "
+"բովանդակություն"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr ""
+"Ներկայացման համառոտագրության բաժնում տեքստը չի համարվի համանման "
+"բովանդակություն"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr ""
+"Ներկայացման մեթոդի բաժնում տեքստը չի համարվի որպես նմանատիպ բովանդակություն"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Բացառել համընկնումների փոքր քանակությունը"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Բառերի նշված քանակից քիչ համընկնող նմանությունները չեն համարվի որպես "
+"նմանատիպ բովանդակություն"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Գրագողության միավոր/Գործողություն"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Գործարկեք Գրագողության նմանության դիտակը"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Նմանության համընկնում"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Գրագողության զեկույցի ժամանակացույց"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Վստա՞հ եք, որ ցանկանում եք ստեղծել Գրագողության զեկույցը:"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Վստա՞հ եք, որ ցանկանում եք թարմացնել Գրագողության նմանության միավորը:"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Իրականացնել գրագողության ստուգում"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Գրագողության Վերջնական օգտագործողի արտոնագրի համաձայնագրի հաստատում"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Գրագողության ստուգումը հասանելի չէ"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Հաշվետվության դիտակը ներկայումս հասանելի չէ, խնդրում ենք փորձել ավելի ուշ:"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"iThenticate-ի նմանության զեկույցը դեռ չի ավարտվել ներկայացման նիշքի ID-ի "
+"համար՝ {$submissionFileId}:"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr ""
+"Հաջողությամբ նորացվել և թարմացվել է iThenticate-ի նմանության միավորները:"
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Ներկայացման նիշքը հաջողությամբ վերբեռնվեց iThenticate-ում:"
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Պահանջվող iThenticate վերբեռնուկ վերնախորագրերը բացակայում են"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Անվավեր iThenticate վերբեռնուկ ստորագրություն"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Տրված ներկայացման նիշքի ID-ն՝ {$submissionFileId}, գոյություն չունի "
+"համատեքստի համար՝ {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Հնարավոր չէ պլանավորել նմանության հաշվետվության ստեղծումը նիշքի id-ի համար "
+"{$submissionFileId} այս սխալով՝ {$error}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Չհաջողվեց պլանավորել նմանության զեկույցի ստեղծման գործընթացը ներկայացման "
+"նիշքի id-ի համար {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Հնարավոր չէ գրագողության ստուգման համար ավարտել բոլոր նիշքերի վերբեռնումը "
+"iThenticate ծառայություն:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Չհաջողվեց ստեղծել ներկայացումը iThenticate-ում՝ ներկայացման նիշքի ID-ի համար՝"
+" {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Ներկայացման մանրամասներն անհասանելի են:"
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Ներկայացումը ստեղծվել է, բայց ոչ մի նիշք չի վերբեռնվել"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Ներկայացման մշակման ընթացքում սխալ է տեղի ունեցել:"
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Եթե iThenticate-ում ինքնաշխատ վերբեռնումն անջատված է, ներկայացման նիշքերը "
+"պետք է աշխատանքային հոսքից ձեռքով ուղարկվեն ներկայացման"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "iThenticate API URL է պահանջվում"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Նշված API URL-ը վավեր չէ: Խնդրում ենք կրկնակի ստուգել URL-ը և նորից փորձել: "
+"(Հուշում՝ փորձեք URL-ի սկզբում ավելացնել http:// )"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Նշված API URL/բանալին անվավեր է կամ կապ չի կարող հաստատվել iThenticate API "
+"ծառայության հետ: Խնդրում ենք կրկնակի ստուգել API URL-ը/բանալին և նորից "
+"փորձել:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Ներկայացումը չունի բավարար տեքստ՝ նմանության հաշվետվություն ստեղծելու համար: "
+"Ներկայացումը պետք է պարունակի առնվազն 20 բառ:"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Ներկայացումը պարունակում է չափազանց շատ էջեր նմանության հաշվետվություն "
+"ստեղծելու համար: Ներկայացումը չի կարող պարունակել ավելի քան 800 էջ:"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Դուք պետք է կարդաք և ընդունեք <a target=\"_blank\" href=\"{$localizedEulaUrl}"
+"\">iThenticate EULA</a> նախքան ներկայացումը վերջնական տեսքի բերելը:"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr ""
+"Ես կարդացել եմ վերջնական օգտագործողի արտոնագրի պայմանագիրը և ընդունում եմ "
+"այն:"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Նկատի ունեցեք, որ եթե հետևյալ կարգավորումներից որևէ մեկը դրված է կազմաձևման "
+"նիշքում համընդգրկուն կամ ամսագրի/սերվերի/մամուլի մակարդակում, ապա այդ "
+"կարգավորումները գերակա կլինեն այս ձևի նկատմամբ:"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Ներկայացումները կինդեքսավորվեն հաշիվների պահոցում և հասանելի կլինեն ձեր "
+"կազմակերպության այլ օգտվողների կողմից նմանության հաշվետվություններում "
+"համեմատելու համար"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Ներկայացման մեջբերումները կբացառվեն նմանության ստուգումից"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Պետք է լինի ամբողջ թիվ (առանց որևէ կոտորակի) նվազագույն արժեքով 8"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr ""
+"Հաշվետվություններում կատարված փոփոխությունները կպահվեն հաջորդ անգամ "
+"հաշվետվությունը դիտելու համար"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Համապատասխանության ընդհանուր տոկոսը"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Թարմացրեք գրագողության նմանության միավորը"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr ""
+"Վստա՞հ եք, որ ցանկանում եք այս նիշքը ներկայացնել գրագողության ստուգման համար:"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr ""
+"Հաջողությամբ պլանավորվեց iThenticate նմանության զեկույցի ստեղծման գործընթացը:"
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Հնարավոր չէ թարմացնել iThenticate-ի նմանության միավորի ներկայացման նիշքի id-"
+"ի համար՝ {$submissionFileId}:"
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Հնարավոր չէ վերբեռնել ներկայացման նիշքը iThenticate-ում: Նշենք, որ "
+"ներկայացվող նիշքի չափը պետք է լինի առավելագույնը 100 ՄԲ:"
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr "iThenticate վեբկեռիկը կազմաձևված չէ համատեքստի id-ի համար {$contextId}:"
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "iThenticate վերբեռնուկ միջոցառման անվավեր տեսակ {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Անվավեր iThenticate ներկայացման ID {$submissionUuid} տրված է վերբեռնուկ "
+"միջոցառման համար {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Նմանության հաշվետվության ստեղծման գործընթացն արդեն ծրագրված է ներկայացման "
+"նիշք ID {$submissionFileId} համար"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"EULA-ի կնիքով տեղեկատվությունը բացակայում է ներկայացվող կամ ներկայացնող "
+"օգտատիրոջ համար:"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Չհաջողվեց լրացնել նիշքի վերբեռնումը iThenticate-ում, ներկայացման նիշքի ID-ի "
+"համար  ։ {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr ""
+"Նիշքի բովանդակությունը վերբեռնվել է, և ներկայացումը դեռ մշակման փուլում է"

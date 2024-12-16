@@ -1,7 +1,7 @@
-# Petro Bilous <petrobilous@ukr.net>, 2023.
+# Petro Bilous <petrobilous@ukr.net>, 2024.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-06-02 05:49+0000\n"
+"PO-Revision-Date: 2024-12-01 20:41+0000\n"
 "Last-Translator: Petro Bilous <petrobilous@ukr.net>\n"
 "Language-Team: Ukrainian <http://translate.pkp.sfu.ca/projects/plugins/"
 "plagiarism/uk/>\n"
@@ -9,40 +9,299 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.13.1\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.18.2\n"
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Плагін детектора плагіату \"iThenticate\""
 
 msgid "plugins.generic.plagiarism.description"
-msgstr "Надішліть усі подання до iThenticate для перевірки на можливий плагіат."
-
-msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
-"Налаштування облікового запису, який використовується для вивантаження "
-"матеріалів до iThenticate. Зверніться до адміністратора iThenticate для "
-"отримання детальної інформації."
+"Надішліть усі матеріали до iThenticate для перевірки на можливий плагіат."
 
-msgid "plugins.generic.plagiarism.manager.settings.username"
-msgstr "Ім'я користувача iThenticate"
+msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
+msgstr "URL-адреса API iThenticate"
 
-msgid "plugins.generic.plagiarism.manager.settings.password"
-msgstr "Пароль iThenticate"
+msgid "plugins.generic.plagiarism.manager.settings.apiKey"
+msgstr "Ключ API iThenticate"
 
-msgid "plugins.generic.plagiarism.manager.settings.usernameRequired"
-msgstr "Ім'я користувача iThenticate є обов'язковим"
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlRequired"
+msgstr "Необхідна URL-адреса API iThenticate"
 
-msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
-msgstr "Пароль iThenticate є обов'язковим"
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission"
+msgstr ""
+"Вимкніть автоматичне завантаження файлів подання в iThenticate під час "
+"подання"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiUrlInvalid"
+msgstr ""
+"Вказана URL-адреса API недійсна. Перевірте URL-адресу й повторіть спробу. "
+"(Підказка: спробуйте додати http:// на початку URL-адреси.)"
+
+msgid "plugins.generic.plagiarism.manager.settings.apiKeyRequired"
+msgstr "Потрібен ключ API iThenticate"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
-"Налаштування iThenticate було знайдено в config.inc.php, і налаштування тут "
-"використовуватися не будуть."
+"Параметри iThenticate знайдено в config.inc.php, і налаштування тут не "
+"використовуватимуться."
 
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
-"Не вдалося вивантажити подання {$submissionId} до iThenticate із помилкою: "
+"Завантаження подання {$submissionId} в iThenticate не вдалося через помилку: "
 "{$errorMessage}"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
+msgstr "Завантажений тип файлу не підтримується."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
+msgstr ""
+"Подання містить занадто багато тексту для створення звіту про схожість. "
+"Після перетворення вилученого тексту на UTF-8 подання має містити менше 2 МБ "
+"тексту."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
+msgstr "Для відкриття завантаженого файлу потрібен пароль."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
+msgstr "Завантажений файл видається пошкодженим."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
+msgstr "Я прочитав (ла) ліцензійну угоду кінцевого користувача та приймаю її."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
+msgstr "Перш ніж продовжити, необхідно підтвердити ліцензійну угоду."
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
+msgstr "Ліцензійна угода щодо плагіату"
+
+msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
+msgstr "Підтвердити та продовжити"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.addToIndex"
+msgstr ""
+"Подані матеріали будуть проіндексовані в сховищі облікових записів і будуть "
+"доступні для порівняння у звітах про схожість іншими користувачами у вашій "
+"організації"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
+msgstr "Текст у лапках не вважатиметься схожим вмістом"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeAbstract"
+msgstr "Текст у розділі анотації подання не вважатиметься схожим вмістом"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeMethods"
+msgstr "Текст у розділі методу подання не вважатиметься схожим вмістом"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.label"
+msgstr "Виключити невелику кількість збігів"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
+msgstr ""
+"Збіги подібності, які збігаються з меншою кількістю слів, ніж указана "
+"кількість, не вважатимуться схожим вмістом"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.allowViewerUpdate"
+msgstr "Зміни, внесені у звіти, будуть збережені для наступного перегляду звіту"
+
+msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
+msgstr "Оцінка плагіату / дія"
+
+msgid "plugins.generic.plagiarism.similarity.action.launch.viewer.title"
+msgstr "Запустіть переглядач схожості на плагіат"
+
+msgid "plugins.generic.plagiarism.similarity.match.title"
+msgstr "Збіг подібності"
+
+msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
+msgstr "Загальний відсоток збігу"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
+msgstr "Ви впевнені, що хочете згенерувати звіт про плагіат?"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.title"
+msgstr "Оновити оцінку схожості на плагіат"
+
+msgid "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation"
+msgstr "Ви впевнені, що бажаєте оновити оцінку схожості на плагіат?"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+msgstr "Провести перевірку на плагіат"
+
+msgid "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation"
+msgstr "Ви впевнені, що бажаєте надіслати цей файл на перевірку на плагіат?"
+
+msgid "plugins.generic.plagiarism.similarity.action.invalidFileType"
+msgstr "Перевірка на плагіат недоступна"
+
+msgid "plugins.generic.plagiarism.action.launchViewer.error"
+msgstr ""
+"Засіб перегляду звітів наразі недоступний, будь ласка, спробуйте пізніше."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.error"
+msgstr ""
+"Не вдалося оновити оцінку подібності iThenticate для ідентифікатора файлу "
+"подання: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
+msgstr "Оцінки схожості iThenticate успішно оновлено."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.error"
+msgstr ""
+"Не вдалося завантажити файл подання в iThenticate. Зауважте, що розмір файлу "
+"для подання має бути не більше 100 Мб."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.success"
+msgstr "Файл подання успішно завантажено в iThenticate."
+
+msgid "plugins.generic.plagiarism.webhook.event.invalid"
+msgstr "Недійсний тип події вебхука iThenticate {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.signature.invalid"
+msgstr "Недійсний підпис вебхука iThenticate"
+
+msgid "plugins.generic.plagiarism.webhook.headers.missing"
+msgstr "Відсутні необхідні заголовки вебхука iThenticate"
+
+msgid "plugins.generic.plagiarism.submission.status.ERROR"
+msgstr "Під час оброблення подання сталася помилка."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
+msgstr "Під час оброблення подань сталася невизначена помилка."
+
+msgid "plugins.generic.plagiarism.general.errorMessage"
+msgstr "Помилка обробки запиту: {$errorMessage}"
+
+msgid "plugins.generic.plagiarism.submission.checklist.eula"
+msgstr ""
+"iThenticate EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\""
+">покликання</a>"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
+msgstr "Налаштування перевірки схожості подання"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeBibliography"
+msgstr "Текст у розділі бібліографії подання не вважатиметься подібним вмістом"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeCitations"
+msgstr "Цитати з подання буде виключено з перевірки на схожість"
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
+msgstr "Має бути цілим числом (без дробів) із мінімальним значенням 8"
+
+msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
+msgstr "Розклад звіту про плагіат"
+
+msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
+msgstr "Підтвердження ліцензійної угоди кінцевого користувача щодо плагіату"
+
+msgid "plugins.generic.plagiarism.action.scheduleSimilarityReport.success"
+msgstr "Процес генерування звіту про схожість iThenticate успішно заплановано."
+
+msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.warning"
+msgstr ""
+"Звіт про схожість iThenticate ще не завершено для ідентифікатора файлу "
+"подання: {$submissionFileId}."
+
+msgid "plugins.generic.plagiarism.webhook.configuration.missing"
+msgstr ""
+"Вебхук iThenticate не налаштовано для ідентифікатора контексту {$contextId}."
+
+msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
+msgstr ""
+"Недійсний ідентифікатор подання iThenticate {$submissionUuid} надано для "
+"події вебхука {$event}"
+
+msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
+msgstr ""
+"Ідентифікатор зазначеного файлу подання: {$submissionFileId} не існує для "
+"ідентифікатора контексту: {$contextId}"
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
+msgstr ""
+"Процес генерування звіту про схожість уже заплановано для файлу подання з "
+"ідентифікатором {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr ""
+"Відсутня інформація про ліцензійну угоду для подання або користувача, який "
+"надсилає."
+
+msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
+msgstr ""
+"Неможливо завершити завантаження всіх файлів у службу iThenticate для "
+"перевірки на плагіат."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
+msgstr ""
+"Не вдалося створити подання в iThenticate для ідентифікатора файлу подання: "
+"{$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
+msgstr ""
+"Не вдалося завершити завантаження файлу в iThenticate для ідентифікатора "
+"файлу подання: {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.status.unavailable"
+msgstr "Деталі подання недоступні."
+
+msgid "plugins.generic.plagiarism.submission.status.CREATED"
+msgstr "Подання створено, але файл не завантажено"
+
+msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
+msgstr "Вміст файлу завантажено, а подання ще обробляється"
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
+msgstr ""
+"Подання містить забагато сторінок для створення звіту про схожість. Подання "
+"не може містити більше 800 сторінок."
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
+msgstr ""
+"Не вдалося запланувати процес генерування звіту про схожість для файлу "
+"подання з ідентифікатором {$submissionFileId}"
+
+msgid "plugins.generic.plagiarism.submission.eula.acceptance.message"
+msgstr ""
+"Ви повинні прочитати та прийняти <a target=\"_blank\" href=\""
+"{$localizedEulaUrl}\">ліцензійну угоду iThenticate EULA</a> перед тим, як "
+"завершити подання."
+
+msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
+msgstr ""
+"Зауважте, що якщо будь-який із наведених нижче параметрів установлено у "
+"файлі конфігурації на глобальному рівні або на рівні журналу / сервера / "
+"видавництва, ці параметри матимуть перевагу над цією формою."
+
+msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
+msgstr ""
+"Не вдалося запланувати генерування звіту про схожість для файлу з "
+"ідентифікатором {$submissionFileId} із помилкою: {$error}"
+
+msgid "plugins.generic.plagiarism.manager.settings.description"
+msgstr ""
+"Налаштування облікового запису, який використовується для завантаження "
+"матеріалів до iThenticate. Щоб дізнатися більше, зверніться до "
+"адміністратора iThenticate."
+
+msgid "plugins.generic.plagiarism.manager.settings.disableAutoSubmission.description"
+msgstr ""
+"Якщо автоматичне завантаження в iThenticate вимкнено, файли подання потрібно "
+"надсилати вручну з процесу подання"
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessInvalid"
+msgstr ""
+"Вказана URL-адреса / ключ API недійсна (ий) або неможливо встановити з’"
+"єднання зі службою API iThenticate. Ще раз перевірте URL-адресу / ключ API і "
+"повторіть спробу."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
+msgstr ""
+"Подання не містить тексту для створення звіту про схожість або кількість "
+"слів у поданні дорівнює 0."
+
+msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
+msgstr ""
+"Подання не містить достатньо тексту для створення звіту про схожість. "
+"Подання має містити щонайменше 20 слів."
