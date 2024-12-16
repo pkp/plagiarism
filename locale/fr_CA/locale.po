@@ -20,10 +20,6 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugiciel de détection de plagiat iThenticate"
 
-<<<<<<< HEAD
-msgid "plugins.generic.plagiarism.submission.checklist.eula"
-msgstr "Plagiarism EULA <a target=\"_blank\" href=\"{$localizedEulaUrl}\">link</a>"
-=======
 msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "Le téléchargement de la soumission {$submissionId} vers iThenticate a échoué "
@@ -209,4 +205,3 @@ msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
 "Les paramètres de iThenticate ont été trouvés dans config.inc.php et les "
 "paramètres ici ne seront pas utilisés."
->>>>>>> 93d5776 (Translated using Weblate (French (Canada)))
