@@ -1,6 +1,6 @@
 # iThenticate Plagiarism Detector Plugin
 
-For OJS/OMP/OPS 4.x
+For OJS/OMP/OPS 3.4.x
 
 ## Overview
 
