@@ -981,7 +981,7 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
      * @copydoc Plugin::getActions()
      */
-    function getActions($request, $verb)
+    public function getActions($request, $verb)
     {
         $router = $request->getRouter();
 
@@ -1016,7 +1016,7 @@ class PlagiarismPlugin extends GenericPlugin
     /**
      * @copydoc Plugin::manage()
      */
-    function manage($args, $request) 
+    public function manage($args, $request) 
     {
         switch ($request->getUserVar('verb')) {
             case 'settings':
@@ -1163,7 +1163,7 @@ class PlagiarismPlugin extends GenericPlugin
 			);
 		
 		$notificationManager = new NotificationManager();
-		$managers = Repo::userGroup()
+		$managers = Repo::user()
 			->getCollector()
 			->filterByContextIds([$context->getId()])
 			->filterByRoleIds([Role::ROLE_ID_MANAGER])
@@ -1178,6 +1178,22 @@ class PlagiarismPlugin extends GenericPlugin
 		}
 
 		error_log("iThenticate submission {$submissionId} failed: {$message}");
+	}
+
+	/**
+	 * Check if ithenticate service access details(API URL & KEY) are available at global level or
+	 * for the given context
+	 */
+	public function isServiceAccessAvailable(?Context $context = null): bool
+	{
+		$servicesAccess = collect($this->getServiceAccess($context))
+			->map(
+				fn (mixed $data): string => gettype($data) == 'string' ? trim($data) : ''
+			)
+			->filter();
+		
+		// There must be exactly 2 entries to consider it as a valid service access
+		return $servicesAccess->count() === 2;
 	}
 
 	/**
@@ -1202,15 +1218,6 @@ class PlagiarismPlugin extends GenericPlugin
 			"{$configKeyName}[{$contextPath}]",
 			Config::getVar('ithenticate', $configKeyName)
 		);
-	}
-
-	/**
-	 * Check is ithenticate service access details(API URL & KEY) available at global level or
-	 * for the given context
-	 */
-	protected function isServiceAccessAvailable(?Context $context = null): bool
-	{
-		return !collect($this->getServiceAccess($context))->filter()->isEmpty();
 	}
 }
 

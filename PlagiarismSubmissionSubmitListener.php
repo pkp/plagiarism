@@ -46,6 +46,11 @@ class PlagiarismSubmissionSubmitListener
      */
     public function handle(SubmissionSubmitted $event): void
     {
+        if (!$this->plugin->isServiceAccessAvailable($event->context)) {
+            $this->plugin->sendErrorMessage(__('plugins.generic.plagiarism.manager.settings.serviceAccessInvalid'));
+            return;
+        }
+
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,
