@@ -1194,6 +1194,24 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Check if ithenticate service access details(API URL & KEY) are available at global level or
+	 * for the given context
+	 * 
+	 * @param Context|null $context
+	 * @return bool
+	 */
+	public function isServiceAccessAvailable($context = null) {
+		$servicesAccess = collect($this->getServiceAccess($context))
+			->map(
+				fn (mixed $data): string => gettype($data) == 'string' ? trim($data) : ''
+			)
+			->filter();
+
+		// There must be exactly 2 entries to consider it as a valid service access
+		return $servicesAccess->count() === 2;
+	}
+
+	/**
 	 * Get the forced config at global or context level if defined
 	 * 
 	 * @param string $contextPath
@@ -1207,16 +1225,5 @@ class PlagiarismPlugin extends GenericPlugin {
 			"{$configKeyName}[{$contextPath}]",
 			Config::getVar('ithenticate', $configKeyName)
 		);
-	}
-
-	/**
-	 * Check is ithenticate service access details(API URL & KEY) available at global level or
-	 * for the given context
-	 * 
-	 * @param Context|null $context
-	 * @return bool
-	 */
-	protected function isServiceAccessAvailable($context = null) {
-		return !collect($this->getServiceAccess($context))->filter()->isEmpty();
 	}
 }
