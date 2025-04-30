@@ -3,8 +3,8 @@
 /**
  * @file plugins/generic/plagiarism/PlagiarismPlugin.php
  *
- * Copyright (c) 2013-2024 Simon Fraser University
- * Copyright (c) 2013-2024 John Willinsky
+ * Copyright (c) 2013-2025 Simon Fraser University
+ * Copyright (c) 2013-2025 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class PlagiarismPlugin
@@ -15,6 +15,18 @@
 namespace APP\plugins\generic\plagiarism;
 
 use APP\core\Request;
+use PKP\API\v1\submissions\PKPSubmissionFileController;
+
+use PKP\API\v1\submissions\PKPSubmissionController;
+
+use APP\plugins\generic\plagiarism\api\v1\PlagiarismSubmissionController;
+
+use APP\API\v1\submissions\SubmissionController;
+
+use PKP\handler\APIHandler;
+
+use PKP\core\PKPBaseController;
+
 use PKP\notification\Notification;
 use APP\facades\Repo;
 use APP\template\TemplateManager;
@@ -25,7 +37,7 @@ use APP\plugins\generic\plagiarism\PlagiarismSettingsForm;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismArticleGalleyGridHandler;
-use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateActionHandler;
+use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\grids\SimilarityActionGridColumn;
 use APP\plugins\generic\plagiarism\grids\RearrangeColumnsFeature;
@@ -96,7 +108,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 */
 	protected array $validRouteComponentHandlers = [
 		'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-		'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+		'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 	];
 
 	/**
@@ -127,6 +139,19 @@ class PlagiarismPlugin extends GenericPlugin
 			return $success;
 		}
 
+		$request = Application::get()->getRequest();
+		$templateManager = TemplateManager::getManager($request);
+
+		// If iThenticate service access details not available, not going to run the plugin features
+		if (!$this->isServiceAccessAvailable()) {
+			return $success;
+		}
+
+		$this->addApiRoutes();
+
+		$this->addStyleSheet($request, $templateManager);
+		$this->addJavaScript($request, $templateManager);
+
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, [$this, 'addPlagiarismCheckDataToSubmissionFileSchema']);
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_CONTEXT, [$this, 'addIthenticateConfigSettingsToContextSchema']);
@@ -137,13 +162,49 @@ class PlagiarismPlugin extends GenericPlugin
 
 		Hook::add('LoadComponentHandler', [$this, 'handleRouteComponent']);
 
-		Hook::add('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
-		Hook::add('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
+		// Hook::add('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
+		// Hook::add('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
 
 		Event::subscribe(new PlagiarismSubmissionSubmitListener($this));
 		Hook::add('TemplateManager::display', [$this, 'addEulaAcceptanceConfirmation']);
 
 		return $success;
+	}
+
+	public function addApiRoutes(): void
+	{
+		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
+			
+			if ($apiController instanceof PKPSubmissionFileController) {
+				$apiController = new PlagiarismSubmissionController($this);
+			}
+            
+            return false;
+        });
+	}
+
+	public function addStyleSheet(Request $request, TemplateManager $templateManager): void
+	{
+		$templateManager->addStyleSheet(
+			'ithenticatePlagiarismPluginStyle',
+			"{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build.css",
+			[
+				'contexts' => ['backend']
+			]
+		);
+	}
+
+	public function addJavaScript(Request $request, TemplateManager $templateManager): void
+	{
+		$templateManager->addJavaScript(
+            'ithenticatePlagiarismPluginScript',
+            "{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build.iife.js",
+            [
+                'inline' => false,
+                'contexts' => ['backend'],
+                'priority' => TemplateManager::STYLE_SEQUENCE_LAST
+            ]
+        );
 	}
 
 	/**
@@ -532,7 +593,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$componentInstance = match($componentName) {
 			'PlagiarismWebhookHandler' => new PlagiarismWebhookHandler($this),
-			'PlagiarismIthenticateActionHandler' => new PlagiarismIthenticateActionHandler($this),
+			'PlagiarismIthenticateHandler' => new PlagiarismIthenticateHandler($this),
 		};
 
 		return Hook::ABORT;
@@ -967,7 +1028,7 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
      * @copydoc Plugin::getActions()
      */
-    function getActions($request, $verb)
+    public function getActions($request, $verb)
     {
         $router = $request->getRouter();
 
@@ -1002,7 +1063,7 @@ class PlagiarismPlugin extends GenericPlugin
     /**
      * @copydoc Plugin::manage()
      */
-    function manage($args, $request) 
+    public function manage($args, $request) 
     {
         switch ($request->getUserVar('verb')) {
             case 'settings':
@@ -1149,7 +1210,7 @@ class PlagiarismPlugin extends GenericPlugin
 			);
 		
 		$notificationManager = new NotificationManager();
-		$managers = Repo::userGroup()
+		$managers = Repo::user()
 			->getCollector()
 			->filterByContextIds([$context->getId()])
 			->filterByRoleIds([Role::ROLE_ID_MANAGER])
@@ -1164,6 +1225,22 @@ class PlagiarismPlugin extends GenericPlugin
 		}
 
 		error_log("iThenticate submission {$submissionId} failed: {$message}");
+	}
+
+	/**
+	 * Check if ithenticate service access details(API URL & KEY) are available at global level or
+	 * for the given context
+	 */
+	public function isServiceAccessAvailable(?Context $context = null): bool
+	{
+		$servicesAccess = collect($this->getServiceAccess($context))
+			->map(
+				fn (mixed $data): string => gettype($data) == 'string' ? trim($data) : ''
+			)
+			->filter();
+		
+		// There must be exactly 2 entries to consider it as a valid service access
+		return $servicesAccess->count() === 2;
 	}
 
 	/**
@@ -1188,15 +1265,6 @@ class PlagiarismPlugin extends GenericPlugin
 			"{$configKeyName}[{$contextPath}]",
 			Config::getVar('ithenticate', $configKeyName)
 		);
-	}
-
-	/**
-	 * Check is ithenticate service access details(API URL & KEY) available at global level or
-	 * for the given context
-	 */
-	protected function isServiceAccessAvailable(?Context $context = null): bool
-	{
-		return !collect($this->getServiceAccess($context))->filter()->isEmpty();
 	}
 }
 

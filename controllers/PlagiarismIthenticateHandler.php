@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/controllers/PlagiarismIthenticateActionHandler.php
+ * @file plugins/generic/plagiarism/controllers/PlagiarismIthenticateHandler.php
  *
  * Copyright (c) 2024 Simon Fraser University
  * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @class PlagiarismIthenticateActionHandler
+ * @class PlagiarismIthenticateHandler
  *
  * @brief Handle the different iThenticate service related actions
  */
@@ -35,7 +35,7 @@ use PKP\submissionFile\SubmissionFile;
 use PKP\security\authorization\SubmissionFileAccessPolicy;
 use PKP\security\Role;
 
-class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
+class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 {
 	/**
 	 * @copydoc PKPHandler::__construct()
@@ -330,10 +330,15 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 	public function acceptEulaAndExecuteIntendedAction(array $args, Request $request)
 	{
 		$context = $request->getContext();
-		$user = $request->getUser();
+		$user = Repo::user()->get($request->getUser()->getId());
 
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
+
+		// EUAL has been already stamped to both Submission and User, so we can submit the submission file
+		if ($submission->getData('ithenticateEulaVersion') && $user->getData('ithenticateEulaVersion')) {
+			return $this->submitSubmission($args, $request);
+		}
 
 		$confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
@@ -417,7 +422,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			$request,
 			Application::ROUTE_COMPONENT,
 			$context->getData('urlPath'),
-			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 			'acceptEulaAndExecuteIntendedAction',
 			null,
 			[

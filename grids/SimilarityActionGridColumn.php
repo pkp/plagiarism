@@ -108,7 +108,7 @@ class SimilarityActionGridColumn extends GridColumn
 					$request,
 					Application::ROUTE_COMPONENT,
 					$request->getContext()->getData('urlPath'),
-					'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+					'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 					'launchViewer',
 					null,
 					[
@@ -184,7 +184,7 @@ class SimilarityActionGridColumn extends GridColumn
 							$request,
 							Application::ROUTE_COMPONENT,
 							$context->getData('urlPath'),
-							'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+							'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 							'confirmEula',
 							null,
 							[
@@ -211,7 +211,7 @@ class SimilarityActionGridColumn extends GridColumn
 						$request,
 						Application::ROUTE_COMPONENT,
 						$context->getData('urlPath'),
-						'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+						'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 						'submitSubmission',
 						null,
 						[
@@ -239,7 +239,7 @@ class SimilarityActionGridColumn extends GridColumn
 						$request,
 						Application::ROUTE_COMPONENT,
 						$context->getData('urlPath'),
-						'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+						'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 						'scheduleSimilarityReport',
 						null,
 						[
@@ -266,7 +266,7 @@ class SimilarityActionGridColumn extends GridColumn
 					$request,
 					Application::ROUTE_COMPONENT,
 					$context->getData('urlPath'),
-					'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+					'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 					'refreshSimilarityResult',
 					null,
 					[
