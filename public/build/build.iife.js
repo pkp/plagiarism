@@ -18,23 +18,26 @@
     },
     setup(__props) {
       const { useLocalize: useLocalize2 } = pkp.modules.useLocalize;
-      const { useUrl } = pkp.modules.useUrl;
-      const { useFetch } = pkp.modules.useFetch;
+      const { useUrl: useUrl2 } = pkp.modules.useUrl;
+      const { useFetch: useFetch2 } = pkp.modules.useFetch;
       const props = __props;
       const { t: t2, localize: localize2 } = useLocalize2();
-      const { apiUrl } = useUrl(`submissions/${props.file.submissionId}/files/${props.file.id}/plagiarism/status`);
+      const { apiUrl } = useUrl2(`submissions/${props.file.submissionId}/files/${props.file.id}/plagiarism/status`);
       const {
         data: plagiarismFileStatus,
-        fetch: fetchPlagiarismFileStatus
-      } = useFetch(apiUrl, {
+        fetch: fetchPlagiarismFileStatus2
+      } = useFetch2(apiUrl, {
         query: {
-          stageId: pkp.const.WORKFLOW_STAGE_ID_SUBMISSION
+          stageId: props.submission.stageId
         }
       });
       vue.onMounted(async () => {
-        await fetchPlagiarismFileStatus();
+        await fetchPlagiarismFileStatus2();
       });
-      const fileStatus = vue.computed(() => plagiarismFileStatus.value || {});
+      const fileStatus = vue.computed(() => {
+        var _a;
+        return ((_a = plagiarismFileStatus.value) == null ? void 0 : _a.file) || {};
+      });
       return (_ctx, _cache) => {
         const _component_PkpTableCell = vue.resolveComponent("PkpTableCell");
         return vue.openBlock(), vue.createBlock(_component_PkpTableCell, null, {
@@ -56,17 +59,33 @@
       };
     }
   };
-  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-7c161276"]]);
+  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-330c93da"]]);
   pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
   const { useLocalize } = pkp.modules.useLocalize;
+  const { useUrl } = pkp.modules.useUrl;
+  const { useFetch } = pkp.modules.useFetch;
   const { t, localize } = useLocalize();
+  const plagiarismStatusMap = /* @__PURE__ */ new Map();
+  async function fetchPlagiarismFileStatus(submissionId, fileId, stageId) {
+    const { apiUrl } = useUrl(`submissions/${submissionId}/files/${fileId}/plagiarism/status`);
+    const {
+      data: plagiarismFileStatus,
+      fetch: fetchPlagiarismFileStatus2
+    } = useFetch(apiUrl, {
+      query: {
+        stageId
+      }
+    });
+    await fetchPlagiarismFileStatus2();
+    return plagiarismFileStatus;
+  }
   function addIthenticateColumn(columns, args) {
     const newColumns = [...columns];
     newColumns.splice(newColumns.length - 1, 0, {
       header: "iThenticate",
       component: "ithenticateSimilarityScoreCell",
       props: {
-        submission: {}
+        submission: args.props.submission
       }
     });
     return newColumns;
@@ -84,7 +103,18 @@
   pkp.registry.storeExtendFn(
     "fileManager_SUBMISSION_FILES",
     "getItemActions",
-    (originalResult, args) => {
+    async (originalResult, args, context) => {
+      var _a;
+      const submissionFile = args.file;
+      const submission = context.props.submission;
+      const cacheKey = `${submission.id}-${submissionFile.id}`;
+      if (!plagiarismStatusMap.has(cacheKey)) {
+        const status = await fetchPlagiarismFileStatus(submission.id, submissionFile.id, submission.stageId);
+        plagiarismStatusMap.set(cacheKey, status.value);
+      }
+      const plagiarismStatus = (_a = plagiarismStatusMap.get(cacheKey)) == null ? void 0 : _a.value;
+      console.log("plagiarismStatus");
+      console.log(plagiarismStatus);
       return [
         ...originalResult,
         {
@@ -99,7 +129,7 @@
               params: {
                 submissionId: file.submissionId,
                 submissionFileId: file.id,
-                stageId: 1
+                stageId: submission.stageId
               }
             });
             openLegacyModal(

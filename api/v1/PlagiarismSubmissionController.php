@@ -2,6 +2,7 @@
 
 namespace APP\plugins\generic\plagiarism\api\v1;
 
+use APP\facades\Repo;
 use PKP\security\Role;
 use PKP\core\PKPRequest;
 use APP\core\Application;
@@ -10,11 +11,9 @@ use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
 use APP\API\v1\submissions\SubmissionController;
-use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
-use PKP\API\v1\submissions\PKPSubmissionFileController;
 
-class PlagiarismSubmissionController extends PKPSubmissionFileController
+class PlagiarismSubmissionController extends SubmissionController
 {
     protected PlagiarismPlugin $plugin;
 
@@ -56,10 +55,6 @@ class PlagiarismSubmissionController extends PKPSubmissionFileController
             Route::get('plagiarism/status', $this->submissionPlagiarismStatus(...))
                 ->name('submission.plagiarism.status');
 
-            Route::get('{submissionFileId}/plagiarism/status', $this->submissionFilePlagiarismStatus(...))
-                ->name('submission.files.plagiarism.status')
-                ->whereNumber(['submissionFileId']);
-
         })->whereNumber('submissionId');
 
         parent::getGroupRoutes();
@@ -91,55 +86,4 @@ class PlagiarismSubmissionController extends PKPSubmissionFileController
             ],
         ], Response::HTTP_OK);
     }
-
-    public function submissionFilePlagiarismStatus(Request $illuminateRequest): JsonResponse
-    {
-        $submissionFile = Repo::submissionFile()->get($illuminateRequest->route('submissionFileId'));
-
-        if (!$submissionFile) {
-            return response()->json([
-                'message' => 'Submission file not found',
-            ], Response::HTTP_NOT_FOUND);
-        }
-
-        $request = $this->getRequest();
-
-        return response()->json([
-            'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
-            'ithenticateId' => $submissionFile->getData('ithenticateId'),
-            'ithenticateSimilarityScheduled' => $submissionFile->getData('ithenticateSimilarityScheduled'),
-            'ithenticateSimilarityResult' => $submissionFile->getData('ithenticateSimilarityResult')
-                ? json_decode($submissionFile->getData('ithenticateSimilarityResult'), true)['overall_match_percentage']
-                : null,
-            'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
-            'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
-            'ithenticateLogo' => $this->plugin->getIThenticateLogoUrl(),
-            'ithenticateViewerUrl' => $submissionFile->getData('ithenticateSimilarityResult')
-                ? $request->getDispatcher()->url(
-                    $request,
-                    Application::ROUTE_COMPONENT,
-                    $request->getContext()->getData('urlPath'),
-                    'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-                    'launchViewer',
-                    null,
-                    [
-                        'stageId' => $this->getStageId($request),
-                        'submissionId' => $submissionFile->getData('submissionId'),
-                        'submissionFileId' => $submissionFile->getId(),
-                    ]
-                ) : null,
-        ], Response::HTTP_OK);
-    }
-
-    /**
-	 * Get the proper workflow stage id for iThenticate actions
-	 */
-	protected function getStageId(PKPRequest $request): int
-	{
-		if ($this->plugin::isOPS()) {
-			return WORKFLOW_STAGE_ID_PRODUCTION;
-		}
-
-		return $request->getUserVar('stageId');
-	}
 }

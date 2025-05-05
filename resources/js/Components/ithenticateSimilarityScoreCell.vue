@@ -33,7 +33,7 @@
         fetch: fetchPlagiarismFileStatus,
     } = useFetch(apiUrl, {
         query: {
-		    stageId: pkp.const.WORKFLOW_STAGE_ID_SUBMISSION
+		    stageId: props.submission.stageId
 		}
     });
 
@@ -41,8 +41,7 @@
         await fetchPlagiarismFileStatus();
     });
 
-    // const percentage = computed(() => localize(props.file.name).length);
-    const fileStatus = computed(() => plagiarismFileStatus.value || {});
+    const fileStatus = computed(() => plagiarismFileStatus.value?.file || {});
 </script>
 
 <style scoped>

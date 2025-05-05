@@ -15,11 +15,10 @@
 namespace APP\plugins\generic\plagiarism;
 
 use APP\core\Request;
-use PKP\API\v1\submissions\PKPSubmissionFileController;
-
-use PKP\API\v1\submissions\PKPSubmissionController;
-
 use APP\plugins\generic\plagiarism\api\v1\PlagiarismSubmissionController;
+
+use PKP\API\v1\submissions\PKPSubmissionFileController;
+use APP\plugins\generic\plagiarism\api\v1\PlagiarismSubmissionFileController;
 
 use APP\API\v1\submissions\SubmissionController;
 
@@ -175,8 +174,14 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
 			
-			if ($apiController instanceof PKPSubmissionFileController) {
+			// ray($apiController);
+
+			if ($apiController instanceof SubmissionController) {
 				$apiController = new PlagiarismSubmissionController($this);
+			}
+
+			if ($apiController instanceof PKPSubmissionFileController) {
+				$apiController = new PlagiarismSubmissionFileController($this);
 			}
             
             return false;

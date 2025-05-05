@@ -1,3 +1,10 @@
 [
+  "common.no",
+  "common.yes",
+  "plugins.generic.plagiarism.similarity.action.generateReport.confirmation",
+  "plugins.generic.plagiarism.similarity.action.generateReport.title",
+  "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation",
+  "plugins.generic.plagiarism.similarity.action.refreshReport.title",
+  "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation",
   "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
 ]
