@@ -15,6 +15,10 @@
 namespace APP\plugins\generic\plagiarism;
 
 use APP\core\Request;
+use Illuminate\Http\Response;
+
+use Illuminate\Http\JsonResponse;
+
 use APP\plugins\generic\plagiarism\api\v1\PlagiarismSubmissionController;
 
 use PKP\API\v1\submissions\PKPSubmissionFileController;
@@ -25,7 +29,7 @@ use APP\API\v1\submissions\SubmissionController;
 use PKP\handler\APIHandler;
 
 use PKP\core\PKPBaseController;
-
+use Illuminate\Http\Request as IlluminateRequest;
 use PKP\notification\Notification;
 use APP\facades\Repo;
 use APP\template\TemplateManager;
@@ -146,8 +150,6 @@ class PlagiarismPlugin extends GenericPlugin
 			return $success;
 		}
 
-		$this->addApiRoutes();
-
 		$this->addStyleSheet($request, $templateManager);
 		$this->addJavaScript($request, $templateManager);
 
@@ -167,25 +169,155 @@ class PlagiarismPlugin extends GenericPlugin
 		Event::subscribe(new PlagiarismSubmissionSubmitListener($this));
 		Hook::add('TemplateManager::display', [$this, 'addEulaAcceptanceConfirmation']);
 
+		$this->addApiRoutes();
+
 		return $success;
 	}
 
 	public function addApiRoutes(): void
 	{
-		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
+		$self = $this;
+
+		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler) use ($self): bool {
 			
-			// ray($apiController);
+			$apiHandler->addRoute(
+                'GET',
+                'plagiarism',
+                function (IlluminateRequest $illuminateRequest) use ($self): JsonResponse {
 
-			if ($apiController instanceof SubmissionController) {
-				$apiController = new PlagiarismSubmissionController($this);
-			}
+					$submission = Repo::submission()->get($illuminateRequest->get('submissionId'));
 
-			if ($apiController instanceof PKPSubmissionFileController) {
-				$apiController = new PlagiarismSubmissionFileController($this);
-			}
+					if (!$submission) {
+						return response()->json([
+							'message' => 'Submission or user not found',
+						], Response::HTTP_NOT_FOUND);
+					}
+
+					$request = Application::get()->getRequest();
+
+					$user = Repo::user()->get($request->getUser()->getId());
+
+					$fileIds = $illuminateRequest->get('fileIds');
+					$fileStatuses = [];
+
+					foreach ($fileIds as $fileId) {
+						
+						$submissionFile = Repo::submissionFile()->get((int)$fileId);
+
+						if (!$submissionFile) {
+							return response()->json([
+								'message' => "Submission file with id {$fileId} not found",
+							], Response::HTTP_NOT_FOUND);
+						}
+
+						$fileStatuses[$fileId] = [
+							'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
+							'ithenticateId' => $submissionFile->getData('ithenticateId'),
+							'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
+							'ithenticateSimilarityResult' => $submissionFile->getData('ithenticateSimilarityResult')
+								? json_decode($submissionFile->getData('ithenticateSimilarityResult'), true)['overall_match_percentage']
+								: null,
+							'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
+							'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
+							'ithenticateLogo' => $self->getIThenticateLogoUrl(),
+							'ithenticateViewerUrl' => $request->getDispatcher()->url(
+								$request,
+								Application::ROUTE_COMPONENT,
+								$request->getContext()->getData('urlPath'),
+								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+								'launchViewer',
+								null,
+								[
+									'stageId' => $self->getStageId($request),
+									'submissionId' => $submissionFile->getData('submissionId'),
+									'submissionFileId' => $submissionFile->getId(),
+								]
+							),
+							'ithenticateUploadUrl' => $request->getDispatcher()->url(
+								$request,
+								Application::ROUTE_COMPONENT,
+								$request->getContext()->getData('urlPath'),
+								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+								'submitSubmission',
+								null,
+								[
+									'stageId' => $self->getStageId($request),
+									'submissionId' => $submissionFile->getData('submissionId'),
+									'submissionFileId' => $submissionFile->getId(),
+								]
+							),
+							'ithenticateReportScheduleUrl' => $request->getDispatcher()->url(
+								$request,
+								Application::ROUTE_COMPONENT,
+								$request->getContext()->getData('urlPath'),
+								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+								'scheduleSimilarityReport',
+								null,
+								[
+									'stageId' => $self->getStageId($request),
+									'submissionId' => $submissionFile->getData('submissionId'),
+									'submissionFileId' => $submissionFile->getId(),
+								]
+							),
+							'ithenticateReportRefreshUrl' => $request->getDispatcher()->url(
+								$request,
+								Application::ROUTE_COMPONENT,
+								$request->getContext()->getData('urlPath'),
+								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+								'refreshSimilarityResult',
+								null,
+								[
+									'stageId' => $self->getStageId($request),
+									'submissionId' => $submissionFile->getData('submissionId'),
+									'submissionFileId' => $submissionFile->getId(),
+								]
+							)
+						];
+					}
+
+                    return response()->json([
+						'submission' => [
+							'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
+							'ithenticateSubmissionCompletedAt' => $submission->getData('ithenticateSubmissionCompletedAt'),
+							'ithenticateEulaUrl' => $submission->getData('ithenticateEulaUrl'),
+						],
+						'user' => [
+							'ithenticateEulaVersion' => $user->getData('ithenticateEulaVersion'),
+							'ithenticateEulaConfirmedAt' => $user->getData('ithenticateEulaConfirmedAt'),
+						],
+						'files' => $fileStatuses,
+					], Response::HTTP_OK);
+                },
+                'submission.plagiarism.status',
+                [
+                    Role::ROLE_ID_SITE_ADMIN,
+                    Role::ROLE_ID_MANAGER,
+                    Role::ROLE_ID_SUB_EDITOR,
+                ]
+            );
+
+			// if ($apiController instanceof SubmissionController) {
+			// 	$apiController = new PlagiarismSubmissionController($this);
+			// }
+
+			// if ($apiController instanceof PKPSubmissionFileController) {
+			// 	$apiController = new PlagiarismSubmissionFileController($this);
+			// }
             
             return false;
         });
+	}
+
+	/**
+	 * Get the proper workflow stage id for iThenticate actions
+	 */
+	protected function getStageId(PKPRequest $request): int
+	{
+		if (static::isOPS()) {
+			return WORKFLOW_STAGE_ID_PRODUCTION;
+		}
+
+		return $request->getUserVar('stageId');
 	}
 
 	public function addStyleSheet(Request $request, TemplateManager $templateManager): void
@@ -732,6 +864,7 @@ class PlagiarismPlugin extends GenericPlugin
 		Repo::submission()->edit($submission, [
 			'ithenticateEulaVersion' => $eulaDetails['version'],
 			'ithenticateEulaUrl' => $eulaDetails['url'],
+			'ithenticateSubmissionCompletedAt' => Core::getCurrentDate(),
 		]);
 
 		return true;

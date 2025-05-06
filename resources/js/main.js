@@ -3,119 +3,195 @@ import ithenticateSimilarityScoreCell from "./Components/ithenticateSimilaritySc
 pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
 
 const {useLocalize } = pkp.modules.useLocalize;
-const { useUrl } = pkp.modules.useUrl;
-const { useFetch } = pkp.modules.useFetch;
-const { t, localize } = useLocalize();
+import { computed, watch } from "vue";
 
-// Create a map to store plagiarism status for each file
-const plagiarismStatusMap = new Map();
+function runPlagiarismAction(piniaContext, stageNamespace) {
 
-// Function to fetch plagiarism status for a file
-async function fetchPlagiarismFileStatus(submissionId, fileId, stageId) {
-    const {apiUrl} = useUrl(`submissions/${submissionId}/files/${fileId}/plagiarism/status`);
-    const {
-        data: plagiarismFileStatus,
-        fetch: fetchPlagiarismFileStatus,
-    } = useFetch(apiUrl, {
-        query: {
-            stageId: stageId
+    const { useUrl } = pkp.modules.useUrl;
+    const { useFetch } = pkp.modules.useFetch;
+    const { t, localize } = useLocalize();
+
+    const fileStore = piniaContext.store;
+    const { submission, submissionStageId } = fileStore.props;
+
+    const ithenticateQueryParams = computed(() => {
+        const fileIds = fileStore?.files?.map((file) => file.id) || [];
+    
+        return {
+            fileIds: fileIds,
+            submissionId: submission.id,
+            stageId: submissionStageId
+        };
+    });
+
+    const { apiUrl } = useUrl(`submissions/plagiarism`);
+    
+    const { 
+        fetch: fetchIthenticateStatus, 
+        data: ithenticateStatus,
+    } = useFetch(apiUrl, { query: ithenticateQueryParams });
+    
+    watch(ithenticateQueryParams, (newQueryParams) => {
+        if (newQueryParams?.fileIds?.length) {
+            fetchIthenticateStatus();
         }
     });
 
-    await fetchPlagiarismFileStatus();
-    return plagiarismFileStatus;
-}
+    fileStore.ithenticateStatus = ithenticateStatus;
 
-function addIthenticateColumn(columns, args) {
-    const newColumns = [...columns];
+    fileStore.extender.extendFn('getColumns', (columns, args) => {
+        const newColumns = [...columns];
 
-    newColumns.splice(newColumns.length - 1, 0, {
-        header: 'iThenticate',
-        component: 'ithenticateSimilarityScoreCell',
-        props: {
-            submission: args.props.submission,
-        },
-    });
-    return newColumns;
-}
-
-// Adding iThenticate column
-pkp.registry.storeExtendFn(
-    'fileManager_SUBMISSION_FILES',
-    'getColumns',
-    addIthenticateColumn
-);
-
-pkp.registry.storeExtendFn(
-    'fileManager_EDITOR_REVIEW_FILES',
-    'getColumns',
-    addIthenticateColumn
-);
-
-function getItemActionLabel(plagiarismStatus) {
-    if (!plagiarismStatus.user.ithenticateEulaVersion || !plagiarismStatus.submission.ithenticateEulaVersion) {
-        return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
-    }
-
-    if (plagiarismStatus.file.ithenticateId) {
-        return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
-    }
-
-    if (!plagiarismStatus.file.ithenticateSimilarityScheduled) {
-        return t('plugins.generic.plagiarism.similarity.action.generateReport.title');
-    }
-
-    return t('plugins.generic.plagiarism.similarity.action.refreshReport.title');
-}
-
-pkp.registry.storeExtendFn(
-    "fileManager_SUBMISSION_FILES",
-    "getItemActions",
-    async (originalResult, args, context) => {
-        const submissionFile = args.file;
-        const submission = context.props.submission;
-
-        // Check if we already have the status for this file
-        const cacheKey = `${submission.id}-${submissionFile.id}`;
-        if (!plagiarismStatusMap.has(cacheKey)) {
-            const status = await fetchPlagiarismFileStatus(submission.id, submissionFile.id, submission.stageId);
-            plagiarismStatusMap.set(cacheKey, status.value);
-        }
-
-        const plagiarismStatus = plagiarismStatusMap.get(cacheKey)?.value;
-        console.log('plagiarismStatus');
-        console.log(plagiarismStatus);
-
-        return [
-            ...originalResult,
-            {
-                label: t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title'),
-                name: "conductPlagiarismCheck",
-                icon: "Globe",
-                actionFn: ({ file }) => {
-                    
-                    const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
-
-                    const {openLegacyModal} = useLegacyGridUrl({
-                        component: 'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-                        op: 'acceptEulaAndExecuteIntendedAction',
-                        params: {
-                            submissionId: file.submissionId,
-                            submissionFileId: file.id,
-                            stageId: submission.stageId,
-                        },
-                    });
-                    openLegacyModal(
-                        {
-                            title: t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
-                        },
-                        () => {
-                            console.log('EUAL confirmed');
-                        },
-                    );
-                },
+        newColumns.splice(newColumns.length - 1, 0, {
+            header: t('plugins.generic.plagiarism.similarity.match.title'),
+            component: 'ithenticateSimilarityScoreCell',
+            props: {
+                fileStageNamespace: stageNamespace
             },
-        ];
-    }
-);
+        });
 
+        return newColumns;
+    });
+
+    function getLabel(userStatus, submissionStatus, fileStatus)
+    {
+        if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
+            return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
+        }
+    
+        if (!fileStatus.ithenticateId) {
+            return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
+        }
+    
+        if (!fileStatus.ithenticateSimilarityScheduled) {
+            return t('plugins.generic.plagiarism.similarity.action.generateReport.title');
+        }
+    
+        return t('plugins.generic.plagiarism.similarity.action.refreshReport.title');
+    }
+
+    function getConfirmationMessage(fileStatus)
+    {
+        if (!fileStatus.ithenticateId) {
+            return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation');
+        }
+
+        if (!fileStatus.ithenticateSimilarityScheduled) {
+            return t('plugins.generic.plagiarism.similarity.action.generateReport.confirmation');
+        }
+
+        return t('plugins.generic.plagiarism.similarity.action.refreshReport.confirmation');
+    }
+
+    function getActionUrl(fileStatus)
+    {
+        if (!fileStatus.ithenticateId) {
+            return fileStatus.ithenticateUploadUrl;
+        }
+    
+        if (!fileStatus.ithenticateSimilarityScheduled) {
+            return fileStatus.ithenticateReportScheduleUrl;
+        }
+    
+        return fileStatus.ithenticateReportRefreshUrl;
+    }
+
+    async function executePlagiarismAction(fileStatus)
+    {
+        const actionUrl = getActionUrl(fileStatus);
+
+        const { apiUrl } = useUrl(actionUrl);
+    
+        const { 
+            fetch: executeIthenticateAction, 
+            data: ithenticateActionData,
+        } = useFetch(apiUrl);
+        
+        await executeIthenticateAction();
+
+        return ithenticateActionData.value?.status;
+    }
+
+    fileStore.extender.extendFn('getItemActions', (originalResult, args) => {
+        const submission = fileStore.props.submission;
+
+        if (ithenticateStatus.value) {
+            const fileStatus = ithenticateStatus.value?.files?.[args.file.id];
+            const userStatus = ithenticateStatus.value?.user;
+            const submissionStatus = ithenticateStatus.value?.submission;
+
+            return [
+                ...originalResult,
+                {
+                    label: getLabel(userStatus, submissionStatus, fileStatus),
+                    name: "conductPlagiarismCheck",
+                    icon: "Globe",
+                    actionFn: ({ file }) => {
+                        
+                        if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
+                            const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
+    
+                            const {openLegacyModal} = useLegacyGridUrl({
+                                component: 'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+                                op: 'acceptEulaAndExecuteIntendedAction',
+                                params: {
+                                    submissionId: file.submissionId,
+                                    submissionFileId: file.id,
+                                    stageId: submission.stageId,
+                                },
+                            });
+
+                            openLegacyModal(
+                                {
+                                    title: t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
+                                },
+                                () => {
+                                    fetchIthenticateStatus();
+                                },
+                            );
+
+                            return;
+                        }
+
+                        const { useModal } = pkp.modules.useModal;
+                        const { openDialog } = useModal();
+
+                        openDialog({
+                            title: getLabel(userStatus, submissionStatus, fileStatus),
+                            message: getConfirmationMessage(fileStatus),
+                            actions: [
+                                {
+                                    label: t('common.yes'),
+                                    isPrimary: true,
+                                    callback: async (close) => {
+                                        close();
+                                        const status = await executePlagiarismAction(fileStatus);
+                                        
+                                        if (status) {
+                                            fetchIthenticateStatus();
+                                        }
+                                    },
+                                },
+                                {
+                                    label: t('common.no'),
+                                    isWarnable: true,
+                                    callback: (close) => {
+                                        close();
+                                    },
+                                },
+                            ],
+                        });
+                    },
+                },
+            ];
+        }
+    });
+}
+
+pkp.registry.storeExtend('fileManager_SUBMISSION_FILES', (piniaContext) => {
+    runPlagiarismAction(piniaContext, 'fileManager_SUBMISSION_FILES');
+});
+
+pkp.registry.storeExtend('fileManager_EDITOR_REVIEW_FILES', (piniaContext) => {
+    runPlagiarismAction(piniaContext, 'fileManager_EDITOR_REVIEW_FILES');
+});

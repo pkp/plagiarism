@@ -1,47 +1,38 @@
-<template v-if="fileStatus.ithenticateId">
+<template>
     <PkpTableCell>
-        <span class="plagiarism-similarity-score">
+        <span
+            v-if="fileStatus.ithenticateSimilarityResult !== null" 
+            class="plagiarism-similarity-score"
+        >
             <a
                 :href="fileStatus.ithenticateViewerUrl ?? '#'"
                 :target="_blank"
+                :title="t('plugins.generic.plagiarism.similarity.action.launch.viewer.title')"
             >
-                <img :src="fileStatus.ithenticateLogo" />
+                <img 
+                    :alt="t('plugins.generic.plagiarism.similarity.match.title')"
+                    :src="fileStatus.ithenticateLogo" 
+                />
             </a>
-            <span>{{ fileStatus.ithenticateSimilarityResult }}% </span>
+            <span>{{ fileStatus.ithenticateSimilarityResult }} % </span>
         </span>
     </PkpTableCell>
 </template>
   
 <script setup>
-    import { computed, onMounted } from "vue";
-
-    const { useLocalize } = pkp.modules.useLocalize;
-    const { useUrl } = pkp.modules.useUrl;
-    const { useFetch } = pkp.modules.useFetch;
+    import { computed } from "vue";
 
     const props = defineProps({ 
         file: { type: Object, required: true },
-        submission: { type: Object, required: false },
+        fileStageNamespace : { type: String, required: true },
     });
+    
+    const fileStore = pkp.registry.getPiniaStore(props.fileStageNamespace);
 
-    const { t, localize } = useLocalize();
-
-    const {apiUrl} = useUrl(`submissions/${props.file.submissionId}/files/${props.file.id}/plagiarism/status`);
-
-    const {
-        data: plagiarismFileStatus,
-        fetch: fetchPlagiarismFileStatus,
-    } = useFetch(apiUrl, {
-        query: {
-		    stageId: props.submission.stageId
-		}
+    const fileStatus = computed(() => {
+        const status = fileStore?.ithenticateStatus?.files?.[props.file.id] || {};
+        return status;
     });
-
-    onMounted(async () => {
-        await fetchPlagiarismFileStatus();
-    });
-
-    const fileStatus = computed(() => plagiarismFileStatus.value?.file || {});
 </script>
 
 <style scoped>
@@ -51,14 +42,13 @@
     }
 
     span.plagiarism-similarity-score img {
-        max-width: 75px;
+        max-width: 65px;
         cursor: pointer;
     }
 
     span.plagiarism-similarity-score span {
-        padding-left: 10px;
-        padding-bottom: 5px;
-        font-weight: 550;
+        padding-left: 5px;
+        font-weight: 700;
         font-size: 12px;
         color: #006798;
     }

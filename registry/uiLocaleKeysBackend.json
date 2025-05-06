@@ -3,8 +3,10 @@
   "common.yes",
   "plugins.generic.plagiarism.similarity.action.generateReport.confirmation",
   "plugins.generic.plagiarism.similarity.action.generateReport.title",
+  "plugins.generic.plagiarism.similarity.action.launch.viewer.title",
   "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation",
   "plugins.generic.plagiarism.similarity.action.refreshReport.title",
   "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation",
-  "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title"
+  "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title",
+  "plugins.generic.plagiarism.similarity.match.title"
 ]
