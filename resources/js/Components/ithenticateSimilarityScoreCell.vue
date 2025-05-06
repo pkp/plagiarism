@@ -1,7 +1,7 @@
 <template>
     <PkpTableCell>
         <span
-            v-if="fileStatus.ithenticateSimilarityResult !== null" 
+            v-if="fileStatus.ithenticateSimilarityResult" 
             class="plagiarism-similarity-score"
         >
             <a
@@ -31,8 +31,14 @@
 
     const fileStatus = computed(() => {
         
-        const fileId = props.file.sourceSubmissionFileId || props.file.id;
-        const status = fileStore?.ithenticateStatus?.files?.[fileId] || {};
+        const fileId = props.file.id;
+        const sourceSubmissionFileId = props.file.sourceSubmissionFileId;
+
+        const status = (
+            fileStore?.ithenticateStatus?.files?.[fileId].ithenticateId
+                ? fileStore?.ithenticateStatus?.files?.[fileId]
+                : fileStore?.ithenticateStatus?.files?.[sourceSubmissionFileId]
+        ) || {};
 
         return status;
     });

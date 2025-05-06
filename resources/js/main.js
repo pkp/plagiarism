@@ -101,6 +101,34 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         return fileStatus.ithenticateReportRefreshUrl;
     }
 
+    function isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)
+    {
+        // Check if EULA confirmation required for this tenant
+        if (!contextStatus.eulaRequired) {
+            return false;
+        }
+
+        // If no EULA is stamped with submission
+		// means submission never passed through iThenticate process
+        if (!submissionStatus.ithenticateEulaVersion) {
+            return true;
+        }
+
+        // If no EULA is stamped with submitting user
+		// means user has never previously interacted with iThenticate process
+        if (!userStatus.ithenticateEulaVersion) {
+            return true;
+        }
+
+        // If user and submission EULA do not match
+		// means users previously agreed upon different EULA
+        if (submissionStatus.ithenticateEulaVersion !== userStatus.ithenticateEulaVersion) {
+            return true;
+        }
+
+        return false;
+    }
+
     async function executePlagiarismAction(fileStatus)
     {
         const actionUrl = getActionUrl(fileStatus);
@@ -126,13 +154,27 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         }
 
         if (ithenticateStatus.value) {
-            const fileId = args.file.sourceSubmissionFileId || args.file.id;
-            const fileStatus = ithenticateStatus.value?.files?.[fileId];
+            const fileId =  args.file.id;
+            const sourceSubmissionFileId = args.file.sourceSubmissionFileId;
+
+            const fileStatus = ithenticateStatus.value?.files?.[fileId]?.ithenticateId
+                ? ithenticateStatus.value?.files?.[fileId]
+                : ithenticateStatus.value?.files?.[sourceSubmissionFileId];
+                
             const userStatus = ithenticateStatus.value?.user;
             const submissionStatus = ithenticateStatus.value?.submission;
+            const contextStatus = ithenticateStatus.value?.context;
 
             // Action on non allowed file is restricted
             if (!fileStatus.ithenticateUploadAllowed) {
+                return [...originalResult];
+            }
+
+            const matchAllowedRoles = userStatus
+                .ithenticateActionAllowedRoles
+                .filter(role => window.pkp.currentUser.roles.includes(role));
+
+            if (matchAllowedRoles.length === 0) {
                 return [...originalResult];
             }
 
@@ -144,7 +186,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     icon: "Globe",
                     actionFn: ({ file }) => {
                         
-                        if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
+                        if (isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
     
                             const {openLegacyModal} = useLegacyGridUrl({
@@ -218,6 +260,6 @@ pkp.registry.storeExtend('fileManager_PRODUCTION_READY_FILES', (piniaContext) =>
     if (appName !== 'ops') {
         return;
     }
-    
+
     runPlagiarismAction(piniaContext, 'fileManager_PRODUCTION_READY_FILES');
 });

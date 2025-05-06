@@ -23,16 +23,17 @@
       const props = __props;
       const fileStore = pkp.registry.getPiniaStore(props.fileStageNamespace);
       const fileStatus = vue.computed(() => {
-        var _a, _b;
-        const fileId = props.file.sourceSubmissionFileId || props.file.id;
-        const status = ((_b = (_a = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId]) || {};
+        var _a, _b, _c, _d, _e, _f;
+        const fileId = props.file.id;
+        const sourceSubmissionFileId = props.file.sourceSubmissionFileId;
+        const status = (((_b = (_a = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId].ithenticateId) ? (_d = (_c = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _c.files) == null ? void 0 : _d[fileId] : (_f = (_e = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _e.files) == null ? void 0 : _f[sourceSubmissionFileId]) || {};
         return status;
       });
       return (_ctx, _cache) => {
         const _component_PkpTableCell = vue.resolveComponent("PkpTableCell");
         return vue.openBlock(), vue.createBlock(_component_PkpTableCell, null, {
           default: vue.withCtx(() => [
-            fileStatus.value.ithenticateSimilarityResult !== null ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
+            fileStatus.value.ithenticateSimilarityResult ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
               vue.createElementVNode("a", {
                 href: fileStatus.value.ithenticateViewerUrl ?? "#",
                 target: _ctx._blank,
@@ -51,7 +52,7 @@
       };
     }
   };
-  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-987a7784"]]);
+  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-deb0e709"]]);
   pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
   const { useLocalize } = pkp.modules.useLocalize;
   function runPlagiarismAction(piniaContext, stageNamespace) {
@@ -128,6 +129,21 @@
       }
       return fileStatus.ithenticateReportRefreshUrl;
     }
+    function isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus) {
+      if (!contextStatus.eulaRequired) {
+        return false;
+      }
+      if (!submissionStatus.ithenticateEulaVersion) {
+        return true;
+      }
+      if (!userStatus.ithenticateEulaVersion) {
+        return true;
+      }
+      if (submissionStatus.ithenticateEulaVersion !== userStatus.ithenticateEulaVersion) {
+        return true;
+      }
+      return false;
+    }
     async function executePlagiarismAction(fileStatus) {
       var _a;
       const actionUrl = getActionUrl(fileStatus);
@@ -140,17 +156,23 @@
       return (_a = ithenticateActionData.value) == null ? void 0 : _a.status;
     }
     fileStore.extender.extendFn("getItemActions", (originalResult, args) => {
-      var _a, _b, _c, _d;
+      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
       const submission2 = fileStore.props.submission;
       if (submission2.stageId !== submissionStageId) {
         return [...originalResult];
       }
       if (ithenticateStatus.value) {
-        const fileId = args.file.sourceSubmissionFileId || args.file.id;
-        const fileStatus = (_b = (_a = ithenticateStatus.value) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId];
-        const userStatus = (_c = ithenticateStatus.value) == null ? void 0 : _c.user;
-        const submissionStatus = (_d = ithenticateStatus.value) == null ? void 0 : _d.submission;
+        const fileId = args.file.id;
+        const sourceSubmissionFileId = args.file.sourceSubmissionFileId;
+        const fileStatus = ((_c = (_b = (_a = ithenticateStatus.value) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId]) == null ? void 0 : _c.ithenticateId) ? (_e = (_d = ithenticateStatus.value) == null ? void 0 : _d.files) == null ? void 0 : _e[fileId] : (_g = (_f = ithenticateStatus.value) == null ? void 0 : _f.files) == null ? void 0 : _g[sourceSubmissionFileId];
+        const userStatus = (_h = ithenticateStatus.value) == null ? void 0 : _h.user;
+        const submissionStatus = (_i = ithenticateStatus.value) == null ? void 0 : _i.submission;
+        const contextStatus = (_j = ithenticateStatus.value) == null ? void 0 : _j.context;
         if (!fileStatus.ithenticateUploadAllowed) {
+          return [...originalResult];
+        }
+        const matchAllowedRoles = userStatus.ithenticateActionAllowedRoles.filter((role) => window.pkp.currentUser.roles.includes(role));
+        if (matchAllowedRoles.length === 0) {
           return [...originalResult];
         }
         return [
@@ -160,7 +182,7 @@
             name: "conductPlagiarismCheck",
             icon: "Globe",
             actionFn: ({ file }) => {
-              if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
+              if (isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                 const { useLegacyGridUrl } = pkp.modules.useLegacyGridUrl;
                 const { openLegacyModal } = useLegacyGridUrl({
                   component: "plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler",

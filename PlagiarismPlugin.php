@@ -184,10 +184,9 @@ class PlagiarismPlugin extends GenericPlugin
 					}
 
 					$request = Application::get()->getRequest();
-
+					$context = $request->getContext();
 					$user = Repo::user()->get($request->getUser()->getId());
 
-					// $fileIds = $illuminateRequest->get('fileIds');
 					$fileIds = Repo::submissionFile()
 						->getCollector()
 						->filterBySubmissionIds([$submission->getId()])
@@ -226,6 +225,9 @@ class PlagiarismPlugin extends GenericPlugin
 					}
 
                     return response()->json([
+						'context' => [
+							'eulaRequired' => $self->getContextEulaDetails($context, 'require_eula'),
+						],
 						'submission' => [
 							'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
 							'ithenticateSubmissionCompletedAt' => $submission->getData('ithenticateSubmissionCompletedAt'),
@@ -234,6 +236,11 @@ class PlagiarismPlugin extends GenericPlugin
 						'user' => [
 							'ithenticateEulaVersion' => $user->getData('ithenticateEulaVersion'),
 							'ithenticateEulaConfirmedAt' => $user->getData('ithenticateEulaConfirmedAt'),
+							'ithenticateActionAllowedRoles' => [
+								Role::ROLE_ID_SITE_ADMIN,
+								Role::ROLE_ID_MANAGER,
+								Role::ROLE_ID_SUB_EDITOR,
+							],
 						],
 						'files' => $fileStatuses,
 					], Response::HTTP_OK);

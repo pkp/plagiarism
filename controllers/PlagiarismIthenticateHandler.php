@@ -67,7 +67,7 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 	 */
 	public function authorize($request, &$args, $roleAssignments)
 	{
-		$this->markRoleAssignmentsChecked();
+		// $this->markRoleAssignmentsChecked();
 
 		$this->addPolicy(
 			new SubmissionFileAccessPolicy(
