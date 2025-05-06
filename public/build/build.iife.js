@@ -24,7 +24,8 @@
       const fileStore = pkp.registry.getPiniaStore(props.fileStageNamespace);
       const fileStatus = vue.computed(() => {
         var _a, _b;
-        const status = ((_b = (_a = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _a.files) == null ? void 0 : _b[props.file.id]) || {};
+        const fileId = props.file.sourceSubmissionFileId || props.file.id;
+        const status = ((_b = (_a = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId]) || {};
         return status;
       });
       return (_ctx, _cache) => {
@@ -50,13 +51,13 @@
       };
     }
   };
-  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-90edd3ef"]]);
+  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-987a7784"]]);
   pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
   const { useLocalize } = pkp.modules.useLocalize;
   function runPlagiarismAction(piniaContext, stageNamespace) {
     const { useUrl } = pkp.modules.useUrl;
     const { useFetch } = pkp.modules.useFetch;
-    const { t, localize } = useLocalize();
+    const { t } = useLocalize();
     const fileStore = piniaContext.store;
     const { submission, submissionStageId } = fileStore.props;
     const ithenticateQueryParams = vue.computed(() => {
@@ -68,11 +69,17 @@
         stageId: submissionStageId
       };
     });
-    const { apiUrl } = useUrl(`submissions/plagiarism`);
+    const { apiUrl } = useUrl(`submissions/${submission.id}/plagiarism/status`);
     const {
       fetch: fetchIthenticateStatus,
       data: ithenticateStatus
-    } = useFetch(apiUrl, { query: ithenticateQueryParams });
+    } = useFetch(
+      apiUrl,
+      {
+        method: "POST",
+        body: ithenticateQueryParams
+      }
+    );
     vue.watch(ithenticateQueryParams, (newQueryParams) => {
       var _a;
       if ((_a = newQueryParams == null ? void 0 : newQueryParams.fileIds) == null ? void 0 : _a.length) {
@@ -135,10 +142,17 @@
     fileStore.extender.extendFn("getItemActions", (originalResult, args) => {
       var _a, _b, _c, _d;
       const submission2 = fileStore.props.submission;
+      if (submission2.stageId !== submissionStageId) {
+        return [...originalResult];
+      }
       if (ithenticateStatus.value) {
-        const fileStatus = (_b = (_a = ithenticateStatus.value) == null ? void 0 : _a.files) == null ? void 0 : _b[args.file.id];
+        const fileId = args.file.sourceSubmissionFileId || args.file.id;
+        const fileStatus = (_b = (_a = ithenticateStatus.value) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId];
         const userStatus = (_c = ithenticateStatus.value) == null ? void 0 : _c.user;
         const submissionStatus = (_d = ithenticateStatus.value) == null ? void 0 : _d.submission;
+        if (!fileStatus.ithenticateUploadAllowed) {
+          return [...originalResult];
+        }
         return [
           ...originalResult,
           {
@@ -204,5 +218,12 @@
   });
   pkp.registry.storeExtend("fileManager_EDITOR_REVIEW_FILES", (piniaContext) => {
     runPlagiarismAction(piniaContext, "fileManager_EDITOR_REVIEW_FILES");
+  });
+  pkp.registry.storeExtend("fileManager_PRODUCTION_READY_FILES", (piniaContext) => {
+    const appName = window.pkp.context.app;
+    if (appName !== "ops") {
+      return;
+    }
+    runPlagiarismAction(piniaContext, "fileManager_PRODUCTION_READY_FILES");
   });
 })(pkp.modules.vue);

@@ -14,23 +14,8 @@
 
 namespace APP\plugins\generic\plagiarism;
 
+use APP\core\Application;
 use APP\core\Request;
-use Illuminate\Http\Response;
-
-use Illuminate\Http\JsonResponse;
-
-use APP\plugins\generic\plagiarism\api\v1\PlagiarismSubmissionController;
-
-use PKP\API\v1\submissions\PKPSubmissionFileController;
-use APP\plugins\generic\plagiarism\api\v1\PlagiarismSubmissionFileController;
-
-use APP\API\v1\submissions\SubmissionController;
-
-use PKP\handler\APIHandler;
-
-use PKP\core\PKPBaseController;
-use Illuminate\Http\Request as IlluminateRequest;
-use PKP\notification\Notification;
 use APP\facades\Repo;
 use APP\template\TemplateManager;
 use APP\notification\NotificationManager;
@@ -44,6 +29,13 @@ use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\grids\SimilarityActionGridColumn;
 use APP\plugins\generic\plagiarism\grids\RearrangeColumnsFeature;
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Support\Facades\Event;
+use PKP\handler\APIHandler;
+use PKP\core\PKPBaseController;
 use PKP\core\PKPRequest;
 use PKP\components\forms\FormComponent;
 use PKP\services\PKPSchemaService;
@@ -56,14 +48,12 @@ use PKP\submissionFile\SubmissionFile;
 use PKP\context\Context;
 use PKP\config\Config;
 use PKP\security\Role;
-use APP\core\Application;
-use Illuminate\Support\Facades\Cache;
+use PKP\notification\Notification;
 use PKP\core\JSONMessage;
 use PKP\linkAction\LinkAction;
 use PKP\plugins\GenericPlugin;
 use PKP\linkAction\request\AjaxModal;
 use PKP\pages\submission\PKPSubmissionHandler;
-use Illuminate\Support\Facades\Event;
 use Throwable;
 
 class PlagiarismPlugin extends GenericPlugin
@@ -181,11 +171,11 @@ class PlagiarismPlugin extends GenericPlugin
 		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler) use ($self): bool {
 			
 			$apiHandler->addRoute(
-                'GET',
-                'plagiarism',
+                'POST',
+                '{submissionId}/plagiarism/status',
                 function (IlluminateRequest $illuminateRequest) use ($self): JsonResponse {
 
-					$submission = Repo::submission()->get($illuminateRequest->get('submissionId'));
+					$submission = Repo::submission()->get($illuminateRequest->route('submissionId'));
 
 					if (!$submission) {
 						return response()->json([
@@ -197,7 +187,14 @@ class PlagiarismPlugin extends GenericPlugin
 
 					$user = Repo::user()->get($request->getUser()->getId());
 
-					$fileIds = $illuminateRequest->get('fileIds');
+					// $fileIds = $illuminateRequest->get('fileIds');
+					$fileIds = Repo::submissionFile()
+						->getCollector()
+						->filterBySubmissionIds([$submission->getId()])
+						->getQueryBuilder()
+						->get()
+						->pluck('submission_file_id')
+						->toArray();
 					$fileStatuses = [];
 
 					foreach ($fileIds as $fileId) {
@@ -211,6 +208,7 @@ class PlagiarismPlugin extends GenericPlugin
 						}
 
 						$fileStatuses[$fileId] = [
+							'ithenticateUploadAllowed' => !$this->isSubmissionFileTypeRestricted($submissionFile),
 							'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
 							'ithenticateId' => $submissionFile->getData('ithenticateId'),
 							'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
@@ -220,58 +218,10 @@ class PlagiarismPlugin extends GenericPlugin
 							'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
 							'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
 							'ithenticateLogo' => $self->getIThenticateLogoUrl(),
-							'ithenticateViewerUrl' => $request->getDispatcher()->url(
-								$request,
-								Application::ROUTE_COMPONENT,
-								$request->getContext()->getData('urlPath'),
-								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-								'launchViewer',
-								null,
-								[
-									'stageId' => $self->getStageId($request),
-									'submissionId' => $submissionFile->getData('submissionId'),
-									'submissionFileId' => $submissionFile->getId(),
-								]
-							),
-							'ithenticateUploadUrl' => $request->getDispatcher()->url(
-								$request,
-								Application::ROUTE_COMPONENT,
-								$request->getContext()->getData('urlPath'),
-								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-								'submitSubmission',
-								null,
-								[
-									'stageId' => $self->getStageId($request),
-									'submissionId' => $submissionFile->getData('submissionId'),
-									'submissionFileId' => $submissionFile->getId(),
-								]
-							),
-							'ithenticateReportScheduleUrl' => $request->getDispatcher()->url(
-								$request,
-								Application::ROUTE_COMPONENT,
-								$request->getContext()->getData('urlPath'),
-								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-								'scheduleSimilarityReport',
-								null,
-								[
-									'stageId' => $self->getStageId($request),
-									'submissionId' => $submissionFile->getData('submissionId'),
-									'submissionFileId' => $submissionFile->getId(),
-								]
-							),
-							'ithenticateReportRefreshUrl' => $request->getDispatcher()->url(
-								$request,
-								Application::ROUTE_COMPONENT,
-								$request->getContext()->getData('urlPath'),
-								'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-								'refreshSimilarityResult',
-								null,
-								[
-									'stageId' => $self->getStageId($request),
-									'submissionId' => $submissionFile->getData('submissionId'),
-									'submissionFileId' => $submissionFile->getId(),
-								]
-							)
+							'ithenticateViewerUrl' => $self->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
+							'ithenticateUploadUrl' => $self->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
+							'ithenticateReportScheduleUrl' => $self->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
+							'ithenticateReportRefreshUrl' => $self->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
 						];
 					}
 
@@ -295,17 +245,41 @@ class PlagiarismPlugin extends GenericPlugin
                     Role::ROLE_ID_SUB_EDITOR,
                 ]
             );
-
-			// if ($apiController instanceof SubmissionController) {
-			// 	$apiController = new PlagiarismSubmissionController($this);
-			// }
-
-			// if ($apiController instanceof PKPSubmissionFileController) {
-			// 	$apiController = new PlagiarismSubmissionFileController($this);
-			// }
             
             return false;
         });
+	}
+
+	/**
+	 * Generate and get the iThenticate plagiarism related action url
+	 */
+	protected function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile): string
+	{
+		return $request->getDispatcher()->url(
+			$request,
+			Application::ROUTE_COMPONENT,
+			$request->getContext()->getData('urlPath'),
+			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+			$op,
+			null,
+			[
+				'stageId' => $this->getStageId($request),
+				'submissionId' => $submissionFile->getData('submissionId'),
+				'submissionFileId' => $submissionFile->getId(),
+			]
+		);
+	}
+
+	/**
+	 * Check if submission file type in valid for plagiarism action
+	 * Restricted for ZIP file
+	 */
+	protected function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
+	{
+		$pkpFileService = app()->get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
+		$file = $pkpFileService->get($submissionFile->getData('fileId'));
+		
+		return in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes);
 	}
 
 	/**

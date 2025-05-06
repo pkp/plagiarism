@@ -30,7 +30,10 @@
     const fileStore = pkp.registry.getPiniaStore(props.fileStageNamespace);
 
     const fileStatus = computed(() => {
-        const status = fileStore?.ithenticateStatus?.files?.[props.file.id] || {};
+        
+        const fileId = props.file.sourceSubmissionFileId || props.file.id;
+        const status = fileStore?.ithenticateStatus?.files?.[fileId] || {};
+
         return status;
     });
 </script>

@@ -6,10 +6,10 @@ const {useLocalize } = pkp.modules.useLocalize;
 import { computed, watch } from "vue";
 
 function runPlagiarismAction(piniaContext, stageNamespace) {
-
+    
     const { useUrl } = pkp.modules.useUrl;
     const { useFetch } = pkp.modules.useFetch;
-    const { t, localize } = useLocalize();
+    const { t } = useLocalize();
 
     const fileStore = piniaContext.store;
     const { submission, submissionStageId } = fileStore.props;
@@ -24,12 +24,17 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         };
     });
 
-    const { apiUrl } = useUrl(`submissions/plagiarism`);
+    const { apiUrl } = useUrl(`submissions/${submission.id}/plagiarism/status`);
     
     const { 
         fetch: fetchIthenticateStatus, 
         data: ithenticateStatus,
-    } = useFetch(apiUrl, { query: ithenticateQueryParams });
+    } = useFetch(
+        apiUrl, { 
+            method: 'POST',
+            body: ithenticateQueryParams 
+        }
+    );
     
     watch(ithenticateQueryParams, (newQueryParams) => {
         if (newQueryParams?.fileIds?.length) {
@@ -115,10 +120,21 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
     fileStore.extender.extendFn('getItemActions', (originalResult, args) => {
         const submission = fileStore.props.submission;
 
+        // will only allow action on submission current stage
+        if (submission.stageId !== submissionStageId) {
+            return [...originalResult];
+        }
+
         if (ithenticateStatus.value) {
-            const fileStatus = ithenticateStatus.value?.files?.[args.file.id];
+            const fileId = args.file.sourceSubmissionFileId || args.file.id;
+            const fileStatus = ithenticateStatus.value?.files?.[fileId];
             const userStatus = ithenticateStatus.value?.user;
             const submissionStatus = ithenticateStatus.value?.submission;
+
+            // Action on non allowed file is restricted
+            if (!fileStatus.ithenticateUploadAllowed) {
+                return [...originalResult];
+            }
 
             return [
                 ...originalResult,
@@ -194,4 +210,14 @@ pkp.registry.storeExtend('fileManager_SUBMISSION_FILES', (piniaContext) => {
 
 pkp.registry.storeExtend('fileManager_EDITOR_REVIEW_FILES', (piniaContext) => {
     runPlagiarismAction(piniaContext, 'fileManager_EDITOR_REVIEW_FILES');
+});
+
+pkp.registry.storeExtend('fileManager_PRODUCTION_READY_FILES', (piniaContext) => {
+    const appName = window.pkp.context.app;
+
+    if (appName !== 'ops') {
+        return;
+    }
+    
+    runPlagiarismAction(piniaContext, 'fileManager_PRODUCTION_READY_FILES');
 });
