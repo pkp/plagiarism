@@ -3,6 +3,7 @@ import ithenticateSimilarityScoreCell from "./Components/ithenticateSimilaritySc
 pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
 
 const {useLocalize } = pkp.modules.useLocalize;
+const { useApp } = pkp.modules.useApp;
 import { computed, watch } from "vue";
 
 function runPlagiarismAction(piniaContext, stageNamespace) {
@@ -11,12 +12,16 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
     const { useFetch } = pkp.modules.useFetch;
     const { t } = useLocalize();
 
+    const { isOPS } = useApp();
+
     const fileStore = piniaContext.store;
     const { submission, submissionStageId } = fileStore.props;
 
     const ithenticateQueryParams = computed(() => {
-        const fileIds = fileStore?.files?.map((file) => file.id) || [];
-    
+        const fileIds = isOPS()
+            ? (fileStore?.galleys?.map((galley) => galley.file.id) || [])
+            : (fileStore?.files?.map((file) => file.id) || []);
+
         return {
             fileIds: fileIds,
             submissionId: submission.id,
@@ -42,11 +47,15 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         }
     });
 
+    if (isOPS()) {
+        fetchIthenticateStatus();
+    }
+
     fileStore.ithenticateStatus = ithenticateStatus;
 
     fileStore.extender.extendFn('getColumns', (columns, args) => {
         const newColumns = [...columns];
-
+        
         newColumns.splice(newColumns.length - 1, 0, {
             header: t('plugins.generic.plagiarism.similarity.match.title'),
             component: 'ithenticateSimilarityScoreCell',
@@ -147,19 +156,21 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     fileStore.extender.extendFn('getItemActions', (originalResult, args) => {
         const submission = fileStore.props.submission;
+        const submissionFile = isOPS() ? args.galley.file : args.file;
 
-        // will only allow action on submission current stage
-        if (submission.stageId !== submissionStageId) {
+        if (!isOPS() && (submission.stageId !== submissionStageId)) {
             return [...originalResult];
         }
 
         if (ithenticateStatus.value) {
-            const fileId =  args.file.id;
-            const sourceSubmissionFileId = args.file.sourceSubmissionFileId;
+            const fileId =  submissionFile.id;
+            const sourceSubmissionFileId = submissionFile.sourceSubmissionFileId;
 
             const fileStatus = ithenticateStatus.value?.files?.[fileId]?.ithenticateId
                 ? ithenticateStatus.value?.files?.[fileId]
-                : ithenticateStatus.value?.files?.[sourceSubmissionFileId];
+                : (ithenticateStatus.value?.files?.[sourceSubmissionFileId] 
+                        ?? ithenticateStatus.value?.files?.[fileId]
+                );
                 
             const userStatus = ithenticateStatus.value?.user;
             const submissionStatus = ithenticateStatus.value?.submission;
@@ -184,17 +195,17 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     label: getLabel(userStatus, submissionStatus, fileStatus),
                     name: "conductPlagiarismCheck",
                     icon: "Globe",
-                    actionFn: ({ file }) => {
+                    actionFn: (args) => {
                         
                         if (isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
     
                             const {openLegacyModal} = useLegacyGridUrl({
                                 component: 'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-                                op: 'acceptEulaAndExecuteIntendedAction',
+                                op: 'confirmEula',
                                 params: {
-                                    submissionId: file.submissionId,
-                                    submissionFileId: file.id,
+                                    submissionId: submissionFile.submissionId,
+                                    submissionFileId: submissionFile.id,
                                     stageId: submission.stageId,
                                 },
                             });
@@ -243,6 +254,8 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                 },
             ];
         }
+
+        return [...originalResult];
     });
 }
 
@@ -254,12 +267,12 @@ pkp.registry.storeExtend('fileManager_EDITOR_REVIEW_FILES', (piniaContext) => {
     runPlagiarismAction(piniaContext, 'fileManager_EDITOR_REVIEW_FILES');
 });
 
-pkp.registry.storeExtend('fileManager_PRODUCTION_READY_FILES', (piniaContext) => {
-    const appName = window.pkp.context.app;
+pkp.registry.storeExtend('galleyManager', (piniaContext) => {
+    const { isOPS } = useApp();
 
-    if (appName !== 'ops') {
+    if (!isOPS()) {
         return;
     }
 
-    runPlagiarismAction(piniaContext, 'fileManager_PRODUCTION_READY_FILES');
+    runPlagiarismAction(piniaContext, 'galleyManager');
 });

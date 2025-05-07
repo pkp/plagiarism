@@ -382,6 +382,8 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE);
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
 
+		$request->getSession()->remove('confirmSubmissionEulaError');
+
 		$templateManager = $this->getEulaConfirmationTemplate(
 			$request,
 			$args,

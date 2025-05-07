@@ -24,11 +24,8 @@ use APP\plugins\generic\plagiarism\PlagiarismSubmissionSubmitListener;
 use APP\plugins\generic\plagiarism\PlagiarismSettingsForm;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
-use APP\plugins\generic\plagiarism\controllers\PlagiarismArticleGalleyGridHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
-use APP\plugins\generic\plagiarism\grids\SimilarityActionGridColumn;
-use APP\plugins\generic\plagiarism\grids\RearrangeColumnsFeature;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
@@ -42,8 +39,6 @@ use PKP\services\PKPSchemaService;
 use PKP\plugins\Hook;
 use PKP\core\Core;
 use PKP\user\User;
-use PKP\controllers\grid\files\review\EditorReviewFilesGridHandler;
-use PKP\controllers\grid\files\submission\EditorSubmissionDetailsFilesGridHandler;
 use PKP\submissionFile\SubmissionFile;
 use PKP\context\Context;
 use PKP\config\Config;
@@ -153,9 +148,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 		Hook::add('LoadComponentHandler', [$this, 'handleRouteComponent']);
 
-		// Hook::add('editorsubmissiondetailsfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
-		// Hook::add('editorreviewfilesgridhandler::initfeatures', [$this, 'addActionsToSubmissionFileGrid']);
-
 		Event::subscribe(new PlagiarismSubmissionSubmitListener($this));
 		Hook::add('TemplateManager::display', [$this, 'addEulaAcceptanceConfirmation']);
 
@@ -164,12 +156,15 @@ class PlagiarismPlugin extends GenericPlugin
 		return $success;
 	}
 
+	/**
+	 * Register an API route to retrieve plagiarism details
+	 */
 	public function addApiRoutes(): void
 	{
 		$self = $this;
 
 		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler) use ($self): bool {
-			
+
 			$apiHandler->addRoute(
                 'POST',
                 '{submissionId}/plagiarism/status',
@@ -226,7 +221,7 @@ class PlagiarismPlugin extends GenericPlugin
 
                     return response()->json([
 						'context' => [
-							'eulaRequired' => $self->getContextEulaDetails($context, 'require_eula'),
+							'eulaRequired' => (bool)$self->getContextEulaDetails($context, 'require_eula'),
 						],
 						'submission' => [
 							'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
@@ -258,49 +253,8 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Generate and get the iThenticate plagiarism related action url
+	 * Add the plagiarism style
 	 */
-	protected function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile): string
-	{
-		return $request->getDispatcher()->url(
-			$request,
-			Application::ROUTE_COMPONENT,
-			$request->getContext()->getData('urlPath'),
-			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-			$op,
-			null,
-			[
-				'stageId' => $this->getStageId($request),
-				'submissionId' => $submissionFile->getData('submissionId'),
-				'submissionFileId' => $submissionFile->getId(),
-			]
-		);
-	}
-
-	/**
-	 * Check if submission file type in valid for plagiarism action
-	 * Restricted for ZIP file
-	 */
-	protected function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
-	{
-		$pkpFileService = app()->get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
-		$file = $pkpFileService->get($submissionFile->getData('fileId'));
-		
-		return in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes);
-	}
-
-	/**
-	 * Get the proper workflow stage id for iThenticate actions
-	 */
-	protected function getStageId(PKPRequest $request): int
-	{
-		if (static::isOPS()) {
-			return WORKFLOW_STAGE_ID_PRODUCTION;
-		}
-
-		return $request->getUserVar('stageId');
-	}
-
 	public function addStyleSheet(Request $request, TemplateManager $templateManager): void
 	{
 		$templateManager->addStyleSheet(
@@ -312,6 +266,9 @@ class PlagiarismPlugin extends GenericPlugin
 		);
 	}
 
+	/**
+	 * Add the plagiarism js
+	 */
 	public function addJavaScript(Request $request, TemplateManager $templateManager): void
 	{
 		$templateManager->addJavaScript(
@@ -696,12 +653,6 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		$component =& $params[0]; /** @var string $component */
 		$componentInstance =& $params[2]; /** @var mixed $componentInstance */
-		
-		if (static::isOPS() && $component === 'grid.preprintGalleys.PreprintGalleyGridHandler') {
-			$componentInstance = new PlagiarismArticleGalleyGridHandler($this);
-			$component = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
-			return Hook::ABORT;
-		}
 
 		if (!in_array($component, $this->validRouteComponentHandlers)) {
 			return Hook::CONTINUE;
@@ -794,38 +745,6 @@ class PlagiarismPlugin extends GenericPlugin
 		Repo::submission()->edit($submission, []);
 
 		return true;
-	}
-
-	/**
-	 * Add ithenticate related data and actions to submission file grid view
-	 * 
-	 * @param string $hookName `editorsubmissiondetailsfilesgridhandler::initfeatures` or `editorreviewfilesgridhandler::initfeatures`
-	 */
-	public function addActionsToSubmissionFileGrid(string $hookName, array $params): bool
-	{
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-
-		// plugin can not function if the iThenticate service access not available at global/context level
-		if (!$this->isServiceAccessAvailable($context)) {
-			error_log("ithenticate service access not set for context id : " . ($context ? $context->getId() : 'undefined'));
-			return Hook::CONTINUE;
-		}
-
-		$user = $request->getUser();
-		if (!$user->hasRole([Role::ROLE_ID_MANAGER, Role::ROLE_ID_SUB_EDITOR, Role::ROLE_ID_REVIEWER], $context->getId())) {
-			return Hook::CONTINUE;
-		}
-
-		/** @var EditorSubmissionDetailsFilesGridHandler|EditorReviewFilesGridHandler $submissionDetailsFilesGridHandler */
-		$submissionDetailsFilesGridHandler = & $params[0];
-
-		$submissionDetailsFilesGridHandler->addColumn(new SimilarityActionGridColumn($this));
-
-		$features =& $params[3]; /** @var array $features */
-		$features[] = new RearrangeColumnsFeature($submissionDetailsFilesGridHandler);
-
-		return Hook::CONTINUE;
 	}
 
 	/**
@@ -1372,6 +1291,50 @@ class PlagiarismPlugin extends GenericPlugin
 			. $this->getPluginPath()
 			. '/'
 			. 'assets/logo/ithenticate-badge-rec-positive.png';
+	}
+
+	/**
+	 * Generate and get the iThenticate plagiarism related action url
+	 */
+	protected function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile): string
+	{
+		return $request->getDispatcher()->url(
+			$request,
+			Application::ROUTE_COMPONENT,
+			$request->getContext()->getData('urlPath'),
+			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
+			$op,
+			null,
+			[
+				'stageId' => $this->getStageId($request),
+				'submissionId' => $submissionFile->getData('submissionId'),
+				'submissionFileId' => $submissionFile->getId(),
+			]
+		);
+	}
+
+	/**
+	 * Check if submission file type in valid for plagiarism action
+	 * Restricted for ZIP file
+	 */
+	protected function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
+	{
+		$pkpFileService = app()->get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
+		$file = $pkpFileService->get($submissionFile->getData('fileId'));
+		
+		return in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes);
+	}
+
+	/**
+	 * Get the proper workflow stage id for iThenticate actions
+	 */
+	protected function getStageId(PKPRequest $request): int
+	{
+		if (static::isOPS()) {
+			return WORKFLOW_STAGE_ID_PRODUCTION;
+		}
+
+		return $request->getUserVar('stageId');
 	}
 
 	/**
