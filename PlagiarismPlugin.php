@@ -26,10 +26,7 @@ use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
-use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Http\Request as IlluminateRequest;
 use Illuminate\Support\Facades\Event;
 use PKP\handler\APIHandler;
 use PKP\core\PKPBaseController;
@@ -127,29 +124,30 @@ class PlagiarismPlugin extends GenericPlugin
 			return $success;
 		}
 
-		$request = Application::get()->getRequest();
-		$templateManager = TemplateManager::getManager($request);
-
-		// If iThenticate service access details not available, not going to run the plugin features
+		// If iThenticate service access details not available
+		// not going to run the plugin features
 		if (!$this->isServiceAccessAvailable()) {
 			return $success;
 		}
 
-		$this->addStyleSheet($request, $templateManager);
-		$this->addJavaScript($request, $templateManager);
+		$request = Application::get()->getRequest();
+		$templateManager = TemplateManager::getManager($request);
 
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, [$this, 'addPlagiarismCheckDataToSubmissionFileSchema']);
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_CONTEXT, [$this, 'addIthenticateConfigSettingsToContextSchema']);
-		Hook::add('SubmissionFile::edit', [$this, 'updateIthenticateRevisionHistory']);
+		$this->addPlagiarismStyleSheet($request, $templateManager);
+		$this->addPlagiarismJavaScript($request, $templateManager);
 
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_USER, [$this, 'stampPlagiarismDataToUserSchema']);
+		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION, $this->addPlagiarismCheckDataToSubmissionSchema(...));
+		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, $this->addPlagiarismCheckDataToSubmissionFileSchema(...));
+		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_CONTEXT, $this->addIthenticateConfigSettingsToContextSchema(...));
+		Hook::add('SubmissionFile::edit', $this->updateIthenticateRevisionHistory(...));
+
+		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_USER, $this->stampPlagiarismDataToUserSchema(...));
 		app()->get('schema')->get(PKPSchemaService::SCHEMA_USER, true);
 
-		Hook::add('LoadComponentHandler', [$this, 'handleRouteComponent']);
+		Hook::add('LoadComponentHandler', $this->handleRouteComponent(...));
 
 		Event::subscribe(new PlagiarismSubmissionSubmitListener($this));
-		Hook::add('TemplateManager::display', [$this, 'addEulaAcceptanceConfirmation']);
+		Hook::add('TemplateManager::display', $this->addEulaAcceptanceConfirmation(...));
 
 		$this->addApiRoutes();
 
@@ -161,101 +159,20 @@ class PlagiarismPlugin extends GenericPlugin
 	 */
 	public function addApiRoutes(): void
 	{
-		$self = $this;
+		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
 
-		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler) use ($self): bool {
-
-			$apiHandler->addRoute(
-                'POST',
-                '{submissionId}/plagiarism/status',
-                function (IlluminateRequest $illuminateRequest) use ($self): JsonResponse {
-
-					$submission = Repo::submission()->get($illuminateRequest->route('submissionId'));
-
-					if (!$submission) {
-						return response()->json([
-							'message' => 'Submission or user not found',
-						], Response::HTTP_NOT_FOUND);
-					}
-
-					$request = Application::get()->getRequest();
-					$context = $request->getContext();
-					$user = Repo::user()->get($request->getUser()->getId());
-
-					$fileIds = Repo::submissionFile()
-						->getCollector()
-						->filterBySubmissionIds([$submission->getId()])
-						->getQueryBuilder()
-						->get()
-						->pluck('submission_file_id')
-						->toArray();
-					$fileStatuses = [];
-
-					foreach ($fileIds as $fileId) {
-						
-						$submissionFile = Repo::submissionFile()->get((int)$fileId);
-
-						if (!$submissionFile) {
-							return response()->json([
-								'message' => "Submission file with id {$fileId} not found",
-							], Response::HTTP_NOT_FOUND);
-						}
-
-						$fileStatuses[$fileId] = [
-							'ithenticateUploadAllowed' => !$this->isSubmissionFileTypeRestricted($submissionFile),
-							'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
-							'ithenticateId' => $submissionFile->getData('ithenticateId'),
-							'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
-							'ithenticateSimilarityResult' => $submissionFile->getData('ithenticateSimilarityResult')
-								? json_decode($submissionFile->getData('ithenticateSimilarityResult'), true)['overall_match_percentage']
-								: null,
-							'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
-							'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
-							'ithenticateLogo' => $self->getIThenticateLogoUrl(),
-							'ithenticateViewerUrl' => $self->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
-							'ithenticateUploadUrl' => $self->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
-							'ithenticateReportScheduleUrl' => $self->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
-							'ithenticateReportRefreshUrl' => $self->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
-						];
-					}
-
-                    return response()->json([
-						'context' => [
-							'eulaRequired' => (bool)$self->getContextEulaDetails($context, 'require_eula'),
-						],
-						'submission' => [
-							'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
-							'ithenticateSubmissionCompletedAt' => $submission->getData('ithenticateSubmissionCompletedAt'),
-							'ithenticateEulaUrl' => $submission->getData('ithenticateEulaUrl'),
-						],
-						'user' => [
-							'ithenticateEulaVersion' => $user->getData('ithenticateEulaVersion'),
-							'ithenticateEulaConfirmedAt' => $user->getData('ithenticateEulaConfirmedAt'),
-							'ithenticateActionAllowedRoles' => [
-								Role::ROLE_ID_SITE_ADMIN,
-								Role::ROLE_ID_MANAGER,
-								Role::ROLE_ID_SUB_EDITOR,
-							],
-						],
-						'files' => $fileStatuses,
-					], Response::HTTP_OK);
-                },
-                'submission.plagiarism.status',
-                [
-                    Role::ROLE_ID_SITE_ADMIN,
-                    Role::ROLE_ID_MANAGER,
-                    Role::ROLE_ID_SUB_EDITOR,
-                ]
-            );
+			if ($apiController instanceof \APP\API\v1\submissions\SubmissionController) {
+				$apiController = new \APP\plugins\generic\plagiarism\api\v1\submissions\SubmissionPlagiarismController($this);
+			}
             
-            return false;
-        });
+			return false;
+		});
 	}
 
 	/**
 	 * Add the plagiarism style
 	 */
-	public function addStyleSheet(Request $request, TemplateManager $templateManager): void
+	public function addPlagiarismStyleSheet(Request $request, TemplateManager $templateManager): void
 	{
 		$templateManager->addStyleSheet(
 			'ithenticatePlagiarismPluginStyle',
@@ -269,16 +186,16 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Add the plagiarism js
 	 */
-	public function addJavaScript(Request $request, TemplateManager $templateManager): void
+	public function addPlagiarismJavaScript(Request $request, TemplateManager $templateManager): void
 	{
 		$templateManager->addJavaScript(
-            'ithenticatePlagiarismPluginScript',
-            "{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build.iife.js",
-            [
-                'inline' => false,
-                'contexts' => ['backend'],
-                'priority' => TemplateManager::STYLE_SEQUENCE_LAST
-            ]
+			'ithenticatePlagiarismPluginScript',
+			"{$request->getBaseUrl()}/{$this->getPluginPath()}/public/build/build.iife.js",
+			[
+				'inline' => false,
+				'contexts' => ['backend'],
+				'priority' => TemplateManager::STYLE_SEQUENCE_LAST
+			]
         );
 	}
 
@@ -1296,7 +1213,7 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Generate and get the iThenticate plagiarism related action url
 	 */
-	protected function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile): string
+	public function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile): string
 	{
 		return $request->getDispatcher()->url(
 			$request,
@@ -1317,7 +1234,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Check if submission file type in valid for plagiarism action
 	 * Restricted for ZIP file
 	 */
-	protected function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
+	public function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
 	{
 		$pkpFileService = app()->get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));

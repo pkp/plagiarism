@@ -4,7 +4,9 @@ pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimi
 
 const {useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
+const { useNotify } = pkp.modules.useNotify;
 import { computed, watch } from "vue";
+import deduceFileStatus from "./fileStatus";
 
 function runPlagiarismAction(piniaContext, stageNamespace) {
     
@@ -51,6 +53,9 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         fetchIthenticateStatus();
     }
 
+    const { pageUrl } = useUrl(`notification/fetchNotification`);
+    const { fetch: fetchNotification, data: notifications } = useFetch(pageUrl);
+
     fileStore.ithenticateStatus = ithenticateStatus;
 
     fileStore.extender.extendFn('getColumns', (columns, args) => {
@@ -69,6 +74,10 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     function getLabel(userStatus, submissionStatus, fileStatus)
     {
+        if (fileStatus && fileStatus.ithenticateSimilarityScheduled) {
+            return t('plugins.generic.plagiarism.similarity.action.refreshReport.title');
+        }
+
         if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
             return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
         }
@@ -151,7 +160,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         
         await executeIthenticateAction();
 
-        return ithenticateActionData.value?.status;
+        return ithenticateActionData;
     }
 
     fileStore.extender.extendFn('getItemActions', (originalResult, args) => {
@@ -163,21 +172,13 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         }
 
         if (ithenticateStatus.value) {
-            const fileId =  submissionFile.id;
-            const sourceSubmissionFileId = submissionFile.sourceSubmissionFileId;
-
-            const fileStatus = ithenticateStatus.value?.files?.[fileId]?.ithenticateId
-                ? ithenticateStatus.value?.files?.[fileId]
-                : (ithenticateStatus.value?.files?.[sourceSubmissionFileId] 
-                        ?? ithenticateStatus.value?.files?.[fileId]
-                );
-                
+            const fileStatus = deduceFileStatus(submissionFile, ithenticateStatus.value);
             const userStatus = ithenticateStatus.value?.user;
             const submissionStatus = ithenticateStatus.value?.submission;
             const contextStatus = ithenticateStatus.value?.context;
 
             // Action on non allowed file is restricted
-            if (!fileStatus.ithenticateUploadAllowed) {
+            if (!fileStatus?.ithenticateUploadAllowed) {
                 return [...originalResult];
             }
 
@@ -196,8 +197,10 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     name: "conductPlagiarismCheck",
                     icon: "Globe",
                     actionFn: (args) => {
+
+                        const {notify} = useNotify();
                         
-                        if (isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
+                        if (!fileStatus.ithenticateSimilarityScheduled && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
     
                             const {openLegacyModal} = useLegacyGridUrl({
@@ -234,11 +237,17 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                                     isPrimary: true,
                                     callback: async (close) => {
                                         close();
-                                        const status = await executePlagiarismAction(fileStatus);
                                         
-                                        if (status) {
-                                            fetchIthenticateStatus();
+                                        const ithenticateActionData = await executePlagiarismAction(fileStatus);
+
+                                        if (ithenticateActionData.value?.content) {
+                                            notify(
+                                                ithenticateActionData.value.content, 
+                                                ithenticateActionData.value?.status ? 'success': 'warning'
+                                            );
                                         }
+
+                                        fetchIthenticateStatus();
                                     },
                                 },
                                 {

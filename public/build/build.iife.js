@@ -1,5 +1,18 @@
 (function(vue) {
   "use strict";
+  function deduceFileStatus(submissionFile, ithenticateDataStatus) {
+    var _a, _b, _c, _d, _e;
+    const fileId = submissionFile.id;
+    const sourceSubmissionFileId = submissionFile.sourceSubmissionFileId;
+    if ((_b = (_a = ithenticateDataStatus == null ? void 0 : ithenticateDataStatus.files) == null ? void 0 : _a[fileId]) == null ? void 0 : _b.ithenticateId) {
+      return (_c = ithenticateDataStatus == null ? void 0 : ithenticateDataStatus.files) == null ? void 0 : _c[fileId];
+    }
+    const sourceSubmissionFile = (_d = ithenticateDataStatus == null ? void 0 : ithenticateDataStatus.files) == null ? void 0 : _d[sourceSubmissionFileId];
+    if (sourceSubmissionFile && sourceSubmissionFile.fileId === submissionFile.fileId) {
+      return sourceSubmissionFile;
+    }
+    return (_e = ithenticateDataStatus == null ? void 0 : ithenticateDataStatus.files) == null ? void 0 : _e[fileId];
+  }
   const _export_sfc = (sfc, props) => {
     const target = sfc.__vccOpts || sfc;
     for (const [key, val] of props) {
@@ -26,11 +39,11 @@
       const { isOPS } = useApp2();
       const fileStore = isOPS() ? pkp.registry.getPiniaStore("galleyManager") : pkp.registry.getPiniaStore(props.fileStageNamespace);
       const fileStatus = vue.computed(() => {
-        var _a, _b, _c, _d, _e, _f, _g, _h;
         const submissionFile = isOPS() ? props.galley.file : props.file;
-        const fileId = submissionFile.id;
-        const sourceSubmissionFileId = submissionFile.sourceSubmissionFileId;
-        const status = (((_b = (_a = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId].ithenticateId) ? (_d = (_c = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _c.files) == null ? void 0 : _d[fileId] : ((_f = (_e = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _e.files) == null ? void 0 : _f[sourceSubmissionFileId]) ?? ((_h = (_g = fileStore == null ? void 0 : fileStore.ithenticateStatus) == null ? void 0 : _g.files) == null ? void 0 : _h[fileId])) || {};
+        if (!(fileStore == null ? void 0 : fileStore.ithenticateStatus)) {
+          return {};
+        }
+        const status = deduceFileStatus(submissionFile, fileStore.ithenticateStatus || {});
         return status;
       });
       return (_ctx, _cache) => {
@@ -59,10 +72,11 @@
       };
     }
   };
-  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-705f7f5e"]]);
+  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-e6695da2"]]);
   pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
   const { useLocalize } = pkp.modules.useLocalize;
   const { useApp } = pkp.modules.useApp;
+  const { useNotify } = pkp.modules.useNotify;
   function runPlagiarismAction(piniaContext, stageNamespace) {
     const { useUrl } = pkp.modules.useUrl;
     const { useFetch } = pkp.modules.useFetch;
@@ -99,6 +113,8 @@
     if (isOPS()) {
       fetchIthenticateStatus();
     }
+    const { pageUrl } = useUrl(`notification/fetchNotification`);
+    const { fetch: fetchNotification, data: notifications } = useFetch(pageUrl);
     fileStore.ithenticateStatus = ithenticateStatus;
     fileStore.extender.extendFn("getColumns", (columns, args) => {
       const newColumns = [...columns];
@@ -112,6 +128,9 @@
       return newColumns;
     });
     function getLabel(userStatus, submissionStatus, fileStatus) {
+      if (fileStatus && fileStatus.ithenticateSimilarityScheduled) {
+        return t("plugins.generic.plagiarism.similarity.action.refreshReport.title");
+      }
       if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
         return t("plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title");
       }
@@ -157,7 +176,6 @@
       return false;
     }
     async function executePlagiarismAction(fileStatus) {
-      var _a;
       const actionUrl = getActionUrl(fileStatus);
       const { apiUrl: apiUrl2 } = useUrl(actionUrl);
       const {
@@ -165,23 +183,21 @@
         data: ithenticateActionData
       } = useFetch(apiUrl2);
       await executeIthenticateAction();
-      return (_a = ithenticateActionData.value) == null ? void 0 : _a.status;
+      return ithenticateActionData;
     }
     fileStore.extender.extendFn("getItemActions", (originalResult, args) => {
-      var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
+      var _a, _b, _c;
       const submission2 = fileStore.props.submission;
       const submissionFile = isOPS() ? args.galley.file : args.file;
       if (!isOPS() && submission2.stageId !== submissionStageId) {
         return [...originalResult];
       }
       if (ithenticateStatus.value) {
-        const fileId = submissionFile.id;
-        const sourceSubmissionFileId = submissionFile.sourceSubmissionFileId;
-        const fileStatus = ((_c = (_b = (_a = ithenticateStatus.value) == null ? void 0 : _a.files) == null ? void 0 : _b[fileId]) == null ? void 0 : _c.ithenticateId) ? (_e = (_d = ithenticateStatus.value) == null ? void 0 : _d.files) == null ? void 0 : _e[fileId] : ((_g = (_f = ithenticateStatus.value) == null ? void 0 : _f.files) == null ? void 0 : _g[sourceSubmissionFileId]) ?? ((_i = (_h = ithenticateStatus.value) == null ? void 0 : _h.files) == null ? void 0 : _i[fileId]);
-        const userStatus = (_j = ithenticateStatus.value) == null ? void 0 : _j.user;
-        const submissionStatus = (_k = ithenticateStatus.value) == null ? void 0 : _k.submission;
-        const contextStatus = (_l = ithenticateStatus.value) == null ? void 0 : _l.context;
-        if (!fileStatus.ithenticateUploadAllowed) {
+        const fileStatus = deduceFileStatus(submissionFile, ithenticateStatus.value);
+        const userStatus = (_a = ithenticateStatus.value) == null ? void 0 : _a.user;
+        const submissionStatus = (_b = ithenticateStatus.value) == null ? void 0 : _b.submission;
+        const contextStatus = (_c = ithenticateStatus.value) == null ? void 0 : _c.context;
+        if (!(fileStatus == null ? void 0 : fileStatus.ithenticateUploadAllowed)) {
           return [...originalResult];
         }
         const matchAllowedRoles = userStatus.ithenticateActionAllowedRoles.filter((role) => window.pkp.currentUser.roles.includes(role));
@@ -195,7 +211,8 @@
             name: "conductPlagiarismCheck",
             icon: "Globe",
             actionFn: (args2) => {
-              if (isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
+              const { notify } = useNotify();
+              if (!fileStatus.ithenticateSimilarityScheduled && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                 const { useLegacyGridUrl } = pkp.modules.useLegacyGridUrl;
                 const { openLegacyModal } = useLegacyGridUrl({
                   component: "plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler",
@@ -226,11 +243,16 @@
                     label: t("common.yes"),
                     isPrimary: true,
                     callback: async (close) => {
+                      var _a2, _b2;
                       close();
-                      const status = await executePlagiarismAction(fileStatus);
-                      if (status) {
-                        fetchIthenticateStatus();
+                      const ithenticateActionData = await executePlagiarismAction(fileStatus);
+                      if ((_a2 = ithenticateActionData.value) == null ? void 0 : _a2.content) {
+                        notify(
+                          ithenticateActionData.value.content,
+                          ((_b2 = ithenticateActionData.value) == null ? void 0 : _b2.status) ? "success" : "warning"
+                        );
                       }
+                      fetchIthenticateStatus();
                     }
                   },
                   {

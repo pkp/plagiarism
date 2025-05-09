@@ -21,6 +21,7 @@
   
 <script setup>
     import { computed } from "vue";
+    import deduceFileStatus from "../fileStatus";
     
     const { useApp } = pkp.modules.useApp;
 
@@ -39,17 +40,12 @@
     const fileStatus = computed(() => {
         
         const submissionFile = isOPS() ? props.galley.file : props.file;
-        const fileId = submissionFile.id;
-        const sourceSubmissionFileId = submissionFile.sourceSubmissionFileId;
 
-        const status = (
-            fileStore?.ithenticateStatus?.files?.[fileId].ithenticateId
-                ? fileStore?.ithenticateStatus?.files?.[fileId]
-                : (fileStore?.ithenticateStatus?.files?.[sourceSubmissionFileId] 
-                    ?? fileStore?.ithenticateStatus?.files?.[fileId]
-                )
-        ) || {};
+        if (!fileStore?.ithenticateStatus) {
+            return {};
+        }
 
+        const status = deduceFileStatus(submissionFile, fileStore.ithenticateStatus || {});
         return status;
     });
 </script>
