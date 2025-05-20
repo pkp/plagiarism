@@ -29,12 +29,14 @@ use PKP\security\authorization\internal\SubmissionCompletePolicy;
 
 class SubmissionPlagiarismController extends SubmissionController
 {
-    /**
-     * API controller constructor
-     */
-    public function __construct(protected PlagiarismPlugin $plugin)
-    {
+    protected static PlagiarismPlugin $plugin;
 
+    /**
+     * Set the plugin instance
+     */
+    public static function setPlugin(PlagiarismPlugin $plugin)
+    {
+        static::$plugin = $plugin;
     }
 
     /**
@@ -97,7 +99,7 @@ class SubmissionPlagiarismController extends SubmissionController
         foreach ($submissionFiles as $submissionFile) {
 
             $fileStatuses[$submissionFile->getId()] = [
-                'ithenticateUploadAllowed' => !$this->plugin->isSubmissionFileTypeRestricted($submissionFile),
+                'ithenticateUploadAllowed' => !static::$plugin->isSubmissionFileTypeRestricted($submissionFile),
                 'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
                 'ithenticateId' => $submissionFile->getData('ithenticateId'),
                 'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
@@ -106,17 +108,17 @@ class SubmissionPlagiarismController extends SubmissionController
                     : null,
                 'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
                 'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
-                'ithenticateLogo' => $this->plugin->getIThenticateLogoUrl(),
-                'ithenticateViewerUrl' => $this->plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
-                'ithenticateUploadUrl' => $this->plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
-                'ithenticateReportScheduleUrl' => $this->plugin->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
-                'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
+                'ithenticateLogo' => static::$plugin->getIThenticateLogoUrl(),
+                'ithenticateViewerUrl' => static::$plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
+                'ithenticateUploadUrl' => static::$plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
+                'ithenticateReportScheduleUrl' => static::$plugin->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
+                'ithenticateReportRefreshUrl' => static::$plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
             ];
         }
 
         return response()->json([
             'context' => [
-                'eulaRequired' => (bool)$this->plugin->getContextEulaDetails($context, 'require_eula'),
+                'eulaRequired' => (bool)static::$plugin->getContextEulaDetails($context, 'require_eula'),
             ],
             'submission' => [
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),

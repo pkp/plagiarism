@@ -5,8 +5,9 @@ pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimi
 const {useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
 const { useNotify } = pkp.modules.useNotify;
+const { useCurrentUser } = pkp.modules.useCurrentUser;
 import { computed, watch } from "vue";
-import deduceFileStatus from "./fileStatus";
+import { deduceFileStatus } from "./fileStatus";
 
 function runPlagiarismAction(piniaContext, stageNamespace) {
     
@@ -19,7 +20,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
     const fileStore = piniaContext.store;
     const { submission, submissionStageId } = fileStore.props;
 
-    const ithenticateQueryParams = computed(() => {
+    const ithenticateRequestParams = computed(() => {
         const fileIds = isOPS()
             ? (fileStore?.galleys?.map((galley) => galley.file.id) || [])
             : (fileStore?.files?.map((file) => file.id) || []);
@@ -27,7 +28,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         return {
             fileIds: fileIds,
             submissionId: submission.id,
-            stageId: submissionStageId
+            stageId: isOPS() ? pkp.const.WORKFLOW_STAGE_ID_PRODUCTION : submissionStageId
         };
     });
 
@@ -39,12 +40,12 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
     } = useFetch(
         apiUrl, { 
             method: 'POST',
-            body: ithenticateQueryParams 
+            body: ithenticateRequestParams 
         }
     );
     
-    watch(ithenticateQueryParams, (newQueryParams) => {
-        if (newQueryParams?.fileIds?.length) {
+    watch(ithenticateRequestParams, (newRequestParams) => {
+        if (newRequestParams?.fileIds?.length) {
             fetchIthenticateStatus();
         }
     });
@@ -53,14 +54,11 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         fetchIthenticateStatus();
     }
 
-    const { pageUrl } = useUrl(`notification/fetchNotification`);
-    const { fetch: fetchNotification, data: notifications } = useFetch(pageUrl);
-
     fileStore.ithenticateStatus = ithenticateStatus;
 
     fileStore.extender.extendFn('getColumns', (columns, args) => {
         const newColumns = [...columns];
-        
+
         newColumns.splice(newColumns.length - 1, 0, {
             header: t('plugins.generic.plagiarism.similarity.match.title'),
             component: 'ithenticateSimilarityScoreCell',
@@ -81,15 +79,15 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
             return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
         }
-    
+
         if (!fileStatus.ithenticateId) {
             return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
         }
-    
+
         if (!fileStatus.ithenticateSimilarityScheduled) {
             return t('plugins.generic.plagiarism.similarity.action.generateReport.title');
         }
-    
+
         return t('plugins.generic.plagiarism.similarity.action.refreshReport.title');
     }
 
@@ -111,11 +109,11 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         if (!fileStatus.ithenticateId) {
             return fileStatus.ithenticateUploadUrl;
         }
-    
+
         if (!fileStatus.ithenticateSimilarityScheduled) {
             return fileStatus.ithenticateReportScheduleUrl;
         }
-    
+
         return fileStatus.ithenticateReportRefreshUrl;
     }
 
@@ -127,19 +125,19 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         }
 
         // If no EULA is stamped with submission
-		// means submission never passed through iThenticate process
+        // means submission never passed through iThenticate process
         if (!submissionStatus.ithenticateEulaVersion) {
             return true;
         }
 
         // If no EULA is stamped with submitting user
-		// means user has never previously interacted with iThenticate process
+        // means user has never previously interacted with iThenticate process
         if (!userStatus.ithenticateEulaVersion) {
             return true;
         }
 
         // If user and submission EULA do not match
-		// means users previously agreed upon different EULA
+        // means users previously agreed upon different EULA
         if (submissionStatus.ithenticateEulaVersion !== userStatus.ithenticateEulaVersion) {
             return true;
         }
@@ -150,13 +148,11 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
     async function executePlagiarismAction(fileStatus)
     {
         const actionUrl = getActionUrl(fileStatus);
-
-        const { apiUrl } = useUrl(actionUrl);
-    
+        
         const { 
             fetch: executeIthenticateAction, 
             data: ithenticateActionData,
-        } = useFetch(apiUrl);
+        } = useFetch(actionUrl);
         
         await executeIthenticateAction();
 
@@ -182,11 +178,8 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                 return [...originalResult];
             }
 
-            const matchAllowedRoles = userStatus
-                .ithenticateActionAllowedRoles
-                .filter(role => window.pkp.currentUser.roles.includes(role));
-
-            if (matchAllowedRoles.length === 0) {
+            const { hasCurrentUserAtLeastOneRole } = useCurrentUser();
+            if (!hasCurrentUserAtLeastOneRole(userStatus.ithenticateActionAllowedRoles)) {
                 return [...originalResult];
             }
 
@@ -202,7 +195,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                         
                         if (!fileStatus.ithenticateSimilarityScheduled && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
-    
+
                             const {openLegacyModal} = useLegacyGridUrl({
                                 component: 'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
                                 op: 'confirmEula',
@@ -237,7 +230,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                                     isPrimary: true,
                                     callback: async (close) => {
                                         close();
-                                        
+
                                         const ithenticateActionData = await executePlagiarismAction(fileStatus);
 
                                         if (ithenticateActionData.value?.content) {

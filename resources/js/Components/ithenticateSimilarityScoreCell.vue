@@ -21,8 +21,8 @@
   
 <script setup>
     import { computed } from "vue";
-    import deduceFileStatus from "../fileStatus";
-    
+    import { deduceFileStatus } from "../fileStatus";
+
     const { useApp } = pkp.modules.useApp;
 
     const props = defineProps({ 
@@ -32,20 +32,20 @@
     });
 
     const { isOPS } = useApp();
-    
+
     const fileStore = isOPS()
         ? pkp.registry.getPiniaStore('galleyManager')
         : pkp.registry.getPiniaStore(props.fileStageNamespace);
 
     const fileStatus = computed(() => {
-        
-        const submissionFile = isOPS() ? props.galley.file : props.file;
 
-        if (!fileStore?.ithenticateStatus) {
-            return {};
-        }
+    const submissionFile = isOPS() ? props.galley.file : props.file;
 
-        const status = deduceFileStatus(submissionFile, fileStore.ithenticateStatus || {});
+    if (!fileStore?.ithenticateStatus) {
+        return {};
+    }
+
+    const status = deduceFileStatus(submissionFile, fileStore.ithenticateStatus || {});
         return status;
     });
 </script>
@@ -57,15 +57,14 @@
     }
 
     span.plagiarism-similarity-score img {
-        max-width: 65px;
+        max-width: 4rem;
         cursor: pointer;
     }
 
     span.plagiarism-similarity-score span {
-        padding-left: 5px;
-        font-weight: 700;
-        font-size: 12px;
-        color: #006798;
+        padding-inline-start: .25rem;
+        font: var(--font-base-bold);
+        color: var(--color-primary);
     }
 </style>
   

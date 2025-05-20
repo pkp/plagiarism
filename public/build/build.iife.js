@@ -72,11 +72,12 @@
       };
     }
   };
-  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-e6695da2"]]);
+  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-3939ad97"]]);
   pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
   const { useLocalize } = pkp.modules.useLocalize;
   const { useApp } = pkp.modules.useApp;
   const { useNotify } = pkp.modules.useNotify;
+  const { useCurrentUser } = pkp.modules.useCurrentUser;
   function runPlagiarismAction(piniaContext, stageNamespace) {
     const { useUrl } = pkp.modules.useUrl;
     const { useFetch } = pkp.modules.useFetch;
@@ -84,13 +85,13 @@
     const { isOPS } = useApp();
     const fileStore = piniaContext.store;
     const { submission, submissionStageId } = fileStore.props;
-    const ithenticateQueryParams = vue.computed(() => {
+    const ithenticateRequestParams = vue.computed(() => {
       var _a, _b;
       const fileIds = isOPS() ? ((_a = fileStore == null ? void 0 : fileStore.galleys) == null ? void 0 : _a.map((galley) => galley.file.id)) || [] : ((_b = fileStore == null ? void 0 : fileStore.files) == null ? void 0 : _b.map((file) => file.id)) || [];
       return {
         fileIds,
         submissionId: submission.id,
-        stageId: submissionStageId
+        stageId: isOPS() ? pkp.const.WORKFLOW_STAGE_ID_PRODUCTION : submissionStageId
       };
     });
     const { apiUrl } = useUrl(`submissions/${submission.id}/plagiarism/status`);
@@ -101,20 +102,18 @@
       apiUrl,
       {
         method: "POST",
-        body: ithenticateQueryParams
+        body: ithenticateRequestParams
       }
     );
-    vue.watch(ithenticateQueryParams, (newQueryParams) => {
+    vue.watch(ithenticateRequestParams, (newRequestParams) => {
       var _a;
-      if ((_a = newQueryParams == null ? void 0 : newQueryParams.fileIds) == null ? void 0 : _a.length) {
+      if ((_a = newRequestParams == null ? void 0 : newRequestParams.fileIds) == null ? void 0 : _a.length) {
         fetchIthenticateStatus();
       }
     });
     if (isOPS()) {
       fetchIthenticateStatus();
     }
-    const { pageUrl } = useUrl(`notification/fetchNotification`);
-    const { fetch: fetchNotification, data: notifications } = useFetch(pageUrl);
     fileStore.ithenticateStatus = ithenticateStatus;
     fileStore.extender.extendFn("getColumns", (columns, args) => {
       const newColumns = [...columns];
@@ -177,11 +176,10 @@
     }
     async function executePlagiarismAction(fileStatus) {
       const actionUrl = getActionUrl(fileStatus);
-      const { apiUrl: apiUrl2 } = useUrl(actionUrl);
       const {
         fetch: executeIthenticateAction,
         data: ithenticateActionData
-      } = useFetch(apiUrl2);
+      } = useFetch(actionUrl);
       await executeIthenticateAction();
       return ithenticateActionData;
     }
@@ -200,8 +198,8 @@
         if (!(fileStatus == null ? void 0 : fileStatus.ithenticateUploadAllowed)) {
           return [...originalResult];
         }
-        const matchAllowedRoles = userStatus.ithenticateActionAllowedRoles.filter((role) => window.pkp.currentUser.roles.includes(role));
-        if (matchAllowedRoles.length === 0) {
+        const { hasCurrentUserAtLeastOneRole } = useCurrentUser();
+        if (!hasCurrentUserAtLeastOneRole(userStatus.ithenticateActionAllowedRoles)) {
           return [...originalResult];
         }
         return [

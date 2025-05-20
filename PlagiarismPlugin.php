@@ -16,6 +16,8 @@ namespace APP\plugins\generic\plagiarism;
 
 use APP\core\Application;
 use APP\core\Request;
+use APP\API\v1\submissions\SubmissionController;
+use APP\plugins\generic\plagiarism\api\v1\submissions\SubmissionPlagiarismController;
 use APP\facades\Repo;
 use APP\template\TemplateManager;
 use APP\notification\NotificationManager;
@@ -161,8 +163,9 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
 
-			if ($apiController instanceof \APP\API\v1\submissions\SubmissionController) {
-				$apiController = new \APP\plugins\generic\plagiarism\api\v1\submissions\SubmissionPlagiarismController($this);
+			if ($apiController instanceof SubmissionController) {
+				SubmissionPlagiarismController::setPlugin($this);
+				$apiController = new SubmissionPlagiarismController();
 			}
             
 			return false;
@@ -196,7 +199,7 @@ class PlagiarismPlugin extends GenericPlugin
 				'contexts' => ['backend'],
 				'priority' => TemplateManager::STYLE_SEQUENCE_LAST
 			]
-        );
+		);
 	}
 
 	/**
