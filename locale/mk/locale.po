@@ -316,3 +316,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "Настана грешка при обработката на поднесувањето."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Не може да се изврши проверка на плагијат на поднесок без примарен автор за тековната публикација."

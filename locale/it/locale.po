@@ -48,3 +48,7 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "Il caricamento della proposta {$submissionId} in iThenticate è fallito con "
 "l'errore: {$errorMessage}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Non è possibile eseguire il controllo del plagio su un elaborato inviato senza autore principale per la pubblicazione corrente"

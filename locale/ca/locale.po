@@ -44,3 +44,7 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "La càrrega de la tramesa {$submissionId} a iThenticate ha fallat amb l'error:"
 " {$errorMessage}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "No es pot executar la comprovació de plagi en un enviament sense autor principal per a la publicació actual."

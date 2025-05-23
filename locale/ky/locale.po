@@ -305,3 +305,7 @@ msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Мүмкүн болгон плагиатты текшерүү үчүн iThenticate'ге бардык тапшырууларды "
 "жөнөтүңүз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Учурдагы жарыялоо үчүн негизги автору жок тапшырууда плагиат текшерүүсүн жүргүзүү мүмкүн эмес."

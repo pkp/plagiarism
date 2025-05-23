@@ -113,3 +113,7 @@ msgstr "Käyttöehdot tulee hyväksyä ennen jatkamista."
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Käsikirjoituksen samankaltaisuustarkistuksen asetukset"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Ei voida suorittaa plagiointitarkistusta lähetykselle, jolla ei ole nykyisen julkaisun ensisijaista kirjoittajaa."

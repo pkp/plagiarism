@@ -335,3 +335,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "Ocorreu um erro durante o processamento da submissão."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Não é possível executar a verificação de plágio em um envio sem autor principal para a publicação atual."

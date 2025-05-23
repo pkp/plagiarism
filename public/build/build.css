@@ -1,13 +1,13 @@
 
-span.plagiarism-similarity-score[data-v-3939ad97] {
+span.plagiarism-similarity-score[data-v-f32f6696] {
         display: flex;
         align-items: center;
 }
-span.plagiarism-similarity-score img[data-v-3939ad97] {
+span.plagiarism-similarity-score img[data-v-f32f6696] {
         max-width: 4rem;
         cursor: pointer;
 }
-span.plagiarism-similarity-score span[data-v-3939ad97] {
+span.plagiarism-similarity-score span[data-v-f32f6696] {
         padding-inline-start: .25rem;
         font: var(--font-base-bold);
         color: var(--color-primary);

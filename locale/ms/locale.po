@@ -47,3 +47,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "Kata Laluan iThenticate diperlukan"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Tidak boleh menjalankan semakan plagiarisme pada penyerahan tanpa pengarang utama untuk penerbitan semasa"

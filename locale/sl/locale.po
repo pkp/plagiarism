@@ -310,3 +310,7 @@ msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
 msgstr ""
 "Nalaganje datoteke na iThenticate za datoteko id : {$submissionFileId} ni "
 "bilo uspešno"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Preverjanja plagiatorstva ni mogoče zagnati pri predložitvi brez primarnega avtorja za trenutno objavo."

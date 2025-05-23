@@ -17,3 +17,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Complemento iThenticate (detector de plaxio)"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Non se pode executar a comprobación de plaxio nun envío sen autor principal para a publicación actual."

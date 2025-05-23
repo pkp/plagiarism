@@ -315,3 +315,7 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
 msgstr ""
 "Nepodařilo se vytvořit podání na iThenticate pro soubor příspěvku s id "
 "{$submissionFileId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Nelze spustit kontrolu plagiátorství u příspěvku bez primárního autora pro aktuální publikaci."

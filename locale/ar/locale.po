@@ -206,3 +206,7 @@ msgstr "هل أنت متأكد من رغبتك في إعادة تنشيط درج
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
 msgstr ""
 "تطابقات التشابه التي تقل عن المقدار المحدد من الكلمات لن تعتبر محتوى مشابهًا"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "لا يمكن تشغيل فحص الانتحال على إرسال ليس له مؤلف رئيسي للنشر الحالي"

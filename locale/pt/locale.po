@@ -48,3 +48,7 @@ msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
 "Foram encontradas configurações do iThenticate no ficheiro config.inc.php, "
 "as configurações aqui introduzidas serão ignoradas."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Não é possível executar a verificação de plágio em um envio sem autor principal para a publicação atual."

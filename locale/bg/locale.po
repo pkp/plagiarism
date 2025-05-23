@@ -335,3 +335,7 @@ msgstr "EULA трябва да бъде потвърдено, преди да п
 
 msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
 msgstr "Потвърждавам и продължавам със следваща стъпка"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Не може да се извърши проверка за плагиатство на изпратено без основен автор за текущата публикация."

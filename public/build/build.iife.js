@@ -24,7 +24,7 @@
     key: 0,
     class: "plagiarism-similarity-score"
   };
-  const _hoisted_2 = ["href", "target", "title"];
+  const _hoisted_2 = ["href", "title"];
   const _hoisted_3 = ["alt", "src"];
   const _sfc_main = {
     __name: "ithenticateSimilarityScoreCell",
@@ -55,7 +55,7 @@
               ((_a = fileStatus.value) == null ? void 0 : _a.ithenticateSimilarityResult) ? (vue.openBlock(), vue.createElementBlock("span", _hoisted_1, [
                 vue.createElementVNode("a", {
                   href: fileStatus.value.ithenticateViewerUrl ?? "#",
-                  target: _ctx._blank,
+                  target: "_blank",
                   title: _ctx.t("plugins.generic.plagiarism.similarity.action.launch.viewer.title")
                 }, [
                   vue.createElementVNode("img", {
@@ -72,7 +72,7 @@
       };
     }
   };
-  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-3939ad97"]]);
+  const ithenticateSimilarityScoreCell = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-f32f6696"]]);
   pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
   const { useLocalize } = pkp.modules.useLocalize;
   const { useApp } = pkp.modules.useApp;
@@ -127,16 +127,10 @@
       return newColumns;
     });
     function getLabel(userStatus, submissionStatus, fileStatus) {
-      if (fileStatus && fileStatus.ithenticateSimilarityScheduled) {
-        return t("plugins.generic.plagiarism.similarity.action.refreshReport.title");
-      }
-      if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
-        return t("plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title");
-      }
       if (!fileStatus.ithenticateId) {
         return t("plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title");
       }
-      if (!fileStatus.ithenticateSimilarityScheduled) {
+      if (fileStatus.ithenticateId && !fileStatus.ithenticateSimilarityScheduled) {
         return t("plugins.generic.plagiarism.similarity.action.generateReport.title");
       }
       return t("plugins.generic.plagiarism.similarity.action.refreshReport.title");
@@ -195,7 +189,10 @@
         const userStatus = (_a = ithenticateStatus.value) == null ? void 0 : _a.user;
         const submissionStatus = (_b = ithenticateStatus.value) == null ? void 0 : _b.submission;
         const contextStatus = (_c = ithenticateStatus.value) == null ? void 0 : _c.context;
-        if (!(fileStatus == null ? void 0 : fileStatus.ithenticateUploadAllowed)) {
+        if (!fileStatus) {
+          return [...originalResult];
+        }
+        if (!fileStatus.ithenticateUploadAllowed) {
           return [...originalResult];
         }
         const { hasCurrentUserAtLeastOneRole } = useCurrentUser();
@@ -210,7 +207,7 @@
             icon: "Globe",
             actionFn: (args2) => {
               const { notify } = useNotify();
-              if (!fileStatus.ithenticateSimilarityScheduled && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
+              if (!fileStatus.ithenticateId && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                 const { useLegacyGridUrl } = pkp.modules.useLegacyGridUrl;
                 const { openLegacyModal } = useLegacyGridUrl({
                   component: "plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler",

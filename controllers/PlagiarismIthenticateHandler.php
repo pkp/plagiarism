@@ -24,6 +24,7 @@ use APP\submission\Submission;
 use APP\template\TemplateManager;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
+use Exception;
 use Illuminate\Support\Arr;
 use PKP\context\Context;
 use PKP\core\Core;
@@ -279,31 +280,33 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
 		}
 
-		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+		$publication = $submission->getCurrentPublication();
+		$author = $publication->getPrimaryAuthor();
 
-			if ($request->getUserVar('redirectForm') === 'confirmEula' ) {
-				$this->generateUserNotification(
-					$request,
-					Notification::NOTIFICATION_TYPE_ERROR, 
-					__('plugins.generic.plagiarism.action.submitSubmission.error')
-				);
-				return $this->triggerDataChangedEvent($submissionFile);
-			}
-
-			return new JSONMessage(false, __('plugins.generic.plagiarism.action.submitSubmission.error'));
-		}
-
-		if ($request->getUserVar('redirectForm') === 'confirmEula' ) {
-			$this->generateUserNotification(
+		if (!$author) {
+			return $this->getSubmitSubmissionResponse(
 				$request,
-				Notification::NOTIFICATION_TYPE_SUCCESS, 
-				__('plugins.generic.plagiarism.action.submitSubmission.success')
+				$submissionFile,
+				Notification::NOTIFICATION_TYPE_ERROR,
+				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error')
 			);
-	
-			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
-		return new JSONMessage(true, __('plugins.generic.plagiarism.action.submitSubmission.success'));
+		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+			return $this->getSubmitSubmissionResponse(
+				$request,
+				$submissionFile,
+				Notification::NOTIFICATION_TYPE_ERROR,
+				__('plugins.generic.plagiarism.action.submitSubmission.error')
+			);
+		}
+
+		return $this->getSubmitSubmissionResponse(
+			$request,
+			$submissionFile,
+			Notification::NOTIFICATION_TYPE_SUCCESS,
+			__('plugins.generic.plagiarism.action.submitSubmission.success')
+		);
 	}
 
 	/**
@@ -428,6 +431,31 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		]);
 
 		return $templateManager;
+	}
+
+	/**
+	 * Get the response of attempted submission file upload to iThenticate response 
+	 */
+	protected function getSubmitSubmissionResponse(
+		Request $request,
+		SubmissionFile $submissionFile,
+		int $notificationType,
+		string $notificationContent,
+	): JSONMessage
+	{
+		if ($request->getUserVar('redirectForm') === 'confirmEula' ) {
+			$this->generateUserNotification(
+				$request,
+				$notificationType, 
+				$notificationContent
+			);
+			return $this->triggerDataChangedEvent($submissionFile);
+		}
+
+		return new JSONMessage(
+			$notificationType == Notification::NOTIFICATION_TYPE_SUCCESS,
+			$notificationContent
+		);
 	}
 
 	/**

@@ -47,3 +47,7 @@ msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
 "Настройки iThenticate найдены в файле config.inc.php, поэтому заданные здесь "
 "настройки не будут использованы."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Невозможно выполнить проверку на плагиат в представленной работе, в которой не указан основной автор текущей публикации."

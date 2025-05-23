@@ -311,3 +311,7 @@ msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
 "Pengaturan akun yang digunakan untuk mengunggah naskah ke iThenticate. "
 "Hubungi administrator iThenticate anda untuk keterangan lebih lanjut."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Can not run plagiarism check on a submission with no primary author for current publication."

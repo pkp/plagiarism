@@ -327,3 +327,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.action.launchViewer.error"
 msgstr "Rapportvisning er ikke tilgængelig lige nu, prøv venligst igen senere."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Kan ikke køre plagiatcheck på en indsendelse uden primær forfatter til aktuel udgivelse."

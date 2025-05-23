@@ -332,3 +332,7 @@ msgstr "Einreichungsdetails sind nicht verfügbar."
 
 msgid "plugins.generic.plagiarism.submission.status.CREATED"
 msgstr "Einreichung wurde erstellt, aber es wurden keine Dateien hochgeladen"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Bei einer Einreichung ohne Hauptautor für die aktuelle Veröffentlichung kann keine Plagiatsprüfung durchgeführt werden."

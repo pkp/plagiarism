@@ -6,7 +6,7 @@
         >
             <a
                 :href="fileStatus.ithenticateViewerUrl ?? '#'"
-                :target="_blank"
+                target="_blank"
                 :title="t('plugins.generic.plagiarism.similarity.action.launch.viewer.title')"
             >
                 <img 
@@ -39,13 +39,14 @@
 
     const fileStatus = computed(() => {
 
-    const submissionFile = isOPS() ? props.galley.file : props.file;
+        const submissionFile = isOPS() ? props.galley.file : props.file;
 
-    if (!fileStore?.ithenticateStatus) {
-        return {};
-    }
+        if (!fileStore?.ithenticateStatus) {
+            return {};
+        }
 
-    const status = deduceFileStatus(submissionFile, fileStore.ithenticateStatus || {});
+        const status = deduceFileStatus(submissionFile, fileStore.ithenticateStatus || {});
+
         return status;
     });
 </script>

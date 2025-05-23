@@ -2,7 +2,7 @@ import ithenticateSimilarityScoreCell from "./Components/ithenticateSimilaritySc
 
 pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
 
-const {useLocalize } = pkp.modules.useLocalize;
+const { useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
 const { useNotify } = pkp.modules.useNotify;
 const { useCurrentUser } = pkp.modules.useCurrentUser;
@@ -72,19 +72,11 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     function getLabel(userStatus, submissionStatus, fileStatus)
     {
-        if (fileStatus && fileStatus.ithenticateSimilarityScheduled) {
-            return t('plugins.generic.plagiarism.similarity.action.refreshReport.title');
-        }
-
-        if (!userStatus.ithenticateEulaVersion || !submissionStatus.ithenticateEulaVersion) {
-            return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
-        }
-
         if (!fileStatus.ithenticateId) {
             return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
         }
 
-        if (!fileStatus.ithenticateSimilarityScheduled) {
+        if (fileStatus.ithenticateId && !fileStatus.ithenticateSimilarityScheduled) {
             return t('plugins.generic.plagiarism.similarity.action.generateReport.title');
         }
 
@@ -173,8 +165,13 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
             const submissionStatus = ithenticateStatus.value?.submission;
             const contextStatus = ithenticateStatus.value?.context;
 
+            // If file status is not found, return original result
+            if (!fileStatus) {
+                return [...originalResult];
+            }
+
             // Action on non allowed file is restricted
-            if (!fileStatus?.ithenticateUploadAllowed) {
+            if (!fileStatus.ithenticateUploadAllowed) {
                 return [...originalResult];
             }
 
@@ -193,7 +190,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
                         const {notify} = useNotify();
                         
-                        if (!fileStatus.ithenticateSimilarityScheduled && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
+                        if (!fileStatus.ithenticateId && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
 
                             const {openLegacyModal} = useLegacyGridUrl({
