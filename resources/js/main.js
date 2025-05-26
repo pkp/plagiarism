@@ -155,6 +155,9 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         const submission = fileStore.props.submission;
         const submissionFile = isOPS() ? args.galley.file : args.file;
 
+        // For OJS and OMP, actions are one allowed proper current workflow stage
+        // e.g. when submission stage match the current workflow stage
+        // and for OPS, as only available stage is production after submission done
         if (!isOPS() && (submission.stageId !== submissionStageId)) {
             return [...originalResult];
         }

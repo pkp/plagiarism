@@ -18,7 +18,6 @@ require(dirname(dirname(dirname(dirname(dirname(__FILE__))))) . '/tools/bootstra
 
 use Exception;
 use Throwable;
-use APP\core\Services;
 use PKP\context\Context;
 use APP\core\Application;
 use PKP\context\ContextDAO;
