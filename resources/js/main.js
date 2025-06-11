@@ -11,6 +11,11 @@ import { deduceFileStatus } from "./fileStatus";
 
 function runPlagiarismAction(piniaContext, stageNamespace) {
     
+    const dashboardStore = pkp.registry.getPiniaStore("dashboard");
+    if (dashboardStore.dashboardPage !== "editorialDashboard") {
+        return;
+    }
+
     const { useUrl } = pkp.modules.useUrl;
     const { useFetch } = pkp.modules.useFetch;
     const { t } = useLocalize();
