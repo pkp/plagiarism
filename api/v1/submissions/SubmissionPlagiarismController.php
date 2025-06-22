@@ -26,9 +26,12 @@ use APP\API\v1\submissions\SubmissionController;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use PKP\security\authorization\SubmissionAccessPolicy;
 use PKP\security\authorization\internal\SubmissionCompletePolicy;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SubmissionPlagiarismController extends SubmissionController
 {
+    public const MAX_STREAM_TIME = 600;
+
     protected static PlagiarismPlugin $plugin;
 
     /**
@@ -47,7 +50,7 @@ class SubmissionPlagiarismController extends SubmissionController
         $illuminateRequest = $args[0]; /** @var \Illuminate\Http\Request $illuminateRequest */
         $actionName = static::getRouteActionName($illuminateRequest);
 
-        if ($actionName === 'plagiarismStatus') {
+        if (in_array($actionName, ['plagiarismStatus', 'streamPlagiarismStatus'])) {
             $this->addPolicy(new SubmissionAccessPolicy($request, $args, $roleAssignments));
             $this->addPolicy(new SubmissionCompletePolicy($request, $args));
         }
@@ -73,6 +76,10 @@ class SubmissionPlagiarismController extends SubmissionController
             Route::post('{submissionId}/plagiarism/status', $this->plagiarismStatus(...))
                 ->name('submission.plagiarism.status')
                 ->whereNumber('submissionId');
+            
+            Route::get('{submissionId}/plagiarism/status/stream', $this->streamPlagiarismStatus(...))
+                ->name('submission.plagiarism.stream')
+                ->whereNumber('submissionId');
         });
     }
 
@@ -80,6 +87,107 @@ class SubmissionPlagiarismController extends SubmissionController
      * Get the plagiarism status and details for a submission
      */
     public function plagiarismStatus(SubmissionPlagiarismStatus $illuminateRequest): JsonResponse
+    {
+        return response()->json($this->getPlagiarismStatusData(), Response::HTTP_OK);
+    }
+
+    /**
+     * Get the plagiarism status as stream response
+     */
+    public function streamPlagiarismStatus(SubmissionPlagiarismStatus $illuminateRequest): StreamedResponse
+    {
+        $originalMaxExecutionTime = (int) ini_get('max_execution_time');
+        
+        // If max_execution_time is 0 (infinite) or >= MAX_STREAM_TIME, use it (capped at MAX_STREAM_TIME)
+        if ($originalMaxExecutionTime === 0 || $originalMaxExecutionTime >= static::MAX_STREAM_TIME) {
+            $maxDuration = static::MAX_STREAM_TIME - 5; // Cap at (MAX_STREAM_TIME - 5) seconds with buffer
+        } else {
+            // Attempt to set max_execution_time to MAX_STREAM_TIME seconds
+            $setSuccess = ini_set('max_execution_time', static::MAX_STREAM_TIME);
+            $currentMaxExecutionTime = (int) ini_get('max_execution_time');
+
+            if ($setSuccess !== false && $currentMaxExecutionTime === static::MAX_STREAM_TIME) {
+                $maxDuration = static::MAX_STREAM_TIME - 5; // (MAX_STREAM_TIME - 5) seconds with buffer
+            } else {
+                // Failsafe: Use min(original max_execution_time, MAX_STREAM_TIME) - 5
+                $maxDuration = $originalMaxExecutionTime > 0 && $originalMaxExecutionTime <= static::MAX_STREAM_TIME
+                    ? $originalMaxExecutionTime - 5
+                    : static::MAX_STREAM_TIME - 5;
+            }
+        }
+    
+        $maxDuration = max(1, $maxDuration);
+        $startTime = time();
+
+        $response = new StreamedResponse(function () use ($startTime, $maxDuration, $originalMaxExecutionTime, $setSuccess, $currentMaxExecutionTime) {
+
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
+
+            ob_implicit_flush(true);
+
+            // Send initial headers
+            header('Content-Type: text/event-stream');
+            header('Cache-Control: no-cache, no-store, must-revalidate');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no');
+            header('X-Cache: MISS');
+            flush();
+
+            // Send maxDuration and iniSetFailed flag to client
+            echo "data: " . json_encode([
+                'maxDuration' => $maxDuration,
+                'iniSetFailed' => !(
+                    $originalMaxExecutionTime === 0 || 
+                    $originalMaxExecutionTime >= static::MAX_STREAM_TIME
+                ) && (
+                    $setSuccess === false || 
+                    $currentMaxExecutionTime !== static::MAX_STREAM_TIME
+                )
+            ]) . "\n\n";
+            flush();
+
+            echo ": init\n\n";
+            flush();
+
+            while (true) {
+                if ((time() - $startTime) >= $maxDuration) {
+                    echo "event: stream_end\ndata: {\"message\": \"Stream ended after {$maxDuration} seconds\"}\n\n";
+                    flush();
+                    break;
+                }
+
+                $data = $this->getPlagiarismStatusData();
+
+                echo "data: " . json_encode($data) . "\n\n";
+                
+                // Pad output to ensure immediate flush (for some servers)
+                echo str_pad("", 4096) . "\n";
+
+                flush();
+
+                sleep(10);
+
+                if (connection_aborted()) {
+                    break;
+                }
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Connection', 'keep-alive');
+        $response->headers->set('X-Accel-Buffering', 'no');
+        $response->headers->set('X-Cache', 'MISS');
+
+        return $response;
+    }
+
+    /**
+     * Get the structured plagiarism status data
+     */
+    protected function getPlagiarismStatusData(): array
     {
         $submission = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
 
@@ -116,7 +224,7 @@ class SubmissionPlagiarismController extends SubmissionController
             ];
         }
 
-        return response()->json([
+        return [
             'context' => [
                 'eulaRequired' => (bool)static::$plugin->getContextEulaDetails($context, 'require_eula'),
             ],
@@ -136,6 +244,6 @@ class SubmissionPlagiarismController extends SubmissionController
                 ],
             ],
             'files' => $fileStatuses,
-        ], Response::HTTP_OK);
+        ];
     }
 }

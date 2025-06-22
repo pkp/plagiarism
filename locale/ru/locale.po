@@ -51,3 +51,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Невозможно выполнить проверку на плагиат в представленной работе, в которой не указан основной автор текущей публикации."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Ожидание планирования процесса создания отчета о сходстве."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Создание отчета о сходстве было успешно запланировано."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Ожидание генерации результата сходства."

@@ -339,3 +339,15 @@ msgstr "Потвърждавам и продължавам със следващ
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Не може да се извърши проверка за плагиатство на изпратено без основен автор за текущата публикация."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Изчаква се планиране на процеса на генериране на отчет за сходство."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Генерирането на отчет за сходство е планирано успешно."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Изчакване за генериране на резултат за сходство."

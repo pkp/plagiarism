@@ -314,3 +314,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Preverjanja plagiatorstva ni mogoče zagnati pri predložitvi brez primarnega avtorja za trenutno objavo."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Čakanje na načrtovanje postopka ustvarjanja poročila o podobnosti."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Generiranje poročila o podobnosti je bilo uspešno načrtovano."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Čakanje na generiranje rezultata podobnosti."

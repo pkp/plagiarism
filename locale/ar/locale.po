@@ -210,3 +210,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "لا يمكن تشغيل فحص الانتحال على إرسال ليس له مؤلف رئيسي للنشر الحالي"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "في انتظار جدولة عملية إنشاء تقرير التشابه"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "تمت جدولة إنشاء تقرير التشابه بنجاح"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "في انتظار إنشاء نتيجة التشابه"

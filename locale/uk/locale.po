@@ -309,3 +309,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Не можна запустити перевірку на плагіат для подання без основного автора для поточної публікації."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Очікування на планування процесу створення звіту про подібність."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Створення звіту про подібність успішно заплановано."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Очікування на створення результату подібності."

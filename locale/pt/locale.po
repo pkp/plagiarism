@@ -52,3 +52,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Não é possível executar a verificação de plágio em um envio sem autor principal para a publicação atual."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Aguarda agendamento do processo de geração do relatório de similaridade."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "A geração do relatório de similaridade foi agendada com sucesso."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Aguarda para gerar resultado de similaridade."

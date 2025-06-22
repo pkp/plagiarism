@@ -21,3 +21,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "არ შეიძლება პლაგიატის შემოწმება წარდგენის გარეშე, რომელსაც არ აქვს ძირითადი ავტორი მიმდინარე პუბლიკაციისთვის"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "მსგავსების ანგარიშის გენერირების პროცესის დაგეგმვის მოლოდინში."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "მსგავსების ანგარიშის გენერირება წარმატებით დაიგეგმა."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "ველოდებით მსგავსების შედეგის გენერირებას."

@@ -315,3 +315,15 @@ msgstr ""
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Can not run plagiarism check on a submission with no primary author for current publication."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Menunggu untuk menjadwalkan proses pembuatan laporan kesamaan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Pembuatan laporan kesamaan telah berhasil dijadwalkan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Menunggu untuk menghasilkan hasil kesamaan."

@@ -331,3 +331,15 @@ msgstr "Rapportvisning er ikke tilgængelig lige nu, prøv venligst igen senere.
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Kan ikke køre plagiatcheck på en indsendelse uden primær forfatter til aktuel udgivelse."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Venter på at planlægge generering af lighedsrapport."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Generering af lighedsrapport er planlagt."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Venter på at generere lighedsresultat."

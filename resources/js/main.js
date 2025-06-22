@@ -6,7 +6,7 @@ const { useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
 const { useNotify } = pkp.modules.useNotify;
 const { useCurrentUser } = pkp.modules.useCurrentUser;
-import { computed, watch } from "vue";
+import { ref, computed, watch, onUnmounted } from "vue";
 import { deduceFileStatus } from "./fileStatus";
 
 function runPlagiarismAction(piniaContext, stageNamespace) {
@@ -24,6 +24,13 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     const fileStore = piniaContext.store;
     const { submission, submissionStageId } = fileStore.props;
+
+    const { notify } = useNotify();
+
+    const eventSource = ref(null);
+    const timeoutId = ref(null);
+    
+    const maxDuration = ref(600); // Store maxDuration from server, Default to 600 seconds
 
     const ithenticateRequestParams = computed(() => {
         const fileIds = isOPS()
@@ -49,17 +56,52 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         }
     );
     
-    watch(ithenticateRequestParams, (newRequestParams) => {
-        if (newRequestParams?.fileIds?.length) {
-            fetchIthenticateStatus();
-        }
-    });
+    watch(
+        ithenticateRequestParams, 
+        async (newRequestParams) => {
+            if (newRequestParams?.fileIds?.length) {
+                try {
+                    await fetchIthenticateStatus();
+                    fileStore.ithenticateStatus = ithenticateStatus;
+                    
+                    // Only if valid ithenticateStatus data available,
+                    // then should look for possibility to initiate SSE stream
+                    if (ithenticateStatus.value) {
+                        // Only if require SSE streaming and no SSE stream already active
+                        // initiate new SSE stream
+                        if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
+                            streamPlagiarismResults(newRequestParams);
+                        }
+                    }
+                } catch (error) {
+                    // console.error("Error fetching ithenticateStatus:", error);
+                }
+            }
+        },
+        { deep: true }
+    );
 
+    // Initial fetch for OPS
     if (isOPS()) {
-        fetchIthenticateStatus();
-    }
+        (async () => {
+            try {
+                await fetchIthenticateStatus();
+                fileStore.ithenticateStatus = ithenticateStatus;
 
-    fileStore.ithenticateStatus = ithenticateStatus;
+                // Only if valid ithenticateStatus data available,
+                // then should look for possibility to initiate SSE stream
+                if (ithenticateStatus.value && ithenticateRequestParams.value?.fileIds?.length) {
+                    // Only if require SSE streaming and no SSE stream already active
+                    // initiate new SSE stream
+                    if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
+                        streamPlagiarismResults(ithenticateRequestParams.value);
+                    }
+                }
+            } catch (error) {
+                // console.error("Error in initial OPS fetch:", error);
+            }
+        })();
+    }
 
     fileStore.extender.extendFn('getColumns', (columns, args) => {
         const newColumns = [...columns];
@@ -156,6 +198,16 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         return ithenticateActionData;
     }
 
+    function shouldStreamPlagiarismResults(status) {
+        if (!status?.files) {
+            return false;
+        }
+        return Object.values(status.files).some(file => 
+            file.ithenticateId !== null &&
+            file.ithenticateSimilarityResult === null
+        );
+    }
+
     fileStore.extender.extendFn('getItemActions', (originalResult, args) => {
         const submission = fileStore.props.submission;
         const submissionFile = isOPS() ? args.galley.file : args.file;
@@ -195,8 +247,6 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     name: "conductPlagiarismCheck",
                     icon: "Globe",
                     actionFn: (args) => {
-
-                        const {notify} = useNotify();
                         
                         if (!fileStatus.ithenticateId && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
@@ -215,8 +265,12 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                                 {
                                     title: t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
                                 },
-                                () => {
-                                    fetchIthenticateStatus();
+                                async () => {
+                                    await fetchIthenticateStatus();
+
+                                    if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
+                                        streamPlagiarismResults(ithenticateRequestParams.value);
+                                    }
                                 },
                             );
 
@@ -245,7 +299,11 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                                             );
                                         }
 
-                                        fetchIthenticateStatus();
+                                        await fetchIthenticateStatus();
+
+                                        if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
+                                            streamPlagiarismResults(ithenticateRequestParams.value);
+                                        }
                                     },
                                 },
                                 {
@@ -263,6 +321,262 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         }
 
         return [...originalResult];
+    });
+
+    // Implementation for streaming plagiarism results
+    function streamPlagiarismResults(params) {
+        if (eventSource.value) {
+            eventSource.value.close();
+            eventSource.value = null;
+        }
+
+        if (timeoutId.value) {
+            clearTimeout(timeoutId.value);
+            timeoutId.value = null;
+        }
+
+        if (!params?.fileIds?.length) {
+            return;
+        }
+
+        const queryParams = new URLSearchParams({
+            submissionId: params.submissionId,
+            stageId: params.stageId,
+            fileIds: params.fileIds.join(","),
+        });
+        const streamUrl = `${apiUrl.value}/stream?${queryParams.toString()}`;
+
+        let lastMessageTime = Date.now();
+        let pollingInterval = null;
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        // Initialize EventSource
+        try {
+            eventSource.value = new EventSource(streamUrl);
+
+            // Fallback to polling if no SSE messages after 30 seconds
+            const fallbackTimeout = setTimeout(() => {
+                if (Date.now() - lastMessageTime > 30000) {
+                    console.log("No SSE messages received, falling back to polling");
+                    if (eventSource.value) {
+                        eventSource.value.close();
+                        eventSource.value = null;
+                    }
+                    pollingInterval = setInterval(async () => {
+                        
+                        try {
+                            if (!fileStore.ithenticateStatus.value && retryCount < maxRetries) {
+                                await fetchIthenticateStatus();
+                                retryCount++;
+                            } else if (shouldStreamPlagiarismResults(ithenticateStatus.value)) {
+                                await fetchIthenticateStatus();
+                                retryCount = 0; // Reset retries on successful fetch
+                            } else {
+                                clearInterval(pollingInterval);
+                                pollingInterval = null;
+                                retryCount = 0;
+                            }
+                        } catch (error) {
+                            retryCount++;
+                            if (retryCount >= maxRetries) {
+                                clearInterval(pollingInterval);
+                                pollingInterval = null;
+                                retryCount = 0;
+                            }
+                        }
+                    }, 10000);
+                }
+            }, 30000);
+
+            // Handle SSE messages
+            eventSource.value.onmessage = (event) => {
+                lastMessageTime = Date.now();
+
+                try {
+                    const data = JSON.parse(event.data);
+                    // console.log("Parsed data:", data);
+
+                    // Check for maxDuration from server
+                    if (data.maxDuration) {
+                        maxDuration.value = Number(data.maxDuration);
+                        
+                        // Update timeout with new maxDuration
+                        if (timeoutId.value) {
+                            clearTimeout(timeoutId.value);
+                            timeoutId.value = null;
+                        }
+
+                        timeoutId.value = setTimeout(() => {
+                            console.log(`Client-side ${maxDuration.value}-second limit reached at:`, new Date().toISOString());
+                            if (eventSource.value) {
+                                eventSource.value.close();
+                                eventSource.value = null;
+                            }
+                            timeoutId.value = null;
+                            clearTimeout(fallbackTimeout);
+                            if (pollingInterval) {
+                                clearInterval(pollingInterval);
+                            }
+                            fetchIthenticateStatus();
+                        }, maxDuration.value * 1000);
+
+                        return;
+                    }
+
+                    if (data && fileStore.ithenticateStatus) {
+                        
+                        const oldFiles = { ...fileStore.ithenticateStatus.value?.files || {} };
+
+                        fileStore.ithenticateStatus.value = {
+                            ...fileStore.ithenticateStatus.value,
+                            ...data,
+                        };
+
+                        let hasNewSimilarityResult = false,
+                            hasNewReportScheduled = false;
+
+
+                        if (data.files && oldFiles) {
+                            Object.entries(data.files).forEach(([fileId, newFile]) => {
+                                const oldFile = oldFiles[fileId];
+                                if (oldFile && oldFile.ithenticateId !== null) {
+                                    if (oldFile.ithenticateSimilarityResult === null && newFile.ithenticateSimilarityResult !== null) {
+                                        hasNewSimilarityResult = true;
+                                    }
+
+                                    if (oldFile.ithenticateSimilarityScheduled != newFile.ithenticateSimilarityScheduled) {
+                                        hasNewReportScheduled = true;
+                                    }
+                                }
+                            });
+                        }
+
+                        if (hasNewReportScheduled) {
+                            notify(
+                                t('plugins.generic.plagiarism.action.scheduleSimilarityReport.success'),
+                                'success'
+                            );
+                        }
+
+                        if (hasNewSimilarityResult) {
+                            notify(
+                                t('plugins.generic.plagiarism.action.refreshSimilarityResult.success'),
+                                'success'
+                            );
+                        }
+
+                        if (hasNewSimilarityResult || hasNewReportScheduled) {
+                            fetchIthenticateStatus();
+                        }
+
+                        if (!shouldStreamPlagiarismResults(fileStore.ithenticateStatus.value)) {
+                            // No files require further SSE streaming, close connection
+                            if (eventSource.value) {
+                                eventSource.value.close();
+                                eventSource.value = null;
+                            }
+                            if (timeoutId.value) {
+                                clearTimeout(timeoutId.value);
+                                timeoutId.value = null;
+                            }
+
+                            clearTimeout(fallbackTimeout);
+                            if (pollingInterval) {
+                                clearInterval(pollingInterval);
+                            }
+
+                            fetchIthenticateStatus();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing EventSource data:", e);
+                }
+            };
+
+            // Handle custom stream_end event
+            eventSource.value.addEventListener("stream_end", () => {
+                if (eventSource.value) {
+                    eventSource.value.close();
+                    eventSource.value = null;
+                }
+                if (timeoutId.value) {
+                    clearTimeout(timeoutId.value);
+                    timeoutId.value = null;
+                }
+
+                clearTimeout(fallbackTimeout);
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                }
+
+                fetchIthenticateStatus();
+            });
+
+            eventSource.value.onerror = (event) => {
+                if (eventSource.value) {
+                    eventSource.value.close();
+                    eventSource.value = null;
+                }
+                if (timeoutId.value) {
+                    clearTimeout(timeoutId.value);
+                    timeoutId.value = null;
+                }
+
+                clearTimeout(fallbackTimeout);
+
+                pollingInterval = setInterval(() => {
+                    if (shouldStreamPlagiarismResults(fileStore.ithenticateStatus.value)) {
+                        fetchIthenticateStatus();
+                    } else {
+                        // No files require polling, stopping
+                        clearInterval(pollingInterval);
+                    }
+                }, 10000);
+                
+                fetchIthenticateStatus();
+            };
+
+            eventSource.value.onopen = () => {
+                console.log("EventSource connection opened at:", new Date().toISOString());
+            };
+
+        } catch (e) {
+            console.error("Failed to initialize EventSource:", e);
+            
+            pollingInterval = setInterval(() => {
+                if (shouldStreamPlagiarismResults(fileStore.ithenticateStatus.value)) {
+                    fetchIthenticateStatus();
+                } else {
+                    clearInterval(pollingInterval);
+                }
+            }, 10000);
+        }
+        
+    }
+
+    // Cleanup on component unmount or page unload
+    onUnmounted(() => {
+        if (eventSource.value) {
+            eventSource.value.close();
+            eventSource.value = null;
+        }
+        if (timeoutId.value) {
+            clearTimeout(timeoutId.value);
+            timeoutId.value = null;
+        }
+    });
+
+    window.addEventListener("beforeunload", () => {
+        if (eventSource.value) {
+            eventSource.value.close();
+            eventSource.value = null;
+        }
+        if (timeoutId.value) {
+            clearTimeout(timeoutId.value);
+            timeoutId.value = null;
+        }
     });
 }
 
