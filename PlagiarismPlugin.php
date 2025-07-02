@@ -746,6 +746,14 @@ class PlagiarismPlugin extends GenericPlugin
 		$publication = $submission->getCurrentPublication();
 		$author = $publication->getPrimaryAuthor();
 
+		if (!$author) {
+			$this->sendErrorMessage(
+				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error'),
+				$submission->getId()
+			);
+			return false;
+		}
+
 		$submissionUuid = $ithenticate->createSubmission(
 			$request->getSite(),
 			$submission,
