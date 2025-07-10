@@ -1,101 +1,68 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/api/v1/submissions/SubmissionPlagiarismController.php
+ * @file plugins/generic/plagiarism/classes/api/PlagiarismApiActionManager.php
  *
  * Copyright (c) 2013-2025 Simon Fraser University
  * Copyright (c) 2013-2025 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
- * @class SubmissionPlagiarismController
+ * @class PlagiarismApiActionManager
  *
- * @brief  API controller class to retrieve itenticate details for submission.
+ * @brief  API manager class to retrieve itenticate details for submission.
  */
 
-namespace APP\plugins\generic\plagiarism\api\v1\submissions;
+namespace APP\plugins\generic\plagiarism\classes\api;
 
+use APP\core\Application;
 use APP\facades\Repo;
-use APP\plugins\generic\plagiarism\api\v1\submissions\formRequests\SubmissionPlagiarismStatus;
+use APP\submission\Submission;
+use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use PKP\security\Role;
 use PKP\core\PKPRequest;
-use APP\core\Application;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Route;
-use APP\API\v1\submissions\SubmissionController;
-use APP\plugins\generic\plagiarism\PlagiarismPlugin;
-use PKP\security\authorization\SubmissionAccessPolicy;
-use PKP\security\authorization\internal\SubmissionCompletePolicy;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class SubmissionPlagiarismController extends SubmissionController
+class PlagiarismApiActionManager
 {
+    /**
+     * Maximum time (in seconds) for streaming responses
+     */
     public const MAX_STREAM_TIME = 600;
 
-    protected static PlagiarismPlugin $plugin;
+    /**
+     * Plagiarism plugin instance
+     */
+    protected PlagiarismPlugin $plugin;
 
     /**
-     * Set the plugin instance
+     * Constructor
      */
-    public static function setPlugin(PlagiarismPlugin $plugin)
+    public function __construct(PlagiarismPlugin $plugin)
     {
-        static::$plugin = $plugin;
-    }
-
-    /**
-     * @copydoc \PKP\core\PKPBaseController::authorize()
-     */
-    public function authorize(PKPRequest $request, array &$args, array $roleAssignments): bool
-    {
-        $illuminateRequest = $args[0]; /** @var \Illuminate\Http\Request $illuminateRequest */
-        $actionName = static::getRouteActionName($illuminateRequest);
-
-        if (in_array($actionName, ['plagiarismStatus', 'streamPlagiarismStatus'])) {
-            $this->addPolicy(new SubmissionAccessPolicy($request, $args, $roleAssignments));
-            $this->addPolicy(new SubmissionCompletePolicy($request, $args));
-        }
-
-        return parent::authorize($request, $args, $roleAssignments);
-    }
-
-    /**
-     * @copydoc \PKP\core\PKPBaseController::getGroupRoutes()
-     */
-    public function getGroupRoutes(): void
-    {
-        parent::getGroupRoutes();
-
-        Route::middleware([
-            self::roleAuthorizer([
-                Role::ROLE_ID_SITE_ADMIN,
-                Role::ROLE_ID_MANAGER,
-                Role::ROLE_ID_SUB_EDITOR,
-                Role::ROLE_ID_ASSISTANT,
-            ]),
-        ])->group(function () {
-            Route::post('{submissionId}/plagiarism/status', $this->plagiarismStatus(...))
-                ->name('submission.plagiarism.status')
-                ->whereNumber('submissionId');
-            
-            Route::get('{submissionId}/plagiarism/status/stream', $this->streamPlagiarismStatus(...))
-                ->name('submission.plagiarism.stream')
-                ->whereNumber('submissionId');
-        });
+        $this->plugin = $plugin;
     }
 
     /**
      * Get the plagiarism status and details for a submission
      */
-    public function plagiarismStatus(SubmissionPlagiarismStatus $illuminateRequest): JsonResponse
+    public function plagiarismStatus(Submission $submission, ?PKPRequest $request = null): JsonResponse
     {
-        return response()->json($this->getPlagiarismStatusData(), Response::HTTP_OK);
+        $request ??= Application::get()->getRequest();
+
+        return response()->json(
+            $this->getPlagiarismStatusData($submission, $request),
+            Response::HTTP_OK
+        );
     }
 
     /**
      * Get the plagiarism status as stream response
      */
-    public function streamPlagiarismStatus(SubmissionPlagiarismStatus $illuminateRequest): StreamedResponse
+    public function streamPlagiarismStatus(Submission $submission, ?PKPRequest $request = null): StreamedResponse
     {
+        $request ??= Application::get()->getRequest();
         $originalMaxExecutionTime = (int) ini_get('max_execution_time');
         
         // If max_execution_time is 0 (infinite) or >= MAX_STREAM_TIME, use it (capped at MAX_STREAM_TIME)
@@ -119,7 +86,7 @@ class SubmissionPlagiarismController extends SubmissionController
         $maxDuration = max(1, $maxDuration);
         $startTime = time();
 
-        $response = new StreamedResponse(function () use ($startTime, $maxDuration, $originalMaxExecutionTime, $setSuccess, $currentMaxExecutionTime) {
+        $response = new StreamedResponse(function () use ($submission, $request, $startTime, $maxDuration, $originalMaxExecutionTime, $setSuccess, $currentMaxExecutionTime) {
 
             while (ob_get_level() > 0) {
                 ob_end_flush();
@@ -158,7 +125,7 @@ class SubmissionPlagiarismController extends SubmissionController
                     break;
                 }
 
-                $data = $this->getPlagiarismStatusData();
+                $data = $this->getPlagiarismStatusData($submission, $request);
 
                 echo "data: " . json_encode($data) . "\n\n";
                 
@@ -187,11 +154,8 @@ class SubmissionPlagiarismController extends SubmissionController
     /**
      * Get the structured plagiarism status data
      */
-    protected function getPlagiarismStatusData(): array
+    public function getPlagiarismStatusData(Submission $submission, PKPRequest $request): array
     {
-        $submission = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
-
-        $request = $this->getRequest();
         $context = $request->getContext();
         
         // Here need to re-retrieve user to make sure the schema updates
@@ -207,7 +171,7 @@ class SubmissionPlagiarismController extends SubmissionController
         foreach ($submissionFiles as $submissionFile) {
 
             $fileStatuses[$submissionFile->getId()] = [
-                'ithenticateUploadAllowed' => !static::$plugin->isSubmissionFileTypeRestricted($submissionFile),
+                'ithenticateUploadAllowed' => !$this->plugin->isSubmissionFileTypeRestricted($submissionFile),
                 'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
                 'ithenticateId' => $submissionFile->getData('ithenticateId'),
                 'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
@@ -216,17 +180,17 @@ class SubmissionPlagiarismController extends SubmissionController
                     : null,
                 'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
                 'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
-                'ithenticateLogo' => static::$plugin->getIThenticateLogoUrl(),
-                'ithenticateViewerUrl' => static::$plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
-                'ithenticateUploadUrl' => static::$plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
-                'ithenticateReportScheduleUrl' => static::$plugin->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
-                'ithenticateReportRefreshUrl' => static::$plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
+                'ithenticateLogo' => $this->plugin->getIThenticateLogoUrl(),
+                'ithenticateViewerUrl' => $this->plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
+                'ithenticateUploadUrl' => $this->plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
+                'ithenticateReportScheduleUrl' => $this->plugin->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
+                'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
             ];
         }
 
         return [
             'context' => [
-                'eulaRequired' => (bool)static::$plugin->getContextEulaDetails($context, 'require_eula'),
+                'eulaRequired' => (bool)$this->plugin->getContextEulaDetails($context, 'require_eula'),
             ],
             'submission' => [
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),

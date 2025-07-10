@@ -16,8 +16,6 @@ namespace APP\plugins\generic\plagiarism;
 
 use APP\core\Application;
 use APP\core\Request;
-use APP\API\v1\submissions\SubmissionController;
-use APP\plugins\generic\plagiarism\api\v1\submissions\SubmissionPlagiarismController;
 use APP\facades\Repo;
 use APP\template\TemplateManager;
 use APP\notification\NotificationManager;
@@ -28,14 +26,23 @@ use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
+use APP\plugins\generic\plagiarism\classes\api\formRequests\SubmissionPlagiarismStatus;
+use APP\plugins\generic\plagiarism\classes\api\PlagiarismApiActionManager;
+use APP\API\v1\submissions\SubmissionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request as IlluminateRequest;
+use Illuminate\Http\Response;
 use PKP\handler\APIHandler;
 use PKP\core\PKPBaseController;
 use PKP\core\PKPRequest;
 use PKP\components\forms\FormComponent;
 use PKP\services\PKPSchemaService;
+use PKP\security\authorization\internal\SubmissionCompletePolicy;
+use PKP\security\authorization\SubmissionAccessPolicy;
 use PKP\plugins\Hook;
+use PKP\plugins\interfaces\HasAuthorizationPolicy;
 use PKP\core\Core;
 use PKP\user\User;
 use PKP\submissionFile\SubmissionFile;
@@ -48,6 +55,7 @@ use PKP\linkAction\LinkAction;
 use PKP\plugins\GenericPlugin;
 use PKP\linkAction\request\AjaxModal;
 use PKP\pages\submission\PKPSubmissionHandler;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Throwable;
 
 class PlagiarismPlugin extends GenericPlugin
@@ -163,12 +171,85 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
 
-			if ($apiController instanceof SubmissionController) {
-				SubmissionPlagiarismController::setPlugin($this);
-				$apiController = new SubmissionPlagiarismController();
+			if (!$apiController instanceof SubmissionController) {
+				return Hook::CONTINUE;
 			}
+
+			$apiManager = new PlagiarismApiActionManager($this);
+
+			$apiHandler->addRoute(
+				'POST',
+				'{submissionId}/plagiarism/status',
+				function (SubmissionPlagiarismStatus $request) use ($apiController, $apiManager): JsonResponse {
+
+					// $submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
+
+					$submission = Repo::submission()->get($request->route('submissionId'));
+					
+					if (!$submission) {
+						return response()->json([
+							'error' => 'Submission not found'
+						], Response::HTTP_NOT_FOUND);
+					}
+
+					return $apiManager->plagiarismStatus($submission, $apiController->getRequest());
+				},
+				'submission.plagiarism.status',
+				[
+					Role::ROLE_ID_SITE_ADMIN,
+					Role::ROLE_ID_MANAGER,
+					Role::ROLE_ID_SUB_EDITOR,
+					Role::ROLE_ID_ASSISTANT,
+				],
+				// new class implements HasAuthorizationPolicy
+				// {
+				// 	public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
+				// 	{
+				// 		return [
+				// 			new SubmissionAccessPolicy($request, $args, $roleAssignments),
+				// 			new SubmissionCompletePolicy($request, $args),
+				// 		];
+				// 	}
+				// }
+			);
+
+			$apiHandler->addRoute(
+				'GET',
+				'{submissionId}/plagiarism/status/stream',
+				function (SubmissionPlagiarismStatus $request) use ($apiController, $apiManager): StreamedResponse|JsonResponse {
+
+					// $submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
+
+					$submission = Repo::submission()->get($request->route('submissionId'));
+					
+					if (!$submission) {
+						return response()->json([
+							'error' => 'Submission not found'
+						], Response::HTTP_NOT_FOUND);
+					}
+
+					return $apiManager->streamPlagiarismStatus($submission, $apiController->getRequest());
+				},
+				'submission.plagiarism.stream',
+				[
+					Role::ROLE_ID_SITE_ADMIN,
+					Role::ROLE_ID_MANAGER,
+					Role::ROLE_ID_SUB_EDITOR,
+					Role::ROLE_ID_ASSISTANT,
+				],
+				// new class implements HasAuthorizationPolicy
+				// {
+				// 	public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
+				// 	{
+				// 		return [
+				// 			new SubmissionAccessPolicy($request, $args, $roleAssignments),
+				// 			new SubmissionCompletePolicy($request, $args),
+				// 		];
+				// 	}
+				// }
+			);
             
-			return false;
+			return Hook::CONTINUE;
 		});
 	}
 

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/api/v1/submissions/formRequests/SubmissionPlagiarismStatus.php
+ * @file plugins/generic/plagiarism/classes/api/formRequests/SubmissionPlagiarismStatus.php
  *
  * Copyright (c) 2013-2025 Simon Fraser University
  * Copyright (c) 2013-2025 John Willinsky
@@ -12,7 +12,7 @@
  * @brief  Form request to validate the submission plagiarism status API request
  */
 
-namespace APP\plugins\generic\plagiarism\api\v1\submissions\formRequests;
+namespace APP\plugins\generic\plagiarism\classes\api\formRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,10 +25,14 @@ class SubmissionPlagiarismStatus extends FormRequest
     public function rules(): array
     {
         return [
+            'submissionId' => [
+                'required',
+                'integer',
+            ],
             'stageId' => [
                 'required',
                 'integer',
-                Rule::in([
+                Rule::in([ // probably replace with Application::getApplicationStages()
                     WORKFLOW_STAGE_ID_PUBLISHED,
                     WORKFLOW_STAGE_ID_SUBMISSION,
                     WORKFLOW_STAGE_ID_INTERNAL_REVIEW,
@@ -38,5 +42,12 @@ class SubmissionPlagiarismStatus extends FormRequest
                 ])
             ]
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        $this->merge([
+            'submissionId' => $this->route('submissionId'),
+        ]);
     }
 }

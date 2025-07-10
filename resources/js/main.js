@@ -74,7 +74,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                         }
                     }
                 } catch (error) {
-                    // console.error("Error fetching ithenticateStatus:", error);
+                    console.error("Error fetching ithenticateStatus:", error);
                 }
             }
         },
@@ -98,7 +98,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     }
                 }
             } catch (error) {
-                // console.error("Error in initial OPS fetch:", error);
+                console.error("Error in initial OPS fetch:", error);
             }
         })();
     }

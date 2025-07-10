@@ -143,6 +143,7 @@
               }
             }
           } catch (error) {
+            console.error("Error fetching ithenticateStatus:", error);
           }
         }
       },
@@ -160,6 +161,7 @@
             }
           }
         } catch (error) {
+          console.error("Error in initial OPS fetch:", error);
         }
       })();
     }
