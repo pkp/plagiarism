@@ -9,7 +9,7 @@
  *
  * @class PlagiarismApiActionManager
  *
- * @brief  API manager class to retrieve itenticate details for submission.
+ * @brief  API manager class to retrieve ithenticate details for submission.
  */
 
 namespace APP\plugins\generic\plagiarism\classes\api;

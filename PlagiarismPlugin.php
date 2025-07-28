@@ -32,8 +32,6 @@ use APP\API\v1\submissions\SubmissionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request as IlluminateRequest;
-use Illuminate\Http\Response;
 use PKP\handler\APIHandler;
 use PKP\core\PKPBaseController;
 use PKP\core\PKPRequest;
@@ -169,7 +167,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 */
 	public function addApiRoutes(): void
 	{
-		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController &$apiController, APIHandler $apiHandler): bool {
+		Hook::add('APIHandler::endpoints::submissions', function(string $hookName, PKPBaseController $apiController, APIHandler $apiHandler): bool {
 
 			if (!$apiController instanceof SubmissionController) {
 				return Hook::CONTINUE;
@@ -181,17 +179,7 @@ class PlagiarismPlugin extends GenericPlugin
 				'POST',
 				'{submissionId}/plagiarism/status',
 				function (SubmissionPlagiarismStatus $request) use ($apiController, $apiManager): JsonResponse {
-
-					// $submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
-
-					$submission = Repo::submission()->get($request->route('submissionId'));
-					
-					if (!$submission) {
-						return response()->json([
-							'error' => 'Submission not found'
-						], Response::HTTP_NOT_FOUND);
-					}
-
+					$submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
 					return $apiManager->plagiarismStatus($submission, $apiController->getRequest());
 				},
 				'submission.plagiarism.status',
@@ -201,33 +189,23 @@ class PlagiarismPlugin extends GenericPlugin
 					Role::ROLE_ID_SUB_EDITOR,
 					Role::ROLE_ID_ASSISTANT,
 				],
-				// new class implements HasAuthorizationPolicy
-				// {
-				// 	public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
-				// 	{
-				// 		return [
-				// 			new SubmissionAccessPolicy($request, $args, $roleAssignments),
-				// 			new SubmissionCompletePolicy($request, $args),
-				// 		];
-				// 	}
-				// }
+				new class implements HasAuthorizationPolicy
+				{
+					public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
+					{
+						return [
+							new SubmissionAccessPolicy($request, $args, $roleAssignments),
+							new SubmissionCompletePolicy($request, $args),
+						];
+					}
+				}
 			);
 
 			$apiHandler->addRoute(
 				'GET',
 				'{submissionId}/plagiarism/status/stream',
 				function (SubmissionPlagiarismStatus $request) use ($apiController, $apiManager): StreamedResponse|JsonResponse {
-
-					// $submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
-
-					$submission = Repo::submission()->get($request->route('submissionId'));
-					
-					if (!$submission) {
-						return response()->json([
-							'error' => 'Submission not found'
-						], Response::HTTP_NOT_FOUND);
-					}
-
+					$submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
 					return $apiManager->streamPlagiarismStatus($submission, $apiController->getRequest());
 				},
 				'submission.plagiarism.stream',
@@ -237,16 +215,16 @@ class PlagiarismPlugin extends GenericPlugin
 					Role::ROLE_ID_SUB_EDITOR,
 					Role::ROLE_ID_ASSISTANT,
 				],
-				// new class implements HasAuthorizationPolicy
-				// {
-				// 	public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
-				// 	{
-				// 		return [
-				// 			new SubmissionAccessPolicy($request, $args, $roleAssignments),
-				// 			new SubmissionCompletePolicy($request, $args),
-				// 		];
-				// 	}
-				// }
+				new class implements HasAuthorizationPolicy
+				{
+					public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
+					{
+						return [
+							new SubmissionAccessPolicy($request, $args, $roleAssignments),
+							new SubmissionCompletePolicy($request, $args),
+						];
+					}
+				}
 			);
             
 			return Hook::CONTINUE;
