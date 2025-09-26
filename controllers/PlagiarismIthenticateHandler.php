@@ -24,7 +24,6 @@ use APP\submission\Submission;
 use APP\template\TemplateManager;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
-use Exception;
 use Illuminate\Support\Arr;
 use PKP\context\Context;
 use PKP\core\Core;
@@ -75,7 +74,7 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 				$request,
 				$args,
 				$roleAssignments,
-				SUBMISSION_FILE_ACCESS_READ,
+				SubmissionFileAccessPolicy::SUBMISSION_FILE_ACCESS_READ,
 				(int) $args['submissionFileId']
 			)
 		);
