@@ -381,7 +381,42 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function handleRouteComponent($hookName, $params) {
 		$component =& $params[0];
 
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+
 		if (static::isOPS() && $component === 'grid.articleGalleys.ArticleGalleyGridHandler') {
+			
+			$submissionId = $request->getUserVar('submissionId');
+
+			if (!$submissionId) {
+				return false;
+			}
+
+			$submissionDao = DAORegistry::getDAO('SubmissionDAO'); /** @var SubmissionDAO $submissionDao */
+			$submission = $submissionDao->getById($submissionId); /** @var Submission $submission */
+			if (!$submission) {
+				return false;
+			}
+
+			// if submission is in progress, plagiarism score column should not be visible
+			if ($submission->getData('submissionProgress') != 0) {
+				return false;
+			}
+
+			$user = $request->getUser();
+
+			// if user do not have Admin, JM, Editor or Reviewer role, do not have access to plagiarism score
+			if (!$user
+				|| !$user->hasRole([
+					ROLE_ID_SITE_ADMIN,
+					ROLE_ID_MANAGER,
+					ROLE_ID_SUB_EDITOR,
+					ROLE_ID_REVIEWER
+				], $context->getId())
+			) {
+				return false;
+			}
+
 			$this->import('controllers.PlagiarismArticleGalleyGridHandler');
 			PlagiarismArticleGalleyGridHandler::setPlugin($this);
 			$params[0] = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
