@@ -520,8 +520,41 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		$component =& $params[0]; /** @var string $component */
 		$componentInstance =& $params[2]; /** @var mixed $componentInstance */
-		
+		$request = Application::get()->getRequest();
+		$context = $request->getContext();
+
+		// Override the galley grid for OPS to have similarity score/actions column
 		if (static::isOPS() && $component === 'grid.preprintGalleys.PreprintGalleyGridHandler') {
+
+			$submissionId = $request->getUserVar('submissionId');
+			if (!$submissionId) {
+				return Hook::CONTINUE;
+			}
+
+			$submission = Repo::submission()->get($submissionId);
+			if (!$submission) {
+				return Hook::CONTINUE;
+			}
+
+			// if submission is in progress, plagiarism score column should not be visible
+			if (!empty($submission->getData("submissionProgress"))) {
+				return Hook::CONTINUE;
+			}
+
+			$user = $request->getUser();
+
+			// if user do not have Admin, JM, Editor or Reviewer role, do not have access to plagiarism score
+			if (!$user
+				|| !$user->hasRole([
+					Role::ROLE_ID_SITE_ADMIN,
+					Role::ROLE_ID_MANAGER,
+					Role::ROLE_ID_SUB_EDITOR,
+					Role::ROLE_ID_REVIEWER
+				], $context->getId())
+			) {
+				return Hook::CONTINUE;
+			}
+
 			$componentInstance = new PlagiarismArticleGalleyGridHandler($this);
 			$component = "plugins.generic.plagiarism.controllers.PlagiarismArticleGalleyGridHandler";
 			return Hook::ABORT;
