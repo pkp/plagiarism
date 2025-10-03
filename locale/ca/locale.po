@@ -44,3 +44,19 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "La càrrega de la tramesa {$submissionId} a iThenticate ha fallat amb l'error:"
 " {$errorMessage}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "No es pot executar la comprovació de plagi en un enviament sense autor principal per a la publicació actual."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Esperant per programar el procés de generació d'informes de similitud."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "La generació de l'informe de similitud s'ha programat correctament."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Esperant per generar un resultat de similitud."

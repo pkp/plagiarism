@@ -305,3 +305,19 @@ msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Мүмкүн болгон плагиатты текшерүү үчүн iThenticate'ге бардык тапшырууларды "
 "жөнөтүңүз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Учурдагы жарыялоо үчүн негизги автору жок тапшырууда плагиат текшерүүсүн жүргүзүү мүмкүн эмес."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Окшоштук жөнүндө отчетту түзүү процессин пландаштырууну күтүүдө."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Окшоштук отчетун түзүү ийгиликтүү пландаштырылды."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Окшоштуктун натыйжасын түзүү күтүлүүдө."

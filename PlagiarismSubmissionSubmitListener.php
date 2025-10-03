@@ -3,8 +3,8 @@
 /**
  * @file plugins/generic/plagiarism/PlagiarismSubmissionSubmitListener.php
  *
- * Copyright (c) 2013-2024 Simon Fraser University
- * Copyright (c) 2013-2024 John Willinsky
+ * Copyright (c) 2013-2025 Simon Fraser University
+ * Copyright (c) 2013-2025 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @class PlagiarismSubmissionSubmitListener
@@ -45,6 +45,11 @@ class PlagiarismSubmissionSubmitListener
      */
     public function handle(SubmissionSubmitted $event): void
     {
+        if (!$this->plugin->isServiceAccessAvailable($event->context)) {
+            $this->plugin->sendErrorMessage(__('plugins.generic.plagiarism.manager.settings.serviceAccessInvalid'));
+            return;
+        }
+        
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,

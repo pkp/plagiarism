@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @file plugins/generic/plagiarism/controllers/PlagiarismIthenticateActionHandler.php
+ * @file plugins/generic/plagiarism/controllers/PlagiarismIthenticateHandler.php
  *
  * Copyright (c) 2024 Simon Fraser University
  * Copyright (c) 2024 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * @class PlagiarismIthenticateActionHandler
+ * @class PlagiarismIthenticateHandler
  *
  * @brief Handle the different iThenticate service related actions
  */
@@ -35,7 +35,7 @@ use PKP\submissionFile\SubmissionFile;
 use PKP\security\authorization\SubmissionFileAccessPolicy;
 use PKP\security\Role;
 
-class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
+class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 {
 	/**
 	 * @copydoc PKPHandler::__construct()
@@ -74,7 +74,7 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 				$request,
 				$args,
 				$roleAssignments,
-				SUBMISSION_FILE_ACCESS_READ,
+				SubmissionFileAccessPolicy::SUBMISSION_FILE_ACCESS_READ,
 				(int) $args['submissionFileId']
 			)
 		);
@@ -159,15 +159,10 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 
 			// submission info not available to schedule report generation process
 			if (!$submissionInfo) {
-				$this->generateUserNotification(
-					$request,
-					Notification::NOTIFICATION_TYPE_ERROR,
-					__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
-						'submissionFileId' => $submissionFile->getId(),
-						'error' => __('plugins.generic.plagiarism.submission.status.unavailable'),
-					])
-				);
-				return $this->triggerDataChangedEvent($submissionFile);
+				return new JSONMessage(false, __('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
+					'submissionFileId' => $submissionFile->getId(),
+					'error' => __('plugins.generic.plagiarism.submission.status.unavailable'),
+				]));
 			}
 
 			$submissionInfo = json_decode($submissionInfo);
@@ -190,16 +185,13 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 						break;
 				}
 
-				$this->generateUserNotification(
-					$request,
-					Notification::NOTIFICATION_TYPE_ERROR,
+				return new JSONMessage(
+					false, 
 					__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
 						'submissionFileId' => $submissionFile->getId(),
 						'error' => $similaritySchedulingError,
 					])
 				);
-
-				return $this->triggerDataChangedEvent($submissionFile);
 			}
 
 			$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
@@ -212,23 +204,15 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		);
 
 		if (!$scheduleSimilarityReport) {
-			$message = __('plugins.generic.plagiarism.webhook.similarity.schedule.failure', [
+			return new JSONMessage(false, __('plugins.generic.plagiarism.webhook.similarity.schedule.failure', [
 				'submissionFileId' => $submissionFile->getId(),
-			]);
-			$this->generateUserNotification($request, Notification::NOTIFICATION_TYPE_ERROR, $message);
-			return $this->triggerDataChangedEvent($submissionFile);
+			]));
 		}
 
 		$submissionFile->setData('ithenticateSimilarityScheduled', 1);
 		Repo::submissionFile()->edit($submissionFile, []);
 
-		$this->generateUserNotification(
-			$request,
-			Notification::NOTIFICATION_TYPE_SUCCESS, 
-			__('plugins.generic.plagiarism.action.scheduleSimilarityReport.success')
-		);
-		
-		return $this->triggerDataChangedEvent($submissionFile);
+		return new JSONMessage(true, __('plugins.generic.plagiarism.action.scheduleSimilarityReport.success'));
     }
 
 	/**
@@ -249,33 +233,23 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		);
 
 		if (!$similarityScoreResult) {
-			$message = __('plugins.generic.plagiarism.action.refreshSimilarityResult.error', [
+			return new JSONMessage(false, __('plugins.generic.plagiarism.action.refreshSimilarityResult.error', [
 				'submissionFileId' => $submissionFile->getId(),
-			]);
-			$this->generateUserNotification($request, Notification::NOTIFICATION_TYPE_ERROR, $message);
-			return $this->triggerDataChangedEvent($submissionFile);
+			]));
 		}
 
 		$similarityScoreResult = json_decode($similarityScoreResult);
 
 		if ($similarityScoreResult->status !== 'COMPLETE') {
-			$message = __('plugins.generic.plagiarism.action.refreshSimilarityResult.warning', [
+			return new JSONMessage(true, __('plugins.generic.plagiarism.action.refreshSimilarityResult.warning', [
 				'submissionFileId' => $submissionFile->getId(),
-			]);
-			$this->generateUserNotification($request, Notification::NOTIFICATION_TYPE_WARNING, $message);
-			return $this->triggerDataChangedEvent($submissionFile);
+			]));
 		}
 
 		$submissionFile->setData('ithenticateSimilarityResult', json_encode($similarityScoreResult));
 		Repo::submissionFile()->edit($submissionFile, []);
 
-		$this->generateUserNotification(
-			$request,
-			Notification::NOTIFICATION_TYPE_SUCCESS, 
-			__('plugins.generic.plagiarism.action.refreshSimilarityResult.success')
-		);
-
-		return $this->triggerDataChangedEvent($submissionFile);
+		return new JSONMessage(true, __('plugins.generic.plagiarism.action.refreshSimilarityResult.success'));
     }
 
 	/**
@@ -305,22 +279,33 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
 		}
 
-		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
-			$this->generateUserNotification(
+		$publication = $submission->getCurrentPublication();
+		$author = $publication->getPrimaryAuthor();
+
+		if (!$author) {
+			return $this->getSubmitSubmissionResponse(
 				$request,
-				Notification::NOTIFICATION_TYPE_ERROR, 
-				__('plugins.generic.plagiarism.action.submitSubmission.error')
+				$submissionFile,
+				Notification::NOTIFICATION_TYPE_ERROR,
+				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error')
 			);
-			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
-		$this->generateUserNotification(
+		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+			return $this->getSubmitSubmissionResponse(
+				$request,
+				$submissionFile,
+				Notification::NOTIFICATION_TYPE_ERROR,
+				__('plugins.generic.plagiarism.action.submitSubmission.error')
+			);
+		}
+
+		return $this->getSubmitSubmissionResponse(
 			$request,
-			Notification::NOTIFICATION_TYPE_SUCCESS, 
+			$submissionFile,
+			Notification::NOTIFICATION_TYPE_SUCCESS,
 			__('plugins.generic.plagiarism.action.submitSubmission.success')
 		);
-
-		return $this->triggerDataChangedEvent($submissionFile);
 	}
 
 	/**
@@ -330,10 +315,15 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 	public function acceptEulaAndExecuteIntendedAction(array $args, Request $request)
 	{
 		$context = $request->getContext();
-		$user = $request->getUser();
+		$user = Repo::user()->get($request->getUser()->getId());
 
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
+
+		// EULA has been already stamped to both Submission and User, so we can submit the submission file
+		if ($submission->getData('ithenticateEulaVersion') && $user->getData('ithenticateEulaVersion')) {
+			return $this->submitSubmission($args, $request);
+		}
 
 		$confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
@@ -377,6 +367,8 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE);
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
 
+		$request->getSession()->remove('confirmSubmissionEulaError');
+
 		$templateManager = $this->getEulaConfirmationTemplate(
 			$request,
 			$args,
@@ -417,13 +409,14 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			$request,
 			Application::ROUTE_COMPONENT,
 			$context->getData('urlPath'),
-			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateActionHandler',
+			'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 			'acceptEulaAndExecuteIntendedAction',
 			null,
 			[
 				'version' => $eulaVersionDetails['version'],
 				'submissionFileId' => $submissionFile->getId(),
 				'stageId' => $request->getUserVar('stageId'),
+				'redirectForm' => 'confirmEula',
 			]
 		);
 
@@ -437,6 +430,31 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		]);
 
 		return $templateManager;
+	}
+
+	/**
+	 * Get the response of attempted submission file upload to iThenticate response 
+	 */
+	protected function getSubmitSubmissionResponse(
+		Request $request,
+		SubmissionFile $submissionFile,
+		int $notificationType,
+		string $notificationContent,
+	): JSONMessage
+	{
+		if ($request->getUserVar('redirectForm') === 'confirmEula' ) {
+			$this->generateUserNotification(
+				$request,
+				$notificationType, 
+				$notificationContent
+			);
+			return $this->triggerDataChangedEvent($submissionFile);
+		}
+
+		return new JSONMessage(
+			$notificationType == Notification::NOTIFICATION_TYPE_SUCCESS,
+			$notificationContent
+		);
 	}
 
 	/**

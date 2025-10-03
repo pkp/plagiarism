@@ -326,3 +326,19 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
 msgstr "El contenido del archivo se ha subido y el envío aún se está procesando"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "No se puede ejecutar una verificación de plagio en un envío que no tiene un autor principal para la publicación actual."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Esperando para programar el proceso de generación del informe de similitud."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "La generación del informe de similitud se ha programado correctamente."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Esperando generar resultado de similitud."

@@ -113,3 +113,19 @@ msgstr "Käyttöehdot tulee hyväksyä ennen jatkamista."
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Käsikirjoituksen samankaltaisuustarkistuksen asetukset"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Ei voida suorittaa plagiointitarkistusta lähetykselle, jolla ei ole nykyisen julkaisun ensisijaista kirjoittajaa."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Odotetaan samankaltaisuusraportin luontiprosessin ajoittamista."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Samankaltaisuusraportin luominen on ajoitettu onnistuneesti."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Odotetaan samankaltaisuustuloksen luomista."

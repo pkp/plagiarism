@@ -91,3 +91,19 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
 msgstr "Det oppsto en uspesifisert feil under behandling av innleveringen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Kan ikke kjøre plagiatsjekk på en innsending uten hovedforfatter for gjeldende publisering."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Venter på å planlegge genereringsprosessen for likhetsrapporter."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Generering av likhetsrapport er planlagt."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Venter på å generere likhetsresultat."

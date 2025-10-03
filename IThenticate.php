@@ -521,7 +521,7 @@ class IThenticate
     {
         $response = $this->makeApiRequest(
             'GET',
-            $this->getApiPath("eula/{$version}/accept/" . $this->getGeneratedId('submitter' ,$user->getId())),
+            $this->getApiPath("eula/{$version}/accept/" . $this->getGeneratedId('submitter', $user->getId())),
             [
                 'headers' => $this->getRequiredHeaders(),
                 'exceptions' => false,

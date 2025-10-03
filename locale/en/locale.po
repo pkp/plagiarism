@@ -251,3 +251,15 @@ msgstr "File contents have been uploaded and the submission is still being proce
 
 msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "An error occurred during submission processing."
+
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Can not run plagiarism check on a submission with no primary author for current publication."
+
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Waiting to schedule similarity report generation process."
+
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Similarity report generation has been scheduled successfully."
+
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Waiting to generate similarity result."

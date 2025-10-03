@@ -18,7 +18,7 @@ use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
-use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Support\Facades\DB;
 use PKP\core\Core;
 use PKP\context\Context;
 use PKP\submissionFile\SubmissionFile;
@@ -226,7 +226,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	 */
 	private function getIthenticateSubmission(string $id): ?object
 	{
-		return Capsule::table(Repo::submissionFile()->getCollector()->dao->settingsTable)
+		return DB::table(Repo::submissionFile()->getCollector()->dao->settingsTable)
 			->where('setting_name', 'ithenticateId')
 			->where('setting_value', $id)
 			->first();

@@ -48,3 +48,19 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "L'envoi de la soumission {$submissionId} vers iThenticate a échoué : "
 "{$errorMessage}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Impossible d'exécuter une vérification de plagiat sur une soumission sans auteur principal pour la publication actuelle."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "En attente de la planification du processus de génération du rapport de similarité."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "La génération du rapport de similarité a été planifiée avec succès."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "En attente de générer un résultat de similarité."

@@ -1,0 +1,17 @@
+[
+  "common.no",
+  "common.yes",
+  "plugins.generic.plagiarism.action.refreshSimilarityResult.success",
+  "plugins.generic.plagiarism.action.scheduleSimilarityReport.success",
+  "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd",
+  "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule",
+  "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore",
+  "plugins.generic.plagiarism.similarity.action.generateReport.confirmation",
+  "plugins.generic.plagiarism.similarity.action.generateReport.title",
+  "plugins.generic.plagiarism.similarity.action.launch.viewer.title",
+  "plugins.generic.plagiarism.similarity.action.refreshReport.confirmation",
+  "plugins.generic.plagiarism.similarity.action.refreshReport.title",
+  "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation",
+  "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title",
+  "plugins.generic.plagiarism.similarity.match.title"
+]

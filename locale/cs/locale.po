@@ -315,3 +315,19 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
 msgstr ""
 "Nepodařilo se vytvořit podání na iThenticate pro soubor příspěvku s id "
 "{$submissionFileId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Nelze spustit kontrolu plagiátorství u příspěvku bez primárního autora pro aktuální publikaci."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Čekání na naplánování procesu generování zprávy o podobnosti."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Generování zprávy o podobnosti bylo úspěšně naplánováno."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Čekání na vygenerování výsledku podobnosti."

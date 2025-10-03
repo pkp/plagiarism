@@ -17,3 +17,19 @@ msgstr "Plugin phát hiện đạo văn của iThenticate"
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "Gửi tất cả các bài gửi cho iThenticate để được kiểm tra khả năng đạo văn."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Không thể kiểm tra đạo văn đối với bài nộp không có tác giả chính cho ấn phẩm hiện tại."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Đang chờ để lên lịch cho quá trình tạo báo cáo tương đồng."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Đã lên lịch tạo báo cáo tương đồng thành công."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Đang chờ để tạo kết quả tương tự."

@@ -16,3 +16,19 @@ msgstr "Skicka alla bidrag för plagiatkontroll till iThenticate."
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate, plugin för plagiatkontroll"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Kan inte köra plagiatkontroll på en inlämning utan huvudförfattare för aktuell publicering"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Väntar på att schemalägga genereringsprocessen för likhetsrapporten."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Genereringen av likhetsrapporten har schemalagts."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Väntar på att generera likhetsresultat."

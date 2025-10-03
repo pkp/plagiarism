@@ -18,3 +18,19 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Πρόσθετο Ανίχνευσης Λογοκλοπής iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Δεν είναι δυνατή η εκτέλεση ελέγχου λογοκλοπής σε μια υποβολή χωρίς κύριο συγγραφέα για την τρέχουσα δημοσίευση."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Αναμονή για τον προγραμματισμό της διαδικασίας δημιουργίας αναφοράς ομοιότητας."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Η δημιουργία αναφοράς ομοιότητας έχει προγραμματιστεί με επιτυχία."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Αναμονή για τη δημιουργία αποτελέσματος ομοιότητας."

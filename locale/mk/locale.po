@@ -316,3 +316,19 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "Настана грешка при обработката на поднесувањето."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Не може да се изврши проверка на плагијат на поднесок без примарен автор за тековната публикација."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Се чека закажување на процесот на генерирање на извештај за сличност."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Генерирањето на извештајот за сличност е успешно закажано."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Чекам да се генерира резултат за сличност."

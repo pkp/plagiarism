@@ -332,3 +332,19 @@ msgstr "Einreichungsdetails sind nicht verfügbar."
 
 msgid "plugins.generic.plagiarism.submission.status.CREATED"
 msgstr "Einreichung wurde erstellt, aber es wurden keine Dateien hochgeladen"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Bei einer Einreichung ohne Hauptautor für die aktuelle Veröffentlichung kann keine Plagiatsprüfung durchgeführt werden."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Warten auf die Planung des Prozesses zur Erstellung des Ähnlichkeitsberichts."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Die Erstellung des Ähnlichkeitsberichts wurde erfolgreich geplant."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Wartet auf die Generierung eines Ähnlichkeitsergebnisses."

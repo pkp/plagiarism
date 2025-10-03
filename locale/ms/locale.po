@@ -47,3 +47,19 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "Kata Laluan iThenticate diperlukan"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "Tidak boleh menjalankan semakan plagiarisme pada penyerahan tanpa pengarang utama untuk penerbitan semasa"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "Menunggu untuk menjadualkan proses penjanaan laporan persamaan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "Penjanaan laporan persamaan telah dijadualkan dengan jayanya."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "Menunggu untuk menjana hasil persamaan."
