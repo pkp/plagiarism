@@ -1238,7 +1238,7 @@ class PlagiarismPlugin extends GenericPlugin {
 	public function isServiceAccessAvailable($context = null) {
 		$servicesAccess = collect($this->getServiceAccess($context))
 			->map(
-				fn (mixed $data): string => gettype($data) == 'string' ? trim($data) : ''
+				fn ($data): string => gettype($data) == 'string' ? trim($data) : ''
 			)
 			->filter();
 
