@@ -206,3 +206,71 @@ msgstr "هل أنت متأكد من رغبتك في إعادة تنشيط درج
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.description"
 msgstr ""
 "تطابقات التشابه التي تقل عن المقدار المحدد من الكلمات لن تعتبر محتوى مشابهًا"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "عنوان رابط واجهة برمجة التطبيق ومفتاح واجهة برمجة التطبيق للوصول إلى خدمة iThenticate مطلوبان."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "تسجيل الخطافات الإلكترونية لحساب iThenticate لمسار سياق محدد"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "تحديث الخطافات الإلكترونية لحساب iThenticate لمسار سياق محدد"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "التحقق من صحة الخطافات الإلكترونية لحساب iThenticate لمسار سياق محدد"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "قائمة الخطافات الإلكترونية لحساب iThenticate لجميع السياقات المتاحة والممكنة"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "عرض معلمات الاستخدام."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "لا يمكن أن يكون الخيار فارغًا! تحقق من طريقة الاستخدام."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "الخيار {$option} غير موجود. تحقق من طريقة الاستخدام."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "هل تقصد أحد الخيارات التالية؟"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "المعامل المطلوب {$parameter} مفقود للأمر {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "قم بتشغيل الأمر كـ: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "لم يتم العثور على سياق لمسار السياق أو معرف السياق المحدد: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "تمت العملية بنجاح."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "فشلت العملية مع الخطأ: {$error}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "تم تكوين خطاف إلكتروني صالح لـ iThenticate بالفعل. استخدم خيار التحديث لتسجيل خطاف إلكتروني جديد واستبدال الموجود."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "تم حذف الخطاف الإلكتروني لـ iThenticate بنجاح بالمعرف: {$webhookId} لمعرف السياق: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "تعذر حذف الخطاف الإلكتروني لـ iThenticate بالمعرف: {$webhookId} لمعرف السياق: {$contextId}"

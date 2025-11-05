@@ -16,3 +16,71 @@ msgstr "Enviar totes les trameses a iThenticate per detectar possibles plagis."
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Mòdul de detecció de plagi iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Falta l'URL de l'API i la clau de l'API d'accés al servei iThenticate requerits."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Registrar webhooks per al compte iThenticate per a una ruta de context donada"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Actualitzar webhooks per al compte iThenticate per a una ruta de context donada"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Validar webhooks per al compte iThenticate per a una ruta de context donada"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "Llistar webhooks per al compte iThenticate per a tots els contextos disponibles i habilitats"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Mostrar els paràmetres d'ús."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "L'opció no pot estar buida! Comproveu el mètode d'ús."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "L'opció {$option} no existeix. Comproveu el mètode d'ús."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Volíeu dir una de les següents opcions?"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Falta el paràmetre requerit {$parameter} per a la comanda {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Executeu la comanda com: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "No s'ha trobat cap context per a la ruta o ID de context donats: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Operació completada amb èxit."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "L'operació ha fallat amb l'error: {$error}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "Ja hi ha un webhook vàlid d'iThenticate configurat. Utilitzeu l'opció d'actualització per registrar un nou webhook i substituir l'existent."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "S'ha eliminat correctament el webhook d'iThenticate amb l'ID: {$webhookId} per al context ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "No s'ha pogut eliminar el webhook d'iThenticate amb l'ID: {$webhookId} per al context ID: {$contextId}"

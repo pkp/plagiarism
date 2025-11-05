@@ -396,6 +396,31 @@ class TestIThenticate
     }
 
     /**
+     * @copydoc IThenticate::validateWebhook()
+     */
+    public function validateWebhook(string $webhookId, ?string &$result = null): bool
+    {
+        error_log("Validating webhook with id : {$webhookId}");
+        
+        $result = '{
+            "id": "f3852140-1264-4135-b316-ed46d60a6ca2",
+            "url": "https://my-own-test-server.com/turnitin-callbacks",
+            "description": "my webhook",
+            "created_time": "2017-10-19T16:08:00.908Z",
+            "event_types": [
+                "SIMILARITY_COMPLETE",
+                "SUBMISSION_COMPLETE",
+                "SIMILARITY_UPDATED",
+                "PDF_STATUS",
+                "GROUP_ATTACHMENT_COMPLETE"
+            ],
+            "allow_insecure": false
+        }';
+
+        return true;
+    }
+
+    /**
      * @copydoc IThenticate::getEulaDetails()
      */
     public function getEulaDetails(): ?array

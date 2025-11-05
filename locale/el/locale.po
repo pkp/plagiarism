@@ -18,3 +18,71 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Πρόσθετο Ανίχνευσης Λογοκλοπής iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Λείπουν το απαιτούμενο URL API και το κλειδί API πρόσβασης στην υπηρεσία iThenticate."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Καταχώριση webhooks για λογαριασμό iThenticate για μια συγκεκριμένη διαδρομή πλαισίου"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Ενημέρωση webhooks για λογαριασμό iThenticate για μια συγκεκριμένη διαδρομή πλαισίου"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Επικύρωση webhooks για λογαριασμό iThenticate για μια συγκεκριμένη διαδρομή πλαισίου"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "Λίστα webhooks για λογαριασμό iThenticate για όλα τα διαθέσιμα και ενεργοποιημένα πλαίσια"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Εμφάνιση των παραμέτρων χρήσης."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Η επιλογή δεν μπορεί να είναι κενή! Ελέγξτε τη μέθοδο χρήσης."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Η επιλογή {$option} δεν υπάρχει. Ελέγξτε τη μέθοδο χρήσης."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Εννοούσατε μία από τις ακόλουθες επιλογές;"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Η απαιτούμενη παράμετρος {$parameter} λείπει για την εντολή {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Εκτελέστε την εντολή ως: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "Δεν βρέθηκε πλαίσιο για τη δοθείσα διαδρομή ή ID πλαισίου: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Η λειτουργία ολοκληρώθηκε με επιτυχία."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Η λειτουργία απέτυχε με σφάλμα: {$error}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "Ένα έγκυρο webhook iThenticate έχει ήδη ρυθμιστεί. Χρησιμοποιήστε την επιλογή ενημέρωσης για να καταχωρίσετε ένα νέο webhook και να αντικαταστήσετε το υπάρχον."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "Επιτυχής διαγραφή του webhook iThenticate με ID: {$webhookId} για πλαίσιο ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "Αδυναμία διαγραφής του webhook iThenticate με ID: {$webhookId} για πλαίσιο ID: {$contextId}"

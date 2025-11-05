@@ -608,6 +608,26 @@ class IThenticate
     }
 
     /**
+     * Validate webhook end point
+     * @see https://developers.turnitin.com/docs/tca#get-webhook-info
+     */
+    public function validateWebhook(string $webhookId, ?string &$result = null): bool
+    {
+        $response = $this->makeApiRequest('GET', $this->getApiPath("webhooks/{$webhookId}"), [
+            'headers' => $this->getRequiredHeaders(),
+            'verify' => false,
+            'exceptions' => false,
+        ]);
+        
+        if ($response && $response->getStatusCode() === 200) {
+            $result = $response->getBody()->getContents();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get the stored EULA details
      */
     public function getEulaDetails(): ?array
