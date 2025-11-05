@@ -263,3 +263,54 @@ msgstr "Similarity report generation has been scheduled successfully."
 
 msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
 msgstr "Waiting to generate similarity result."
+
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Missing required iThenticate service access API URL and API key."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Register webhooks for iThenticate account for a given context path"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Update webhooks for iThenticate account for a given context path"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Validate webhooks for iThenticate account for a given context path"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "List webhooks for iThenticate account for all available and enabled contexts"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Display the usage parameters."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Option could not be empty! Check the usage method."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Option {$option} does not exist. Check the usage method."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Did you mean one of the following?."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Required parameter {$parameter} are missing for command {$command}."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Run the command as php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "No context found for given context path or id: {$contextPathOrId}"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Operation completed successfully."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Operation failed with error: {$error}"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "A valid iThenticate webhook already configured. Use update option to register a new webhook and replace the existing one."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
