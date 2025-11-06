@@ -381,7 +381,7 @@ msgstr "Opération terminée avec succès."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "L'opération a échoué avec l'erreur : {$error}"
+msgstr "L'opération a échoué avec l'erreur "
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

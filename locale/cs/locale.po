@@ -370,7 +370,7 @@ msgstr "Operace byla úspěšně dokončena."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Operace selhala s chybou: {$error}"
+msgstr "Operace selhala s chybou"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

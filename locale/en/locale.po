@@ -292,7 +292,7 @@ msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
 msgstr "Operation completed successfully."
 
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Operation failed with error: {$error}"
+msgstr "Operation failed with error"
 
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
 msgstr "A valid iThenticate webhook already configured. Use update option to register a new webhook and replace the existing one."

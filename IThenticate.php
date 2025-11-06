@@ -679,6 +679,12 @@ class IThenticate
         try {
             $response = Application::get()->getHttpClient()->request($method, $url, $options);
         } catch (\Throwable $exception) {
+            
+            $exceptionMessage = null;
+            if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
+                $exceptionMessage = $exception->getResponse()->getBody()->getContents();
+            }
+
             error_log(
                 sprintf(
                     'iThenticate API request to %s for %s method failed with options %s',
@@ -689,7 +695,7 @@ class IThenticate
             );
 
             $this->suppressApiRequestException
-                ? error_log($exception->__toString())
+                ? error_log($exceptionMessage ?? $exception->__toString())
                 : throw $exception;
         }
 

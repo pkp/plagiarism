@@ -390,7 +390,7 @@ msgstr "Операцията завърши успешно."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Операцията завърши с грешка: {$error}"
+msgstr "Операцията завърши с грешка"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

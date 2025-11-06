@@ -63,7 +63,7 @@ class commandInterface
     }
 }
 
-class RegisterWebhooks extends CommandLineTool
+class Webhook extends CommandLineTool
 {
     public const REACHABILITY_TIMEOUT = 10;
     
@@ -503,7 +503,7 @@ class RegisterWebhooks extends CommandLineTool
 }
 
 try {
-    $tool = new RegisterWebhooks($argv ?? []);
+    $tool = new Webhook($argv ?? []);
     $tool->execute();
 } catch (Throwable $e) {
     $output = new commandInterface();
