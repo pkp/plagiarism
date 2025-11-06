@@ -184,7 +184,7 @@ msgstr "Toiminto suoritettu onnistuneesti."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Toiminto epäonnistui virheellä: {$error}"
+msgstr "Toiminto epäonnistui virheellä"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

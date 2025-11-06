@@ -406,7 +406,7 @@ msgstr "Operação concluída com sucesso."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Operação falhou com erro: {$error}"
+msgstr "Operação falhou com erro"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

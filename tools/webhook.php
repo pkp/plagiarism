@@ -34,7 +34,7 @@ error_reporting(E_ALL & ~E_DEPRECATED);
 define('APP_ROOT', dirname(__FILE__, 5));
 require_once APP_ROOT . '/tools/bootstrap.php';
 
-class RegisterWebhooks extends CommandLineTool
+class Webhook extends CommandLineTool
 {
     use HasParameterList;
     use HasCommandInterface;
@@ -372,7 +372,7 @@ class RegisterWebhooks extends CommandLineTool
 }
 
 try {
-    $tool = new RegisterWebhooks($argv ?? []);
+    $tool = new Webhook($argv ?? []);
     $tool->execute();
 } catch (Throwable $e) {
     $output = new CommandInterface;

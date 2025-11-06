@@ -277,7 +277,7 @@ msgstr "تمت العملية بنجاح."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "فشلت العملية مع الخطأ: {$error}"
+msgstr "فشلت العملية مع الخطأ"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

@@ -89,7 +89,7 @@ msgstr "Η λειτουργία ολοκληρώθηκε με επιτυχία."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Η λειτουργία απέτυχε με σφάλμα: {$error}"
+msgstr "Η λειτουργία απέτυχε με σφάλμα"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"

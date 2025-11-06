@@ -403,7 +403,7 @@ msgstr "Vorgang erfolgreich abgeschlossen."
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
-msgstr "Vorgang fehlgeschlagen mit Fehler: {$error}"
+msgstr "Vorgang fehlgeschlagen mit Fehler"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
