@@ -112,7 +112,7 @@ class TestIThenticate
      *
      * @var int
      */
-    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+    public const EXCLUDE_SMALL_MATCHES_MIN = 8;
 
     /**
      * @copydoc IThenticate::__construct()

@@ -96,7 +96,7 @@ The webhook command-line tool helps you manage iThenticate webhooks for your con
 # Register webhooks for a specific journal/press/server
 php plugins/generic/plagiarism/tools/webhook.php register --context=yourjournalpath
 
-# Update existing webhooks (useful after changing API credentials)
+# Update existing webhooks (useful after changing API credentials), use --force to force update
 php plugins/generic/plagiarism/tools/webhook.php update --context=yourjournalpath
 
 # Validate webhook configuration
