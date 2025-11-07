@@ -833,6 +833,8 @@ class PlagiarismPlugin extends GenericPlugin
 		$context ??= $request->getContext();
 
 		$signingSecret = \Illuminate\Support\Str::random(12);
+		
+		// Example webhook url : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
 		$webhookUrl = Application::get()->getDispatcher()->url(
 			$request,
 			Application::ROUTE_COMPONENT,
@@ -981,23 +983,20 @@ class PlagiarismPlugin extends GenericPlugin
 	 * If the test mode is enable, it will return an instance of mock class 
 	 * `TestIThenticate` instead of actual commucation responsible class.
 	 */
-	public function initIthenticate(string $apiUrl, string $apiKey): IThenticate|TestIThenticate
+	public function initIthenticate(
+		string $apiUrl,
+		string $apiKey,
+		string $integrationName = self::PLUGIN_INTEGRATION_NAME,
+		?string $integrationVersion = null
+	): IThenticate|TestIThenticate
 	{
+		$integrationVersion ??= $this->getCurrentVersion()->getVersionString();
+
 		if (static::isRunningInTestMode()) {
-			return new TestIThenticate(
-				$apiUrl,
-				$apiKey,
-				static::PLUGIN_INTEGRATION_NAME,
-				$this->getCurrentVersion()->getData('current')
-			);
+			return new TestIThenticate($apiUrl, $apiKey, $integrationName, $integrationVersion);
 		}
 
-		return new IThenticate(
-			$apiUrl,
-			$apiKey,
-			static::PLUGIN_INTEGRATION_NAME,
-			$this->getCurrentVersion()->getData('current')
-		);
+		return new IThenticate($apiUrl, $apiKey, $integrationName, $integrationVersion);
 	}
 
 	/**

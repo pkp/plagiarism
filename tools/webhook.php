@@ -15,6 +15,7 @@
 namespace APP\plugins\generic\plagiarism\tools;
 
 use Illuminate\Support\Facades\Http;
+use Exception;
 use APP\core\Services;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Output\StreamOutput;
@@ -295,6 +296,50 @@ class Webhook extends CommandLineTool
     }
 
     /**
+     * Get plugin version from version.xml file
+     *
+     * @return string The plugin version from the release tag
+     * 
+     * @throws Exception If the version.xml file is not found or cannot be read
+     */
+    protected function getPluginVersion(): ?string
+    {
+        // Go up one level from tools/ to plugin root directory
+        $versionFile = dirname(__FILE__, 1) . '/../version.xml';
+
+        if (!file_exists($versionFile)) {
+            error_log("Plugin version file not found: {$versionFile}");
+            return null;
+        }
+
+        try {
+            $xmlContent = file_get_contents($versionFile);
+
+            if ($xmlContent === false) {
+                throw new Exception('Failed to read version.xml file');
+            }
+
+            $xml = simplexml_load_string($xmlContent);
+
+            if ($xml === false) {
+                throw new Exception('Failed to parse version.xml');
+            }
+
+            $version = (string)$xml->release;
+
+            if (empty($version)) {
+                throw new Exception('No release tag found in version.xml');
+            }
+
+            return $version;
+
+        } catch (Throwable $e) {
+            error_log("Failed to read plugin version from {$versionFile}: {$e->getMessage()}");
+            return null;
+        }
+    }
+
+    /**
      * Initialize the iThenticate service
      */
     protected function initIthenticate(): void
@@ -305,8 +350,18 @@ class Webhook extends CommandLineTool
             );
         }
 
+        // Get service access credentials
+        list($apiUrl, $apiKey) = $this->plagiarismPlugin->getServiceAccess($this->context);
+
+        // Get plugin version from version.xml for CLI context
+        $pluginVersion = $this->getPluginVersion();
+
+        // Initialize iThenticate with explicit version
         $this->ithenticate = $this->plagiarismPlugin->initIthenticate(
-            ...$this->plagiarismPlugin->getServiceAccess($this->context)
+            $apiUrl,
+            $apiKey,
+            PlagiarismPlugin::PLUGIN_INTEGRATION_NAME,
+            $pluginVersion
         );
 
         if (!$this->ithenticate->validateAccess()) {
@@ -329,30 +384,36 @@ class Webhook extends CommandLineTool
             return true;
         }
 
-        if ($this->ithenticate->deleteWebhook($existingWebhookId)) {
-            $contextService = Services::get('context'); /** @var \APP\services\ContextService $contextService */
-            $this->context = $contextService->edit($this->context, [
-                'ithenticateWebhookSigningSecret' => null,
-                'ithenticateWebhookId' => null
-            ], Application::get()->getRequest());
+        if (!$this->ithenticate->deleteWebhook($existingWebhookId)) {
+            // if the force flag not passed, will not continue to delete the webhook from database
+            // will only print the error and return
+            if (!in_array('--force', $this->getParameterList())) {
+                $this->getCommandInterface()->getOutput()->error(
+                    __(
+                        'plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error',
+                        ['webhookId' => $existingWebhookId, 'contextId' => $this->context->getId()]
+                    )
+                );
 
-            $this->getCommandInterface()->getOutput()->success(
-                __(
-                    'plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success',
-                    ['webhookId' => $existingWebhookId, 'contextId' => $this->context->getId()]
-                )
-            );
-            return true;
+                return false;
+            }
         }
 
-        $this->getCommandInterface()->getOutput()->error(
+        $contextService = Services::get('context'); /** @var \APP\services\ContextService $contextService */
+
+        $this->context = $contextService->edit($this->context, [
+            'ithenticateWebhookSigningSecret' => null,
+            'ithenticateWebhookId' => null
+        ], Application::get()->getRequest());
+
+        $this->getCommandInterface()->getOutput()->success(
             __(
-                'plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error',
+                'plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success',
                 ['webhookId' => $existingWebhookId, 'contextId' => $this->context->getId()]
             )
         );
 
-        return false;
+        return true;
     }
 
     /**

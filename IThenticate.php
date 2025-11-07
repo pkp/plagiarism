@@ -118,7 +118,7 @@ class IThenticate
      * 
      * @var int
      */
-    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+    public const EXCLUDE_SMALL_MATCHES_MIN = 8;
 
     /**
      * The entity(e.g. submission owner, submitter etc) to id prefix mapping
@@ -376,7 +376,7 @@ class IThenticate
             ]
         );
 
-        if ($response->getStatusCode() === 200) {
+        if ($response && $response->getStatusCode() === 200) {
             return $response->getBody()->getContents();
         }
 
@@ -427,9 +427,9 @@ class IThenticate
                         'exclude_methods'                   => $settings['excludeMethods']                  ?? false,
                         'exclude_custom_sections'           => $settings['excludeCustomSections']           ?? false,
                         'exclude_preprints'                 => $settings['excludePreprints']                ?? false,
-                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SAMLL_MATCHES_MIN  
+                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SMALL_MATCHES_MIN  
                                                                 ? (int) $settings['excludeSmallMatches'] 
-                                                                : self::EXCLUDE_SAMLL_MATCHES_MIN,
+                                                                : self::EXCLUDE_SMALL_MATCHES_MIN,
                         'exclude_internet'                  => $settings['excludeInternet']                 ?? false,
                         'exclude_publications'              => $settings['excludePublications']             ?? false,
                         'exclude_crossref'                  => $settings['excludeCrossref']                 ?? false,
@@ -542,7 +542,7 @@ class IThenticate
             'exceptions' => false,
         ]);
         
-        if ($response->getStatusCode() === 200) {
+        if ($response && $response->getStatusCode() === 200) {
             $this->eulaVersionDetails = json_decode($response->getBody()->getContents(), true);
             
             if (!$this->eulaVersion) {
