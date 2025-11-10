@@ -228,6 +228,10 @@ msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "عنوان رابط واجهة برمجة التطبيق ومفتاح واجهة برمجة التطبيق للوصول إلى خدمة iThenticate مطلوبان."
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "فشل تسجيل webhook للسياق {$contextId}. سيتم تحميل المساهمات ولكن قد لا تصل التحديثات."
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
 msgstr "تسجيل الخطافات الإلكترونية لحساب iThenticate لمسار سياق محدد"
 

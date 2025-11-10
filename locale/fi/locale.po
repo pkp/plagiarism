@@ -135,6 +135,10 @@ msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Puuttuu vaadittu iThenticate-palvelun API-osoite ja API-avain."
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Webhook-rekisteröinti epäonnistui kontekstille {$contextId}. Lähetykset ladataan, mutta päivitykset eivät välttämättä saavu."
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
 msgstr "Rekisteröi webhookit iThenticate-tilille annetulle kontekstipolulle"
 

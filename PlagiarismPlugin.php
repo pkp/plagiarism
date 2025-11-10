@@ -691,7 +691,20 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// If no webhook previously registered for this Context, register it
 		if (!$context->getData('ithenticateWebhookId')) {
-			$this->registerIthenticateWebhook($ithenticate, $context);
+			$webhookRegistered = $this->registerIthenticateWebhook($ithenticate, $context);
+
+			if (!$webhookRegistered) {
+				// if webook registration failed, Still allow submission to continue but warn admin
+				$this->sendErrorMessage(
+					__(
+						'plugins.generic.plagiarism.webhook.registration.failed',
+						['contextId' => $context->getId()]
+					),
+					$submission->getId()
+				);
+
+				error_log("Webhook registration failed for context {$context->getId()}. Submissions will upload but updates may not arrive.");
+			}
 		}
 
 		// Only set applicable EULA if EULA required

@@ -349,6 +349,10 @@ msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Manglende påkrævet iThenticate serviceadgang API URL og API nøgle."
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Webhook-registrering mislykkedes for kontekst {$contextId}. Indsendelser uploades, men opdateringer ankommer muligvis ikke."
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
 msgstr "Registrer webhooks for iThenticate-konto for en given kontekststi"
 
