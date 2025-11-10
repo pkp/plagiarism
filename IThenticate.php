@@ -69,6 +69,11 @@ class IThenticate
     protected bool $suppressApiRequestException = true;
 
     /**
+     * Cached enabled features response to avoid repeated API calls
+     */
+    protected ?string $cachedEnabledFeatures = null;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      * 
      * @var string
@@ -174,20 +179,18 @@ class IThenticate
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
     {
-        static $result;
-
-        if (!isset($result) && !$this->validateAccess($result)) {
+        if (!$this->cachedEnabledFeatures && !$this->validateAccess($this->cachedEnabledFeatures)) {
             return $this->suppressApiRequestException
                 ? []
                 : throw new Exception('unable to validate access details');
         }
 
         if (!$feature) {
-            return json_decode($result, true);
+            return json_decode($this->cachedEnabledFeatures, true);
         }
 
         return data_get(
-            json_decode($result, true),
+            json_decode($this->cachedEnabledFeatures, true),
             $feature,
             fn () => $this->suppressApiRequestException
                 ? null
@@ -684,6 +687,9 @@ class IThenticate
             if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
                 $exceptionMessage = $exception->getResponse()->getBody()->getContents();
             }
+
+            // Mask the sensitive Authorization Bearer token to hide API KEY before logging
+            $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
             error_log(
                 sprintf(

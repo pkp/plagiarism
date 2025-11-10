@@ -73,6 +73,11 @@ class TestIThenticate
     protected bool $suppressApiRequestException = true;
 
     /**
+     * Cached enabled features response to avoid repeated API calls
+     */
+    protected ?string $cachedEnabledFeatures = null;
+
+    /**
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
      */
     public const DEFAULT_EULA_VERSION = 'latest';
@@ -161,9 +166,7 @@ class TestIThenticate
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
     {   
-        static $result;
-
-        $result = '{
+        $this->cachedEnabledFeatures = '{
             "similarity": {
                 "viewer_modes": {
                     "match_overview": true,
@@ -207,12 +210,12 @@ class TestIThenticate
 
 
         if (!$feature) {
-            error_log("iThenticate enabled feature details {$result}");
-            return json_decode($result, true);
+            error_log("iThenticate enabled feature details {$this->cachedEnabledFeatures}");
+            return json_decode($this->cachedEnabledFeatures, true);
         }
 
         $featureStatus = data_get(
-            json_decode($result, true),
+            json_decode($this->cachedEnabledFeatures, true),
             $feature,
             fn () => $this->suppressApiRequestException
                 ? null
