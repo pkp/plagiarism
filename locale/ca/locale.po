@@ -22,6 +22,10 @@ msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Falta l'URL de l'API i la clau de l'API d'accés al servei iThenticate requerits."
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "El registre del webhook ha fallat per al context {$contextId}. Les presentacions es carregaran però les actualitzacions poden no arribar."
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
 msgstr "Registrar webhooks per al compte iThenticate per a una ruta de context donada"
 

@@ -255,6 +255,9 @@ msgstr "An error occurred during submission processing."
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Missing required iThenticate service access API URL and API key."
 
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Webhook registration failed for context {$contextId}. Submissions will upload but updates may not arrive."
+
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
 msgstr "Register webhooks for iThenticate account for a given context path"
 
