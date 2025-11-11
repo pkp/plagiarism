@@ -45,10 +45,9 @@ msgstr ""
 "La URL/clave API especificada no es válida o no se puede establecer una "
 "conexión con el servicio API de iThenticate."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"La carga del envío {$submissionId} hacia iThenticate ha fallado con el error:"
-" {$errorMessage}"
+msgstr "Error de procesamiento de iThenticate para el envío {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
 msgstr "El tipo de archivo cargado no es compatible."

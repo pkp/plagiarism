@@ -19,6 +19,10 @@ msgid "plugins.generic.plagiarism.displayName"
 msgstr "Complemento iThenticate (detector de plaxio)"
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Erro de procesamento de iThenticate para o envío {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Missing required iThenticate service access API URL and API key."
 

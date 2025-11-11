@@ -47,10 +47,9 @@ msgstr ""
 "Параметри iThenticate знайдено в config.inc.php, і налаштування тут не "
 "використовуватимуться."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Завантаження подання {$submissionId} в iThenticate не вдалося через помилку: "
-"{$errorMessage}"
+msgstr "Помилка обробки iThenticate для подання {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
 msgstr "Завантажений тип файлу не підтримується."

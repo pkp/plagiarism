@@ -18,6 +18,10 @@ msgid "plugins.generic.plagiarism.displayName"
 msgstr "Mòdul de detecció de plagi iThenticate"
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Error de processament d'iThenticate per a l'enviament {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Falta l'URL de l'API i la clau de l'API d'accés al servei iThenticate requerits."
 

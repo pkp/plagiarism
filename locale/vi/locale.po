@@ -19,6 +19,10 @@ msgstr ""
 "Gửi tất cả các bài gửi cho iThenticate để được kiểm tra khả năng đạo văn."
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Lỗi xử lý iThenticate cho bài nộp {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Missing required iThenticate service access API URL and API key."
 

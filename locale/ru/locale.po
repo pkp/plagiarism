@@ -38,10 +38,9 @@ msgstr "Имя пользователя iThenticate обязательно"
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "Пароль iThenticate обязателен"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Загрузка материала «{$submissionId}» в iThenticate потерпела неудачу со "
-"следующей ошибкой: {$errorMessage}"
+msgstr "Ошибка обработки iThenticate для подачи {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""

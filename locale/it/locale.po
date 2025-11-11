@@ -44,10 +44,9 @@ msgstr ""
 "Le impostazioni di iThenticate sono state trovate in config.inc.php e le "
 "impostazioni qui non saranno usate."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Il caricamento della proposta {$submissionId} in iThenticate è fallito con "
-"l'errore: {$errorMessage}"
+msgstr "Errore di elaborazione iThenticate per la proposta {$submissionId}: {$errorMessage}"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"

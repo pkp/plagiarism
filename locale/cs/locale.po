@@ -20,10 +20,9 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugin pro detekci plagiátů iThenticate"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Nahrání příspěvku {$submissionId} do iThenticate se nezdařilo s chybou: "
-"{$errorMessage}"
+msgstr "Chyba zpracování iThenticate pro příspěvek {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""

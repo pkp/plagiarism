@@ -20,6 +20,10 @@ msgid "plugins.generic.plagiarism.displayName"
 msgstr "Πρόσθετο Ανίχνευσης Λογοκλοπής iThenticate"
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Σφάλμα επεξεργασίας iThenticate για υποβολή {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Λείπουν το απαιτούμενο URL API και το κλειδί API πρόσβασης στην υπηρεσία iThenticate."
 

@@ -59,7 +59,7 @@ msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr "iThenticate settings were found in config.inc.php and the settings here will not be used."
 
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr "Upload of submission {$submissionId} to iThenticate failed with error: {$errorMessage}"
+msgstr "iThenticate processing error for submission {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
 msgstr "The uploaded filetype is not supported."

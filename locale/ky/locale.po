@@ -80,10 +80,9 @@ msgstr ""
 "Тапшыруулар эсептердин репозиторийинде индекстелет жана уюмуңуздагы башка "
 "колдонуучулардын Окшоштук отчетторунда салыштыруу үчүн жеткиликтүү болот"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"{$submissionId} тапшыруусун iThenticate'ге жүктөө катасы менен ишке ашпай "
-"калды: {$errorMessage}"
+msgstr "iThenticate иштетүү катасы {$submissionId} тапшыруусу үчүн: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeQuotes"
 msgstr "Берилген тырмакчадагы текст окшош мазмун катары эсептелбейт"

@@ -20,10 +20,9 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugiciel de détection de plagiat iThenticate"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Le téléchargement de la soumission {$submissionId} vers iThenticate a échoué "
-"avec l'erreur: {$errorMessage}"
+msgstr "Erreur de traitement iThenticate pour la soumission {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiKey"
 msgstr "Clé API iThenticate"

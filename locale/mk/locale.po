@@ -69,10 +69,9 @@ msgstr ""
 "Поставките за iThenticate се пронајдени во config.inc.php и поставките овде "
 "нема да се користат."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Поставувањето на поднесокот {$submissionId} на iThenticate не успеа со "
-"грешка: {$errorMessage}"
+msgstr "iThenticate грешка при обработка за поднесување {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
 msgstr "Поставената датотека бара лозинка за да се отвори."
