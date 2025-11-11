@@ -40,10 +40,9 @@ msgstr ""
 "Tetapan iThenticate ditemui dalam config.inc.php dan tetapan di sini tidak "
 "akan digunakan."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Muat naik serahan {$submissionId} ke iThenticate gagal dengan ralat: "
-"{$errorMessage}"
+msgstr "Ralat pemprosesan iThenticate untuk serahan {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "Kata Laluan iThenticate diperlukan"

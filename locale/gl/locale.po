@@ -16,7 +16,11 @@ msgstr ""
 "Enviar todos os envíos a iThenticate para comprobar se hai un posible plaxio."
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "Complemento iThenticate (detector de plaxio)"
+msgstr "Plugin Detector de Plaxio iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Erro de procesamento de iThenticate para o envío {$submissionId}: {$errorMessage}"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"

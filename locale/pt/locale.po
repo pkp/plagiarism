@@ -39,10 +39,9 @@ msgstr "O nome de utilizador do iThenticate é obrigatório"
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "A senha do iThenticate é obrigatória"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"O carregamento da submissão {$submissionId} para o iThenticate falhou com o "
-"erro: {$errorMessage}"
+msgstr "Erro de processamento do iThenticate para submissão {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""

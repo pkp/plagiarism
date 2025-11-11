@@ -19,6 +19,10 @@ msgstr ""
 "ყველა მასალის წარდგენა iThenticate-ზე, რათა გადამოწმდეს შესაძლო პლაგიატი."
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "iThenticate დამუშავების შეცდომა წარდგენისთვის {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "არ შეიძლება პლაგიატის შემოწმება წარდგენის გარეშე, რომელსაც არ აქვს ძირითადი ავტორი მიმდინარე პუბლიკაციისთვის"
 

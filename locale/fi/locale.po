@@ -70,10 +70,9 @@ msgstr ""
 "Asetukset tilille, jota käytetään käsikirjoitusten lataamiseen iThenticate-"
 "palveluun. Lisätietoja saat iThenticate-palvelun ylläpitäjältä."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Käsikirjoituksen {$submissionId} lataaminen iThenticate-palveluun "
-"epäonnistui virheellä: {$errorMessage}"
+msgstr "iThenticate käsittelyvirhe lähetykselle {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
 msgstr "iThenticate API:n URL-osoite"

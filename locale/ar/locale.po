@@ -45,10 +45,9 @@ msgstr ""
 "تم العثور على إعدادات iThenticate في الملف config.inc.php ولن يتم استعمال "
 "الإعدادات التي هنا."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"فشلت عملية رفع طلب التقديم {$submissionId} إلى iThenticate مع إرجاع الخطأ "
-"الآتي: {$errorMessage}"
+msgstr "خطأ في معالجة iThenticate للتقديم {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
 msgstr "عنوان رابط واجهة برمجة التطبيق لـ iThenticate"

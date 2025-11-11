@@ -39,10 +39,9 @@ msgstr ""
 "iThenticate ayarları config.inc.php içinde bulundu ve buradaki ayarlar "
 "kullanılmayacak."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"{$submissionId} numaralı aday makalenin iThenticate yüklenmesi sırasında "
-"hata oluştu: {$errorMessage}"
+msgstr "Gönderim {$submissionId} için iThenticate işleme hatası: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""

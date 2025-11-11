@@ -43,10 +43,9 @@ msgstr ""
 "iThenticate indstillinger blev fundet i config.inc.php, og indstillingerne "
 "her vil ikke blive anvendt."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Upload af indsendelsen {$submissionId} til iThenticate mislykkedes pga. "
-"følgende fejl: {$errorMessage}"
+msgstr "iThenticate behandlingsfejl for indsendelse {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
 msgstr "iThenticate API URL"

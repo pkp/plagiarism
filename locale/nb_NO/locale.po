@@ -43,10 +43,9 @@ msgstr ""
 "Innstillinger for kontoen som brukes til å laste opp manuskript til "
 "iThenticate. Kontakt iThenticate-administratoren din for detaljer."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Opplasting av manuskriptet {$submissionId} til iThenticate mislyktes pga. "
-"følgende feil: {$errorMessage}"
+msgstr "iThenticate behandlingsfeil for innsending {$submissionId}: {$errorMessage}"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.manager.settings.apiKey"

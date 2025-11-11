@@ -44,10 +44,9 @@ msgstr "Mot de passe iThenticate"
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "Le mot de passe iThenticate est obligatoire"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"L'envoi de la soumission {$submissionId} vers iThenticate a échoué : "
-"{$errorMessage}"
+msgstr "Erreur de traitement iThenticate pour la soumission {$submissionId}: {$errorMessage}"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"

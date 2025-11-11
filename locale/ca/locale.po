@@ -40,10 +40,9 @@ msgstr ""
 msgid "plugins.generic.plagiarism.manager.settings.passwordRequired"
 msgstr "La contrasenya d'iThenticate és obligatòria"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"La càrrega de la tramesa {$submissionId} a iThenticate ha fallat amb l'error:"
-" {$errorMessage}"
+msgstr "Error de processament d'iThenticate per a l'enviament {$submissionId}: {$errorMessage}"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"

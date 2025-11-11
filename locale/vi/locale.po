@@ -12,7 +12,11 @@ msgstr ""
 "X-Generator: Weblate 3.9.1\n"
 
 msgid "plugins.generic.plagiarism.displayName"
-msgstr "Plugin phát hiện đạo văn của iThenticate"
+msgstr "Plugin Kiểm Tra Đạo Văn iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Lỗi xử lý iThenticate cho bài nộp {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.description"
 msgstr ""

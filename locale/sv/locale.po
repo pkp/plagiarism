@@ -18,6 +18,10 @@ msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate, plugin för plagiatkontroll"
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "iThenticate bearbetningsfel för inlämning {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Kan inte köra plagiatkontroll på en inlämning utan huvudförfattare för aktuell publicering"
 

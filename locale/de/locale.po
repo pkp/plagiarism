@@ -172,10 +172,9 @@ msgstr ""
 "Verbindung zum iThenticate-API-Dienst kann nicht hergestellt werden. Bitte "
 "prüfen Sie die API URL/den API key und versuchen Sie es erneut."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Hochladen der Einreichung {$submissionId} zu iThenticate mit folgendem "
-"Fehler fehlgeschlagen: {$errorMessage}"
+msgstr "iThenticate Verarbeitungsfehler für Einreichung {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
 msgstr ""

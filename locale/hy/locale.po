@@ -28,10 +28,9 @@ msgstr ""
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "iThenticate գրագողության դետեկտորի փլագին"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"{$submissionId} ներկայացման վերբեռնումը iThenticate ձախողվեց այս սխալով՝ "
-"{$errorMessage}"
+msgstr "iThenticate-ի մշակման սխալ հայտի համար {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""

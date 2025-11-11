@@ -20,6 +20,10 @@ msgid "plugins.generic.plagiarism.displayName"
 msgstr "Πρόσθετο Ανίχνευσης Λογοκλοπής iThenticate"
 
 #, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "Σφάλμα επεξεργασίας iThenticate για υποβολή {$submissionId}: {$errorMessage}"
+
+#, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
 msgstr "Δεν είναι δυνατή η εκτέλεση ελέγχου λογοκλοπής σε μια υποβολή χωρίς κύριο συγγραφέα για την τρέχουσα δημοσίευση."
 
