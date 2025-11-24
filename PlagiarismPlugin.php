@@ -1352,7 +1352,3 @@ class PlagiarismPlugin extends GenericPlugin
 		);
 	}
 }
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\PlagiarismPlugin', '\PlagiarismPlugin');
-}
