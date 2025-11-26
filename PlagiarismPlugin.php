@@ -132,10 +132,16 @@ class PlagiarismPlugin extends GenericPlugin
 			return $success;
 		}
 
-		// If iThenticate service access details not available
-		// not going to run the plugin features
-		if (!$this->isServiceAccessAvailable()) {
-			return $success;
+		if (!app()->runningInConsole()) {
+			// If iThenticate service access details not available
+			// not going to run the plugin features
+			$context = $mainContextId
+				? Application::getContextDAO()->getById($mainContextId)
+				: Application::get()->getRequest()->getContext();
+
+			if (!$this->isServiceAccessAvailable($context)) {
+				return $success;
+			}
 		}
 
 		$request = Application::get()->getRequest();
