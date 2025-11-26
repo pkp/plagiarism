@@ -74,6 +74,12 @@ class IThenticate
     protected ?string $cachedEnabledFeatures = null;
 
     /**
+     * Store the last API response details for debugging/inspection
+     * Contains: status_code, body, headers, reason
+     */
+    protected ?array $lastResponseDetails = null;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      *
      * @var string
@@ -681,11 +687,37 @@ class IThenticate
 
         try {
             $response = Application::get()->getHttpClient()->request($method, $url, $options);
+
+            // Store response details on success
+            $body = $response->getBody();
+            $bodyContent = $body->getContents();
+
+            $this->lastResponseDetails = [
+                'status_code' => $response->getStatusCode(),
+                'body' => $bodyContent,
+                'headers' => $response->getHeaders(),
+                'reason' => $response->getReasonPhrase(),
+            ];
+
+            // Rewind so existing code can still read the body
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+
         } catch (\Throwable $exception) {
-            
+
             $exceptionMessage = null;
-            if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
-                $exceptionMessage = $exception->getResponse()->getBody()->getContents();
+            if ($exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()) {
+                $errorResponse = $exception->getResponse();
+                $exceptionMessage = $errorResponse->getBody()->getContents();
+
+                // Store response details on failure
+                $this->lastResponseDetails = [
+                    'status_code' => $errorResponse->getStatusCode(),
+                    'body' => $exceptionMessage,
+                    'headers' => $errorResponse->getHeaders(),
+                    'reason' => $errorResponse->getReasonPhrase(),
+                ];
             }
 
             // Mask the sensitive Authorization Bearer token to hide API KEY before logging
@@ -752,6 +784,27 @@ class IThenticate
         }
 
         return static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * Get the last API response details including status code, body, headers, and reason phrase
+     *
+     * @return array|null Array with keys: status_code, body, headers, reason.
+     *                    Returns null if no API call has been made yet.
+     */
+    public function getLastResponseDetails(): ?array
+    {
+        return $this->lastResponseDetails;
+    }
+
+    /**
+     * Get only the last response body content
+     *
+     * @return string|null The response body content, or null if no API call has been made yet.
+     */
+    public function getLastResponseBody(): ?string
+    {
+        return $this->lastResponseDetails['body'] ?? null;
     }
 
     /**

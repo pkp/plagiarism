@@ -241,6 +241,62 @@ class Webhook extends CommandLineTool
     }
 
     /**
+     * Display the full API response details for debugging
+     *
+     * @param string|null $errorMessage Optional custom error message to display
+     */
+    protected function displayApiResponseDetails(?string $errorMessage = null): void
+    {
+        $errorMessage ??= __('plugins.generic.plagiarism.tools.registerWebhooks.error');
+        $this->getCommandInterface()->getOutput()->newLine();
+        $this->getCommandInterface()->getOutput()->error($errorMessage);
+
+        $responseDetails = $this->ithenticate->getLastResponseDetails();
+        if (!$responseDetails) {
+            $this->getCommandInterface()->getOutput()->writeln(
+                '<fg=red>No response details available (request may not have been made)</>'
+            );
+            return;
+        }
+
+        $this->getCommandInterface()->getOutput()->section('Full API Response Details');
+
+        // Display status code and reason
+        $this->getCommandInterface()->getOutput()->writeln(
+            sprintf(
+                '<fg=yellow>Status Code:</>  %d %s',
+                $responseDetails['status_code'],
+                $responseDetails['reason']
+            )
+        );
+
+        // Display response body
+        $this->getCommandInterface()->getOutput()->newLine();
+        $this->getCommandInterface()->getOutput()->writeln('<fg=yellow>Response Body:</>');
+        $bodyContent = $responseDetails['body'];
+
+        // Try to pretty-print JSON if it's valid JSON
+        $decodedBody = json_decode($bodyContent, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $this->getCommandInterface()->getOutput()->writeln(
+                json_encode($decodedBody, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+            );
+        } else {
+            $this->getCommandInterface()->getOutput()->writeln($bodyContent);
+        }
+
+        // Display response headers
+        $this->getCommandInterface()->getOutput()->newLine();
+        $this->getCommandInterface()->getOutput()->writeln('<fg=yellow>Response Headers:</>');
+        foreach ($responseDetails['headers'] as $header => $values) {
+            $headerValues = is_array($values) ? implode(', ', $values) : $values;
+            $this->getCommandInterface()->getOutput()->writeln(
+                sprintf('  <fg=cyan>%s:</> %s', $header, $headerValues)
+            );
+        }
+    }
+
+    /**
      * Delete the iThenticate webhook for given context
      */
     protected function delete(): bool
@@ -253,7 +309,7 @@ class Webhook extends CommandLineTool
             return true;
         }
 
-        if ($this->ithenticate->deleteWebhook($existingWebhookId)) {
+        if (!$this->ithenticate->deleteWebhook($existingWebhookId)) {
             // if the force flag not passed, will not continue to delete the webhook from database
             // will only print the error and return
             if (!in_array('--force', $this->getParameterList())) {
@@ -263,6 +319,8 @@ class Webhook extends CommandLineTool
                         ['webhookId' => $existingWebhookId, 'contextId' => $this->context->getId()]
                     )
                 );
+
+                $this->displayApiResponseDetails("Deleting ithenticate webhook id : {$existingWebhookId} failed via iThenticate API");
 
                 return false;
             }
@@ -301,7 +359,7 @@ class Webhook extends CommandLineTool
      */
     protected function register(): void
     {
-        if ($this->context->getData('ithenticateWebhookId') && $this->validate()) {
+        if ($this->context->getData('ithenticateWebhookId')) {
             $this->getCommandInterface()->getOutput()->warning(
                 __('plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured')
             );
@@ -332,7 +390,8 @@ class Webhook extends CommandLineTool
             return;
         }
 
-        $this->getCommandInterface()->getOutput()->error(__('plugins.generic.plagiarism.tools.registerWebhooks.error'));
+        // Display the detailed API response with reason of failure
+        $this->displayApiResponseDetails('Failed Registering new webhook');
 	}
 
     /**
@@ -356,7 +415,7 @@ class Webhook extends CommandLineTool
         $webhookResult = null;
 
         $validity = $this->ithenticate->validateWebhook($this->context->getData('ithenticateWebhookId'), $webhookResult);
-        
+
         if ($webhookResult) {
             $webhookResult = json_decode($webhookResult, true);
             $collection = collect($webhookResult);
@@ -378,14 +437,14 @@ class Webhook extends CommandLineTool
 
                 // Use HEAD for minimal bandwidth (checks existence/reachability without body)
                 $response = Http::timeout(static::REACHABILITY_TIMEOUT)->head($url);
-            
+
                 // Fallback to GET if HEAD isn't supported by the server
                 if (!$response->successful()) {
                     $response = Http::timeout(static::REACHABILITY_TIMEOUT)->get($url);
                 }
 
                 array_push($values, $response->successful() ? 'YES' : 'NO');
-            
+
             } catch (\Illuminate\Http\Client\ConnectionException $e) {
                 array_push($values, "FAILED - Message: {$e->getMessage()}");
             } catch (\Exception $e) {
@@ -401,6 +460,11 @@ class Webhook extends CommandLineTool
             $table->setRows($rows);
             $table->setColumnMaxWidth(1, 120);
             $table->render();
+        }
+
+        // If validation failed, display the full API response for debugging
+        if (!$validity) {
+            $this->displayApiResponseDetails("Failed validating webhook id : {$this->context->getData('ithenticateWebhookId')}");
         }
 
         return $validity;
