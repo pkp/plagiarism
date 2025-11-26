@@ -895,6 +895,8 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Register the webhook for this context
+	 * 
+	 * Example webhook format : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
 	 */
 	public function registerIthenticateWebhook(IThenticate|TestIThenticate $ithenticate, ?Context $context = null): bool
 	{
@@ -1279,7 +1281,7 @@ class PlagiarismPlugin extends GenericPlugin
 				fn (mixed $data): string => gettype($data) == 'string' ? trim($data) : ''
 			)
 			->filter();
-		
+
 		// There must be exactly 2 entries to consider it as a valid service access
 		return $servicesAccess->count() === 2;
 	}
