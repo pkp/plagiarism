@@ -271,7 +271,7 @@ class TestIThenticate
 
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()} with owner permission as {$authorPermission} and submitter permission as {$submitterPermission}");
 
-        return \Illuminate\Support\Str::uuid()->__toString();
+        return 'test-submission-uuid-' . \Illuminate\Support\Str::uuid()->__toString();
     }
 
     /**
