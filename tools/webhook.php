@@ -29,6 +29,7 @@ use PKP\cliTool\CommandLineTool;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\TestIThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
+use APP\plugins\generic\plagiarism\classes\DummyWebhookManager;
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 
@@ -47,6 +48,7 @@ class Webhook extends CommandLineTool
         'update'    => 'plugins.generic.plagiarism.tools.registerWebhooks.update.description',
         'validate'  => 'plugins.generic.plagiarism.tools.registerWebhooks.validate.description',
         'list'      => 'plugins.generic.plagiarism.tools.registerWebhooks.list.description',
+        'work'      => 'plugins.generic.plagiarism.tools.registerWebhooks.work.description',
         'usage'     => 'plugins.generic.plagiarism.tools.registerWebhooks.usage.description',
     ];
 
@@ -110,7 +112,7 @@ class Webhook extends CommandLineTool
             );
         }
 
-        if (in_array($this->option, ['register', 'update', 'validate'])) {
+        if (in_array($this->option, ['register', 'update', 'validate', 'work'])) {
             if (!$this->validateRequiredParameters()) {
                 throw new CommandNotFoundException(
                     __(
@@ -492,6 +494,147 @@ class Webhook extends CommandLineTool
             ['ID', 'Path', 'Webhook ID', 'Configured'],
             $rows
         );
+    }
+
+    /**
+     * Run the webhook daemon to simulate iThenticate webhooks in test mode
+     */
+    protected function work(): void
+    {
+        // Check if --force flag is provided to skip confirmation
+        $forceRun = in_array('--force', $this->getParameterList());
+
+        // Display safety warning and require confirmation
+        if (!$forceRun && !$this->displayWorkCommandWarningAndConfirm()) {
+            $this->getCommandInterface()->getOutput()->warning('Operation cancelled by user');
+            return;
+        }
+
+        // Get optional parameters
+        $interval = (int) ($this->getParameterValue('interval') ?? 30);
+
+        // Default max-cycles to 10, but allow override from CLI (0 = unlimited)
+        $maxCycles = $this->getParameterValue('max-cycles') !== null
+            ? (int) $this->getParameterValue('max-cycles')
+            : 10; // Default to 10 cycles if not specified
+
+        $once = in_array('--once', $this->getParameterList());
+        $verbose = in_array('--verbose', $this->getParameterList());
+        $dryRun = in_array('--dry-run', $this->getParameterList());
+        $submissionId = $this->getParameterValue('submission') ? (int) $this->getParameterValue('submission') : null;
+
+        // Validate interval
+        if ($interval < 5) {
+            $this->getCommandInterface()->getOutput()->error('Interval must be at least 5 seconds');
+            return;
+        }
+
+        if ($interval > 3600) {
+            $this->getCommandInterface()->getOutput()->error('Interval cannot exceed 3600 seconds (1 hour)');
+            return;
+        }
+
+        // Validate max cycles
+        if ($maxCycles < 0) {
+            $this->getCommandInterface()->getOutput()->error('Max cycles must be 0 (unlimited) or positive');
+            return;
+        }
+
+        // Create output callback that uses CommandInterface
+        $outputCallback = function (string $message) {
+            $this->getCommandInterface()->getOutput()->writeln($message);
+        };
+
+        try {
+            // Create and configure the daemon
+            $daemon = new DummyWebhookManager(
+                $this->context,
+                $this->plagiarismPlugin,
+                $this->ithenticate,
+                $outputCallback
+            );
+
+            $daemon
+                ->setVerbose($verbose)
+                ->setDryRun($dryRun)
+                ->setMaxCycles($maxCycles);
+
+            // Run the daemon
+            $daemon->run($interval, $once, $submissionId);
+
+        } catch (\Throwable $e) {
+            $this->getCommandInterface()->getOutput()->error('Daemon failed: ' . $e->getMessage());
+            if ($verbose) {
+                $this->getCommandInterface()->getOutput()->writeln($e->getTraceAsString());
+            }
+        }
+    }
+
+    /**
+     * Display warning message and prompt for confirmation before running work command
+     *
+     * @return bool True if user confirms, false otherwise
+     */
+    protected function displayWorkCommandWarningAndConfirm(): bool
+    {
+        $output = $this->getCommandInterface()->getOutput();
+
+        // Display warning banner
+        $output->newLine();
+        $output->writeln('<fg=red;options=bold>╔═══════════════════════════════════════════════════════════════════════════╗</>');
+        $output->writeln('<fg=red;options=bold>║                              ⚠️  WARNING  ⚠️                               ║</>');
+        $output->writeln('<fg=red;options=bold>╚═══════════════════════════════════════════════════════════════════════════╝</>');
+        $output->newLine();
+
+        $output->writeln('<fg=yellow>You are about to start the Webhook Daemon in WORK mode.</>');
+        $output->newLine();
+
+        $output->writeln('<fg=yellow;options=bold>IMPORTANT SAFETY INFORMATION:</>');
+        $output->writeln('  • This daemon <fg=red;options=bold>SIMULATES iThenticate webhook events</> for local testing');
+        $output->writeln('  • It will <fg=red;options=bold>AUTOMATICALLY PROCESS FILES</> with pending webhook events');
+        $output->writeln('  • Only works in <fg=cyan>TEST MODE</> (ithenticate.test_mode = On)');
+        $output->writeln('  • Only processes submissions with <fg=cyan>test IDs</> (test-submission-uuid-*)');
+        $output->writeln('  • Makes <fg=cyan>HTTP requests to webhook handler</> on this server');
+        $output->newLine();
+
+        $output->writeln('<fg=red;options=bold>⚠️  DO NOT RUN THIS ON PRODUCTION SERVERS  ⚠️</>');
+        $output->newLine();
+
+        $output->writeln('<fg=yellow>Current context:</>');
+        $output->writeln("  • Context ID: <fg=cyan>{$this->context->getId()}</>");
+        $output->writeln("  • Context Path: <fg=cyan>{$this->context->getPath()}</>");
+        $output->writeln("  • Context Name: <fg=cyan>{$this->context->getLocalizedName()}</>");
+        $output->writeln("  • Test Mode: <fg=cyan>" . (PlagiarismPlugin::isRunningInTestMode() ? 'ENABLED' : 'DISABLED') . "</>");
+        $output->newLine();
+
+        // Check if running in production-like environment
+        $isPotentiallyProduction = !PlagiarismPlugin::isRunningInTestMode();
+
+        if ($isPotentiallyProduction) {
+            $output->writeln('<fg=red;options=bold>❌ CANNOT RUN: Test mode is NOT enabled!</>');
+            $output->writeln('<fg=red>Set [ithenticate] test_mode = On in config.inc.php</>');
+            $output->newLine();
+            return false;
+        }
+
+        // Prompt for confirmation
+        $output->writeln('<fg=yellow;options=bold>Are you sure you want to continue?</>');
+        $output->write('<fg=yellow>Type </><fg=green;options=bold>YES</><fg=yellow> (in uppercase) to confirm, or anything else to cancel: </>');
+
+        // Read user input
+        $handle = fopen('php://stdin', 'r');
+        $confirmation = trim(fgets($handle));
+        fclose($handle);
+
+        $output->newLine();
+
+        if ($confirmation === 'YES') {
+            $output->writeln('<fg=green>✓ Confirmation received. Starting webhook daemon...</>');
+            $output->newLine();
+            return true;
+        }
+
+        return false;
     }
 }
 
