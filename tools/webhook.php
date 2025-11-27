@@ -511,12 +511,13 @@ class Webhook extends CommandLineTool
         }
 
         // Get optional parameters
-        $interval = (int) ($this->getParameterValue('interval') ?? 30);
+        $interval = (int) ($this->getParameterValue('interval')
+            ?? DummyWebhookManager::DEFAULT_CYCLE_INTERVAL);
 
         // Default max-cycles to 10, but allow override from CLI (0 = unlimited)
         $maxCycles = $this->getParameterValue('max-cycles') !== null
             ? (int) $this->getParameterValue('max-cycles')
-            : 10; // Default to 10 cycles if not specified
+            : DummyWebhookManager::DEFAULT_MAX_CYCLES; // Default to 10 cycles if not specified
 
         $once = in_array('--once', $this->getParameterList());
         $verbose = in_array('--verbose', $this->getParameterList());

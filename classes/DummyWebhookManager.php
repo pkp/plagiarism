@@ -22,11 +22,15 @@ use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use Exception;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use PKP\context\Context;
 use PKP\submissionFile\SubmissionFile;
 
 class DummyWebhookManager
 {
+    public const DEFAULT_MAX_CYCLES = 10;
+    public const DEFAULT_CYCLE_INTERVAL = 30;
+
     /**
      * The context to process
      */
@@ -75,7 +79,7 @@ class DummyWebhookManager
     /**
      * Maximum cycles before automatic shutdown (0 = unlimited)
      */
-    protected int $maxCycles = 10;
+    protected int $maxCycles = self::DEFAULT_MAX_CYCLES;
 
     /**
      * Constructor
@@ -152,7 +156,11 @@ class DummyWebhookManager
      * @param bool $once Run once and exit (no loop)
      * @param int|null $submissionId Optional specific submission ID to process
      */
-    public function run(int $interval = 30, bool $once = false, ?int $submissionId = null): void
+    public function run(
+        int $interval = self::DEFAULT_CYCLE_INTERVAL,
+        bool $once = false,
+        ?int $submissionId = null
+    ): void
     {
         $this->log("Webhook Daemon Started", true);
         $this->log("Context: {$this->context->getId()} ({$this->context->getLocalizedName()})", true);
@@ -249,44 +257,69 @@ class DummyWebhookManager
      */
     protected function getFilesAwaitingSubmissionComplete(?int $submissionId): array
     {
-        $qb = Repo::submissionFile()
+        // Build optimized SQL query to find matching submission_file_ids
+        $query = DB::table('submission_file_settings as sfs_id')
+            ->select('sfs_id.submission_file_id')
+            ->join('submission_files as sf', 'sf.submission_file_id', '=', 'sfs_id.submission_file_id')
+            ->join('submissions as s', 's.submission_id', '=', 'sf.submission_id')
+
+            // Must have ithenticateId starting with test prefix
+            ->where('sfs_id.setting_name', 'ithenticateId')
+            ->where('sfs_id.setting_value', 'LIKE', 'test-submission-uuid-%')
+
+            // Must belong to this context
+            ->where('s.context_id', $this->context->getId())
+
+            // Must NOT have been accepted yet
+            ->whereNotExists(function ($subQuery) {
+                $subQuery->select(DB::raw(1))
+                    ->from('submission_file_settings as sfs_accepted')
+                    ->whereColumn('sfs_accepted.submission_file_id', 'sfs_id.submission_file_id')
+                    ->where('sfs_accepted.setting_name', 'ithenticateSubmissionAcceptedAt');
+            })
+
+            // Must NOT be scheduled yet (or scheduled = 0)
+            ->where(function ($orQuery) {
+                // Case 1: No ithenticateSimilarityScheduled setting exists
+                $orQuery->whereNotExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('submission_file_settings as sfs_scheduled')
+                        ->whereColumn('sfs_scheduled.submission_file_id', 'sfs_id.submission_file_id')
+                        ->where('sfs_scheduled.setting_name', 'ithenticateSimilarityScheduled');
+                })
+                // Case 2: Or it exists but is set to '0'
+                ->orWhereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('submission_file_settings as sfs_scheduled')
+                        ->whereColumn('sfs_scheduled.submission_file_id', 'sfs_id.submission_file_id')
+                        ->where('sfs_scheduled.setting_name', 'ithenticateSimilarityScheduled')
+                        ->where('sfs_scheduled.setting_value', '0');
+                });
+            });
+
+        // Optional filter by specific submission
+        if ($submissionId) {
+            $query->where('s.submission_id', $submissionId);
+        }
+
+        // Execute query and get file IDs
+        $fileIds = $query->pluck('submission_file_id')->toArray();
+
+        if (empty($fileIds)) {
+            return [];
+        }
+
+        // Batch load only the matched submission files
+        $submissionFiles = Repo::submissionFile()
             ->getCollector()
-            ->filterBySubmissionIds(
-                $submissionId ? [$submissionId] : null
-            );
+            ->getQueryBuilder()
+            ->whereIn('sf.submission_file_id', $fileIds)
+            ->get();
 
-        $files = $qb->getMany()->filter(function (SubmissionFile $file) {
-            // Must have ithenticateId
-            $ithenticateId = $file->getData('ithenticateId');
-            if (!$ithenticateId) {
-                return false;
-            }
-
-            // Must be a test submission (safety check)
-            if (!$this->isTestSubmission($ithenticateId)) {
-                return false;
-            }
-
-            // Must not have been accepted yet
-            if ($file->getData('ithenticateSubmissionAcceptedAt')) {
-                return false;
-            }
-
-            // Must not be scheduled yet
-            if ($file->getData('ithenticateSimilarityScheduled')) {
-                return false;
-            }
-
-            // Verify submission belongs to this context
-            $submission = Repo::submission()->get($file->getData('submissionId'));
-            if (!$submission || $submission->getData('contextId') !== $this->context->getId()) {
-                return false;
-            }
-
-            return true;
-        });
-
-        return iterator_to_array($files);
+        // Convert to SubmissionFile objects
+        return $submissionFiles
+            ->map(fn ($row) => Repo::submissionFile()->dao->fromRow($row))
+            ->toArray();
     }
 
     /**
@@ -294,44 +327,59 @@ class DummyWebhookManager
      */
     protected function getFilesAwaitingSimilarityComplete(?int $submissionId): array
     {
-        $qb = Repo::submissionFile()
+        // Build optimized SQL query to find matching submission_file_ids
+        $query = DB::table('submission_file_settings as sfs_id')
+            ->select('sfs_id.submission_file_id')
+            ->join('submission_files as sf', 'sf.submission_file_id', '=', 'sfs_id.submission_file_id')
+            ->join('submissions as s', 's.submission_id', '=', 'sf.submission_id')
+
+            // Must have ithenticateId starting with test prefix
+            ->where('sfs_id.setting_name', 'ithenticateId')
+            ->where('sfs_id.setting_value', 'LIKE', 'test-submission-uuid-%')
+
+            // Must belong to this context
+            ->where('s.context_id', $this->context->getId())
+
+            // Must be scheduled (ithenticateSimilarityScheduled = 1)
+            ->whereExists(function ($subQuery) {
+                $subQuery->select(DB::raw(1))
+                    ->from('submission_file_settings as sfs_scheduled')
+                    ->whereColumn('sfs_scheduled.submission_file_id', 'sfs_id.submission_file_id')
+                    ->where('sfs_scheduled.setting_name', 'ithenticateSimilarityScheduled')
+                    ->where('sfs_scheduled.setting_value', '1');
+            })
+
+            // Must NOT have result yet
+            ->whereNotExists(function ($subQuery) {
+                $subQuery->select(DB::raw(1))
+                    ->from('submission_file_settings as sfs_result')
+                    ->whereColumn('sfs_result.submission_file_id', 'sfs_id.submission_file_id')
+                    ->where('sfs_result.setting_name', 'ithenticateSimilarityResult');
+            });
+
+        // Optional filter by specific submission
+        if ($submissionId) {
+            $query->where('s.submission_id', $submissionId);
+        }
+
+        // Execute query and get file IDs
+        $fileIds = $query->pluck('submission_file_id')->toArray();
+
+        if (empty($fileIds)) {
+            return [];
+        }
+
+        // Batch load only the matched submission files
+        $submissionFiles = Repo::submissionFile()
             ->getCollector()
-            ->filterBySubmissionIds(
-                $submissionId ? [$submissionId] : null
-            );
+            ->getQueryBuilder()
+            ->whereIn('sf.submission_file_id', $fileIds)
+            ->get();
 
-        $files = $qb->getMany()->filter(function (SubmissionFile $file) {
-            // Must have ithenticateId
-            $ithenticateId = $file->getData('ithenticateId');
-            if (!$ithenticateId) {
-                return false;
-            }
-
-            // Must be a test submission (safety check)
-            if (!$this->isTestSubmission($ithenticateId)) {
-                return false;
-            }
-
-            // Must be scheduled
-            if (!$file->getData('ithenticateSimilarityScheduled')) {
-                return false;
-            }
-
-            // Must not already have result
-            if ($file->getData('ithenticateSimilarityResult')) {
-                return false;
-            }
-
-            // Verify submission belongs to this context
-            $submission = Repo::submission()->get($file->getData('submissionId'));
-            if (!$submission || $submission->getData('contextId') !== $this->context->getId()) {
-                return false;
-            }
-
-            return true;
-        });
-
-        return iterator_to_array($files);
+        // Convert to SubmissionFile objects
+        return $submissionFiles
+            ->map(fn ($row) => Repo::submissionFile()->dao->fromRow($row))
+            ->toArray();
     }
 
     /**
