@@ -93,6 +93,11 @@ class TestIThenticate
     public const DEFAULT_EULA_LANGUAGE = 'en-US';
 
     /**
+     * The test iThenticate uuid prefix on test mode
+     */
+    public const ITHENTICATE_SUBMISSION_UUID_PREFIX = 'test-submission-uuid-';
+
+    /**
      * @copydoc IThenticate::DEFAULT_WEBHOOK_EVENTS
      */
     public const DEFAULT_WEBHOOK_EVENTS = [
@@ -271,7 +276,7 @@ class TestIThenticate
 
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()} with owner permission as {$authorPermission} and submitter permission as {$submitterPermission}");
 
-        return 'test-submission-uuid-' . \Illuminate\Support\Str::uuid()->__toString();
+        return static::ITHENTICATE_SUBMISSION_UUID_PREFIX . \Illuminate\Support\Str::uuid()->__toString();
     }
 
     /**

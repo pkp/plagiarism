@@ -583,7 +583,7 @@ class Webhook extends CommandLineTool
         // Display warning banner
         $output->newLine();
         $output->writeln('<fg=red;options=bold>╔═══════════════════════════════════════════════════════════════════════════╗</>');
-        $output->writeln('<fg=red;options=bold>║                              ⚠️  WARNING  ⚠️                               ║</>');
+        $output->writeln('<fg=red;options=bold>║                              ⚠️  WARNING  ⚠️                                ║</>');
         $output->writeln('<fg=red;options=bold>╚═══════════════════════════════════════════════════════════════════════════╝</>');
         $output->newLine();
 
@@ -594,7 +594,7 @@ class Webhook extends CommandLineTool
         $output->writeln('  • This daemon <fg=red;options=bold>SIMULATES iThenticate webhook events</> for local testing');
         $output->writeln('  • It will <fg=red;options=bold>AUTOMATICALLY PROCESS FILES</> with pending webhook events');
         $output->writeln('  • Only works in <fg=cyan>TEST MODE</> (ithenticate.test_mode = On)');
-        $output->writeln('  • Only processes submissions with <fg=cyan>test IDs</> (test-submission-uuid-*)');
+        $output->writeln('  • Only processes submissions with <fg=cyan>test IDs</> (' . TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '*)');
         $output->writeln('  • Makes <fg=cyan>HTTP requests to webhook handler</> on this server');
         $output->newLine();
 

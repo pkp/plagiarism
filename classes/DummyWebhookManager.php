@@ -265,7 +265,7 @@ class DummyWebhookManager
 
             // Must have ithenticateId starting with test prefix
             ->where('sfs_id.setting_name', 'ithenticateId')
-            ->where('sfs_id.setting_value', 'LIKE', 'test-submission-uuid-%')
+            ->where('sfs_id.setting_value', 'LIKE', TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
 
             // Must belong to this context
             ->where('s.context_id', $this->context->getId())
@@ -335,7 +335,7 @@ class DummyWebhookManager
 
             // Must have ithenticateId starting with test prefix
             ->where('sfs_id.setting_name', 'ithenticateId')
-            ->where('sfs_id.setting_value', 'LIKE', 'test-submission-uuid-%')
+            ->where('sfs_id.setting_value', 'LIKE', TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
 
             // Must belong to this context
             ->where('s.context_id', $this->context->getId())
@@ -500,8 +500,8 @@ class DummyWebhookManager
      */
     protected function isTestSubmission(string $ithenticateId): bool
     {
-        // Test IDs from TestIThenticate.php follow pattern: 'test-submission-uuid-{hash}'
-        return str_starts_with($ithenticateId, 'test-submission-uuid-');
+        // Test IDs from TestIThenticate.php follow pattern: TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '{hash}'
+        return str_starts_with($ithenticateId, TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX);
     }
 
     /**
