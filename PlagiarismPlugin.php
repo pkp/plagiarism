@@ -126,8 +126,12 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// Plugin has been registered but not enabled
 		// will allow to load plugin but no plugin feature will be executed
-		if (!$this->getEnabled($mainContextId)) {
-			return $success;
+		// This check will not execute in for the webhook CLI tool as we need to allow it to run
+		// in CLI mode to manage webhooks
+		if (!runOnCLI('webhook.php')) {
+			if (!$this->getEnabled($mainContextId)) {
+				return $success;
+			}
 		}
 
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION, [$this, 'addPlagiarismCheckDataToSubmissionSchema']);
