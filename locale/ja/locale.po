@@ -1,3 +1,110 @@
 # Bjorn-Ole Kamm <pkp_trans@b-ok.de>, 2024.
 msgid ""
-msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+msgstr ""
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Last-Translator: Bjorn-Ole Kamm <pkp_trans@b-ok.de>\n"
+"Language-Team: Japanese <http://translate.pkp.sfu.ca/projects/plugins/plagiarism/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.18.2\n"
+
+msgid "plugins.generic.plagiarism.displayName"
+msgstr "iThenticate 盗作検出プラグイン"
+
+msgid "plugins.generic.plagiarism.description"
+msgstr "盗作の可能性を確認するために、すべての投稿をiThenticateに送信します。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.errorMessage"
+msgstr "投稿 {$submissionId} の iThenticate 処理エラー: {$errorMessage}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
+msgstr "現在の出版物の主著者がいない投稿に対して盗作チェックを実行できません。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
+msgstr "類似性レポート生成プロセスのスケジューリングを待っています。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.reportScheduleCompletd"
+msgstr "類似性レポートの生成が正常にスケジュールされました。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
+msgstr "類似性結果の生成を待っています。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Missing required iThenticate service access API URL and API key."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "コンテキスト {$contextId} のWebhook登録に失敗しました。投稿はアップロードされますが、更新が届かない可能性があります。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Register webhooks for iThenticate account for a given context path"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Update webhooks for iThenticate account for a given context path"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Validate webhooks for iThenticate account for a given context path"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "List webhooks for iThenticate account for all available and enabled contexts"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Display the usage parameters."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Option could not be empty! Check the usage method."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Option {$option} does not exist. Check the usage method."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Did you mean one of the following?."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Required parameter {$parameter} are missing for command {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Run the command as php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "No context found for given context path or id: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Operation completed successfully."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Operation failed with error"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "A valid iThenticate webhook already configured. Use update option to register a new webhook and replace the existing one."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"

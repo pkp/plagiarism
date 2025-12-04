@@ -691,7 +691,20 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// If no webhook previously registered for this Context, register it
 		if (!$context->getData('ithenticateWebhookId')) {
-			$this->registerIthenticateWebhook($ithenticate, $context);
+			$webhookRegistered = $this->registerIthenticateWebhook($ithenticate, $context);
+
+			if (!$webhookRegistered) {
+				// if webook registration failed, Still allow submission to continue but warn admin
+				$this->sendErrorMessage(
+					__(
+						'plugins.generic.plagiarism.webhook.registration.failed',
+						['contextId' => $context->getId()]
+					),
+					$submission->getId()
+				);
+
+				error_log("Webhook registration failed for context {$context->getId()}. Submissions will upload but updates may not arrive.");
+			}
 		}
 
 		// Only set applicable EULA if EULA required
@@ -882,6 +895,8 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Register the webhook for this context
+	 * 
+	 * Example webhook format : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
 	 */
 	public function registerIthenticateWebhook(IThenticate|TestIThenticate $ithenticate, ?Context $context = null): bool
 	{
@@ -1026,23 +1041,20 @@ class PlagiarismPlugin extends GenericPlugin
 	 * If the test mode is enable, it will return an instance of mock class 
 	 * `TestIThenticate` instead of actual commucation responsible class.
 	 */
-	public function initIthenticate(string $apiUrl, string $apiKey): IThenticate|TestIThenticate
+	public function initIthenticate(
+		string $apiUrl,
+		string $apiKey,
+		string $integrationName = self::PLUGIN_INTEGRATION_NAME,
+		?string $integrationVersion = null
+	): IThenticate|TestIThenticate
 	{
+		$integrationVersion ??= $this->getCurrentVersion()->getVersionString();
+
 		if (static::isRunningInTestMode()) {
-			return new TestIThenticate(
-				$apiUrl,
-				$apiKey,
-				static::PLUGIN_INTEGRATION_NAME,
-				$this->getCurrentVersion()->getData('current')
-			);
+			return new TestIThenticate($apiUrl, $apiKey, $integrationName, $integrationVersion);
 		}
 
-		return new IThenticate(
-			$apiUrl,
-			$apiKey,
-			static::PLUGIN_INTEGRATION_NAME,
-			$this->getCurrentVersion()->getData('current')
-		);
+		return new IThenticate($apiUrl, $apiKey, $integrationName, $integrationVersion);
 	}
 
 	/**
@@ -1269,7 +1281,7 @@ class PlagiarismPlugin extends GenericPlugin
 				fn (mixed $data): string => gettype($data) == 'string' ? trim($data) : ''
 			)
 			->filter();
-		
+
 		// There must be exactly 2 entries to consider it as a valid service access
 		return $servicesAccess->count() === 2;
 	}
@@ -1341,8 +1353,4 @@ class PlagiarismPlugin extends GenericPlugin
 			Config::getVar('ithenticate', $configKeyName)
 		);
 	}
-}
-
-if (!PKP_STRICT_MODE) {
-    class_alias('\APP\plugins\generic\plagiarism\PlagiarismPlugin', '\PlagiarismPlugin');
 }

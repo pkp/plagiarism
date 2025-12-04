@@ -37,10 +37,9 @@ msgstr ""
 "Настройките на iThenticate бяха намерени в config.inc.php и настройките тук "
 "няма да бъдат използвани."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Качването на материали {$submissionId} в iThenticate не бе успешно с грешка: "
-"{$errorMessage}"
+msgstr "Грешка при обработка на iThenticate за подаване {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.description"
 msgstr ""
@@ -351,3 +350,75 @@ msgstr "Генерирането на отчет за сходство е пла
 #, fuzzy
 msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
 msgstr "Изчакване за генериране на резултат за сходство."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Липсват задължителните URL адрес и API ключ за достъп до услугата iThenticate."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Регистрацията на webhook за контекст {$contextId} не успя. Подаванията ще се качат, но актуализациите може да не пристигнат."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Регистриране на webhooks за акаунт в iThenticate за зададен контекстен път"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Актуализиране на webhooks за акаунт в iThenticate за зададен контекстен път"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Валидиране на webhooks за акаунт в iThenticate за зададен контекстен път"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "Списък на webhooks за акаунт в iThenticate за всички налични и активирани контексти"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Показване на параметрите за употреба."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Опцията не може да бъде празна! Проверете метода за употреба."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Опцията {$option} не съществува. Проверете метода за употреба."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Имахте ли предвид някоя от следните опции?"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Задължителният параметър {$parameter} липсва за командата {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Изпълнете командата като: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "Не е намерен контекст за зададения контекстен път или ID: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Операцията завърши успешно."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Операцията завърши с грешка"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "Вече е конфигуриран валиден webhook за iThenticate. Използвайте опцията за актуализиране, за да регистрирате нов webhook и да замените съществуващия."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "Успешно изтрит webhook за iThenticate с ID: {$webhookId} за контекст ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "Не може да се изтрие webhook за iThenticate с ID: {$webhookId} за контекст ID: {$contextId}"

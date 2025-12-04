@@ -43,10 +43,9 @@ msgstr ""
 "iThenticate indstillinger blev fundet i config.inc.php, og indstillingerne "
 "her vil ikke blive anvendt."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Upload af indsendelsen {$submissionId} til iThenticate mislykkedes pga. "
-"følgende fejl: {$errorMessage}"
+msgstr "iThenticate behandlingsfejl for indsendelse {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
 msgstr "iThenticate API URL"
@@ -343,3 +342,75 @@ msgstr "Generering af lighedsrapport er planlagt."
 #, fuzzy
 msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
 msgstr "Venter på at generere lighedsresultat."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Manglende påkrævet iThenticate serviceadgang API URL og API nøgle."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Webhook-registrering mislykkedes for kontekst {$contextId}. Indsendelser uploades, men opdateringer ankommer muligvis ikke."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Registrer webhooks for iThenticate-konto for en given kontekststi"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Opdater webhooks for iThenticate-konto for en given kontekststi"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Valider webhooks for iThenticate-konto for en given kontekststi"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "List webhooks for iThenticate-konto for alle tilgængelige og aktiverede kontekster"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Vis brugsparametrene."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Mulighed kan ikke være tom! Tjek brugsmetoden."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Mulighed {$option} eksisterer ikke. Tjek brugsmetoden."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Mente du en af følgende?"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Påkrævet parameter {$parameter} mangler for kommando {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Kør kommandoen som: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "Ingen kontekst fundet for given kontekststi eller ID: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Operationen gennemført succesfuldt."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Operationen fejlede med fejl"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "En gyldig iThenticate webhook er allerede konfigureret. Brug opdateringsmuligheden for at registrere en ny webhook og erstatte den eksisterende."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "Succesfuldt slettet iThenticate webhook med ID: {$webhookId} for kontekst ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "Kunne ikke slette iThenticate webhook med ID: {$webhookId} for kontekst ID: {$contextId}"

@@ -172,10 +172,9 @@ msgstr ""
 "Verbindung zum iThenticate-API-Dienst kann nicht hergestellt werden. Bitte "
 "prüfen Sie die API URL/den API key und versuchen Sie es erneut."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Hochladen der Einreichung {$submissionId} zu iThenticate mit folgendem "
-"Fehler fehlgeschlagen: {$errorMessage}"
+msgstr "iThenticate Verarbeitungsfehler für Einreichung {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
 msgstr ""
@@ -348,3 +347,75 @@ msgstr "Die Erstellung des Ähnlichkeitsberichts wurde erfolgreich geplant."
 #, fuzzy
 msgid "plugins.generic.plagiarism.file.statusText.waitingOnSimilarityScore"
 msgstr "Wartet auf die Generierung eines Ähnlichkeitsergebnisses."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Erforderliche iThenticate-Dienst-API-URL und API-Schlüssel fehlen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Webhook-Registrierung für Kontext {$contextId} fehlgeschlagen. Einreichungen werden hochgeladen, aber Updates kommen möglicherweise nicht an."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Webhooks für iThenticate-Konto für einen bestimmten Kontextpfad registrieren"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Webhooks für iThenticate-Konto für einen bestimmten Kontextpfad aktualisieren"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Webhooks für iThenticate-Konto für einen bestimmten Kontextpfad validieren"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "Webhooks für iThenticate-Konto für alle verfügbaren und aktivierten Kontexte auflisten"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Verwendungsparameter anzeigen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Option darf nicht leer sein! Überprüfen Sie die Verwendungsmethode."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Option {$option} existiert nicht. Überprüfen Sie die Verwendungsmethode."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Meinten Sie eine der folgenden Optionen?"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Erforderlicher Parameter {$parameter} fehlt für Befehl {$command}."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Führen Sie den Befehl aus als: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "Kein Kontext für angegebenen Kontextpfad oder ID gefunden: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Vorgang erfolgreich abgeschlossen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Vorgang fehlgeschlagen mit Fehler"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "Ein gültiger iThenticate-Webhook ist bereits konfiguriert. Verwenden Sie die Aktualisierungsoption, um einen neuen Webhook zu registrieren und den vorhandenen zu ersetzen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "iThenticate-Webhook mit ID: {$webhookId} erfolgreich gelöscht für Kontext-ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "iThenticate-Webhook mit ID: {$webhookId} konnte nicht gelöscht werden für Kontext-ID: {$contextId}"

@@ -73,6 +73,16 @@ class TestIThenticate
     protected bool $suppressApiRequestException = true;
 
     /**
+     * Cached enabled features response to avoid repeated API calls
+     */
+    protected ?string $cachedEnabledFeatures = null;
+
+    /**
+     * @copydoc IThenticate::$lastResponseDetails
+     */
+    protected ?array $lastResponseDetails = null;
+
+    /**
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
      */
     public const DEFAULT_EULA_VERSION = 'latest';
@@ -81,6 +91,11 @@ class TestIThenticate
      * @copydoc IThenticate::DEFAULT_EULA_LANGUAGE
      */
     public const DEFAULT_EULA_LANGUAGE = 'en-US';
+
+    /**
+     * The test iThenticate uuid prefix on test mode
+     */
+    public const ITHENTICATE_SUBMISSION_UUID_PREFIX = 'test-submission-uuid-';
 
     /**
      * @copydoc IThenticate::DEFAULT_WEBHOOK_EVENTS
@@ -112,7 +127,7 @@ class TestIThenticate
      *
      * @var int
      */
-    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+    public const EXCLUDE_SMALL_MATCHES_MIN = 8;
 
     /**
      * @copydoc IThenticate::__construct()
@@ -161,9 +176,7 @@ class TestIThenticate
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
     {
-        static $result;
-
-        $result = '{
+        $this->cachedEnabledFeatures = '{
             "similarity": {
                 "viewer_modes": {
                     "match_overview": true,
@@ -207,12 +220,12 @@ class TestIThenticate
 
 
         if (!$feature) {
-            error_log("iThenticate enabled feature details {$result}");
-            return json_decode($result, true);
+            error_log("iThenticate enabled feature details {$this->cachedEnabledFeatures}");
+            return json_decode($this->cachedEnabledFeatures, true);
         }
 
         $featureStatus = data_get(
-            json_decode($result, true),
+            json_decode($this->cachedEnabledFeatures, true),
             $feature,
             fn () => $this->suppressApiRequestException
                 ? null
@@ -263,7 +276,7 @@ class TestIThenticate
 
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()} with owner permission as {$authorPermission} and submitter permission as {$submitterPermission}");
 
-        return \Illuminate\Support\Str::uuid()->__toString();
+        return static::ITHENTICATE_SUBMISSION_UUID_PREFIX . \Illuminate\Support\Str::uuid()->__toString();
     }
 
     /**
@@ -396,6 +409,31 @@ class TestIThenticate
     }
 
     /**
+     * @copydoc IThenticate::validateWebhook()
+     */
+    public function validateWebhook(string $webhookId, ?string &$result = null): bool
+    {
+        error_log("Validating webhook with id : {$webhookId}");
+        
+        $result = '{
+            "id": "f3852140-1264-4135-b316-ed46d60a6ca2",
+            "url": "https://my-own-test-server.com/turnitin-callbacks",
+            "description": "my webhook",
+            "created_time": "2017-10-19T16:08:00.908Z",
+            "event_types": [
+                "SIMILARITY_COMPLETE",
+                "SUBMISSION_COMPLETE",
+                "SIMILARITY_UPDATED",
+                "PDF_STATUS",
+                "GROUP_ATTACHMENT_COMPLETE"
+            ],
+            "allow_insecure": false
+        }';
+
+        return true;
+    }
+
+    /**
      * @copydoc IThenticate::getEulaDetails()
      */
     public function getEulaDetails(): ?array
@@ -462,6 +500,22 @@ class TestIThenticate
         }
 
         return static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * @copydoc IThenticate::getLastResponseDetails()
+     */
+    public function getLastResponseDetails(): ?array
+    {
+        return $this->lastResponseDetails;
+    }
+
+    /**
+     * @copydoc IThenticate::getLastResponseBody()
+     */
+    public function getLastResponseBody(): ?string
+    {
+        return $this->lastResponseDetails['body'] ?? null;
     }
 
     /**

@@ -75,7 +75,7 @@ class PlagiarismSettingsForm extends Form
 				'required', 
 				'plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min',
 				function($excludeSmallMatches) {
-					return (int) $excludeSmallMatches >= IThenticate::EXCLUDE_SAMLL_MATCHES_MIN;
+					return (int) $excludeSmallMatches >= IThenticate::EXCLUDE_SMALL_MATCHES_MIN;
 				}
 			)
 		);
@@ -101,8 +101,8 @@ class PlagiarismSettingsForm extends Form
 		}
 		
 		// set the default value `8` for `excludeSmallMatches` as per iThenticate guide
-		if ((int) $this->_data['excludeSmallMatches'] < IThenticate::EXCLUDE_SAMLL_MATCHES_MIN) {
-			$this->_data['excludeSmallMatches'] = IThenticate::EXCLUDE_SAMLL_MATCHES_MIN;
+		if ((int) $this->_data['excludeSmallMatches'] < IThenticate::EXCLUDE_SMALL_MATCHES_MIN) {
+			$this->_data['excludeSmallMatches'] = IThenticate::EXCLUDE_SMALL_MATCHES_MIN;
 		}
 	}
 
