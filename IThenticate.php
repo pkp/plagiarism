@@ -69,6 +69,11 @@ class IThenticate
     protected bool $suppressApiRequestException = true;
 
     /**
+     * Cached enabled features response to avoid repeated API calls
+     */
+    protected ?string $cachedEnabledFeatures = null;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      * 
      * @var string
@@ -118,7 +123,7 @@ class IThenticate
      * 
      * @var int
      */
-    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+    public const EXCLUDE_SMALL_MATCHES_MIN = 8;
 
     /**
      * The entity(e.g. submission owner, submitter etc) to id prefix mapping
@@ -174,20 +179,18 @@ class IThenticate
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
     {
-        static $result;
-
-        if (!isset($result) && !$this->validateAccess($result)) {
+        if (!$this->cachedEnabledFeatures && !$this->validateAccess($this->cachedEnabledFeatures)) {
             return $this->suppressApiRequestException
                 ? []
                 : throw new Exception('unable to validate access details');
         }
 
         if (!$feature) {
-            return json_decode($result, true);
+            return json_decode($this->cachedEnabledFeatures, true);
         }
 
         return data_get(
-            json_decode($result, true),
+            json_decode($this->cachedEnabledFeatures, true),
             $feature,
             fn () => $this->suppressApiRequestException
                 ? null
@@ -376,7 +379,7 @@ class IThenticate
             ]
         );
 
-        if ($response->getStatusCode() === 200) {
+        if ($response && $response->getStatusCode() === 200) {
             return $response->getBody()->getContents();
         }
 
@@ -427,9 +430,9 @@ class IThenticate
                         'exclude_methods'                   => $settings['excludeMethods']                  ?? false,
                         'exclude_custom_sections'           => $settings['excludeCustomSections']           ?? false,
                         'exclude_preprints'                 => $settings['excludePreprints']                ?? false,
-                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SAMLL_MATCHES_MIN  
+                        'exclude_small_matches'             => (int) $settings['excludeSmallMatches'] >= self::EXCLUDE_SMALL_MATCHES_MIN  
                                                                 ? (int) $settings['excludeSmallMatches'] 
-                                                                : self::EXCLUDE_SAMLL_MATCHES_MIN,
+                                                                : self::EXCLUDE_SMALL_MATCHES_MIN,
                         'exclude_internet'                  => $settings['excludeInternet']                 ?? false,
                         'exclude_publications'              => $settings['excludePublications']             ?? false,
                         'exclude_crossref'                  => $settings['excludeCrossref']                 ?? false,
@@ -542,7 +545,7 @@ class IThenticate
             'exceptions' => false,
         ]);
         
-        if ($response->getStatusCode() === 200) {
+        if ($response && $response->getStatusCode() === 200) {
             $this->eulaVersionDetails = json_decode($response->getBody()->getContents(), true);
             
             if (!$this->eulaVersion) {
@@ -608,6 +611,26 @@ class IThenticate
     }
 
     /**
+     * Validate webhook end point
+     * @see https://developers.turnitin.com/docs/tca#get-webhook-info
+     */
+    public function validateWebhook(string $webhookId, ?string &$result = null): bool
+    {
+        $response = $this->makeApiRequest('GET', $this->getApiPath("webhooks/{$webhookId}"), [
+            'headers' => $this->getRequiredHeaders(),
+            'verify' => false,
+            'exceptions' => false,
+        ]);
+        
+        if ($response && $response->getStatusCode() === 200) {
+            $result = $response->getBody()->getContents();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get the stored EULA details
      */
     public function getEulaDetails(): ?array
@@ -659,6 +682,15 @@ class IThenticate
         try {
             $response = Application::get()->getHttpClient()->request($method, $url, $options);
         } catch (\Throwable $exception) {
+            
+            $exceptionMessage = null;
+            if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
+                $exceptionMessage = $exception->getResponse()->getBody()->getContents();
+            }
+
+            // Mask the sensitive Authorization Bearer token to hide API KEY before logging
+            $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
             error_log(
                 sprintf(
                     'iThenticate API request to %s for %s method failed with options %s',
@@ -669,7 +701,7 @@ class IThenticate
             );
 
             $this->suppressApiRequestException
-                ? error_log($exception->__toString())
+                ? error_log($exceptionMessage ?? $exception->__toString())
                 : throw $exception;
         }
 

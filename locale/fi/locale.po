@@ -70,10 +70,9 @@ msgstr ""
 "Asetukset tilille, jota käytetään käsikirjoitusten lataamiseen iThenticate-"
 "palveluun. Lisätietoja saat iThenticate-palvelun ylläpitäjältä."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.errorMessage"
-msgstr ""
-"Käsikirjoituksen {$submissionId} lataaminen iThenticate-palveluun "
-"epäonnistui virheellä: {$errorMessage}"
+msgstr "iThenticate käsittelyvirhe lähetykselle {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.manager.settings.apiUrl"
 msgstr "iThenticate API:n URL-osoite"
@@ -113,3 +112,75 @@ msgstr "Käyttöehdot tulee hyväksyä ennen jatkamista."
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Käsikirjoituksen samankaltaisuustarkistuksen asetukset"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
+msgstr "Puuttuu vaadittu iThenticate-palvelun API-osoite ja API-avain."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.webhook.registration.failed"
+msgstr "Webhook-rekisteröinti epäonnistui kontekstille {$contextId}. Lähetykset ladataan, mutta päivitykset eivät välttämättä saavu."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
+msgstr "Rekisteröi webhookit iThenticate-tilille annetulle kontekstipolulle"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.update.description"
+msgstr "Päivitä webhookit iThenticate-tilille annetulle kontekstipolulle"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.validate.description"
+msgstr "Vahvista webhookit iThenticate-tilille annetulle kontekstipolulle"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
+msgstr "Listaa webhookit iThenticate-tilille kaikille saataville ja käyttöönotetuille konteksteille"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.usage.description"
+msgstr "Näytä käyttöparametrit."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.empty.option"
+msgstr "Vaihtoehto ei voi olla tyhjä! Tarkista käyttötapa."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.doesnt.exists"
+msgstr "Vaihtoehtoa {$option} ei ole olemassa. Tarkista käyttötapa."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.option.mean.those"
+msgstr "Tarkoititko jotakin seuraavista?"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing"
+msgstr "Vaadittu parametri {$parameter} puuttuu komentoa {$command} varten."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.required.parameters.missing.example"
+msgstr "Suorita komento muodossa: php plugins/generic/plagiarism/tools/webhook.php {$command} --context=CONTEXT_PATH_OR_ID."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.context.not.found"
+msgstr "Kontekstia ei löytynyt annetulle kontekstipolulla tai ID:lle: {$contextPathOrId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.success"
+msgstr "Toiminto suoritettu onnistuneesti."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.error"
+msgstr "Toiminto epäonnistui virheellä"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.already.configured"
+msgstr "Kelvollinen iThenticate-webhook on jo määritetty. Käytä päivitysvaihtoehtoa rekisteröidäksesi uuden webhookin ja korvataksesi olemassa olevan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.success"
+msgstr "iThenticate-webhook poistettu onnistuneesti ID:llä: {$webhookId} kontekstille ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
+msgstr "iThenticate-webhookia ei voitu poistaa ID:llä: {$webhookId} kontekstille ID: {$contextId}"

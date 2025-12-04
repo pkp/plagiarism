@@ -73,6 +73,11 @@ class TestIThenticate
     protected bool $suppressApiRequestException = true;
 
     /**
+     * Cached enabled features response to avoid repeated API calls
+     */
+    protected ?string $cachedEnabledFeatures = null;
+
+    /**
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
      */
     public const DEFAULT_EULA_VERSION = 'latest';
@@ -112,7 +117,7 @@ class TestIThenticate
      * 
      * @var int
      */
-    public const EXCLUDE_SAMLL_MATCHES_MIN = 8;
+    public const EXCLUDE_SMALL_MATCHES_MIN = 8;
 
     /**
      * @copydoc IThenticate::__construct()
@@ -161,9 +166,7 @@ class TestIThenticate
      */
     public function getEnabledFeature(mixed $feature = null): string|array|null
     {   
-        static $result;
-
-        $result = '{
+        $this->cachedEnabledFeatures = '{
             "similarity": {
                 "viewer_modes": {
                     "match_overview": true,
@@ -207,12 +210,12 @@ class TestIThenticate
 
 
         if (!$feature) {
-            error_log("iThenticate enabled feature details {$result}");
-            return json_decode($result, true);
+            error_log("iThenticate enabled feature details {$this->cachedEnabledFeatures}");
+            return json_decode($this->cachedEnabledFeatures, true);
         }
 
         $featureStatus = data_get(
-            json_decode($result, true),
+            json_decode($this->cachedEnabledFeatures, true),
             $feature,
             fn () => $this->suppressApiRequestException
                 ? null
@@ -392,6 +395,31 @@ class TestIThenticate
     public function deleteWebhook(string $webhookId): bool
     {
         error_log("ithenticate webhook with id : {$webhookId} removed");
+        return true;
+    }
+
+    /**
+     * @copydoc IThenticate::validateWebhook()
+     */
+    public function validateWebhook(string $webhookId, ?string &$result = null): bool
+    {
+        error_log("Validating webhook with id : {$webhookId}");
+        
+        $result = '{
+            "id": "f3852140-1264-4135-b316-ed46d60a6ca2",
+            "url": "https://my-own-test-server.com/turnitin-callbacks",
+            "description": "my webhook",
+            "created_time": "2017-10-19T16:08:00.908Z",
+            "event_types": [
+                "SIMILARITY_COMPLETE",
+                "SUBMISSION_COMPLETE",
+                "SIMILARITY_UPDATED",
+                "PDF_STATUS",
+                "GROUP_ATTACHMENT_COMPLETE"
+            ],
+            "allow_insecure": false
+        }';
+
         return true;
     }
 
