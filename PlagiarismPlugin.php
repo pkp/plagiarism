@@ -85,13 +85,39 @@ class PlagiarismPlugin extends GenericPlugin
 		'allowViewerUpdate' 	=> 'bool',
 	];
 
+
 	/**
-	 * List of archive mime type that will not be uploaded to iThenticate service
+	 * List of archive mime type that can be uploaded to iThenticate service
+	 * https://guides.ithenticate.com/hc/en-us/articles/27835492585997-Uploading-a-file-to-generate-a-Similarity-Report
 	 */
-	public array $uploadRestrictedArchiveMimeTypes = [
-		'application/gzip',
-		'application/zip',
-		'application/x-tar',
+	public array $uploadAllowedArchiveMimeTypes = [
+					// Microsoft Word (DOC and DOCX)
+					'application/msword',
+					'application/word',
+					'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+					// Excel (XLS and XLSX)'application/excel'
+					'application/vnd.ms-excel',
+					'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+					// PowerPoint (PPT and PPTX); each slide is counted as a page
+					'application/vnd.ms-powerpoint',
+					'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+					// PostScript
+					'application/postscript',
+					// PDF
+					'application/pdf',
+					'application/x-pdf',
+					'text/pdf',
+					'text/x-pdf',
+					// HTML
+					'text/html',
+					// Rich Text Format (RTF)
+					'application/rtf',
+					// OpenOffice (ODT)
+					'application/vnd.oasis.opendocument.text',
+					// WordPerfect
+					'application/wordperfect',
+					// Plain text (TXT)
+					'text/plain'
 	];
 
 	/**
@@ -653,6 +679,9 @@ class PlagiarismPlugin extends GenericPlugin
 
 		try {
 			foreach($submissionFiles as $submissionFile) { /** @var SubmissionFile $submissionFile */
+				if ( ! in_array($submissionFile->getData('mimetype'), $this->uploadAllowedArchiveMimeTypes))  {
+						continue;
+					}
 				if (!$this->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
 					return false;
 				}
@@ -660,7 +689,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 			$submission->setData('ithenticateSubmissionCompletedAt', Core::getCurrentDate());
 		} catch (Throwable $exception) {
-			error_log('submit for plagiarism check failed with excaption ' . $exception->__toString());
+			error_log('submit for plagiarism check failed with exception ' . $exception->__toString());
 			$this->sendErrorMessage(__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'), $submission->getId());
 			return false;
 		}
@@ -802,7 +831,7 @@ class PlagiarismPlugin extends GenericPlugin
 		$pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
 
-		if (in_array($file->mimetype, $this->uploadRestrictedArchiveMimeTypes)) {
+		if (!in_array($file->mimetype, $this->uploadAllowedArchiveMimeTypes)) {
 			return true;
 		}
 
