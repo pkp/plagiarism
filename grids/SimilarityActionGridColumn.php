@@ -90,8 +90,8 @@ class SimilarityActionGridColumn extends GridColumn
 
 		assert($submissionFile instanceof SubmissionFile);
 
-		// Not going to allow plagiarism action on a zip file
-		if ($this->isSubmissionFileTypeRestricted($submissionFile)) {
+		// Not going to allow plagiarism action on all files
+		if (!$this->isSubmissionFileTypeAllowed($submissionFile)) {
 			return ['label' => __('plugins.generic.plagiarism.similarity.action.invalidFileType')];
 		}
 
@@ -164,8 +164,8 @@ class SimilarityActionGridColumn extends GridColumn
 			$submissionFile = $submissionFileData['submissionFile']; /** @var SubmissionFile $submissionFile */
 		}
 
-		// Not going to allow plagiarism action on a zip file
-		if ($this->isSubmissionFileTypeRestricted($submissionFile)) {
+		// Restrict plagiarism action to allowed file types
+		if (!$this->isSubmissionFileTypeAllowed($submissionFile)) {
 			return $cellActions;
 		}
 
@@ -327,12 +327,12 @@ class SimilarityActionGridColumn extends GridColumn
 	 * Check if submission file type in valid for plagiarism action
 	 * Restricted for ZIP file
 	 */
-	protected function isSubmissionFileTypeRestricted(SubmissionFile $submissionFile): bool
+	protected function isSubmissionFileTypeAllowed(SubmissionFile $submissionFile): bool
 	{
 		$pkpFileService = Services::get('file'); /** @var \PKP\Services\PKPFileService $pkpFileService */
 		$file = $pkpFileService->get($submissionFile->getData('fileId'));
 		
-		return in_array($file->mimetype, $this->_plugin->uploadRestrictedArchiveMimeTypes);
+		return in_array($file->mimetype, $this->_plugin->uploadAllowedArchiveMimeTypes);
 	}
 
 	/**
