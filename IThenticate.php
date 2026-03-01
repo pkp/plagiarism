@@ -74,6 +74,12 @@ class IThenticate
     protected ?string $cachedEnabledFeatures = null;
 
     /**
+     * Store the last API response details for debugging/inspection
+     * Contains: status_code, body, headers, reason
+     */
+    protected ?array $lastResponseDetails = null;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      * 
      * @var string
@@ -587,9 +593,44 @@ class IThenticate
             'exceptions' => false,
         ]);
 
-        if ($response && $response->getStatusCode() === 201) {
+        if (!$response) {
+            return null;
+        }
+
+        $responseStatusCode = $response->getStatusCode();
+
+        if ($responseStatusCode === 201) {
             $result = json_decode($response->getBody()->getContents());
             return $result->id;
+        }
+
+        // Handle 409 CONFLICT — a webhook with the same URL already exists.
+        // This happens when a previous registration succeeded at iThenticate but the
+        // webhook ID was not saved locally (e.g. DB save failed after API success).
+        // Recovery: find the orphaned webhook, delete it, and retry registration once.
+        if ($responseStatusCode === 409) {
+            $existingWebhookId = $this->findWebhookIdByUrl($url);
+
+            if ($existingWebhookId && $this->deleteWebhook($existingWebhookId)) {
+                $retryResponse = $this->makeApiRequest('POST', $this->getApiPath('webhooks'), [
+                    'headers' => array_merge($this->getRequiredHeaders(), [
+                        'Content-Type' => 'application/json',
+                    ]),
+                    'json' => [
+                        'signing_secret' => base64_encode($signingSecret),
+                        'url' => $url,
+                        'event_types' => $events,
+                        'allow_insecure' => true,
+                    ],
+                    'verify' => false,
+                    'exceptions' => false,
+                ]);
+
+                if ($retryResponse && $retryResponse->getStatusCode() === 201) {
+                    $result = json_decode($retryResponse->getBody()->getContents());
+                    return $result->id;
+                }
+            }
         }
 
         return null;
@@ -628,6 +669,43 @@ class IThenticate
         }
 
         return false;
+    }
+
+    /**
+     * List all registered webhooks
+     * @see https://developers.turnitin.com/docs/tca#list-webhooks
+     *
+     * @return array List of webhook associative arrays, or empty array on failure
+     */
+    public function listWebhooks(): array
+    {
+        $response = $this->makeApiRequest('GET', $this->getApiPath('webhooks'), [
+            'headers' => $this->getRequiredHeaders(),
+            'verify' => false,
+            'exceptions' => false,
+        ]);
+
+        if ($response && $response->getStatusCode() === 200) {
+            return json_decode($response->getBody()->getContents(), true) ?? [];
+        }
+
+        return [];
+    }
+
+    /**
+     * Find a webhook ID by its URL from the list of registered webhooks
+     *
+     * @return string|null The webhook ID if found, or null
+     */
+    public function findWebhookIdByUrl(string $url): ?string
+    {
+        foreach ($this->listWebhooks() as $webhook) {
+            if (($webhook['url'] ?? null) === $url) {
+                return $webhook['id'] ?? null;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -681,11 +759,37 @@ class IThenticate
 
         try {
             $response = Application::get()->getHttpClient()->request($method, $url, $options);
+
+            // Store response details on success
+            $body = $response->getBody();
+            $bodyContent = $body->getContents();
+
+            $this->lastResponseDetails = [
+                'status_code' => $response->getStatusCode(),
+                'body' => $bodyContent,
+                'headers' => $response->getHeaders(),
+                'reason' => $response->getReasonPhrase(),
+            ];
+
+            // Rewind so existing code can still read the body
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+
         } catch (\Throwable $exception) {
-            
+
             $exceptionMessage = null;
-            if ($exception instanceof \GuzzleHttp\Exception\RequestException) {
-                $exceptionMessage = $exception->getResponse()->getBody()->getContents();
+            if ($exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()) {
+                $errorResponse = $exception->getResponse();
+                $exceptionMessage = $errorResponse->getBody()->getContents();
+
+                // Store response details on failure
+                $this->lastResponseDetails = [
+                    'status_code' => $errorResponse->getStatusCode(),
+                    'body' => $exceptionMessage,
+                    'headers' => $errorResponse->getHeaders(),
+                    'reason' => $errorResponse->getReasonPhrase(),
+                ];
             }
 
             // Mask the sensitive Authorization Bearer token to hide API KEY before logging
@@ -752,6 +856,27 @@ class IThenticate
         }
 
         return static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * Get the last API response details including status code, body, headers, and reason phrase
+     *
+     * @return array|null Array with keys: status_code, body, headers, reason.
+     *                    Returns null if no API call has been made yet.
+     */
+    public function getLastResponseDetails(): ?array
+    {
+        return $this->lastResponseDetails;
+    }
+
+    /**
+     * Get only the last response body content
+     *
+     * @return string|null The response body content, or null if no API call has been made yet.
+     */
+    public function getLastResponseBody(): ?string
+    {
+        return $this->lastResponseDetails['body'] ?? null;
     }
 
     /**

@@ -184,3 +184,47 @@ msgstr "iThenticate-webhook poistettu onnistuneesti ID:llä: {$webhookId} kontek
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "iThenticate-webhookia ei voitu poistaa ID:llä: {$webhookId} kontekstille ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Poista webhook iThenticate-tililtä annetulle kontekstipolulle"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "API-tunnistetiedot vaaditaan. Anna --api-url ja --api-key, tai --context käyttääksesi tallennettuja tunnistetietoja."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Webhookia ei löytynyt iThenticate API:sta tälle kontekstille. Ei poistettavaa."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Webhook löytyy iThenticate API:sta (id: {$webhookId}, url: {$url}) mutta sitä EI ole tietokannassa. Käytä 'update --include-api' poistaaksesi ja rekisteröidäksesi uudelleen, tai 'delete --include-api' poistaaksesi sen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Webhookeja ei löytynyt iThenticate API:sta annetuilla tunnistetiedoilla."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "Webhook on jo olemassa iThenticate API:ssa id:llä: {$webhookId} URL:lle: {$url}. Käytä 'update --include-api' korvataksesi sen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Webhookia ei löytynyt tietokannasta tälle kontekstille. Käytä --include-api tarkistaaksesi myös iThenticate API:sta."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Webhookia {$webhookId} ei löytynyt iThenticate API:sta (se on ehkä jo poistettu). Siivotaan paikallinen tietokantatietue."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Poistettu webhook {$deletedId} eroaa tietokantatietueesta ({$dbId}). Tietokantatietue säilytettiin."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Webhook-ID:n ristiriita: tietokannassa on {$dbId} mutta iThenticate API:ssa on {$apiId} URL:lle {$url}. Käytä 'update --include-api' ratkaistaksesi."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Huom: Vahvistettu webhook {$validatedId} (API:sta) eroaa tietokantatietueesta ({$dbId})."

@@ -78,6 +78,11 @@ class TestIThenticate
     protected ?string $cachedEnabledFeatures = null;
 
     /**
+     * @copydoc IThenticate::$lastResponseDetails
+     */
+    protected ?array $lastResponseDetails = null;
+
+    /**
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
      */
     public const DEFAULT_EULA_VERSION = 'latest';
@@ -424,6 +429,24 @@ class TestIThenticate
     }
 
     /**
+     * @copydoc IThenticate::listWebhooks()
+     */
+    public function listWebhooks(): array
+    {
+        error_log("Listing all registered webhooks");
+        return [];
+    }
+
+    /**
+     * @copydoc IThenticate::findWebhookIdByUrl()
+     */
+    public function findWebhookIdByUrl(string $url): ?string
+    {
+        error_log("Finding webhook by URL: {$url}");
+        return null;
+    }
+
+    /**
      * @copydoc IThenticate::getEulaDetails()
      */
     public function getEulaDetails(): ?array
@@ -490,6 +513,22 @@ class TestIThenticate
         }
 
         return static::DEFAULT_EULA_LANGUAGE;
+    }
+
+    /**
+     * @copydoc IThenticate::getLastResponseDetails()
+     */
+    public function getLastResponseDetails(): ?array
+    {
+        return $this->lastResponseDetails;
+    }
+
+    /**
+     * @copydoc IThenticate::getLastResponseBody()
+     */
+    public function getLastResponseBody(): ?string
+    {
+        return $this->lastResponseDetails['body'] ?? null;
     }
 
     /**
