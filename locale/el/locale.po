@@ -110,3 +110,47 @@ msgstr "Επιτυχής διαγραφή του webhook iThenticate με ID: {$
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Αδυναμία διαγραφής του webhook iThenticate με ID: {$webhookId} για πλαίσιο ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Διαγραφή του webhook για λογαριασμό iThenticate για μια συγκεκριμένη διαδρομή πλαισίου"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "Απαιτούνται διαπιστευτήρια API. Δώστε --api-url και --api-key ή --context για χρήση αποθηκευμένων διαπιστευτηρίων."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Δεν βρέθηκε webhook στο iThenticate API για αυτό το πλαίσιο. Δεν υπάρχει τίποτα για διαγραφή."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Υπάρχει webhook στο iThenticate API (id: {$webhookId}, url: {$url}) αλλά ΔΕΝ βρίσκεται στη βάση δεδομένων. Χρησιμοποιήστε 'update --include-api' για διαγραφή και επανεγγραφή ή 'delete --include-api' για αφαίρεση."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Δεν βρέθηκαν webhooks στο iThenticate API για τα παρεχόμενα διαπιστευτήρια."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "Υπάρχει ήδη webhook στο iThenticate API με id: {$webhookId} για URL: {$url}. Χρησιμοποιήστε 'update --include-api' για αντικατάσταση."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Δεν βρέθηκε webhook στη βάση δεδομένων για αυτό το πλαίσιο. Χρησιμοποιήστε --include-api για έλεγχο επίσης στο iThenticate API."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Το webhook {$webhookId} δεν βρέθηκε στο iThenticate API (μπορεί να έχει ήδη διαγραφεί). Εκκαθάριση τοπικής εγγραφής στη βάση δεδομένων."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Το διαγραμμένο webhook {$deletedId} διαφέρει από την εγγραφή στη βάση δεδομένων ({$dbId}). Η εγγραφή στη βάση δεδομένων διατηρήθηκε."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Αναντιστοιχία ID webhook: η βάση δεδομένων έχει {$dbId} αλλά το iThenticate API έχει {$apiId} για URL {$url}. Χρησιμοποιήστε 'update --include-api' για επίλυση."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Σημείωση: Το επικυρωμένο webhook {$validatedId} (από το API) διαφέρει από την εγγραφή στη βάση δεδομένων ({$dbId})."

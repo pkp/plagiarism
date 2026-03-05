@@ -593,9 +593,44 @@ class IThenticate
             'exceptions' => false,
         ]);
 
-        if ($response && $response->getStatusCode() === 201) {
+        if (!$response) {
+            return null;
+        }
+
+        $responseStatusCode = $response->getStatusCode();
+
+        if ($responseStatusCode === 201) {
             $result = json_decode($response->getBody()->getContents());
             return $result->id;
+        }
+
+        // Handle 409 CONFLICT — a webhook with the same URL already exists.
+        // This happens when a previous registration succeeded at iThenticate but the
+        // webhook ID was not saved locally (e.g. DB save failed after API success).
+        // Recovery: find the orphaned webhook, delete it, and retry registration once.
+        if ($responseStatusCode === 409) {
+            $existingWebhookId = $this->findWebhookIdByUrl($url);
+
+            if ($existingWebhookId && $this->deleteWebhook($existingWebhookId)) {
+                $retryResponse = $this->makeApiRequest('POST', $this->getApiPath('webhooks'), [
+                    'headers' => array_merge($this->getRequiredHeaders(), [
+                        'Content-Type' => 'application/json',
+                    ]),
+                    'json' => [
+                        'signing_secret' => base64_encode($signingSecret),
+                        'url' => $url,
+                        'event_types' => $events,
+                        'allow_insecure' => true,
+                    ],
+                    'verify' => false,
+                    'exceptions' => false,
+                ]);
+
+                if ($retryResponse && $retryResponse->getStatusCode() === 201) {
+                    $result = json_decode($retryResponse->getBody()->getContents());
+                    return $result->id;
+                }
+            }
         }
 
         return null;
@@ -634,6 +669,43 @@ class IThenticate
         }
 
         return false;
+    }
+
+    /**
+     * List all registered webhooks
+     * @see https://developers.turnitin.com/docs/tca#list-webhooks
+     *
+     * @return array List of webhook associative arrays, or empty array on failure
+     */
+    public function listWebhooks(): array
+    {
+        $response = $this->makeApiRequest('GET', $this->getApiPath('webhooks'), [
+            'headers' => $this->getRequiredHeaders(),
+            'verify' => false,
+            'exceptions' => false,
+        ]);
+
+        if ($response && $response->getStatusCode() === 200) {
+            return json_decode($response->getBody()->getContents(), true) ?? [];
+        }
+
+        return [];
+    }
+
+    /**
+     * Find a webhook ID by its URL from the list of registered webhooks
+     *
+     * @return string|null The webhook ID if found, or null
+     */
+    public function findWebhookIdByUrl(string $url): ?string
+    {
+        foreach ($this->listWebhooks() as $webhook) {
+            if (($webhook['url'] ?? null) === $url) {
+                return $webhook['id'] ?? null;
+            }
+        }
+
+        return null;
     }
 
     /**

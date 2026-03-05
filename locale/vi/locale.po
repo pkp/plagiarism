@@ -109,3 +109,47 @@ msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for c
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Xóa webhook của tài khoản iThenticate cho đường dẫn ngữ cảnh đã cho"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "Cần thông tin xác thực API. Cung cấp --api-url và --api-key, hoặc --context để sử dụng thông tin xác thực đã lưu."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Không tìm thấy webhook nào tại iThenticate API cho ngữ cảnh này. Không có gì để xóa."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Webhook tồn tại tại iThenticate API (id: {$webhookId}, url: {$url}) nhưng KHÔNG có trong cơ sở dữ liệu. Sử dụng 'update --include-api' để xóa và đăng ký lại, hoặc 'delete --include-api' để xóa nó."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Không tìm thấy webhook nào tại iThenticate API cho thông tin xác thực đã cung cấp."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "Một webhook đã tồn tại tại iThenticate API với id: {$webhookId} cho URL: {$url}. Sử dụng 'update --include-api' để thay thế nó."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Không tìm thấy webhook nào trong cơ sở dữ liệu cho ngữ cảnh này. Sử dụng --include-api để kiểm tra cả iThenticate API."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Không tìm thấy webhook {$webhookId} tại iThenticate API (có thể đã bị xóa). Đang dọn dẹp bản ghi cơ sở dữ liệu cục bộ."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Webhook đã xóa {$deletedId} khác với bản ghi cơ sở dữ liệu ({$dbId}). Bản ghi cơ sở dữ liệu được giữ nguyên."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "ID webhook không khớp: cơ sở dữ liệu có {$dbId} nhưng iThenticate API có {$apiId} cho URL {$url}. Sử dụng 'update --include-api' để giải quyết."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Lưu ý: Webhook đã xác thực {$validatedId} (từ API) khác với bản ghi cơ sở dữ liệu ({$dbId})."

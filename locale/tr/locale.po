@@ -411,3 +411,47 @@ msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for c
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Belirtilen bağlam yolu için iThenticate hesabına ait web kancasını sil"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "API kimlik bilgileri gereklidir. --api-url ve --api-key belirtin veya kayıtlı kimlik bilgilerini kullanmak için --context belirtin."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Bu bağlam için iThenticate API'sinde web kancası bulunamadı. Silinecek bir şey yok."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "iThenticate API'sinde web kancası mevcut (id: {$webhookId}, url: {$url}) ancak veritabanında KAYITLI DEĞİL. Silip yeniden kaydetmek için 'update --include-api' veya kaldırmak için 'delete --include-api' kullanın."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Belirtilen kimlik bilgileri için iThenticate API'sinde web kancası bulunamadı."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "iThenticate API'sinde {$url} URL'si için {$webhookId} kimlikli bir web kancası zaten mevcut. Değiştirmek için 'update --include-api' kullanın."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Bu bağlam için veritabanında web kancası bulunamadı. iThenticate API'sini de kontrol etmek için --include-api kullanın."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Web kancası {$webhookId} iThenticate API'sinde bulunamadı (daha önce silinmiş olabilir). Yerel veritabanı kaydı temizleniyor."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Silinen web kancası {$deletedId}, veritabanı kaydından ({$dbId}) farklıdır. Veritabanı kaydı korundu."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Web kancası kimlik uyumsuzluğu: veritabanında {$dbId} var ancak iThenticate API'sinde {$url} URL'si için {$apiId} bulunuyor. Çözmek için 'update --include-api' kullanın."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Not: Doğrulanan web kancası {$validatedId} (API'den) veritabanı kaydından ({$dbId}) farklıdır."
