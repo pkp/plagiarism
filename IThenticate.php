@@ -813,6 +813,13 @@ class IThenticate
     protected function getCorrespondingLocaleAvailable(string $locale): ?string
     {
         $eulaLangs = $this->eulaVersionDetails['available_languages'];
+        $preferences = [
+            'zh_Hans' => 'zh-CN',
+            'zh_Hant' => 'zh-TW',
+        ];
+        if ($preference = $preferences[$locale] ?? false) {
+            return $preference;
+        }
         $language = \Locale::getPrimaryLanguage($locale);
         $region = \Locale::getRegion($locale) ?? null;
         $localeAndRegion = $language . '-' . $region;
