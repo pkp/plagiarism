@@ -760,6 +760,13 @@ class IThenticate
     protected function getCorrespondingLocaleAvailable(string $locale): ?string
     {
         $eulaLangs = $this->eulaVersionDetails['available_languages'];
+        $preferences = [
+            'zh_Hans' => 'zh-CN',
+            'zh_Hant' => 'zh-TW',
+        ];
+        if ($preference = $preferences[$locale] ?? false) {
+            return $preference;
+        }
         $locale = str_replace("_", "-", substr($locale, 0, 5));
 
         return in_array($locale, $eulaLangs)
