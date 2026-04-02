@@ -392,3 +392,47 @@ msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for c
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Видалити вебхук для облікового запису iThenticate для зазначеного шляху контексту"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "Необхідні облікові дані API. Вкажіть --api-url та --api-key або --context для використання збережених облікових даних."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Вебхук не знайдено в API iThenticate для цього контексту. Немає чого видаляти."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Вебхук існує в API iThenticate (id: {$webhookId}, url: {$url}), але НЕ зареєстрований у базі даних. Використовуйте 'update --include-api' для видалення та повторної реєстрації або 'delete --include-api' для його видалення."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Вебхуки не знайдено в API iThenticate для наданих облікових даних."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "Вебхук вже існує в API iThenticate з id: {$webhookId} для URL: {$url}. Використовуйте 'update --include-api' для його заміни."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Вебхук не знайдено в базі даних для цього контексту. Використовуйте --include-api для перевірки також в API iThenticate."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Вебхук {$webhookId} не знайдено в API iThenticate (можливо, вже було видалено). Очищення локального запису в базі даних."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Видалений вебхук {$deletedId} відрізняється від запису в базі даних ({$dbId}). Запис у базі даних збережено."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Невідповідність ID вебхука: у базі даних {$dbId}, але в API iThenticate {$apiId} для URL {$url}. Використовуйте 'update --include-api' для вирішення."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Примітка: перевірений вебхук {$validatedId} (з API) відрізняється від запису в базі даних ({$dbId})."

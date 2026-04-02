@@ -402,3 +402,47 @@ msgstr "Úspěšně odstraněn webhook iThenticate s ID: {$webhookId} pro kontex
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Nelze odstranit webhook iThenticate s ID: {$webhookId} pro kontext ID: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Smazat webhook pro účet iThenticate pro danou cestu kontextu"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "Jsou vyžadovány přihlašovací údaje API. Zadejte --api-url a --api-key, nebo --context pro použití uložených přihlašovacích údajů."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Pro tento kontext nebyl v API iThenticate nalezen žádný webhook. Není co smazat."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Webhook existuje v API iThenticate (id: {$webhookId}, url: {$url}), ale NENÍ v databázi. Použijte 'update --include-api' pro smazání a opětovnou registraci, nebo 'delete --include-api' pro jeho odstranění."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "V API iThenticate nebyly nalezeny žádné webhooky pro zadané přihlašovací údaje."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "Webhook již existuje v API iThenticate s id: {$webhookId} pro URL: {$url}. Použijte 'update --include-api' pro jeho nahrazení."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "V databázi nebyl nalezen žádný webhook pro tento kontext. Použijte --include-api pro kontrolu i v API iThenticate."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Webhook {$webhookId} nebyl nalezen v API iThenticate (mohl být již smazán). Probíhá čištění lokálního záznamu v databázi."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Smazaný webhook {$deletedId} se liší od záznamu v databázi ({$dbId}). Záznam v databázi byl zachován."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Nesoulad ID webhooku: databáze obsahuje {$dbId}, ale API iThenticate má {$apiId} pro URL {$url}. Použijte 'update --include-api' pro vyřešení."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Poznámka: Ověřený webhook {$validatedId} (z API) se liší od záznamu v databázi ({$dbId})."
