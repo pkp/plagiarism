@@ -90,13 +90,11 @@ When you update(after initial configuration) iThenticate API credentials in `con
 
 The webhook command-line tool helps you manage iThenticate webhooks for your contexts.
 
-**Basic Usage:**
-
 ```bash
 # Register webhooks for a specific journal/press/server
 php plugins/generic/plagiarism/tools/webhook.php register --context=yourjournalpath
 
-# Update existing webhooks (useful after changing API credentials), use --force to force update
+# Update existing webhooks (useful after changing API credentials)
 php plugins/generic/plagiarism/tools/webhook.php update --context=yourjournalpath
 
 # Validate webhook configuration
@@ -106,14 +104,7 @@ php plugins/generic/plagiarism/tools/webhook.php validate --context=yourjournalp
 php plugins/generic/plagiarism/tools/webhook.php list
 ```
 
-**When to use:**
-- After changing `api_url` or `api_key` in `config.inc.php`
-- To verify webhook configuration is working correctly
-- To troubleshoot similarity score delivery issues
-
-**Finding your context path:**
-- From `Administration --> Hosted Journals --> Settings Wizard `
-- Or use the context ID number instead of the path
+For detailed usage including all commands, flags, and advanced features (API-level operations, orphaned webhook recovery, duplicate cleanup, and more), see the [Webhook CLI Usage Guide](WEBHOOK_CLI_USAGE.md).
 
 ## Restrictions
 1. The submitting user must confirm the iThenticate End User License Agreement to send files to iThenticate service for plagiarism checking.

@@ -434,6 +434,24 @@ class TestIThenticate
     }
 
     /**
+     * @copydoc IThenticate::listWebhooks()
+     */
+    public function listWebhooks(): array
+    {
+        error_log("Listing all registered webhooks");
+        return [];
+    }
+
+    /**
+     * @copydoc IThenticate::findWebhookIdByUrl()
+     */
+    public function findWebhookIdByUrl(string $url): ?string
+    {
+        error_log("Finding webhook by URL: {$url}");
+        return null;
+    }
+
+    /**
      * @copydoc IThenticate::getEulaDetails()
      */
     public function getEulaDetails(): ?array

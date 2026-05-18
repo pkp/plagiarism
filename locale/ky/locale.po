@@ -392,3 +392,47 @@ msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for c
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Берилген контекст жолу үчүн iThenticate каттоо эсебинин вебхугун жок кылуу"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "API күбөлүктөрү талап кылынат. --api-url жана --api-key көрсөтүңүз, же сакталган күбөлүктөрдү колдонуу үчүн --context көрсөтүңүз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Бул контекст үчүн iThenticate API'де вебхук табылган жок. Жок кылууга эч нерсе жок."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Вебхук iThenticate API'де бар (id: {$webhookId}, url: {$url}), бирок маалымат базасында ЖОК. Жок кылуу жана кайра каттоо үчүн 'update --include-api' колдонуңуз, же аны алып салуу үчүн 'delete --include-api' колдонуңуз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Берилген күбөлүктөр үчүн iThenticate API'де вебхуктар табылган жок."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "iThenticate API'де {$webhookId} идентификатору менен {$url} URL үчүн вебхук мурунтан эле бар. Аны алмаштыруу үчүн 'update --include-api' колдонуңуз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Бул контекст үчүн маалымат базасында вебхук табылган жок. iThenticate API'ни да текшерүү үчүн --include-api колдонуңуз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Вебхук {$webhookId} iThenticate API'де табылган жок (мурунтан эле жок кылынган болушу мүмкүн). Жергиликтүү маалымат базасынын жазуусу тазаланууда."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Жок кылынган вебхук {$deletedId} маалымат базасынын жазуусунан ({$dbId}) айырмаланат. Маалымат базасынын жазуусу сакталды."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Вебхук ID дал келбөөчүлүгү: маалымат базасында {$dbId} бар, бирок iThenticate API'де {$url} URL үчүн {$apiId} бар. Чечүү үчүн 'update --include-api' колдонуңуз."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Эскертүү: Тастыкталган вебхук {$validatedId} (API'ден) маалымат базасынын жазуусунан ({$dbId}) айырмаланат."

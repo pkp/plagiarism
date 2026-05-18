@@ -320,3 +320,36 @@ msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for c
 
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Delete the webhook for iThenticate account for a given context path"
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "API credentials required. Provide --api-url and --api-key, or --context to use stored credentials."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "No webhook found at iThenticate API for this context. Nothing to delete."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Webhook exists at iThenticate API (id: {$webhookId}, url: {$url}) but is NOT in the database. Use 'update --include-api' to delete and re-register, or 'delete --include-api' to remove it."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "No webhooks found at iThenticate API for the provided credentials."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "A webhook already exists at iThenticate API with id: {$webhookId} for URL: {$url}. Use 'update --include-api' to replace it."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "No webhook found in the database for this context. Use --include-api to also check the iThenticate API."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Webhook {$webhookId} was not found at iThenticate API (may have been deleted already). Cleaning up local database record."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Deleted webhook {$deletedId} differs from the database record ({$dbId}). Database record preserved."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Webhook ID mismatch: database has {$dbId} but iThenticate API has {$apiId} for URL {$url}. Use 'update --include-api' to resolve."
+
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Note: Validated webhook {$validatedId} (from API) differs from database record ({$dbId})."

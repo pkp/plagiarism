@@ -134,3 +134,47 @@ msgstr "Successfully deleted the iThenticate webhook with id: {$webhookId} for c
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.error"
 msgstr "Unable to delete the iThenticate webhook with id: {$webhookId} for context id: {$contextId}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "Padam webhook untuk akaun iThenticate bagi laluan konteks yang diberikan"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "Kelayakan API diperlukan. Sediakan --api-url dan --api-key, atau --context untuk menggunakan kelayakan yang tersimpan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "Tiada webhook ditemui di API iThenticate untuk konteks ini. Tiada apa-apa untuk dipadam."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "Webhook wujud di API iThenticate (id: {$webhookId}, url: {$url}) tetapi TIDAK ada dalam pangkalan data. Gunakan 'update --include-api' untuk memadam dan mendaftar semula, atau 'delete --include-api' untuk mengeluarkannya."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "Tiada webhook ditemui di API iThenticate untuk kelayakan yang diberikan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "Webhook sudah wujud di API iThenticate dengan id: {$webhookId} untuk URL: {$url}. Gunakan 'update --include-api' untuk menggantikannya."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "Tiada webhook ditemui dalam pangkalan data untuk konteks ini. Gunakan --include-api untuk turut menyemak API iThenticate."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Webhook {$webhookId} tidak ditemui di API iThenticate (mungkin sudah dipadam). Membersihkan rekod pangkalan data tempatan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "Webhook yang dipadam {$deletedId} berbeza daripada rekod pangkalan data ({$dbId}). Rekod pangkalan data dikekalkan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Ketidakpadanan ID webhook: pangkalan data mempunyai {$dbId} tetapi API iThenticate mempunyai {$apiId} untuk URL {$url}. Gunakan 'update --include-api' untuk menyelesaikan."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "Nota: Webhook yang disahkan {$validatedId} (daripada API) berbeza daripada rekod pangkalan data ({$dbId})."
