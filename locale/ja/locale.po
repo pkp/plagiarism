@@ -1,3 +1,47 @@
 # Bjorn-Ole Kamm <pkp_trans@b-ok.de>, 2024.
 msgid ""
 msgstr "X-Generator: Weblate\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.delete.description"
+msgstr "指定されたコンテキストパスのiThenticateアカウントのWebhookを削除します"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.credentials.missing"
+msgstr "API資格情報が必要です。--api-urlと--api-keyを指定するか、--contextを使用して保存された資格情報を使用してください。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.nothingToDelete"
+msgstr "このコンテキストのiThenticate APIにWebhookが見つかりません。削除するものはありません。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.orphaned"
+msgstr "iThenticate APIにWebhookが存在します（id: {$webhookId}、url: {$url}）が、データベースには存在しません。'update --include-api'を使用して削除して再登録するか、'delete --include-api'を使用して削除してください。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.list.empty"
+msgstr "指定された資格情報のiThenticate APIにWebhookが見つかりません。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.alreadyExists"
+msgstr "iThenticate APIにid: {$webhookId}のWebhookがURL: {$url}で既に存在します。'update --include-api'を使用して置き換えてください。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.nothingToDelete"
+msgstr "このコンテキストのデータベースにWebhookが見つかりません。--include-apiを使用してiThenticate APIも確認してください。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.notFoundAtApi"
+msgstr "Webhook {$webhookId}がiThenticate APIで見つかりませんでした（既に削除されている可能性があります）。ローカルデータベースレコードをクリーンアップしています。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.deleted.dbPreserved"
+msgstr "削除されたWebhook {$deletedId}はデータベースレコード（{$dbId}）と異なります。データベースレコードは保持されました。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.dbApiMismatch"
+msgstr "Webhook IDの不一致: データベースには{$dbId}がありますが、iThenticate APIにはURL {$url}に対して{$apiId}があります。'update --include-api'を使用して解決してください。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
+msgstr "注: 検証済みWebhook {$validatedId}（APIから）はデータベースレコード（{$dbId}）と異なります。"

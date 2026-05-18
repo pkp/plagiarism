@@ -842,7 +842,29 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
+	 * Get the webhook URL for a given context
+	 *
+	 * Format: BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
+	 */
+	public function getWebhookUrl(?Context $context = null): string
+	{
+		$request = Application::get()->getRequest();
+		$context ??= $request->getContext();
+
+		return Application::get()->getDispatcher()->url(
+			$request,
+			Application::ROUTE_COMPONENT,
+			$context->getData('urlPath'),
+			'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
+			'handle'
+		);
+	}
+
+	/**
 	 * Register the webhook for this context
+	 * 
+	 *
+	 * Example webhook format : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
 	 */
 	public function registerIthenticateWebhook(IThenticate|TestIThenticate $ithenticate, ?Context $context = null): bool
 	{
@@ -850,24 +872,24 @@ class PlagiarismPlugin extends GenericPlugin
 		$context ??= $request->getContext();
 
 		$signingSecret = \Illuminate\Support\Str::random(12);
-		
-		// Example webhook url : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
-		$webhookUrl = Application::get()->getDispatcher()->url(
-			$request,
-			Application::ROUTE_COMPONENT,
-			$context->getData('urlPath'),
-			'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-			'handle'
-		);
+		$webhookUrl = $this->getWebhookUrl($context);
 
 		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
-			$contextService = Services::get('context'); /** @var \PKP\Services\PKPContextService $contextService */
-			$context = $contextService->edit($context, [
-				'ithenticateWebhookSigningSecret' => $signingSecret,
-				'ithenticateWebhookId' => $webhookId
-			], $request);
+			try {
+				$contextService = Services::get('context'); /** @var \PKP\Services\PKPContextService $contextService */
+				$context = $contextService->edit($context, [
+					'ithenticateWebhookSigningSecret' => $signingSecret,
+					'ithenticateWebhookId' => $webhookId
+				], $request);
 
-			return true;
+				return true;
+			} catch (Throwable $e) {
+				// DB save failed after API registration succeeded — clean up orphaned webhook
+				error_log("Webhook registered at iThenticate (ID: {$webhookId}) but failed to save to DB for context {$context->getId()}: " . $e->getMessage());
+				$ithenticate->deleteWebhook($webhookId);
+
+				return false;
+			}
 		}
 
 		error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");
