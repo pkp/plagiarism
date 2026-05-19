@@ -322,8 +322,16 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
 
-		// EULA has been already stamped to both Submission and User, so we can submit the submission file
-		if ($submission->getData('ithenticateEulaVersion') && $user->getData('ithenticateEulaVersion')) {
+		$eulaVersion = $this->_plugin->getContextEulaDetails($context, 'eula_version');
+
+		// Only proceed to submit the submission file to ithenticate if
+		//  - submission stamped to latest EULA version
+		//  - user stamped to latest EULA version
+		//  - user and submission both has stamped to same EULA version
+		if ($eulaVersion == $submission->getData('ithenticateEulaVersion')
+			&& $eulaVersion == $user->getData('ithenticateEulaVersion')
+			&& $submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
+			
 			return $this->submitSubmission($args, $request);
 		}
 
@@ -347,11 +355,12 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 			);
         }
 
-		if (!$submission->getData('ithenticateEulaVersion')) {
+		if ($submission->getData('ithenticateEulaVersion') !== $eulaVersion) {
 			$this->_plugin->stampEulaToSubmission($context, $submission);
+			$submission = Repo::submission()->get($submission->getId()); // refetch the submission after latest EULA stamped
 		}
 
-		if (!$user->getData('ithenticateEulaVersion')) {
+		if ($user->getData('ithenticateEulaVersion') !== $eulaVersion) {
 			$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user);
 		}
 

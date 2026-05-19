@@ -113,6 +113,25 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
+	 * Build the cache key used to store EULA details for a given context.
+	 */
+	public static function getEulaCacheKey(Context $context): string
+	{
+		return "ithenticate_eula_{$context->getId()}";
+	}
+
+	/**
+	 * Forget the cached iThenticate EULA details for a given context.
+	 *
+	 * Use after credentials change, after iThenticate rotates EULA versions, or in
+	 * recovery paths that detect an EULA-mismatch 400 from the API.
+	 */
+	public static function clearEulaCache(Context $context): void
+	{
+		Cache::forget(static::getEulaCacheKey($context));
+	}
+
+	/**
 	 * @copydoc Plugin::register()
 	 */
 	public function register($category, $path, $mainContextId = null)
@@ -521,11 +540,15 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$submission = $templateManager->getTemplateVars('submission'); /** @var Submission $submission */
 		$user = Repo::user()->get($request->getUser()->getId());
+		
+		// retrive the EULA version that we must need to confirm
+		$requiredEulaVersion = $this->getContextEulaDetails($context, 'eula_version');
 
 		// If submission has EULA stamped and user has EULA stamped and both are same version
 		// so there is no need to confirm EULA again
-		if ($submission->getData('ithenticateEulaVersion') &&
-			$submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
+		if ($submission->getData('ithenticateEulaVersion') == $requiredEulaVersion
+			&& $user->getData('ithenticateEulaVersion') == $requiredEulaVersion
+			&& $submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
 			
 			return Hook::CONTINUE;
 		}
@@ -780,18 +803,8 @@ class PlagiarismPlugin extends GenericPlugin
 		$request = Application::get()->getRequest();
 		$user ??= $request->getUser();
 
-		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion');
-
-		if (is_null($submissionEulaVersion)) {
-			$eulaDetails = $this->getContextEulaDetails($context, [
-				$submission->getData('locale'),
-				$context->getPrimaryLocale(),
-				$request->getSite()->getPrimaryLocale(),
-				IThenticate::DEFAULT_EULA_LANGUAGE
-			]);
-
-			$submissionEulaVersion = $eulaDetails['version'];
-		}
+		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion')
+			?? $this->getContextEulaDetails($context, 'eula_version');
 
 		// If submission EULA version has already been stamped to user
 		// no need to do the confirmation and stamping again
@@ -956,8 +969,8 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Get the cached EULA details form Context
 	 * The eula details structure is in the following format
 	 * [
-	 *   'require_eula' => null/true/false, // null => not possible to retrived, 
-	 * 										// true => EULA confirmation required, 
+	 *   'require_eula' => null/true/false, // null => not possible to retrived,
+	 * 										// true => EULA confirmation required,
 	 * 										// false => EULA confirmation not required
 	 *   'en_US' => [
 	 *     'version' => '',
@@ -965,13 +978,13 @@ class PlagiarismPlugin extends GenericPlugin
 	 *   ],
 	 *   ...
 	 * ]
-	 * 
+	 *
 	 * Based on the `key` param defined, it will return in following format
 	 * 	- 	if null, will return the whole details in above structure
 	 * 	- 	if array, will try to find the first matching `key` index value and return that
 	 * 	- 	if array and not found any match or if string, will return value based on last
 	 * 		array index or string value and considering the default value along with it
-	 * 
+	 *
 	 */
 	public function getContextEulaDetails(
 		Context $context,
@@ -980,7 +993,7 @@ class PlagiarismPlugin extends GenericPlugin
 	): mixed
 	{
 		$eulaDetails = Cache::remember(
-			"ithenticate_eula_{$context->getId()}",
+			static::getEulaCacheKey($context),
 			// if running on ithenticate test mode, set the cache life time to 60 seconds
 			static::isRunningInTestMode() ? 60 : static::EULA_CACHE_LIFETIME,
 			fn () => $this->retrieveEulaDetails()
@@ -1039,10 +1052,12 @@ class PlagiarismPlugin extends GenericPlugin
 		//   ...
 		if ($eulaDetails['require_eula'] == true &&
 			$ithenticate->validateEulaVersion($ithenticate::DEFAULT_EULA_VERSION)) {
-
+			
+			$eulaDetails['eula_version'] = $ithenticate->getApplicableEulaVersion();
+			
 			foreach($context->getSupportedSubmissionLocaleNames() as $localeKey => $localeName) {
 				$eulaDetails[$localeKey] = [
-					'version' 	=> $ithenticate->getApplicableEulaVersion(),
+					'version' 	=> $eulaDetails['eula_version'],
 					'url' 		=> $ithenticate->getApplicableEulaUrl($localeKey),
 				];
 			}

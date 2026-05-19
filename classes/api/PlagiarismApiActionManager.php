@@ -187,10 +187,13 @@ class PlagiarismApiActionManager
                 'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
             ];
         }
+        
+        $eulaRequired = (bool)$this->plugin->getContextEulaDetails($context, 'require_eula');
 
         return [
             'context' => [
-                'eulaRequired' => (bool)$this->plugin->getContextEulaDetails($context, 'require_eula'),
+                'eulaRequired' => $eulaRequired,
+                'eulaVersion' => $eulaRequired ? $this->plugin->getContextEulaDetails($context, 'eula_version') : null,
             ],
             'submission' => [
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),

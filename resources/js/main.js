@@ -175,9 +175,13 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
             return true;
         }
 
-        // If user and submission EULA do not match
-        // means users previously agreed upon different EULA
-        if (submissionStatus.ithenticateEulaVersion !== userStatus.ithenticateEulaVersion) {
+        // EULA confirmation is required if
+        //  - user did confirm EULA previously but does not match with the latest version anymore
+        //  - submission was stampted to EULA previously but does not match with the latest version
+        //  - the stamped EULA version of user and submission does not match
+        if (userStatus.ithenticateEulaVersion !== contextStatus.eulaVersion
+            || submissionStatus.ithenticateEulaVersion !== contextStatus.eulaVersion
+            || submissionStatus.ithenticateEulaVersion !== userStatus.ithenticateEulaVersion) {
             return true;
         }
 

@@ -53,7 +53,7 @@ class PlagiarismSubmissionSubmitListener
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,
-            $event->submission,
+            Repo::submission()->get($event->submission->getId()), // refetch the submission after latest EULA stamp
             Application::get()->getRequest()->getUser()
         );
         

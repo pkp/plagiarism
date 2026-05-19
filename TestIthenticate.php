@@ -36,7 +36,8 @@ class TestIThenticate
      * @copydoc IThenticate::$eulaVersionDetails
      */
     protected ?array $eulaVersionDetails = [
-        "version" => "v1beta",
+        // "version" => "v1beta",
+        "version" => "2.0",
         "valid_from" => "2018-04-30T17:00:00Z",
         "valid_until" => null,
         "url" => "https://static.turnitin.com/eula/v1beta/en-us/eula.html",
@@ -145,8 +146,8 @@ class TestIThenticate
             $this->eulaVersion = $eulaVersion;
         }
 
-        if (!$eulaVersion) {
-            $this->eulaVersion = Config::getVar('ithenticate', 'test_mode_eula', true) ? 'v1beta' : null;
+        if (!$eulaVersion && Config::getVar('ithenticate', 'test_mode_eula', true)) {
+            $this->validateEulaVersion('');
         }
 
         error_log(
@@ -375,6 +376,9 @@ class TestIThenticate
      */
     public function validateEulaVersion(string $version): bool
     {
+        // Set the eula version form the mock details
+        $this->eulaVersion = $this->eulaVersionDetails['version'];
+
         error_log("Validating/Retrieving the given EULA version {$version}");
         return true;
     }
