@@ -49,7 +49,14 @@ class PlagiarismSubmissionSubmitListener
             $this->plugin->sendErrorMessage(__('plugins.generic.plagiarism.manager.settings.serviceAccessInvalid'));
             return;
         }
-        
+
+        // Auto-submission disabled --> should not do any stamping as no confirmation option present
+        // as auto sent of submission files are disable at the time of submitting submission from the 
+        // submission wizard.
+        if ($this->plugin->hasAutoSubmissionDisabled($event->context)) {
+            return;
+        }
+
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,

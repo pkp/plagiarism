@@ -35,12 +35,17 @@ class TestIThenticate
     /**
      * @copydoc IThenticate::$eulaVersionDetails
      */
+    // IMPORTANT: when bumping `version` here for a rotation rehearsal, bump the
+    // version segment in `url` too. Otherwise this mock will produce DB rows like
+    // (ithenticateEulaVersion=v2, ithenticateEulaUrl=…/v1beta/…) — internally
+    // inconsistent state that masks real bugs in the UI layer.
     protected ?array $eulaVersionDetails = [
         // "version" => "v1beta",
-        "version" => "2.0",
+        "version" => "v2",
         "valid_from" => "2018-04-30T17:00:00Z",
         "valid_until" => null,
-        "url" => "https://static.turnitin.com/eula/v1beta/en-us/eula.html",
+        // "url" => "https://static.turnitin.com/eula/v1beta/en-US/eula.html",
+        "url" => "https://drtspb56m845b.cloudfront.net/eula/en-US/0000000002/0000000000/eula.html",
         "available_languages" => [
           "sv-SE",
           "zh-CN",
@@ -82,6 +87,27 @@ class TestIThenticate
      * @copydoc IThenticate::$lastResponseDetails
      */
     protected ?array $lastResponseDetails = null;
+
+    /**
+     * @copydoc IThenticate::$lastEulaError
+     */
+    protected bool $lastEulaError = false;
+
+    /**
+     * Test hook: configure which call should simulate an EULA-mismatch failure
+     * on its next invocation. One-shot — auto-resets after the simulated failure.
+     * Accepted values: 'confirmEula', 'createSubmission', null.
+     *
+     * STATIC because the arm must be request-scoped, not instance-scoped: a single
+     * test request commonly creates multiple TestIThenticate instances (outer call,
+     * recovery's refetch, recovery's inner stampEulaToSubmittingUser, retry call,
+     * etc). With a per-instance property, the file-default value would re-arm every
+     * fresh instance, causing the recovery's inner confirmEula(latest) call to also
+     * fire the arm — which would break the recovery success path. Static ensures
+     * the arm fires exactly once per HTTP request, regardless of how many mock
+     * instances are constructed.
+     */
+    protected static ?string $simulateEulaErrorOn = null;
 
     /**
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
@@ -247,10 +273,38 @@ class TestIThenticate
     }
 
     /**
+     * @copydoc IThenticate::hasDetectedEulaError()
+     */
+    public function hasDetectedEulaError(): bool
+    {
+        return $this->lastEulaError;
+    }
+
+    /**
+     * Arm the next call to the given endpoint mock to simulate an EULA-mismatch
+     * failure (returns the natural failure value AND sets $lastEulaError = true).
+     * Single-shot — the flag clears as soon as the simulated call fires.
+     *
+     * @param string $endpoint One of 'confirmEula', 'createSubmission'.
+     */
+    public function simulateEulaErrorOnce(string $endpoint = 'createSubmission'): static
+    {
+        static::$simulateEulaErrorOn = $endpoint;
+        return $this;
+    }
+
+    /**
      * @copydoc IThenticate::confirmEula()
      */
     public function confirmEula(User $user, Context $context): bool
     {
+        if (static::$simulateEulaErrorOn === 'confirmEula') {
+            static::$simulateEulaErrorOn = null;
+            $this->lastEulaError = true;
+            error_log("TestIThenticate: simulated EULA 400 on confirmEula for user {$user->getId()} version {$this->getApplicableEulaVersion()}");
+            return false;
+        }
+        $this->lastEulaError = false;
         error_log("Confirming EULA for user {$user->getId()} with language ".$this->getApplicableLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
         return true;
     }
@@ -275,6 +329,14 @@ class TestIThenticate
             throw new Exception("in valid submitter permission {$submitterPermission} given");
         }
 
+        if (static::$simulateEulaErrorOn === 'createSubmission') {
+            static::$simulateEulaErrorOn = null;
+            $this->lastEulaError = true;
+            error_log("TestIThenticate: simulated EULA 400 on createSubmission for submission {$submission->getId()}");
+            return null;
+        }
+
+        $this->lastEulaError = false;
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()} with owner permission as {$authorPermission} and submitter permission as {$submitterPermission}");
 
         return static::ITHENTICATE_SUBMISSION_UUID_PREFIX . \Illuminate\Support\Str::uuid()->__toString();
@@ -364,11 +426,31 @@ class TestIThenticate
 
     /**
      * @copydoc IThenticate::verifyUserEulaAcceptance()
+     *
+     * Test contract: return true (= "user already accepted") when no
+     * EULA-error simulation is armed, so the happy path short-circuits over
+     * confirmEula(). Return false when the arm IS set, so the flow reaches
+     * confirmEula() where the arm can fire. This keeps the mock quiet on
+     * default-path runs and only invokes confirmEula() when we actively
+     * want to test it.
+     *
+     * The arm is static (request-scoped), so once a fired confirmEula or
+     * createSubmission resets it to null, all subsequent verify calls in
+     * the same request return true — which is what allows the recovery's
+     * inner stampEulaToSubmittingUser to complete without re-triggering
+     * the simulated failure.
      */
     public function verifyUserEulaAcceptance(Author|User $user, string $version): bool
     {
-        error_log("Verifying if user with id {$user->getId()} has already confirmed the given EULA version {$version}");
-        return true;
+        $accepted = (static::$simulateEulaErrorOn === null);
+        error_log(sprintf(
+            "TestIThenticate::verifyUserEulaAcceptance user=%d version=%s arm=%s -> %s",
+            $user->getId(),
+            $version,
+            static::$simulateEulaErrorOn ?? 'null',
+            $accepted ? 'true' : 'false'
+        ));
+        return $accepted;
     }
 
     /**

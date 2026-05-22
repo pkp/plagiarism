@@ -406,15 +406,14 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		SubmissionFile $submissionFile
 	): TemplateManager
 	{
-		$eulaVersionDetails = $submission->getData('ithenticateEulaVersion')
-			? [
-				'version' 	=> $submission->getData('ithenticateEulaVersion'),
-				'url' 		=> $submission->getData('ithenticateEulaUrl')
-			] : $this->_plugin->getContextEulaDetails($context, [
-				$submission->getData('locale'),
-				$request->getSite()->getPrimaryLocale(),
-				IThenticate::DEFAULT_EULA_LANGUAGE
-			]);
+		// Always pull EULA details from the cache (single source of truth across
+		// wizard, editorial workflow, and stamping).
+		$eulaVersionDetails = $this->_plugin->getContextEulaDetails($context, [
+			$submission->getData('locale'),
+			$context->getPrimaryLocale(),
+			$request->getSite()->getPrimaryLocale(),
+			IThenticate::DEFAULT_EULA_LANGUAGE
+		]);
 		
 		$actionUrl = $request->getDispatcher()->url(
 			$request,

@@ -529,7 +529,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// if the auto upload to ithenticate disable
 		// not going to do the EULA confirmation at submission time
-		if ($this->hasAutoSubmissionDisabled()) {
+		if ($this->hasAutoSubmissionDisabled($context)) {
 			return Hook::CONTINUE;
 		}
 
@@ -708,7 +708,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// if the auto upload to ithenticate disable
 		// not going to upload files to iThenticate at submission time
-		if ($this->hasAutoSubmissionDisabled()) {
+		if ($this->hasAutoSubmissionDisabled($context)) {
 			return false;
 		}
 		
@@ -797,8 +797,18 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Stamp the iThenticate EULA to the submitting user
+	 *
+	 * @param bool $skipRecovery When true, do NOT attempt EULA-mismatch recovery on
+	 *                           confirmEula failure. The recovery helper passes this
+	 *                           to prevent re-entrant retry when it calls back into
+	 *                           this method post-restamp.
 	 */
-	public function stampEulaToSubmittingUser(Context $context, Submission $submission, ?User $user = null): bool
+	public function stampEulaToSubmittingUser(
+		Context $context,
+		Submission $submission,
+		?User $user = null,
+		bool $skipRecovery = false
+	): bool
 	{
 		$request = Application::get()->getRequest();
 		$user ??= $request->getUser();
@@ -814,7 +824,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
 		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
-		
+
 		// Check if user has ever already accepted this EULA version and if so, stamp it to user
 		// Or, try to confirm the EULA for user and upon succeeding, stamp it to user
 		if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
@@ -823,7 +833,55 @@ class PlagiarismPlugin extends GenericPlugin
 			return true;
 		}
 
+		// Self-heal on the documented confirmEula 400 (iThenticate has rotated the EULA;
+		// our cached version is stale and was rejected). Recovery busts the cache,
+		// re-stamps submission with the new latest, then re-invokes this method with
+		// $skipRecovery=true so a still-failing confirmEula just propagates.
+		if (!$skipRecovery && $ithenticate->hasDetectedEulaError()) {
+			return $this->recoverFromEulaMismatch($ithenticate, $context, $submission, $user);
+		}
+
 		return false;
+	}
+
+	/**
+	 * Self-heal after an iThenticate API call reported an EULA-mismatch.
+	 *
+	 * Sequence: bust the cached EULA, refetch (forces iThenticate to tell us the
+	 * current "latest"), re-stamp the submission, then re-stamp the user via
+	 * stampEulaToSubmittingUser($skipRecovery=true). Returns true only when the
+	 * caller can proceed (either fully healed, or eligible to retry the original
+	 * API call).
+	 */
+	protected function recoverFromEulaMismatch(
+		IThenticate|TestIThenticate $ithenticate,
+		Context $context,
+		Submission &$submission,
+		User $user
+	): bool
+	{
+		if (!$ithenticate->hasDetectedEulaError()) {
+			return false;
+		}
+
+		error_log(sprintf(
+			'Plagiarism plugin: recovering from EULA-mismatch on context id %d (submission %d)',
+			$context->getId(),
+			$submission->getId()
+		));
+
+		static::clearEulaCache($context);
+		// Rehydrate the cache with the now-current latest from iThenticate.
+		$this->getContextEulaDetails($context);
+
+		if (!$this->stampEulaToSubmission($context, $submission)) {
+			return false;
+		}
+		$submission = Repo::submission()->get($submission->getId());
+
+		// Pass $skipRecovery=true to short-circuit the recovery branch in
+		// stampEulaToSubmittingUser and avoid infinite re-entry.
+		return $this->stampEulaToSubmittingUser($context, $submission, $user, true);
 	}
 
 	/**
@@ -858,11 +916,36 @@ class PlagiarismPlugin extends GenericPlugin
 			$this->getSubmitterPermission($context, $user)
 		);
 
+		// Defensive self-heal: iThenticate doc says the submitter's stored EULA
+		// acceptance is checked on every create (ithenticate_API_doc.md:594). If a
+		// stale local cache caused that stored acceptance to drift from the current
+		// required version, recover (bust cache + re-stamp submission/user) and
+		// retry the create call exactly once.
+		if (!$submissionUuid
+			&& $this->recoverFromEulaMismatch($ithenticate, $context, $submission, $user)) {
+			// Re-sync the outer ithenticate instance's applicable EULA version to
+			// the now-refreshed submission's stamped version. The createSubmission
+			// request body has no eula.version field so the API call itself isn't
+			// affected, but adjacent paths (error logging, future EULA-aware
+			// behavior) should reference the post-recovery version, not the stale
+			// value set before the failed first attempt.
+			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+
+			$submissionUuid = $ithenticate->createSubmission(
+				$request->getSite(),
+				$submission,
+				$user,
+				$author,
+				static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
+				$this->getSubmitterPermission($context, $user)
+			);
+		}
+
 		if (!$submissionUuid) {
 			$this->sendErrorMessage(
 				__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
 					'submissionFileId' => $submissionFile->getId(),
-				]), 
+				]),
 				$submission->getId()
 			);
 			return false;
@@ -972,6 +1055,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 *   'require_eula' => null/true/false, // null => not possible to retrived,
 	 * 										// true => EULA confirmation required,
 	 * 										// false => EULA confirmation not required
+	 *   eula_version => 'LATEST_EULA_VERSION',
 	 *   'en_US' => [
 	 *     'version' => '',
 	 *     'url' => '',
@@ -1237,16 +1321,21 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Check if auto upload of submission file has been disable globally or context level
+	 * Check if auto upload of submission file has been disable globally or context level.
+	 *
+	 * Accepts an optional Context — callers in an event listener / non-HTTP path
+	 * (where Application::get()->getRequest()->getContext() may be null) should
+	 * pass their own context explicitly. Falls back to the request's context when
+	 * the argument is omitted, preserving the legacy no-arg signature.
 	 */
-	public function hasAutoSubmissionDisabled(): bool
+	public function hasAutoSubmissionDisabled(?Context $context = null): bool
 	{
-		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
+		$context ??= Application::get()->getRequest()->getContext();
 		$contextPath = $context ? $context->getPath() : 'index';
 
 		return (bool)(
 			$this->getForcedConfigSetting($contextPath, 'disableAutoSubmission')
-				?? $this->getSetting($context->getId(), 'disableAutoSubmission')
+				?? ($context ? $this->getSetting($context->getId(), 'disableAutoSubmission') : null)
 		);
 	}
 

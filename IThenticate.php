@@ -80,6 +80,13 @@ class IThenticate
     protected ?array $lastResponseDetails = null;
 
     /**
+     * Whether the last makeApiRequest() detected an iThenticate EULA-mismatch response
+     * (e.g. POST /eula/{version}/accept with a version iThenticate no longer accepts).
+     * Reset to false at the top of every makeApiRequest(). Read via hasDetectedEulaError().
+     */
+    protected bool $lastEulaError = false;
+
+    /**
      * The default EULA version placeholder to retrieve the current latest version
      *
      * @var string
@@ -288,7 +295,7 @@ class IThenticate
             throw new Exception("in valid submitter permission {$submitterPermission} given");
         }
 
-        $publication = $submission->getCurrentPublication(); /** @var Publication $publication */
+        $publication = $submission->getCurrentPublication(); /** @var \APP\publication\Publication $publication */
         $author ??= $publication->getPrimaryAuthor();
 
         $response = $this->makeApiRequest(
@@ -344,7 +351,7 @@ class IThenticate
      *
      * @param string $submissionTacId The submission UUID return back from service
      * @param string $fileName
-     * @param mixed  fileContent
+     * @param mixed  $fileContent
      */
     public function uploadFile(string $submissionTacId, string $fileName, mixed $fileContent): bool
     {
@@ -369,7 +376,7 @@ class IThenticate
      * Get the submission details
      * @see https://developers.turnitin.com/docs/tca#get-submission-info
      *
-     * @param string $submissionTacId   The submission UUID return back from service
+     * @param string $submissionUuid   The submission UUID return back from service
      * @return string|null              On successful retrieval of submission details it will return
      *                                  details JSON data and on failure, will return null.
      */
@@ -742,7 +749,7 @@ class IThenticate
      * Make the api request
      *
      * @param string                                $method  HTTP method.
-     * @param string|\Psr\Http\Message\UriInterface $uri     URI object or string.
+     * @param string|\Psr\Http\Message\UriInterface $url     URI object or string.
      * @param array                                 $options Request options to apply. See \GuzzleHttp\RequestOptions.
      *
      * @return \Psr\Http\Message\ResponseInterface|null
@@ -755,6 +762,7 @@ class IThenticate
         array $options = []
     ): ?\Psr\Http\Message\ResponseInterface
     {
+        $this->lastEulaError = false;
         $response = null;
 
         try {
@@ -771,6 +779,15 @@ class IThenticate
                 'reason' => $response->getReasonPhrase(),
             ];
 
+            // Catches calls that opt out of Guzzle's http_errors (e.g. validateEulaVersion)
+            // — for everything else, 4xx lands in the catch block below.
+            $this->lastEulaError = $this->isEulaMismatchResponse(
+                $method,
+                $url,
+                $response->getStatusCode(),
+                $bodyContent
+            );
+
             // Rewind so existing code can still read the body
             if ($body->isSeekable()) {
                 $body->rewind();
@@ -778,35 +795,65 @@ class IThenticate
 
         } catch (\Throwable $exception) {
 
-            $exceptionMessage = null;
+            // Capture the current request's response details locally so the consolidated
+            // log below never references stale $this->lastResponseDetails from a prior call
+            // (relevant when the current call had no response, e.g. network/DNS failure).
+            $errorResponseDetails = null;
+
             if ($exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()) {
                 $errorResponse = $exception->getResponse();
-                $exceptionMessage = $errorResponse->getBody()->getContents();
+                $bodyContent = $errorResponse->getBody()->getContents();
 
-                // Store response details on failure
-                $this->lastResponseDetails = [
+                $errorResponseDetails = [
                     'status_code' => $errorResponse->getStatusCode(),
-                    'body' => $exceptionMessage,
+                    'body' => $bodyContent,
                     'headers' => $errorResponse->getHeaders(),
                     'reason' => $errorResponse->getReasonPhrase(),
                 ];
+                $this->lastResponseDetails = $errorResponseDetails;
+
+                $this->lastEulaError = $this->isEulaMismatchResponse(
+                    $method,
+                    $url,
+                    $errorResponse->getStatusCode(),
+                    $bodyContent
+                );
+                if ($this->lastEulaError) {
+                    error_log(sprintf(
+                        'iThenticate EULA-mismatch %d on %s %s — cache will be busted on the next recovery hook',
+                        $errorResponse->getStatusCode(),
+                        $method,
+                        $url
+                    ));
+                }
             }
 
-            // Mask the sensitive Authorization Bearer token to hide API KEY before logging
+            // Mask the sensitive Authorization Bearer token to hide API KEY before logging.
             $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
-            error_log(
-                sprintf(
-                    'iThenticate API request to %s for %s method failed with options %s',
-                    $url,
-                    $method,
-                    print_r($options, true)
+            // Consolidated failure log: one entry with response side (status / reason / body)
+            // plus the masked request options. For network-level failures with no response,
+            // the throwable's string form is the only diagnostic available — surface it.
+            $responseSummary = $errorResponseDetails
+                ? sprintf(
+                    'status=%d reason=%s body=%s',
+                    $errorResponseDetails['status_code'],
+                    $errorResponseDetails['reason'],
+                    $errorResponseDetails['body']
                 )
-            );
+                : sprintf('no response — %s', $exception->__toString());
 
-            $this->suppressApiRequestException
-                ? error_log($exceptionMessage ?? $exception->__toString())
-                : throw $exception;
+            error_log(sprintf(
+                'iThenticate API %s %s failed | response: %s | request options: %s',
+                $method,
+                $url,
+                $responseSummary,
+                print_r($options, true)
+            ));
+
+            if (!$this->suppressApiRequestException) {
+                throw $exception;
+            }
         }
 
         return $response;
@@ -827,8 +874,11 @@ class IThenticate
 
         $eulaUrl = $this->eulaVersionDetails['url'];
 
+        // Search side preserves case (DEFAULT_EULA_LANGUAGE = "en-US"); iThenticate
+        // URLs contain the locale segment in mixed case (e.g. ".../eula/en-US/...").
+        // Replacement is lowercased for consistency in the resulting URL.
         return str_replace(
-            strtolower(static::DEFAULT_EULA_LANGUAGE),
+            static::DEFAULT_EULA_LANGUAGE,
             strtolower($applicableEulaLanguage),
             $eulaUrl
         );
@@ -880,6 +930,85 @@ class IThenticate
     }
 
     /**
+     * Whether the most recent makeApiRequest() response indicated an iThenticate
+     * EULA-mismatch (the cached EULA version is no longer accepted at the API).
+     *
+     * Callers use this after a failed API hop to decide whether to bust the local
+     * EULA cache, re-stamp submission/user, and retry once.
+     */
+    public function hasDetectedEulaError(): bool
+    {
+        return $this->lastEulaError;
+    }
+
+    /**
+     * Return true when the API response indicates an EULA-version problem.
+     *
+     * Three rules, evaluated in order:
+     *
+     *   - Rule 0: HTTP 451 anywhere → definitively EULA. Per RFC 7725
+     *     "Unavailable For Legal Reasons" and Turnitin's certification review,
+     *     iThenticate returns 451 on POST /submissions when the submitter has
+     *     not accepted the current EULA. The semantic is unambiguous, so we
+     *     accept it on any endpoint without body inspection.
+     *     See https://developers.turnitin.com/turnitin-core-api/certification-review#review-questions
+     *
+     *   - Rule A: POST /eula/{version}/accept  → 400 or 404 is always an EULA
+     *     problem (per ithenticate_API_doc.md §"Accept EULA Version",
+     *     lines 374-377).
+     *
+     *   - Rule B: POST /submissions            → 400 is *defensively* treated
+     *     as an EULA problem only when the structured response body mentions
+     *     "eula" in either the `message` or `code` field. iThenticate's API
+     *     doc says the submitter's stored EULA acceptance is checked on every
+     *     create (line 594), but the failure shape is undocumented; the body
+     *     guard prevents false positives from other 400 causes (validation,
+     *     etc.).
+     */
+    protected function isEulaMismatchResponse(
+        string $method,
+        string|\Psr\Http\Message\UriInterface $url,
+        int $statusCode,
+        string $body
+    ): bool
+    {
+        // Rule 0: HTTP 451 "Unavailable For Legal Reasons" (RFC 7725).
+        // iThenticate returns this on Create a Submission when the submitter has
+        // not accepted the current EULA (per Turnitin certification review).
+        // The semantic is unambiguous, so we accept it on any endpoint without
+        // body inspection.
+        if ($statusCode === 451) {
+            return true;
+        }
+
+        $method = strtoupper($method);
+        $path = (string) $url;
+
+        // Rule A: Accept EULA Version — definitively EULA per iThenticate docs.
+        if ($method === 'POST'
+            && preg_match('#/eula/[^/]+/accept(?:[/?]|$)#i', $path)
+            && in_array($statusCode, [400, 404], true)) {
+            return true;
+        }
+
+        // Rule B: Create a Submission — defensive, only when body mentions eula.
+        if ($method === 'POST'
+            && $statusCode === 400
+            && preg_match('#/submissions/?(?:\?|$)#i', $path)) {
+            $payload = json_decode($body, true);
+            if (is_array($payload)) {
+                $haystack = strtolower(
+                    ((string)($payload['message'] ?? '')) . ' ' .
+                    ((string)($payload['code'] ?? ''))
+                );
+                return str_contains($haystack, 'eula');
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get the corresponding available locale or return null
      */
     protected function getCorrespondingLocaleAvailable(string $locale): ?string
@@ -921,7 +1050,7 @@ class IThenticate
     /**
      * Generate and return the final API end point to make request
      */
-    protected function getApiPath($apiPathSegment): \GuzzleHttp\Psr7\Uri
+    protected function getApiPath(string $apiPathSegment): \GuzzleHttp\Psr7\Uri
     {
         $apiRequestUrl = str_replace('API_URL', $this->apiUrl, $this->apiBasePath) . $apiPathSegment;
         return new \GuzzleHttp\Psr7\Uri($apiRequestUrl);
