@@ -795,7 +795,6 @@ class IThenticate
 
             // Capture the current request's response details locally so the consolidated
             // log below never references stale $this->lastResponseDetails from a prior call
-            // (relevant when the current call had no response, e.g. network/DNS failure).
             $errorResponseDetails = null;
 
             if ($exception instanceof \GuzzleHttp\Exception\RequestException && $exception->hasResponse()) {
@@ -830,8 +829,7 @@ class IThenticate
             $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
             // Consolidated failure log: one entry with response side (status / reason / body)
-            // plus the masked request options. For network-level failures with no response,
-            // the throwable's string form is the only diagnostic available — surface it.
+            // plus the masked request options.
             $responseSummary = $errorResponseDetails
                 ? sprintf(
                     'status=%d reason=%s body=%s',

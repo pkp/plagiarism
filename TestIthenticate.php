@@ -10,7 +10,9 @@
  *
  * @brief   Low-budget mock class for IThenticate -- set the config setting
  *          `test_mdoe` to `On` in the `config.inc.php` to log API usage
- *          instead of interacting with the iThenticate service.
+ *          instead of interacting with the iThenticate service. Also can
+ *          can set the `test_mode_eula` to `On` to test the EUAL confirmation
+ *          process as mock testing.
  */
 
 namespace APP\plugins\generic\plagiarism;

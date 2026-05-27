@@ -132,9 +132,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Forget the cached iThenticate EULA details for a given context.
-	 *
-	 * Use after credentials change, after iThenticate rotates EULA versions, or in
-	 * recovery paths that detect an EULA-mismatch 400 from the API.
 	 */
 	public static function clearEulaCache(Context $context): void
 	{
