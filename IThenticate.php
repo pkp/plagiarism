@@ -338,8 +338,6 @@ class IThenticate
         if ($response && $response->getStatusCode() === 201) {
             $result = json_decode($response->getBody()->getContents());
             return $result->id;
-        } else {
-            error_log((string)$response->getBody()->getContents());
         }
 
         return null;
@@ -953,17 +951,16 @@ class IThenticate
      *     accept it on any endpoint without body inspection.
      *     See https://developers.turnitin.com/turnitin-core-api/certification-review#review-questions
      *
-     *   - Rule A: POST /eula/{version}/accept  → 400 or 404 is always an EULA
-     *     problem (per ithenticate_API_doc.md §"Accept EULA Version",
-     *     lines 374-377).
+     *   - Rule A: POST /eula/{version}/accept  → 400 or 404 is always an EULA problem.
+     *     see https://developers.turnitin.com/docs/tca#accept-eula-version
      *
      *   - Rule B: POST /submissions            → 400 is *defensively* treated
      *     as an EULA problem only when the structured response body mentions
      *     "eula" in either the `message` or `code` field. iThenticate's API
      *     doc says the submitter's stored EULA acceptance is checked on every
-     *     create (line 594), but the failure shape is undocumented; the body
-     *     guard prevents false positives from other 400 causes (validation,
-     *     etc.).
+     *     create but the failure shape is undocumented; the body guard prevents
+     *     false positives from other 400 causes (validation, etc.).
+     *     see https://developers.turnitin.com/docs/tca#create-a-submission
      */
     protected function isEulaMismatchResponse(
         string $method,

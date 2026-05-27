@@ -69,9 +69,11 @@ class PlagiarismPlugin extends GenericPlugin
 	public const SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION = 'USER';
 
 	/**
-	 * Number of seconds EULA details for a context should be cached before refreshing it
+	 * Number of seconds EULA details for a context should be cached before refreshing it.
+	 * Kept 24 hours are per EULA handling guide and recommendation by ithenticate .
+	 * @see https://developers.turnitin.com/turnitin-core-api/best-practice/eula-workflow
 	 */
-	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
+	public const EULA_CACHE_LIFETIME = 60 * 60;
 
 	/**
 	 * Mapping of similarity settings with value type
@@ -103,6 +105,14 @@ class PlagiarismPlugin extends GenericPlugin
 		'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
 		'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 	];
+
+	/**
+	 * Set by createNewSubmission when an EULA-mismatch was detected and the editorial
+	 * caller asked us to surface re-confirmation to the user (instead of full silent
+	 * recovery). Read by the editorial handler to decide whether to render the EULA
+	 * modal on this request.
+	 */
+	protected bool $eulaReconfirmationNeeded = false;
 
 	/**
 	 * Determine if running application is OPS or not
@@ -845,13 +855,26 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
+	 * Whether the most recent createNewSubmission call surfaced an EULA reconfirmation
+	 * signal (cache was busted + submission re-stamped to new version, user left at
+	 * stale version, no retry performed).
+	 */
+	public function isEulaReconfirmationNeeded(): bool
+	{
+		return $this->eulaReconfirmationNeeded;
+	}
+
+	/**
 	 * Self-heal after an iThenticate API call reported an EULA-mismatch.
 	 *
-	 * Sequence: bust the cached EULA, refetch (forces iThenticate to tell us the
-	 * current "latest"), re-stamp the submission, then re-stamp the user via
-	 * stampEulaToSubmittingUser($skipRecovery=true). Returns true only when the
-	 * caller can proceed (either fully healed, or eligible to retry the original
-	 * API call).
+	 * Sequence :
+	 *  - bust the cached EULA
+	 *  - refetch (forces iThenticate to tell us the current "latest")
+	 *  - re-stamp the submission
+	 *  - re-stamp the user via stampEulaToSubmittingUser($skipRecovery=true)
+	 * 
+	 * Returns true only when the caller can proceed (either fully healed, or eligible 
+	 * to retry the original API call).
 	 */
 	protected function recoverFromEulaMismatch(
 		IThenticate|TestIThenticate $ithenticate,
@@ -885,16 +908,62 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Create a new submission at iThenticate service's end
+	 * Partial recovery: bust cache and re-stamp the submission, but leave the user's
+	 * stale EULA stamp untouched. Used by the editorial workflow path so that, after
+	 * recovery, the existing three-way check in acceptEulaAndExecuteIntendedAction
+	 * detects user/submission EULA divergence and re-renders the EULA modal — letting
+	 * the user *see* the new EULA text before iThenticate records their acceptance.
+	 *
+	 * Deliberately does NOT call stampEulaToSubmittingUser; the lingering stale stamp
+	 * on the user is the trigger that makes the modal re-render path fire.
+	 */
+	protected function partialRecoverFromEulaMismatch(
+		IThenticate|TestIThenticate $ithenticate,
+		Context $context,
+		Submission &$submission
+	): bool
+	{
+		if (!$ithenticate->hasDetectedEulaError()) {
+			return false;
+		}
+
+		error_log(sprintf(
+			'Plagiarism plugin: partial recovery from EULA-mismatch on context id %d (submission %d) — modal will be surfaced',
+			$context->getId(),
+			$submission->getId()
+		));
+
+		static::clearEulaCache($context);
+		$this->getContextEulaDetails($context);
+
+		if (!$this->stampEulaToSubmission($context, $submission)) {
+			return false;
+		}
+		$submission = Repo::submission()->get($submission->getId());
+
+		return true;
+	}
+
+	/**
+	 * Create a new submission at iThenticate service's end.
+	 *
+	 * $surfaceEulaReconfirmation controls how an EULA-mismatch on createSubmission is
+	 * recovered. Set true by callers that have a synchronous HTTP response in which
+	 * they can render the EULA modal back to the user (the editorial workflow handler);
+	 * leave false for listener-driven (wizard) flows that have no UI loop to redirect
+	 * to. See partialRecoverFromEulaMismatch + isEulaReconfirmationNeeded.
 	 */
 	public function createNewSubmission(
 		PKPRequest $request,
 		User $user,
 		Submission $submission,
 		SubmissionFile $submissionFile,
-		IThenticate|TestIThenticate $ithenticate
+		IThenticate|TestIThenticate $ithenticate,
+		bool $surfaceEulaReconfirmation = false
 	): bool
 	{
+		$this->eulaReconfirmationNeeded = false;
+
 		$context = $request->getContext();
 		$publication = $submission->getCurrentPublication();
 		$author = $publication->getPrimaryAuthor();
@@ -916,29 +985,36 @@ class PlagiarismPlugin extends GenericPlugin
 			$this->getSubmitterPermission($context, $user)
 		);
 
-		// Defensive self-heal: iThenticate doc says the submitter's stored EULA
-		// acceptance is checked on every create (ithenticate_API_doc.md:594). If a
-		// stale local cache caused that stored acceptance to drift from the current
-		// required version, recover (bust cache + re-stamp submission/user) and
-		// retry the create call exactly once.
-		if (!$submissionUuid
-			&& $this->recoverFromEulaMismatch($ithenticate, $context, $submission, $user)) {
-			// Re-sync the outer ithenticate instance's applicable EULA version to
-			// the now-refreshed submission's stamped version. The createSubmission
-			// request body has no eula.version field so the API call itself isn't
-			// affected, but adjacent paths (error logging, future EULA-aware
-			// behavior) should reference the post-recovery version, not the stale
-			// value set before the failed first attempt.
-			$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+		// Self-heal on iThenticate EULA-mismatch as per the doc specify at 
+		// the https://developers.turnitin.com/docs/tca#create-a-submission
+		// Two paths:
+		//   - editorial flow: bust cache + re-stamp submission, leave the user stale,
+		//     and surface the modal to the caller so the user sees the new EULA before
+		//     iThenticate is told they have accepted it.
+		//   - listener/wizard flow: full silent recovery + single retry (no UI loop
+		//     to redirect to; silent re-stamp beats silent submission failure).
+		if (!$submissionUuid && $ithenticate->hasDetectedEulaError()) {
+			if ($surfaceEulaReconfirmation) {
+				if ($this->partialRecoverFromEulaMismatch($ithenticate, $context, $submission)) {
+					$this->eulaReconfirmationNeeded = true;
+				}
+				return false;
+			}
 
-			$submissionUuid = $ithenticate->createSubmission(
-				$request->getSite(),
-				$submission,
-				$user,
-				$author,
-				static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
-				$this->getSubmitterPermission($context, $user)
-			);
+			if ($this->recoverFromEulaMismatch($ithenticate, $context, $submission, $user)) {
+				// Re-sync the outer ithenticate instance's applicable EULA version to
+				// the now-refreshed submission's stamped version.
+				$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
+
+				$submissionUuid = $ithenticate->createSubmission(
+					$request->getSite(),
+					$submission,
+					$user,
+					$author,
+					static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
+					$this->getSubmitterPermission($context, $user)
+				);
+			}
 		}
 
 		if (!$submissionUuid) {
@@ -1079,7 +1155,9 @@ class PlagiarismPlugin extends GenericPlugin
 		$eulaDetails = Cache::remember(
 			static::getEulaCacheKey($context),
 			// if running on ithenticate test mode, set the cache life time to 60 seconds
-			static::isRunningInTestMode() ? 60 : static::EULA_CACHE_LIFETIME,
+			static::isRunningInTestMode() 
+				? (5 * 60) // 5 mins cache time in Test mode
+				: static::EULA_CACHE_LIFETIME,
 			fn () => $this->retrieveEulaDetails()
 		);
 
@@ -1363,7 +1441,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Send the editor an error message
 	 * 
 	 * @param string 	$message 		The error/exception message to set as notification and log in error file
-	 * @param int|null 	$submissionid 	The submission id for which error/exception has generated
+	 * @param int|null 	$submissionId 	The submission id for which error/exception has generated
 	 */
 	public function sendErrorMessage(string $message, ?int $submissionId = null): void
 	{

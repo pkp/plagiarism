@@ -293,7 +293,23 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 			);
 		}
 
-		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate, true)) {
+			if ($this->_plugin->isEulaReconfirmationNeeded()) {
+				// Cache was stale and createSubmission tripped an EULA mismatch. The
+				// plugin has refreshed the cache and re-stamped the submission to the
+				// new EULA version, but deliberately left the user on their stale
+				// stamp. Signal to the frontend so it opens the EULA confirmation
+				// modal via the normal openLegacyModal → confirmEula flow — letting
+				// the user see the new EULA text before iThenticate is told they
+				// have accepted it.
+				return new JSONMessage(
+					false,
+					'',
+					'0',
+					['eulaReconfirmationRequired' => true]
+				);
+			}
+
 			return $this->getSubmitSubmissionResponse(
 				$request,
 				$submissionFile,
