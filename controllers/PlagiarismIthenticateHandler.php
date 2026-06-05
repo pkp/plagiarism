@@ -340,17 +340,6 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 
 		$eulaVersion = $this->_plugin->getContextEulaDetails($context, 'eula_version');
 
-		// Only proceed to submit the submission file to ithenticate if
-		//  - submission stamped to latest EULA version
-		//  - user stamped to latest EULA version
-		//  - user and submission both has stamped to same EULA version
-		if ($eulaVersion == $submission->getData('ithenticateEulaVersion')
-			&& $eulaVersion == $user->getData('ithenticateEulaVersion')
-			&& $submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
-			
-			return $this->submitSubmission($args, $request);
-		}
-
 		$confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
 		if (!$confirmSubmissionEula) {

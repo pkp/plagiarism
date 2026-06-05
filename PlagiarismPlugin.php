@@ -872,6 +872,16 @@ class PlagiarismPlugin extends GenericPlugin
 	 * 
 	 * Returns true only when the caller can proceed (either fully healed, or eligible 
 	 * to retry the original API call).
+	 * 
+	 * Used by the listener/wizard path where there is no UI loop to redirect a
+	 * re-confirmation modal to — the user's already-clicked-Submit interaction must
+	 * complete transparently. Full recovery: busts the cache, refetches "latest",
+	 * re-stamps both the submission and the user.
+	 *
+	 * The user re-stamping is silent here — they never see the new EULA text. This is
+	 * the documented trade-off vs failing the wizard submission entirely.
+	 *
+	 * @return bool true when the caller may retry the original API call; false otherwise.
 	 */
 	protected function recoverFromEulaMismatch(
 		IThenticate|TestIThenticate $ithenticate,
