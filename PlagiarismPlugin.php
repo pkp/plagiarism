@@ -73,7 +73,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Kept 24 hours are per EULA handling guide and recommendation by ithenticate .
 	 * @see https://developers.turnitin.com/turnitin-core-api/best-practice/eula-workflow
 	 */
-	public const EULA_CACHE_LIFETIME = 60 * 60;
+	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
 
 	/**
 	 * Mapping of similarity settings with value type
