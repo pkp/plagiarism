@@ -19,7 +19,6 @@ use APP\facades\Repo;
 use PKP\observers\events\SubmissionSubmitted;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use Illuminate\Events\Dispatcher;
-use PKP\user\User;
 
 class PlagiarismSubmissionSubmitListener
 {
@@ -51,10 +50,17 @@ class PlagiarismSubmissionSubmitListener
             return;
         }
 
+        // Auto-submission disabled --> should not do any stamping as no confirmation option present
+        // as auto sent of submission files are disable at the time of submitting submission from the 
+        // submission wizard.
+        if ($this->plugin->hasAutoSubmissionDisabled($event->context)) {
+            return;
+        }
+
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,
-            $event->submission,
+            Repo::submission()->get($event->submission->getId()), // refetch the submission after latest EULA stamp
             Application::get()->getRequest()->getUser()
         );
         

@@ -218,6 +218,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Uploadede succesfuldt indsendelsesfilen til iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin har opdateret sin EULA. Prøv venligst igen for at gennemgå og acceptere de nye vilkår."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "iThenticate 'webhook' er ikke konfigureret for kontekst-id {$contextId} ."

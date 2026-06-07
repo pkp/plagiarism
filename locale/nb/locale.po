@@ -135,3 +135,7 @@ msgstr "Webhook-ID-avvik: databasen har {$dbId}, men iThenticate API har {$apiId
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Merk: Validert webhook {$validatedId} (fra API) avviker fra databaseposten ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin har oppdatert sin EULA. Prøv igjen for å se gjennom og godta de nye vilkårene."

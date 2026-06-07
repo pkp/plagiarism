@@ -138,3 +138,7 @@ msgstr "Ασυμφωνία ID webhook: η βάση δεδομένων έχει {
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Σημείωση: Το επικυρωμένο webhook {$validatedId} (από το API) διαφέρει από την εγγραφή βάσης δεδομένων ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Η Turnitin ενημέρωσε την EULA της. Παρακαλώ προσπαθήστε ξανά για να ελέγξετε και να αποδεχθείτε τους νέους όρους."

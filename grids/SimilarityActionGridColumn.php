@@ -320,6 +320,18 @@ class SimilarityActionGridColumn extends GridColumn
 			return true;
 		}
 
+		// Even when user and submission stamps agree locally, they may both be behind
+		// iThenticate's currently-required EULA version (e.g. after a stale-cache
+		// detect-and-bust in PlagiarismPlugin::createNewSubmission). The cache is the
+		// source of truth for "what iThenticate requires right now"; if the local
+		// stamp is behind it, force re-confirmation so the user goes through the EULA
+		// modal and lands on the new version before any iThenticate API call.
+		$cachedEulaVersion = $this->_plugin->getContextEulaDetails($context, 'eula_version');
+		if ($cachedEulaVersion
+			&& $user->getData('ithenticateEulaVersion') !== $cachedEulaVersion) {
+			return true;
+		}
+
 		return false;
     }
 

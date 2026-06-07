@@ -163,3 +163,7 @@ msgstr "Discrepanza ID webhook: il database ha {$dbId} ma l'API iThenticate ha {
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Nota: il webhook validato {$validatedId} (dall'API) differisce dal record nel database ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin ha aggiornato il suo EULA. Riprova per leggere e accettare i nuovi termini."

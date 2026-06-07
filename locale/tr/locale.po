@@ -145,6 +145,10 @@ msgstr "iThenticate benzerlik raporu oluşturma işlemi başarıyla planlandı."
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Gönderim dosyası başarıyla iThenticate'e yüklendi."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin EULA'sını güncelledi. Yeni şartları gözden geçirip kabul etmek için lütfen tekrar deneyin."
+
 msgid "plugins.generic.plagiarism.webhook.event.invalid"
 msgstr "Geçersiz iThenticate web kancası etkinlik türü: {$event}"
 

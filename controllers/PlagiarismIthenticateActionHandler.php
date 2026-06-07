@@ -309,17 +309,24 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		}
 
 		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+			// createNewSubmission busts the EULA cache on a detected mismatch and
+			// sets hasLastEulaError() so we can pick a meaningful notification.
+			// The grid-row refresh below makes SimilarityActionGridColumn re-evaluate
+			// against the fresh cache, naturally surfacing the "Confirm EULA" cell
+			// action on the second click — no JS magic needed.
 			$this->generateUserNotification(
 				$request,
-				PKPNotification::NOTIFICATION_TYPE_ERROR, 
-				__('plugins.generic.plagiarism.action.submitSubmission.error')
+				PKPNotification::NOTIFICATION_TYPE_ERROR,
+				__($this->_plugin->hasLastEulaError()
+					? 'plugins.generic.plagiarism.action.submitSubmission.eulaUpdated'
+					: 'plugins.generic.plagiarism.action.submitSubmission.error')
 			);
 			return $this->triggerDataChangedEvent($submissionFile);
 		}
 
 		$this->generateUserNotification(
 			$request,
-			PKPNotification::NOTIFICATION_TYPE_SUCCESS, 
+			PKPNotification::NOTIFICATION_TYPE_SUCCESS,
 			__('plugins.generic.plagiarism.action.submitSubmission.success')
 		);
 
@@ -358,12 +365,33 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 			);
         }
 
-		if (!$submission->getData('ithenticateEulaVersion')) {
+		// Three-way correctness: compare against the current cached EULA version, not just
+		// "is anything stamped". Without this, a previously-stamped EULA version submission/user
+		// would skip both stamping branches even after iThenticate rotated to new EULA version — and the
+		// subsequent createSubmission would 451. The cache lookup is cheap (already used by
+		// getEulaConfirmationTemplate above to render this modal's URL).
+		$requiredEulaVersion = $this->_plugin->getContextEulaDetails($context, 'eula_version');
+
+		if ($submission->getData('ithenticateEulaVersion') !== $requiredEulaVersion) {
 			$this->_plugin->stampEulaToSubmission($context, $submission);
+			$submission = Repo::submission()->get($submission->getId());
 		}
 
-		if (!$user->getData('ithenticateEulaVersion')) {
-			$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user);
+		if ($user->getData('ithenticateEulaVersion') !== $requiredEulaVersion) {
+			if (!$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user)) {
+				// stampEulaToSubmittingUser busts the EULA cache on a detected mismatch.
+				// Toast the EULA-specific notification when applicable, refresh the grid
+				// so the cell action swaps to "Confirm EULA" against the fresh cache,
+				// and let the user retry by clicking it.
+				$this->generateUserNotification(
+					$request,
+					PKPNotification::NOTIFICATION_TYPE_ERROR,
+					__($this->_plugin->hasLastEulaError()
+						? 'plugins.generic.plagiarism.action.submitSubmission.eulaUpdated'
+						: 'plugins.generic.plagiarism.action.submitSubmission.error')
+				);
+				return $this->triggerDataChangedEvent($submissionFile);
+			}
 		}
 
 		return $this->submitSubmission($args, $request);
@@ -406,15 +434,17 @@ class PlagiarismIthenticateActionHandler extends PlagiarismComponentHandler
 		SubmissionFile $submissionFile
 	): TemplateManager
 	{
-		$eulaVersionDetails = $submission->getData('ithenticateEulaVersion')
-			? [
-				'version' 	=> $submission->getData('ithenticateEulaVersion'),
-				'url' 		=> $submission->getData('ithenticateEulaUrl')
-			] : $this->_plugin->getContextEulaDetails($context, [
-				$submission->getData('locale'),
-				$request->getSite()->getPrimaryLocale(),
-				IThenticate::DEFAULT_EULA_LANGUAGE
-			]);
+		// Always read EULA details from the cache, never from the submission's stamped
+		// value. Once a context has rotated EULA versions, a previously-stamped submission
+		// would render the old EULA URL in the modal while iThenticate now requires the
+		// new one — i.e. the editor would "accept" v1beta text while being stamped to v2.
+		// The locale fallback chain matches the one used by stampEulaToSubmission().
+		$eulaVersionDetails = $this->_plugin->getContextEulaDetails($context, [
+			$submission->getData('locale'),
+			$context->getPrimaryLocale(),
+			$request->getSite()->getPrimaryLocale(),
+			IThenticate::DEFAULT_EULA_LANGUAGE
+		]);
 		
 		$actionUrl = $request->getDispatcher()->url(
 			$request,
