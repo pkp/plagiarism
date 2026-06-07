@@ -179,3 +179,7 @@ msgstr "Incohérence d'ID de webhook : la base de données contient {$dbId} mais
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note : Le webhook validé {$validatedId} (depuis l'API) diffère de l'enregistrement dans la base de données ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin a mis à jour son CLUF. Veuillez réessayer pour examiner et accepter les nouvelles conditions."

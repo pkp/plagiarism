@@ -166,12 +166,16 @@ class TestIThenticate
     }
 
     /**
-     * Consume the arm if it matches the given endpoint. Atomic via Cache::pull
-     * (get + delete). Returns true exactly once per arming.
+     * Consume the arm only if it matches the given endpoint. Peek first, then
+     * forget on a verified match
      */
     protected static function consumeArm(string $endpoint): bool
     {
-        return Cache::pull(static::ARM_CACHE_KEY) === $endpoint;
+        if (Cache::get(static::ARM_CACHE_KEY) !== $endpoint) {
+            return false;
+        }
+        Cache::forget(static::ARM_CACHE_KEY);
+        return true;
     }
 
     /**

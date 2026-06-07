@@ -293,28 +293,19 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 			);
 		}
 
-		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate, true)) {
-			if ($this->_plugin->isEulaReconfirmationNeeded()) {
-				// Cache was stale and createSubmission tripped an EULA mismatch. The
-				// plugin has refreshed the cache and re-stamped the submission to the
-				// new EULA version, but deliberately left the user on their stale
-				// stamp. Signal to the frontend so it opens the EULA confirmation
-				// modal via the normal openLegacyModal → confirmEula flow — letting
-				// the user see the new EULA text before iThenticate is told they
-				// have accepted it.
-				return new JSONMessage(
-					false,
-					'',
-					'0',
-					['eulaReconfirmationRequired' => true]
-				);
-			}
-
+		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+			// createNewSubmission busts the EULA cache on a detected mismatch and sets
+			// hasLastEulaError() so we can pick a meaningful notification. The frontend
+			// refetches the plagiarism status after this response, re-evaluating
+			// isEulaConfirmationRequired against the fresh cache — naturally surfacing
+			// the EULA modal on the user's next click. No reconfirmation signal needed.
 			return $this->getSubmitSubmissionResponse(
 				$request,
 				$submissionFile,
 				Notification::NOTIFICATION_TYPE_ERROR,
-				__('plugins.generic.plagiarism.action.submitSubmission.error')
+				__($this->_plugin->hasLastEulaError()
+					? 'plugins.generic.plagiarism.action.submitSubmission.eulaUpdated'
+					: 'plugins.generic.plagiarism.action.submitSubmission.error')
 			);
 		}
 
@@ -366,7 +357,19 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		if ($user->getData('ithenticateEulaVersion') !== $eulaVersion) {
-			$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user);
+			if (!$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user)) {
+				// stampEulaToSubmittingUser busts the EULA cache on a detected mismatch.
+				// Toast the EULA-specific notification when applicable and refresh so the
+				// frontend re-evaluates against the fresh cache; the user retries.
+				return $this->getSubmitSubmissionResponse(
+					$request,
+					$submissionFile,
+					Notification::NOTIFICATION_TYPE_ERROR,
+					__($this->_plugin->hasLastEulaError()
+						? 'plugins.generic.plagiarism.action.submitSubmission.eulaUpdated'
+						: 'plugins.generic.plagiarism.action.submitSubmission.error')
+				);
+			}
 		}
 
 		return $this->submitSubmission($args, $request);

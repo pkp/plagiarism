@@ -154,6 +154,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Файл подання успішно завантажено в iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin оновив свою ліцензійну угоду (EULA). Будь ласка, спробуйте ще раз, щоб переглянути та прийняти нові умови."
+
 msgid "plugins.generic.plagiarism.webhook.event.invalid"
 msgstr "Недійсний тип події вебхука iThenticate {$event}"
 

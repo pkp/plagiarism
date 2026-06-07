@@ -296,40 +296,12 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
                                         const ithenticateActionData = await executePlagiarismAction(fileStatus);
 
-                                        // Server detected an EULA mismatch with iThenticate, busted the
-                                        // cache + re-stamped the submission to the new version, and asked
-                                        // us to surface the new EULA to the user. Open the existing legacy
-                                        // EULA modal (same flow as the initial confirmation path above) so
-                                        // the user sees the new EULA text before iThenticate is told they
-                                        // have accepted it.
-                                        if (ithenticateActionData.value?.eulaReconfirmationRequired) {
-                                            const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
-                                            const {openLegacyModal} = useLegacyGridUrl({
-                                                component: 'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
-                                                op: 'confirmEula',
-                                                params: {
-                                                    submissionId: submissionFile.submissionId,
-                                                    submissionFileId: submissionFile.id,
-                                                    stageId: submission.stageId,
-                                                },
-                                            });
-
-                                            openLegacyModal(
-                                                {
-                                                    title: t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
-                                                },
-                                                async () => {
-                                                    await fetchIthenticateStatus();
-
-                                                    if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
-                                                        streamPlagiarismResults(ithenticateRequestParams.value);
-                                                    }
-                                                },
-                                            );
-
-                                            return;
-                                        }
-
+                                        // If the server detected a stale-cache EULA mismatch it busted the
+                                        // cache, reverted the stale stamps, and returned the "EULA updated"
+                                        // notification below. The fetchIthenticateStatus() call that follows
+                                        // refreshes contextStatus.eulaVersion (and the now-null user/submission
+                                        // stamps), so isEulaConfirmationRequired() naturally surfaces the EULA
+                                        // modal on the user's next click — no explicit reconfirmation signal.
                                         if (ithenticateActionData.value?.content) {
                                             notify(
                                                 ithenticateActionData.value.content,

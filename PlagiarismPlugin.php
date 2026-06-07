@@ -107,12 +107,12 @@ class PlagiarismPlugin extends GenericPlugin
 	];
 
 	/**
-	 * Set by createNewSubmission when an EULA-mismatch was detected and the editorial
-	 * caller asked us to surface re-confirmation to the user (instead of full silent
-	 * recovery). Read by the editorial handler to decide whether to render the EULA
-	 * modal on this request.
+	 * Whether the most recent EULA-gated API call (confirmEula or createSubmission)
+	 * tripped an EULA-mismatch response and busted the cache. The editorial handler
+	 * reads this to pick a user-facing notification: "Turnitin has updated its EULA"
+	 * vs the generic "submission failed" text. Lives for the current request only.
 	 */
-	protected bool $eulaReconfirmationNeeded = false;
+	protected bool $lastEulaError = false;
 
 	/**
 	 * Determine if running application is OPS or not
@@ -804,174 +804,95 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Stamp the iThenticate EULA to the submitting user
-	 *
-	 * @param bool $skipRecovery When true, do NOT attempt EULA-mismatch recovery on
-	 *                           confirmEula failure. The recovery helper passes this
-	 *                           to prevent re-entrant retry when it calls back into
-	 *                           this method post-restamp.
 	 */
 	public function stampEulaToSubmittingUser(
 		Context $context,
 		Submission $submission,
-		?User $user = null,
-		bool $skipRecovery = false
+		User $user
 	): bool
 	{
-		$request = Application::get()->getRequest();
-		$user ??= $request->getUser();
+		// The cache is the source of truth for the currently-required EULA version.
+		$requiredEulaVersion = $this->getContextEulaDetails($context, 'eula_version');
 
-		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion')
-			?? $this->getContextEulaDetails($context, 'eula_version');
-
-		// If submission EULA version has already been stamped to user
+		// If the required EULA version has already been stamped to user
 		// no need to do the confirmation and stamping again
-		if ($user->getData('ithenticateEulaVersion') === $submissionEulaVersion) {
+		if ($user->getData('ithenticateEulaVersion') === $requiredEulaVersion) {
 			return true;
 		}
 
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
-		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
+		$ithenticate->setApplicableEulaVersion($requiredEulaVersion);
 
 		// Check if user has ever already accepted this EULA version and if so, stamp it to user
 		// Or, try to confirm the EULA for user and upon succeeding, stamp it to user
-		if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
+		if ($ithenticate->verifyUserEulaAcceptance($user, $requiredEulaVersion) ||
 			$ithenticate->confirmEula($user, $context)) {
-			$this->stampEulaVersionToUser($user, $submissionEulaVersion);
+			$this->stampEulaVersionToUser($user, $requiredEulaVersion);
 			return true;
 		}
 
-		// Self-heal on the documented confirmEula 400 (iThenticate has rotated the EULA;
-		// our cached version is stale and was rejected). Recovery busts the cache,
-		// re-stamps submission with the new latest, then re-invokes this method with
-		// $skipRecovery=true so a still-failing confirmEula just propagates.
-		if (!$skipRecovery && $ithenticate->hasDetectedEulaError()) {
-			return $this->recoverFromEulaMismatch($ithenticate, $context, $submission, $user);
+		// iThenticate reported the EULA version we tried is no longer valid (Rule A
+		// 400/404 on POST /eula/{v}/accept, or Rule 0 451). Bust the cache so the
+		// next request rebuilds against the fresh latest, and set the plugin-level
+		// flag so the editorial handler can toast an EULA-specific notification.
+		if ($ithenticate->hasDetectedEulaError()) {
+			$this->clearEulaCache($context);
+			$this->lastEulaError = true;
 		}
 
 		return false;
 	}
 
 	/**
-	 * Whether the most recent createNewSubmission call surfaced an EULA reconfirmation
-	 * signal (cache was busted + submission re-stamped to new version, user left at
-	 * stale version, no retry performed).
+	 * Whether the most recent EULA-gated API call (confirmEula or createSubmission)
+	 * tripped an EULA-mismatch and busted the cache. The editorial handler reads this
+	 * to pick a user-facing notification.
 	 */
-	public function isEulaReconfirmationNeeded(): bool
+	public function hasLastEulaError(): bool
 	{
-		return $this->eulaReconfirmationNeeded;
+		return $this->lastEulaError;
 	}
 
 	/**
-	 * Self-heal after an iThenticate API call reported an EULA-mismatch.
+	 * Clear local EULA stamps when iThenticate has rejected our call as stale.
 	 *
-	 * Sequence :
-	 *  - bust the cached EULA
-	 *  - refetch (forces iThenticate to tell us the current "latest")
-	 *  - re-stamp the submission
-	 *  - re-stamp the user via stampEulaToSubmittingUser($skipRecovery=true)
-	 * 
-	 * Returns true only when the caller can proceed (either fully healed, or eligible 
-	 * to retry the original API call).
-	 * 
-	 * Used by the listener/wizard path where there is no UI loop to redirect a
-	 * re-confirmation modal to — the user's already-clicked-Submit interaction must
-	 * complete transparently. Full recovery: busts the cache, refetches "latest",
-	 * re-stamps both the submission and the user.
-	 *
-	 * The user re-stamping is silent here — they never see the new EULA text. This is
-	 * the documented trade-off vs failing the wizard submission entirely.
-	 *
-	 * @return bool true when the caller may retry the original API call; false otherwise.
+	 * Called from createNewSubmission's post-failure block when hasDetectedEulaError()
+	 * fires — iThenticate has definitively told us the stamp we just sent (or that the
+	 * user's stored acceptance reflects) is no longer valid. Leaving the old version on
+	 * the user/submission records would re-trigger the same rejection on the next
+	 * attempt and leave the plugin in a "stamped but stale" state that misleads the
+	 * EULA gate checks. Clearing forces the natural re-acceptance flow on the user's
+	 * next interaction.
 	 */
-	protected function recoverFromEulaMismatch(
-		IThenticate|TestIThenticate $ithenticate,
-		Context $context,
-		Submission &$submission,
-		User $user
-	): bool
+	public function revertEulaStamps(Context $context, Submission $submission, User $user): void
 	{
-		if (!$ithenticate->hasDetectedEulaError()) {
-			return false;
-		}
+		Repo::submission()->edit($submission, [
+			'ithenticateEulaVersion' => null,
+			'ithenticateEulaUrl' => null,
+		]);
 
-		error_log(sprintf(
-			'Plagiarism plugin: recovering from EULA-mismatch on context id %d (submission %d)',
-			$context->getId(),
-			$submission->getId()
-		));
-
-		static::clearEulaCache($context);
-		// Rehydrate the cache with the now-current latest from iThenticate.
-		$this->getContextEulaDetails($context);
-
-		if (!$this->stampEulaToSubmission($context, $submission)) {
-			return false;
-		}
-		$submission = Repo::submission()->get($submission->getId());
-
-		// Pass $skipRecovery=true to short-circuit the recovery branch in
-		// stampEulaToSubmittingUser and avoid infinite re-entry.
-		return $this->stampEulaToSubmittingUser($context, $submission, $user, true);
-	}
-
-	/**
-	 * Partial recovery: bust cache and re-stamp the submission, but leave the user's
-	 * stale EULA stamp untouched. Used by the editorial workflow path so that, after
-	 * recovery, the existing three-way check in acceptEulaAndExecuteIntendedAction
-	 * detects user/submission EULA divergence and re-renders the EULA modal — letting
-	 * the user *see* the new EULA text before iThenticate records their acceptance.
-	 *
-	 * Deliberately does NOT call stampEulaToSubmittingUser; the lingering stale stamp
-	 * on the user is the trigger that makes the modal re-render path fire.
-	 */
-	protected function partialRecoverFromEulaMismatch(
-		IThenticate|TestIThenticate $ithenticate,
-		Context $context,
-		Submission &$submission
-	): bool
-	{
-		if (!$ithenticate->hasDetectedEulaError()) {
-			return false;
-		}
-
-		error_log(sprintf(
-			'Plagiarism plugin: partial recovery from EULA-mismatch on context id %d (submission %d) — modal will be surfaced',
-			$context->getId(),
-			$submission->getId()
-		));
-
-		static::clearEulaCache($context);
-		$this->getContextEulaDetails($context);
-
-		if (!$this->stampEulaToSubmission($context, $submission)) {
-			return false;
-		}
-		$submission = Repo::submission()->get($submission->getId());
-
-		return true;
+		$user->setData('ithenticateEulaVersion', null);
+		$user->setData('ithenticateEulaConfirmedAt', null);
+		Repo::user()->edit($user);
 	}
 
 	/**
 	 * Create a new submission at iThenticate service's end.
-	 *
-	 * $surfaceEulaReconfirmation controls how an EULA-mismatch on createSubmission is
-	 * recovered. Set true by callers that have a synchronous HTTP response in which
-	 * they can render the EULA modal back to the user (the editorial workflow handler);
-	 * leave false for listener-driven (wizard) flows that have no UI loop to redirect
-	 * to. See partialRecoverFromEulaMismatch + isEulaReconfirmationNeeded.
 	 */
 	public function createNewSubmission(
 		PKPRequest $request,
 		User $user,
 		Submission $submission,
 		SubmissionFile $submissionFile,
-		IThenticate|TestIThenticate $ithenticate,
-		bool $surfaceEulaReconfirmation = false
+		IThenticate|TestIThenticate $ithenticate
 	): bool
 	{
-		$this->eulaReconfirmationNeeded = false;
-
 		$context = $request->getContext();
+
+		// Refresh from DB with proper stamped settings
+		$user = Repo::user()->get($user->getId());
+		$submission = Repo::submission()->get($submission->getId());
+
 		$publication = $submission->getCurrentPublication();
 		$author = $publication->getPrimaryAuthor();
 
@@ -980,6 +901,21 @@ class PlagiarismPlugin extends GenericPlugin
 				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error'),
 				$submission->getId()
 			);
+			return false;
+		}
+
+		// EULA gate: the cache is the source of truth for "what iThenticate requires
+		// right now". If the user or submission stamp doesn't match it, do NOT call
+		// iThenticate — it would 451 in production (the submitter's server-side recorded
+		// acceptance is for the old version). Signal an EULA error so the editorial
+		// handler toasts the "Turnitin has updated its EULA" notification; the frontend
+		// refetches status and surfaces the EULA modal at the fresh version on the
+		// user's next click, which re-stamps user + submission cleanly.
+		$requiredEulaVersion = $this->getContextEulaDetails($context, 'eula_version');
+		if ($requiredEulaVersion
+			&& ($user->getData('ithenticateEulaVersion') !== $requiredEulaVersion
+				|| $submission->getData('ithenticateEulaVersion') !== $requiredEulaVersion)) {
+			$this->lastEulaError = true;
 			return false;
 		}
 
@@ -992,39 +928,20 @@ class PlagiarismPlugin extends GenericPlugin
 			$this->getSubmitterPermission($context, $user)
 		);
 
-		// Self-heal on iThenticate EULA-mismatch as per the doc specify at 
-		// the https://developers.turnitin.com/docs/tca#create-a-submission
-		// Two paths:
-		//   - editorial flow: bust cache + re-stamp submission, leave the user stale,
-		//     and surface the modal to the caller so the user sees the new EULA before
-		//     iThenticate is told they have accepted it.
-		//   - listener/wizard flow: full silent recovery + single retry (no UI loop
-		//     to redirect to; silent re-stamp beats silent submission failure).
-		if (!$submissionUuid && $ithenticate->hasDetectedEulaError()) {
-			if ($surfaceEulaReconfirmation) {
-				if ($this->partialRecoverFromEulaMismatch($ithenticate, $context, $submission)) {
-					$this->eulaReconfirmationNeeded = true;
-				}
-				return false;
-			}
-
-			if ($this->recoverFromEulaMismatch($ithenticate, $context, $submission, $user)) {
-				// Re-sync the outer ithenticate instance's applicable EULA version to
-				// the now-refreshed submission's stamped version.
-				$ithenticate->setApplicableEulaVersion($submission->getData('ithenticateEulaVersion'));
-
-				$submissionUuid = $ithenticate->createSubmission(
-					$request->getSite(),
-					$submission,
-					$user,
-					$author,
-					static::SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION,
-					$this->getSubmitterPermission($context, $user)
-				);
-			}
-		}
-
 		if (!$submissionUuid) {
+			// iThenticate may have rotated the EULA version since we last cached it, in
+			// which case createSubmission rejects with HTTP 451 / 400 + EULA body (per
+			// Turnitin certification review). Bust the cache so the next request rebuilds
+			// from a fresh validateEulaVersion('latest'), set the plugin-level flag so
+			// the editorial handler can toast an EULA-specific notification, and revert
+			// the now-misleading local stamps so the next interaction surfaces the EULA
+			// modal cleanly instead of repeating the same rejection.
+			if ($ithenticate->hasDetectedEulaError()) {
+				$this->clearEulaCache($context);
+				$this->lastEulaError = true;
+				$this->revertEulaStamps($context, $submission, $user);
+			}
+
 			$this->sendErrorMessage(
 				__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
 					'submissionFileId' => $submissionFile->getId(),

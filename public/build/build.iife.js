@@ -298,37 +298,13 @@
                     label: t("common.yes"),
                     isPrimary: true,
                     callback: async (close) => {
-                      var _a2, _b2, _c2;
+                      var _a2, _b2;
                       close();
                       const ithenticateActionData = await executePlagiarismAction(fileStatus);
-                      if ((_a2 = ithenticateActionData.value) == null ? void 0 : _a2.eulaReconfirmationRequired) {
-                        const { useLegacyGridUrl } = pkp.modules.useLegacyGridUrl;
-                        const { openLegacyModal } = useLegacyGridUrl({
-                          component: "plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler",
-                          op: "confirmEula",
-                          params: {
-                            submissionId: submissionFile.submissionId,
-                            submissionFileId: submissionFile.id,
-                            stageId: submission2.stageId
-                          }
-                        });
-                        openLegacyModal(
-                          {
-                            title: t("plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title")
-                          },
-                          async () => {
-                            await fetchIthenticateStatus();
-                            if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
-                              streamPlagiarismResults(ithenticateRequestParams.value);
-                            }
-                          }
-                        );
-                        return;
-                      }
-                      if ((_b2 = ithenticateActionData.value) == null ? void 0 : _b2.content) {
+                      if ((_a2 = ithenticateActionData.value) == null ? void 0 : _a2.content) {
                         notify(
                           ithenticateActionData.value.content,
-                          ((_c2 = ithenticateActionData.value) == null ? void 0 : _c2.status) ? "success" : "warning"
+                          ((_b2 = ithenticateActionData.value) == null ? void 0 : _b2.status) ? "success" : "warning"
                         );
                       }
                       await fetchIthenticateStatus();
