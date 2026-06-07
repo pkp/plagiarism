@@ -287,6 +287,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Úspěšné nahrání souboru příspěvku do systému iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin aktualizoval své licenční ujednání (EULA). Zkuste to prosím znovu, abyste si přečetli a přijali nové podmínky."
+
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MUCH_TEXT"
 msgstr ""
 "Příspěvek obsahuje příliš mnoho textu na to, aby bylo možné vygenerovat "

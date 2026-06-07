@@ -19,3 +19,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Plugin iThenticate Plagiarism Detector"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin telah mengemas kini EULA-nya. Sila cuba lagi untuk menyemak dan menerima terma baharu."

@@ -204,6 +204,10 @@ msgstr "Actualizada con éxito la puntuación de similitud de iThenticate."
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Se cargó exitosamente el archivo de envío a iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin ha actualizado su EULA. Por favor, inténtelo de nuevo para revisar y aceptar los nuevos términos."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "El webhook de iThenticate no está configurado para el ID de contexto "

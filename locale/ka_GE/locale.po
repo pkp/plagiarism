@@ -17,3 +17,7 @@ msgstr "iThenticate პლაგიატიზმის გამოვლე�
 msgid "plugins.generic.plagiarism.description"
 msgstr ""
 "ყველა მასალის წარდგენა iThenticate-ზე, რათა გადამოწმდეს შესაძლო პლაგიატი."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin-მა განაახლა თავისი EULA. გთხოვთ, კიდევ სცადოთ ახალი პირობების გადახედვა და მიღება."

@@ -185,6 +185,10 @@ msgstr "iThenticate окшоштук упайлары ийгиликтүү жа�
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Тапшыруу файлы iThenticate'ке ийгиликтүү жүктөлдү."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin өзүнүн EULA шартын жаңыртты. Жаңы шарттарды карап чыгуу жана кабыл алуу үчүн кайра аракет кылыңыз."
+
 msgid "plugins.generic.plagiarism.similarityCheck.settings.warning.note"
 msgstr ""
 "Төмөнкү орнотуулардын кайсынысы болбосун конфигурация файлында глобалдык же "

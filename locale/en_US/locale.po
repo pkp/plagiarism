@@ -196,6 +196,9 @@ msgstr "Unable to upload the submission file to iThenticate. Note that submissio
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Successfully uploaded the submission file to iThenticate."
 
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin has updated its EULA. Please try again to review and accept the new terms."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook not configured for context id {$contextId} ."
 

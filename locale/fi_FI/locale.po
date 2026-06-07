@@ -113,3 +113,7 @@ msgstr "Käyttöehdot tulee hyväksyä ennen jatkamista."
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.title"
 msgstr "Käsikirjoituksen samankaltaisuustarkistuksen asetukset"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin on päivittänyt EULA-ehtonsa. Yritä uudelleen tarkistaaksesi ja hyväksyäksesi uudet ehdot."

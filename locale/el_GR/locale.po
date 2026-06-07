@@ -18,3 +18,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Πρόσθετο Ανίχνευσης Λογοκλοπής iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Η Turnitin ενημέρωσε την EULA της. Παρακαλώ προσπαθήστε ξανά για να ελέγξετε και να αποδεχθείτε τους νέους όρους."

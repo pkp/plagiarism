@@ -142,6 +142,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Файлът за изпращане бе качен успешно в iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin актуализира своето лицензионно споразумение (EULA). Моля, опитайте отново, за да прегледате и приемете новите условия."
+
 msgid "plugins.generic.plagiarism.webhook.headers.missing"
 msgstr "Липсват необходимите водачи на iThenticate webhook"
 

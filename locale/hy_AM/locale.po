@@ -180,6 +180,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Ներկայացման նիշքը հաջողությամբ վերբեռնվեց iThenticate-ում:"
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin-ը թարմացրել է իր EULA-ն: Խնդրում ենք կրկին փորձել՝ նոր պայմանները վերանայելու և ընդունելու համար:"
+
 msgid "plugins.generic.plagiarism.webhook.headers.missing"
 msgstr "Պահանջվող iThenticate վերբեռնուկ վերնախորագրերը բացակայում են"
 
