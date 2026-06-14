@@ -596,7 +596,10 @@ class IThenticate
                 'allow_insecure' => true,
             ],
             'verify' => false,
+            // exception is ignored and require the http_errors to make sure no exception is thrown
+            // and the response with status code 409 can be handled
             'exceptions' => false,
+            'http_errors' => false,
         ]);
 
         if (!$response) {
@@ -630,6 +633,7 @@ class IThenticate
                     ],
                     'verify' => false,
                     'exceptions' => false,
+                    'http_errors' => false,
                 ]);
 
                 if ($retryResponse && $retryResponse->getStatusCode() === 201) {
