@@ -18,6 +18,7 @@ use APP\core\Application;
 use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
+use APP\plugins\generic\plagiarism\IThenticate;
 use PKP\security\Role;
 use PKP\core\PKPRequest;
 use Illuminate\Http\Response;
@@ -64,7 +65,15 @@ class PlagiarismApiActionManager
     {
         $request ??= Application::get()->getRequest();
         $originalMaxExecutionTime = (int) ini_get('max_execution_time');
-        
+
+        // Defaults for the "we did not attempt ini_set" branch. These are only safe
+        // because the iniSetFailed expression below short-circuits on
+        // `!($originalMaxExecutionTime === 0 || $originalMaxExecutionTime >= MAX_STREAM_TIME)`
+        // when we didn't attempt ini_set — the closure never actually reads these values
+        // in that case. If that outer guard is ever removed, these defaults must be revisited.
+        $setSuccess = null;
+        $currentMaxExecutionTime = $originalMaxExecutionTime;
+
         // If max_execution_time is 0 (infinite) or >= MAX_STREAM_TIME, use it (capped at MAX_STREAM_TIME)
         if ($originalMaxExecutionTime === 0 || $originalMaxExecutionTime >= static::MAX_STREAM_TIME) {
             $maxDuration = static::MAX_STREAM_TIME - 5; // Cap at (MAX_STREAM_TIME - 5) seconds with buffer
@@ -187,10 +196,26 @@ class PlagiarismApiActionManager
                 'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
             ];
         }
+        
+        $eulaRequired = (bool)$this->plugin->getContextEulaDetails($context, 'require_eula');
+
+        // Resolve the locale-specific EULA URL from the cache (single source of truth —
+        // mirrors what addEulaAcceptanceConfirmation and stampEulaToSubmission use).
+        // Exposes it as context.eulaUrl alongside context.eulaVersion so any client
+        // that needs to render the EULA modal has the current URL without a round-trip.
+        $contextEulaEntry = $eulaRequired
+            ? $this->plugin->getContextEulaDetails($context, [
+                $context->getPrimaryLocale(),
+                $request->getSite()->getPrimaryLocale(),
+                IThenticate::DEFAULT_EULA_LANGUAGE,
+            ])
+            : null;
 
         return [
             'context' => [
-                'eulaRequired' => (bool)$this->plugin->getContextEulaDetails($context, 'require_eula'),
+                'eulaRequired' => $eulaRequired,
+                'eulaVersion' => $eulaRequired ? $this->plugin->getContextEulaDetails($context, 'eula_version') : null,
+                'eulaUrl' => is_array($contextEulaEntry) ? ($contextEulaEntry['url'] ?? null) : null,
             ],
             'submission' => [
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),

@@ -294,11 +294,18 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		if (!$this->_plugin->createNewSubmission($request, $user, $submission, $submissionFile, $ithenticate)) {
+			// createNewSubmission busts the EULA cache on a detected mismatch and sets
+			// hasLastEulaError() so we can pick a meaningful notification. The frontend
+			// refetches the plagiarism status after this response, re-evaluating
+			// isEulaConfirmationRequired against the fresh cache — naturally surfacing
+			// the EULA modal on the user's next click. No reconfirmation signal needed.
 			return $this->getSubmitSubmissionResponse(
 				$request,
 				$submissionFile,
 				Notification::NOTIFICATION_TYPE_ERROR,
-				__('plugins.generic.plagiarism.action.submitSubmission.error')
+				__($this->_plugin->hasLastEulaError()
+					? 'plugins.generic.plagiarism.action.submitSubmission.eulaUpdated'
+					: 'plugins.generic.plagiarism.action.submitSubmission.error')
 			);
 		}
 
@@ -322,10 +329,7 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		$submissionFile = $this->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION_FILE); /** @var SubmissionFile $submissionFile */
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
 
-		// EULA has been already stamped to both Submission and User, so we can submit the submission file
-		if ($submission->getData('ithenticateEulaVersion') && $user->getData('ithenticateEulaVersion')) {
-			return $this->submitSubmission($args, $request);
-		}
+		$eulaVersion = $this->_plugin->getContextEulaDetails($context, 'eula_version');
 
 		$confirmSubmissionEula = $args['confirmSubmissionEula'] ?? false;
 
@@ -347,12 +351,25 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 			);
         }
 
-		if (!$submission->getData('ithenticateEulaVersion')) {
+		if ($submission->getData('ithenticateEulaVersion') !== $eulaVersion) {
 			$this->_plugin->stampEulaToSubmission($context, $submission);
+			$submission = Repo::submission()->get($submission->getId()); // refetch the submission after latest EULA stamped
 		}
 
-		if (!$user->getData('ithenticateEulaVersion')) {
-			$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user);
+		if ($user->getData('ithenticateEulaVersion') !== $eulaVersion) {
+			if (!$this->_plugin->stampEulaToSubmittingUser($context, $submission, $user)) {
+				// stampEulaToSubmittingUser busts the EULA cache on a detected mismatch.
+				// Toast the EULA-specific notification when applicable and refresh so the
+				// frontend re-evaluates against the fresh cache; the user retries.
+				return $this->getSubmitSubmissionResponse(
+					$request,
+					$submissionFile,
+					Notification::NOTIFICATION_TYPE_ERROR,
+					__($this->_plugin->hasLastEulaError()
+						? 'plugins.generic.plagiarism.action.submitSubmission.eulaUpdated'
+						: 'plugins.generic.plagiarism.action.submitSubmission.error')
+				);
+			}
 		}
 
 		return $this->submitSubmission($args, $request);
@@ -397,15 +414,14 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		SubmissionFile $submissionFile
 	): TemplateManager
 	{
-		$eulaVersionDetails = $submission->getData('ithenticateEulaVersion')
-			? [
-				'version' 	=> $submission->getData('ithenticateEulaVersion'),
-				'url' 		=> $submission->getData('ithenticateEulaUrl')
-			] : $this->_plugin->getContextEulaDetails($context, [
-				$submission->getData('locale'),
-				$request->getSite()->getPrimaryLocale(),
-				IThenticate::DEFAULT_EULA_LANGUAGE
-			]);
+		// Always pull EULA details from the cache (single source of truth across
+		// wizard, editorial workflow, and stamping).
+		$eulaVersionDetails = $this->_plugin->getContextEulaDetails($context, [
+			$submission->getData('locale'),
+			$context->getPrimaryLocale(),
+			$request->getSite()->getPrimaryLocale(),
+			IThenticate::DEFAULT_EULA_LANGUAGE
+		]);
 		
 		$actionUrl = $request->getDispatcher()->url(
 			$request,

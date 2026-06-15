@@ -178,3 +178,7 @@ msgstr "Ketidakpadanan ID webhook: pangkalan data mempunyai {$dbId} tetapi API i
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Nota: Webhook yang disahkan {$validatedId} (daripada API) berbeza daripada rekod pangkalan data ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin telah mengemas kini EULA-nya. Sila cuba lagi untuk menyemak dan menerima terma baharu."

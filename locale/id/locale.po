@@ -179,6 +179,10 @@ msgstr "Pemeriksaan plagiarisme tidak tersedia"
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Berhasil mengunggah file naskah ke iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin telah memperbarui EULA-nya. Silakan coba lagi untuk meninjau dan menyetujui persyaratan baru."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "Webhook iThenticate tidak dikonfigurasi untuk konteks id {$contextId} ."
 

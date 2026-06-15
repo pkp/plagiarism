@@ -254,6 +254,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Датотеката за поднесување е успешно поставена на iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin го ажурираше својот EULA. Ве молиме обидете се повторно за да ги прегледате и прифатите новите услови."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook не е конфигуриран за контекстуален ID {$contextId}."
 

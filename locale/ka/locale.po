@@ -153,3 +153,7 @@ msgstr "Webhook ID-ის შეუსაბამობა: მონაცე�
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "შენიშვნა: ვალიდირებული webhook {$validatedId} (API-დან) განსხვავდება მონაცემთა ბაზის ჩანაწერისგან ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin-მა განაახლა თავისი EULA. გთხოვთ, კიდევ სცადოთ ახალი პირობების გადახედვა და მიღება."

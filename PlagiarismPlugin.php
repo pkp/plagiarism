@@ -69,7 +69,9 @@ class PlagiarismPlugin extends GenericPlugin
 	public const SUBMISSION_AUTOR_ITHENTICATE_DEFAULT_PERMISSION = 'USER';
 
 	/**
-	 * Number of seconds EULA details for a context should be cached before refreshing it
+	 * Number of seconds EULA details for a context should be cached before refreshing it.
+	 * Kept 24 hours are per EULA handling guide and recommendation by ithenticate .
+	 * @see https://developers.turnitin.com/turnitin-core-api/best-practice/eula-workflow
 	 */
 	public const EULA_CACHE_LIFETIME = 60 * 60 * 24;
 
@@ -105,11 +107,35 @@ class PlagiarismPlugin extends GenericPlugin
 	];
 
 	/**
+	 * Whether the most recent EULA-gated API call (confirmEula or createSubmission)
+	 * tripped an EULA-mismatch response and busted the cache. The editorial handler
+	 * reads this to pick a user-facing notification: "Turnitin has updated its EULA"
+	 * vs the generic "submission failed" text. Lives for the current request only.
+	 */
+	protected bool $lastEulaError = false;
+
+	/**
 	 * Determine if running application is OPS or not
 	 */
 	public static function isOPS(): bool
 	{
 		return strtolower(Application::get()->getName()) === 'ops';
+	}
+
+	/**
+	 * Build the cache key used to store EULA details for a given context.
+	 */
+	public static function getEulaCacheKey(Context $context): string
+	{
+		return "ithenticate_eula_{$context->getId()}";
+	}
+
+	/**
+	 * Forget the cached iThenticate EULA details for a given context.
+	 */
+	public static function clearEulaCache(Context $context): void
+	{
+		Cache::forget(static::getEulaCacheKey($context));
 	}
 
 	/**
@@ -510,7 +536,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// if the auto upload to ithenticate disable
 		// not going to do the EULA confirmation at submission time
-		if ($this->hasAutoSubmissionDisabled()) {
+		if ($this->hasAutoSubmissionDisabled($context)) {
 			return Hook::CONTINUE;
 		}
 
@@ -521,11 +547,15 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$submission = $templateManager->getTemplateVars('submission'); /** @var Submission $submission */
 		$user = Repo::user()->get($request->getUser()->getId());
+		
+		// retrive the EULA version that we must need to confirm
+		$requiredEulaVersion = $this->getContextEulaDetails($context, 'eula_version');
 
 		// If submission has EULA stamped and user has EULA stamped and both are same version
 		// so there is no need to confirm EULA again
-		if ($submission->getData('ithenticateEulaVersion') &&
-			$submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
+		if ($submission->getData('ithenticateEulaVersion') == $requiredEulaVersion
+			&& $user->getData('ithenticateEulaVersion') == $requiredEulaVersion
+			&& $submission->getData('ithenticateEulaVersion') == $user->getData('ithenticateEulaVersion')) {
 			
 			return Hook::CONTINUE;
 		}
@@ -685,7 +715,7 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// if the auto upload to ithenticate disable
 		// not going to upload files to iThenticate at submission time
-		if ($this->hasAutoSubmissionDisabled()) {
+		if ($this->hasAutoSubmissionDisabled($context)) {
 			return false;
 		}
 		
@@ -775,46 +805,79 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Stamp the iThenticate EULA to the submitting user
 	 */
-	public function stampEulaToSubmittingUser(Context $context, Submission $submission, ?User $user = null): bool
+	public function stampEulaToSubmittingUser(
+		Context $context,
+		Submission $submission,
+		User $user
+	): bool
 	{
-		$request = Application::get()->getRequest();
-		$user ??= $request->getUser();
+		// The cache is the source of truth for the currently-required EULA version.
+		$requiredEulaVersion = $this->getContextEulaDetails($context, 'eula_version');
 
-		$submissionEulaVersion = $submission->getData('ithenticateEulaVersion');
-
-		if (is_null($submissionEulaVersion)) {
-			$eulaDetails = $this->getContextEulaDetails($context, [
-				$submission->getData('locale'),
-				$context->getPrimaryLocale(),
-				$request->getSite()->getPrimaryLocale(),
-				IThenticate::DEFAULT_EULA_LANGUAGE
-			]);
-
-			$submissionEulaVersion = $eulaDetails['version'];
-		}
-
-		// If submission EULA version has already been stamped to user
+		// If the required EULA version has already been stamped to user
 		// no need to do the confirmation and stamping again
-		if ($user->getData('ithenticateEulaVersion') === $submissionEulaVersion) {
+		if ($user->getData('ithenticateEulaVersion') === $requiredEulaVersion) {
 			return true;
 		}
 
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
-		$ithenticate->setApplicableEulaVersion($submissionEulaVersion);
-		
+		$ithenticate->setApplicableEulaVersion($requiredEulaVersion);
+
 		// Check if user has ever already accepted this EULA version and if so, stamp it to user
 		// Or, try to confirm the EULA for user and upon succeeding, stamp it to user
-		if ($ithenticate->verifyUserEulaAcceptance($user, $submissionEulaVersion) ||
+		if ($ithenticate->verifyUserEulaAcceptance($user, $requiredEulaVersion) ||
 			$ithenticate->confirmEula($user, $context)) {
-			$this->stampEulaVersionToUser($user, $submissionEulaVersion);
+			$this->stampEulaVersionToUser($user, $requiredEulaVersion);
 			return true;
+		}
+
+		// iThenticate reported the EULA version we tried is no longer valid (Rule A
+		// 400/404 on POST /eula/{v}/accept, or Rule 0 451). Bust the cache so the
+		// next request rebuilds against the fresh latest, and set the plugin-level
+		// flag so the editorial handler can toast an EULA-specific notification.
+		if ($ithenticate->hasDetectedEulaError()) {
+			$this->clearEulaCache($context);
+			$this->lastEulaError = true;
 		}
 
 		return false;
 	}
 
 	/**
-	 * Create a new submission at iThenticate service's end
+	 * Whether the most recent EULA-gated API call (confirmEula or createSubmission)
+	 * tripped an EULA-mismatch and busted the cache. The editorial handler reads this
+	 * to pick a user-facing notification.
+	 */
+	public function hasLastEulaError(): bool
+	{
+		return $this->lastEulaError;
+	}
+
+	/**
+	 * Clear local EULA stamps when iThenticate has rejected our call as stale.
+	 *
+	 * Called from createNewSubmission's post-failure block when hasDetectedEulaError()
+	 * fires — iThenticate has definitively told us the stamp we just sent (or that the
+	 * user's stored acceptance reflects) is no longer valid. Leaving the old version on
+	 * the user/submission records would re-trigger the same rejection on the next
+	 * attempt and leave the plugin in a "stamped but stale" state that misleads the
+	 * EULA gate checks. Clearing forces the natural re-acceptance flow on the user's
+	 * next interaction.
+	 */
+	public function revertEulaStamps(Context $context, Submission $submission, User $user): void
+	{
+		Repo::submission()->edit($submission, [
+			'ithenticateEulaVersion' => null,
+			'ithenticateEulaUrl' => null,
+		]);
+
+		$user->setData('ithenticateEulaVersion', null);
+		$user->setData('ithenticateEulaConfirmedAt', null);
+		Repo::user()->edit($user);
+	}
+
+	/**
+	 * Create a new submission at iThenticate service's end.
 	 */
 	public function createNewSubmission(
 		PKPRequest $request,
@@ -825,6 +888,11 @@ class PlagiarismPlugin extends GenericPlugin
 	): bool
 	{
 		$context = $request->getContext();
+
+		// Refresh from DB with proper stamped settings
+		$user = Repo::user()->get($user->getId());
+		$submission = Repo::submission()->get($submission->getId());
+
 		$publication = $submission->getCurrentPublication();
 		$author = $publication->getPrimaryAuthor();
 
@@ -833,6 +901,21 @@ class PlagiarismPlugin extends GenericPlugin
 				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error'),
 				$submission->getId()
 			);
+			return false;
+		}
+
+		// EULA gate: the cache is the source of truth for "what iThenticate requires
+		// right now". If the user or submission stamp doesn't match it, do NOT call
+		// iThenticate — it would 451 in production (the submitter's server-side recorded
+		// acceptance is for the old version). Signal an EULA error so the editorial
+		// handler toasts the "Turnitin has updated its EULA" notification; the frontend
+		// refetches status and surfaces the EULA modal at the fresh version on the
+		// user's next click, which re-stamps user + submission cleanly.
+		$requiredEulaVersion = $this->getContextEulaDetails($context, 'eula_version');
+		if ($requiredEulaVersion
+			&& ($user->getData('ithenticateEulaVersion') !== $requiredEulaVersion
+				|| $submission->getData('ithenticateEulaVersion') !== $requiredEulaVersion)) {
+			$this->lastEulaError = true;
 			return false;
 		}
 
@@ -846,10 +929,23 @@ class PlagiarismPlugin extends GenericPlugin
 		);
 
 		if (!$submissionUuid) {
+			// iThenticate may have rotated the EULA version since we last cached it, in
+			// which case createSubmission rejects with HTTP 451 / 400 + EULA body (per
+			// Turnitin certification review). Bust the cache so the next request rebuilds
+			// from a fresh validateEulaVersion('latest'), set the plugin-level flag so
+			// the editorial handler can toast an EULA-specific notification, and revert
+			// the now-misleading local stamps so the next interaction surfaces the EULA
+			// modal cleanly instead of repeating the same rejection.
+			if ($ithenticate->hasDetectedEulaError()) {
+				$this->clearEulaCache($context);
+				$this->lastEulaError = true;
+				$this->revertEulaStamps($context, $submission, $user);
+			}
+
 			$this->sendErrorMessage(
 				__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
 					'submissionFileId' => $submissionFile->getId(),
-				]), 
+				]),
 				$submission->getId()
 			);
 			return false;
@@ -956,22 +1052,23 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Get the cached EULA details form Context
 	 * The eula details structure is in the following format
 	 * [
-	 *   'require_eula' => null/true/false, // null => not possible to retrived, 
-	 * 										// true => EULA confirmation required, 
+	 *   'require_eula' => null/true/false, // null => not possible to retrived,
+	 * 										// true => EULA confirmation required,
 	 * 										// false => EULA confirmation not required
+	 *   eula_version => 'LATEST_EULA_VERSION',
 	 *   'en_US' => [
 	 *     'version' => '',
 	 *     'url' => '',
 	 *   ],
 	 *   ...
 	 * ]
-	 * 
+	 *
 	 * Based on the `key` param defined, it will return in following format
 	 * 	- 	if null, will return the whole details in above structure
 	 * 	- 	if array, will try to find the first matching `key` index value and return that
 	 * 	- 	if array and not found any match or if string, will return value based on last
 	 * 		array index or string value and considering the default value along with it
-	 * 
+	 *
 	 */
 	public function getContextEulaDetails(
 		Context $context,
@@ -980,9 +1077,11 @@ class PlagiarismPlugin extends GenericPlugin
 	): mixed
 	{
 		$eulaDetails = Cache::remember(
-			"ithenticate_eula_{$context->getId()}",
+			static::getEulaCacheKey($context),
 			// if running on ithenticate test mode, set the cache life time to 60 seconds
-			static::isRunningInTestMode() ? 60 : static::EULA_CACHE_LIFETIME,
+			static::isRunningInTestMode() 
+				? (5 * 60) // 5 mins cache time in Test mode
+				: static::EULA_CACHE_LIFETIME,
 			fn () => $this->retrieveEulaDetails()
 		);
 
@@ -1039,10 +1138,12 @@ class PlagiarismPlugin extends GenericPlugin
 		//   ...
 		if ($eulaDetails['require_eula'] == true &&
 			$ithenticate->validateEulaVersion($ithenticate::DEFAULT_EULA_VERSION)) {
-
+			
+			$eulaDetails['eula_version'] = $ithenticate->getApplicableEulaVersion();
+			
 			foreach($context->getSupportedSubmissionLocaleNames() as $localeKey => $localeName) {
 				$eulaDetails[$localeKey] = [
-					'version' 	=> $ithenticate->getApplicableEulaVersion(),
+					'version' 	=> $eulaDetails['eula_version'],
 					'url' 		=> $ithenticate->getApplicableEulaUrl($localeKey),
 				];
 			}
@@ -1222,16 +1323,21 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Check if auto upload of submission file has been disable globally or context level
+	 * Check if auto upload of submission file has been disable globally or context level.
+	 *
+	 * Accepts an optional Context — callers in an event listener / non-HTTP path
+	 * (where Application::get()->getRequest()->getContext() may be null) should
+	 * pass their own context explicitly. Falls back to the request's context when
+	 * the argument is omitted, preserving the legacy no-arg signature.
 	 */
-	public function hasAutoSubmissionDisabled(): bool
+	public function hasAutoSubmissionDisabled(?Context $context = null): bool
 	{
-		$context = Application::get()->getRequest()->getContext(); /** @var Context $context */
+		$context ??= Application::get()->getRequest()->getContext();
 		$contextPath = $context ? $context->getPath() : 'index';
 
 		return (bool)(
 			$this->getForcedConfigSetting($contextPath, 'disableAutoSubmission')
-				?? $this->getSetting($context->getId(), 'disableAutoSubmission')
+				?? ($context ? $this->getSetting($context->getId(), 'disableAutoSubmission') : null)
 		);
 	}
 
@@ -1259,7 +1365,7 @@ class PlagiarismPlugin extends GenericPlugin
 	 * Send the editor an error message
 	 * 
 	 * @param string 	$message 		The error/exception message to set as notification and log in error file
-	 * @param int|null 	$submissionid 	The submission id for which error/exception has generated
+	 * @param int|null 	$submissionId 	The submission id for which error/exception has generated
 	 */
 	public function sendErrorMessage(string $message, ?int $submissionId = null): void
 	{

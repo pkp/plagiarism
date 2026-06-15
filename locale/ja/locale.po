@@ -152,3 +152,7 @@ msgstr "Webhook IDの不一致: データベースには {$dbId} があります
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "注意: 検証済みWebhook {$validatedId}（APIから）はデータベースのレコード（{$dbId}）と異なります。"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin が EULA を更新しました。新しい条件を確認して承諾するため、もう一度お試しください。"
