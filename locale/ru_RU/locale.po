@@ -47,3 +47,7 @@ msgid "plugins.generic.plagiarism.manager.settings.areForced"
 msgstr ""
 "Настройки iThenticate найдены в файле config.inc.php, поэтому заданные здесь "
 "настройки не будут использованы."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin обновил своё лицензионное соглашение (EULA). Пожалуйста, повторите попытку, чтобы ознакомиться с новыми условиями и принять их."

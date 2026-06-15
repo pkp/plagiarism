@@ -91,3 +91,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
 msgstr "Det oppsto en uspesifisert feil under behandling av innleveringen."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin har oppdatert sin EULA. Prøv igjen for å se gjennom og godta de nye vilkårene."

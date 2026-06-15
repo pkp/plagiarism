@@ -139,6 +139,12 @@ class PlagiarismSettingsForm extends Form {
 			if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
 				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey) {
 
+				// Credentials changed — the cached EULA details belong to the previous
+				// tenant and may diverge from what the new credentials' tenant returns.
+				// Bust the cache so the next getContextEulaDetails() refetches from
+				// the freshly-authenticated iThenticate.
+				$this->_plugin->clearEulaCache($this->_context);
+				
 				$ithenticate = $this->_plugin->initIthenticate($ithenticateApiUrl, $ithenticateApiKey);
 
 				// If there is a already registered webhook for this context, need to delete it first

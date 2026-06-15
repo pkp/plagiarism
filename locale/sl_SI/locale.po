@@ -221,6 +221,10 @@ msgstr "Uspešno posodobljen iThenticate rezultat."
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Datoteka je bila uspšno naložena na iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin je posodobil svojo licenčno pogodbo (EULA). Prosimo, poskusite znova za pregled in sprejem novih pogojev."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate spletni dostop ni nastavljen za kontekst id {$contextId} ."
 

@@ -250,6 +250,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Le fichier de soumission a été téléchargé avec succès vers iThenticate."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin a mis à jour son CLUF. Veuillez réessayer pour examiner et accepter les nouvelles conditions."
+
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "Le webhook iThenticate n'est pas configuré pour le contexte {$contextId} ."

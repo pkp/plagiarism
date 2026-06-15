@@ -16,3 +16,7 @@ msgstr "Enviar totes les trameses a iThenticate per detectar possibles plagis."
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Mòdul de detecció de plagi iThenticate"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin ha actualitzat el seu EULA. Torneu-ho a provar per revisar i acceptar els nous termes."

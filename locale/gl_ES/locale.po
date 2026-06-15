@@ -17,3 +17,7 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.displayName"
 msgstr "Complemento iThenticate (detector de plaxio)"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin actualizou o seu EULA. Téntao de novo para revisar e aceptar os novos termos."

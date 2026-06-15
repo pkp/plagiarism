@@ -48,3 +48,7 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr ""
 "Il caricamento della proposta {$submissionId} in iThenticate è fallito con "
 "l'errore: {$errorMessage}"
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin ha aggiornato il suo EULA. Riprova per leggere e accettare i nuovi termini."
