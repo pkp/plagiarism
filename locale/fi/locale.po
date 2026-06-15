@@ -228,3 +228,7 @@ msgstr "Webhook-ID:n ristiriita: tietokannassa on {$dbId} mutta iThenticate API:
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Huom: Vahvistettu webhook {$validatedId} (API:sta) eroaa tietokantatietueesta ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin on päivittänyt EULA-ehtonsa. Yritä uudelleen tarkistaaksesi ja hyväksyäksesi uudet ehdot."

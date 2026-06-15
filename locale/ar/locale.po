@@ -321,3 +321,7 @@ msgstr "عدم تطابق معرف الخطاف الإلكتروني: قاعدة
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "ملاحظة: الخطاف الإلكتروني الذي تم التحقق منه {$validatedId} (من واجهة برمجة التطبيق) يختلف عن سجل قاعدة البيانات ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "قامت Turnitin بتحديث اتفاقية ترخيص المستخدم النهائي. يُرجى المحاولة مرة أخرى لمراجعة الشروط الجديدة وقبولها."

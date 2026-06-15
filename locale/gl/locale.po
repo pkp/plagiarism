@@ -137,3 +137,7 @@ msgstr "Discrepancia de ID de webhook: a base de datos ten {$dbId} pero a API de
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Nota: O webhook validado {$validatedId} (da API) difire do rexistro da base de datos ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin actualizou o seu EULA. Téntao de novo para revisar e aceptar os novos termos."

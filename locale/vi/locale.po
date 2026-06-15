@@ -137,3 +137,7 @@ msgstr "ID webhook không khớp: cơ sở dữ liệu có {$dbId} nhưng iThent
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Lưu ý: Webhook đã xác thực {$validatedId} (từ API) khác với bản ghi cơ sở dữ liệu ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin đã cập nhật EULA. Vui lòng thử lại để xem xét và chấp nhận các điều khoản mới."

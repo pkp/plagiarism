@@ -98,6 +98,10 @@ msgstr ""
 msgid "plugins.generic.plagiarism.action.submitSubmission.success"
 msgstr "Einreichungsdatei erfolgreich bei iThenticate hochgeladen."
 
+#, fuzzy
+msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
+msgstr "Turnitin hat seine EULA aktualisiert. Bitte versuchen Sie es erneut, um die neuen Bedingungen zu prüfen und zu akzeptieren."
+
 msgid "plugins.generic.plagiarism.webhook.headers.missing"
 msgstr "Fehlende benötigte iThenticate webhook header"
 

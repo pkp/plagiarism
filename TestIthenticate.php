@@ -18,6 +18,7 @@ namespace APP\plugins\generic\plagiarism;
 use APP\core\Application;
 use APP\submission\Submission;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use PKP\author\Author;
 use PKP\config\Config;
@@ -28,6 +29,14 @@ use PKP\user\User;
 class TestIThenticate
 {
     /**
+     * Cache key used to persist a one-shot arm across HTTP requests. The arm
+     * is consumed atomically (Cache::pull) on the first matching call, so a
+     * single test arming carries cleanly across the editorial reconfirmation
+     * flow's three requests (submit → modal → accept) without re-arming.
+     */
+    public const ARM_CACHE_KEY = 'test_iThenticate_arm';
+
+    /**
      * @copydoc IThenticate::$eulaVersion
      */
     protected ?string $eulaVersion = null;
@@ -35,11 +44,17 @@ class TestIThenticate
     /**
      * @copydoc IThenticate::$eulaVersionDetails
      */
+    // IMPORTANT: when bumping `version` here for a rotation rehearsal, bump the
+    // version segment in `url` too. Otherwise this mock will produce DB rows like
+    // (ithenticateEulaVersion=v2, ithenticateEulaUrl=…/v1beta/…) — internally
+    // inconsistent state that masks real bugs in the UI layer.
     protected ?array $eulaVersionDetails = [
-        "version" => "v1beta",
+        // "version" => "v1beta",
+        "version" => "v2",
         "valid_from" => "2018-04-30T17:00:00Z",
         "valid_until" => null,
-        "url" => "https://static.turnitin.com/eula/v1beta/en-us/eula.html",
+        // "url" => "https://static.turnitin.com/eula/v1beta/en-US/eula.html",
+        "url" => "https://drtspb56m845b.cloudfront.net/eula/en-US/0000000002/0000000000/eula.html",
         "available_languages" => [
           "sv-SE",
           "zh-CN",
@@ -81,6 +96,11 @@ class TestIThenticate
      * @copydoc IThenticate::$lastResponseDetails
      */
     protected ?array $lastResponseDetails = null;
+
+    /**
+     * @copydoc IThenticate::$lastEulaError
+     */
+    protected bool $lastEulaError = false;
 
     /**
      * @copydoc IThenticate::DEFAULT_EULA_VERSION
@@ -125,6 +145,45 @@ class TestIThenticate
     public const EXCLUDE_SMALL_MATCHES_MIN = 8;
 
     /**
+     * Arm a one-shot EULA-error simulation that survives across HTTP requests
+     * and is consumed atomically (Cache::pull) on the first matching call.
+     *
+     *   \APP\plugins\generic\plagiarism\TestIthenticate::armOnce('createSubmission');
+     *
+     * @param string $endpoint   One of 'confirmEula', 'createSubmission'.
+     * @param int    $ttlSeconds How long the arm waits to be consumed (default 1h).
+     */
+    public static function armOnce(string $endpoint, int $ttlSeconds = 3600): void
+    {
+        Cache::put(static::ARM_CACHE_KEY, $endpoint, $ttlSeconds);
+    }
+
+    /**
+     * Consume the arm if it matches the given endpoint. Peek first (non-destructive)
+     * so a mismatched endpoint doesn't steal the arm; only forget the cache entry
+     * after a verified match. Returns true exactly once per arming.
+     */
+    protected static function consumeArm(string $endpoint): bool
+    {
+        if (Cache::get(static::ARM_CACHE_KEY) !== $endpoint) {
+            return false;
+        }
+        Cache::forget(static::ARM_CACHE_KEY);
+        return true;
+    }
+
+    /**
+     * Peek at the pending arm without consuming it. Used by GET-flavored mock
+     * methods (e.g. verifyUserEulaAcceptance) that need to branch on whether
+     * an arm is pending but must not consume an arm targeted at a different
+     * (POST) endpoint.
+     */
+    protected static function peekArm(): ?string
+    {
+        return Cache::get(static::ARM_CACHE_KEY);
+    }
+
+    /**
      * @copydoc IThenticate::__construct()
      */
     public function __construct(
@@ -140,8 +199,8 @@ class TestIThenticate
             $this->eulaVersion = $eulaVersion;
         }
 
-        if (!$eulaVersion) {
-            $this->eulaVersion = Config::getVar('ithenticate', 'test_mode_eula', true) ? 'v1beta' : null;
+        if (!$eulaVersion && Config::getVar('ithenticate', 'test_mode_eula', true)) {
+            $this->validateEulaVersion('');
         }
         
         error_log(
@@ -241,10 +300,25 @@ class TestIThenticate
     }
 
     /**
+     * @copydoc IThenticate::hasDetectedEulaError()
+     */
+    public function hasDetectedEulaError(): bool
+    {
+        return $this->lastEulaError;
+    }
+
+    /**
      * @copydoc IThenticate::confirmEula()
      */
     public function confirmEula(User $user, Context $context): bool
-    {    
+    {
+        if (static::consumeArm('confirmEula')) {
+            $this->lastEulaError = true;
+            error_log("TestIThenticate: simulated EULA 400 on confirmEula for user {$user->getId()}");
+            return false;
+        }
+
+        $this->lastEulaError = false;
         error_log("Confirming EULA for user {$user->getId()} with language ".$this->getApplicableLocale($context->getPrimaryLocale())." for version {$this->getApplicableEulaVersion()}");
         return true;
     }
@@ -269,6 +343,13 @@ class TestIThenticate
             throw new Exception("in valid submitter permission {$submitterPermission} given");
         }
 
+        if (static::consumeArm('createSubmission')) {
+            $this->lastEulaError = true;
+            error_log("TestIThenticate: simulated EULA 400 on createSubmission for submission {$submission->getId()}");
+            return null;
+        }
+
+        $this->lastEulaError = false;
         error_log("Creating a new submission with id {$submission->getId()} by submitter {$user->getId()} for owner {$author->getId()} with owner permission as {$authorPermission} and submitter permission as {$submitterPermission}");
 
         return \Illuminate\Support\Str::uuid()->__toString();
@@ -358,11 +439,31 @@ class TestIThenticate
 
     /**
      * @copydoc IThenticate::verifyUserEulaAcceptance()
+     *
+     * Test contract: return true (= "user already accepted") when no
+     * EULA-error simulation is armed, so the happy path short-circuits over
+     * confirmEula(). Return false when an arm IS pending, so the flow reaches
+     * confirmEula() where the arm can fire. This keeps the mock quiet on
+     * default-path runs and only invokes confirmEula() when we actively want
+     * to test it.
+     *
+     * Uses peekArm() — verify is a GET in the real client and must not consume
+     * an arm targeted at a POST endpoint (e.g. createSubmission). The arm
+     * still fires on whichever method consumes it via consumeArm().
      */
     public function verifyUserEulaAcceptance(Author|User $user, string $version): bool
     {
-        error_log("Verifying if user with id {$user->getId()} has already confirmed the given EULA version {$version}");
-        return true;
+        $pendingArm = static::peekArm();
+        
+        $accepted = ($pendingArm === null);
+        error_log(sprintf(
+            'TestIThenticate::verifyUserEulaAcceptance user=%d version=%s arm=%s -> %s',
+            $user->getId(),
+            $version,
+            $pendingArm ?? 'null',
+            $accepted ? 'true' : 'false'
+        ));
+        return $accepted;
     }
 
     /**
@@ -370,6 +471,9 @@ class TestIThenticate
      */
     public function validateEulaVersion(string $version): bool
     {
+        // Set the eula version form the mock details
+        $this->eulaVersion = $this->eulaVersionDetails['version'];
+
         error_log("Validating/Retrieving the given EULA version {$version}");
         return true;
     }
