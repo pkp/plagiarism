@@ -13,5 +13,6 @@
   "plugins.generic.plagiarism.similarity.action.refreshReport.title",
   "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation",
   "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title",
-  "plugins.generic.plagiarism.similarity.match.title"
+  "plugins.generic.plagiarism.similarity.match.title",
+  "plugins.generic.plagiarism.workflow.errorToasts.region"
 ]

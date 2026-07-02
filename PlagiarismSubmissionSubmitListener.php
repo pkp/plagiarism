@@ -18,6 +18,7 @@ use APP\core\Application;
 use APP\facades\Repo;
 use PKP\observers\events\SubmissionSubmitted;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
+use APP\plugins\generic\plagiarism\classes\notification\PlagiarismErrorManager;
 use Illuminate\Events\Dispatcher;
 
 class PlagiarismSubmissionSubmitListener
@@ -46,7 +47,12 @@ class PlagiarismSubmissionSubmitListener
     public function handle(SubmissionSubmitted $event): void
     {
         if (!$this->plugin->isServiceAccessAvailable($event->context)) {
-            $this->plugin->sendErrorMessage(__('plugins.generic.plagiarism.manager.settings.serviceAccessInvalid'));
+            $this->plugin->getErrorManager()->record(
+                __('plugins.generic.plagiarism.manager.settings.serviceAccessInvalid'),
+                null,
+                null,
+                PlagiarismErrorManager::CONFIG_ERROR_CODE_SERVICE_ACCESS_INVALID
+            );
             return;
         }
 
@@ -57,11 +63,17 @@ class PlagiarismSubmissionSubmitListener
             return;
         }
 
+        $user = Application::get()->getRequest()->getUser();
+        if (!$user) {
+            error_log('Plagiarism: SubmissionSubmitted has no request user (e.g. CLI import); skipping EULA stamping/upload.');
+            return;
+        }
+
         $this->plugin->stampEulaToSubmission($event->context, $event->submission);
         $this->plugin->stampEulaToSubmittingUser(
             $event->context,
             Repo::submission()->get($event->submission->getId()), // refetch the submission after latest EULA stamp
-            Application::get()->getRequest()->getUser()
+            $user
         );
         
         $this->plugin->submitForPlagiarismCheck(

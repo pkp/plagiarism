@@ -177,15 +177,21 @@ class PlagiarismApiActionManager
             ->getMany();
         $fileStatuses = [];
 
+        $errorManager = $this->plugin->getErrorManager();
+
         foreach ($submissionFiles as $submissionFile) {
+
+            // Guard against malformed/legacy stored JSON: only read the score when the decode is a valid array.
+            $similarityRaw = $submissionFile->getData('ithenticateSimilarityResult');
+            $similarityResult = $similarityRaw ? json_decode($similarityRaw, true) : null;
 
             $fileStatuses[$submissionFile->getId()] = [
                 'ithenticateUploadAllowed' => !$this->plugin->isSubmissionFileTypeRestricted($submissionFile),
                 'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
                 'ithenticateId' => $submissionFile->getData('ithenticateId'),
                 'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
-                'ithenticateSimilarityResult' => $submissionFile->getData('ithenticateSimilarityResult')
-                    ? json_decode($submissionFile->getData('ithenticateSimilarityResult'), true)['overall_match_percentage']
+                'ithenticateSimilarityResult' => is_array($similarityResult)
+                    ? ($similarityResult['overall_match_percentage'] ?? null)
                     : null,
                 'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
                 'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
@@ -196,7 +202,7 @@ class PlagiarismApiActionManager
                 'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
             ];
         }
-        
+
         $eulaRequired = (bool)$this->plugin->getContextEulaDetails($context, 'require_eula');
 
         // Resolve the locale-specific EULA URL from the cache (single source of truth —
@@ -211,6 +217,15 @@ class PlagiarismApiActionManager
             ])
             : null;
 
+        // This status feeds the editorial-workflow file grid and the SSE stream; a failure reading the
+        // stored errors must not blank the grid — degrade to an empty list and log.
+        try {
+            $processingErrors = $errorManager->getSubmissionErrors($submission->getId());
+        } catch (\Throwable $exception) {
+            error_log('Plagiarism: could not load submission processing errors for the workflow status: ' . $exception->getMessage());
+            $processingErrors = [];
+        }
+
         return [
             'context' => [
                 'eulaRequired' => $eulaRequired,
@@ -221,6 +236,7 @@ class PlagiarismApiActionManager
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
                 'ithenticateSubmissionCompletedAt' => $submission->getData('ithenticateSubmissionCompletedAt'),
                 'ithenticateEulaUrl' => $submission->getData('ithenticateEulaUrl'),
+                'ithenticateProcessingErrors' => $processingErrors,
             ],
             'user' => [
                 'ithenticateEulaVersion' => $user->getData('ithenticateEulaVersion'),
@@ -234,5 +250,15 @@ class PlagiarismApiActionManager
             ],
             'files' => $fileStatuses,
         ];
+    }
+
+    /**
+     * Dismiss a single submission-level plagiarism error by marking the stored notification read.
+     */
+    public function dismissError(Submission $submission, int $notificationId): JsonResponse
+    {
+        $this->plugin->getErrorManager()->dismissSubmissionError($submission->getId(), $notificationId);
+
+        return response()->json(['dismissed' => true], Response::HTTP_OK);
     }
 }

@@ -88,6 +88,33 @@
 		{/fbvFormSection}
 	{/fbvFormArea}
 
+	{if $ithenticateConfigDiagnostics}
+		{fbvFormArea id="ithenticateDiagnosticsFormArea"}
+			{fbvFormSection title="plugins.generic.plagiarism.diagnostics.title" list=true}
+				<div class="ithenticate--diagnostics--description">
+					{translate key="plugins.generic.plagiarism.diagnostics.description"}
+				</div>
+				<ul class="ithenticate--diagnostics">
+					{foreach from=$ithenticateConfigDiagnostics item=diagnostic}
+						<li class="pkpNotification pkpNotification--warning ithenticate--warning">
+							<span class="ithenticate--diagnostics--message">{$diagnostic.message|escape}</span>
+							<span class="ithenticate--diagnostics--meta">
+								{translate key="plugins.generic.plagiarism.diagnostics.occurrence" occurrences=$diagnostic.count lastOccurredAt=$diagnostic.lastOccurredAt|escape}
+							</span>
+						</li>
+					{/foreach}
+				</ul>
+				{fbvElement
+					type="checkbox"
+					name="clearIthenticateDiagnostics"
+					id="clearIthenticateDiagnostics"
+					label="plugins.generic.plagiarism.diagnostics.clear"
+					translate="true"
+				}
+			{/fbvFormSection}
+		{/fbvFormArea}
+	{/if}
+
 	{fbvFormButtons}
 
 	<p><span class="formRequired">{translate key="common.requiredField"}</span></p>
@@ -97,5 +124,26 @@
 	.ithenticate--warning {
 		margin-top: 5px;
 		margin-bottom: 5px;
+	}
+
+	ul.ithenticate--diagnostics {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	ul.ithenticate--diagnostics .ithenticate--diagnostics--message {
+		display: block;
+		font-weight: bold;
+	}
+
+	ul.ithenticate--diagnostics .ithenticate--diagnostics--meta {
+		display: block;
+		font-size: 0.85em;
+		opacity: 0.8;
+	}
+
+	.ithenticate--diagnostics--description {
+		margin-bottom: 8px;
 	}
 </style>

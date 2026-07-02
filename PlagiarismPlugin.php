@@ -18,7 +18,6 @@ use APP\core\Application;
 use APP\core\Request;
 use APP\facades\Repo;
 use APP\template\TemplateManager;
-use APP\notification\NotificationManager;
 use APP\submission\Submission;
 use APP\plugins\generic\plagiarism\PlagiarismSubmissionSubmitListener;
 use APP\plugins\generic\plagiarism\PlagiarismSettingsForm;
@@ -27,7 +26,9 @@ use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\classes\api\formRequests\SubmissionPlagiarismStatus;
+use APP\plugins\generic\plagiarism\classes\api\formRequests\DismissSubmissionPlagiarismError;
 use APP\plugins\generic\plagiarism\classes\api\PlagiarismApiActionManager;
+use APP\plugins\generic\plagiarism\classes\notification\PlagiarismErrorManager;
 use APP\API\v1\submissions\SubmissionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -47,7 +48,6 @@ use PKP\submissionFile\SubmissionFile;
 use PKP\context\Context;
 use PKP\config\Config;
 use PKP\security\Role;
-use PKP\notification\Notification;
 use PKP\core\JSONMessage;
 use PKP\linkAction\LinkAction;
 use PKP\plugins\GenericPlugin;
@@ -113,6 +113,12 @@ class PlagiarismPlugin extends GenericPlugin
 	 * vs the generic "submission failed" text. Lives for the current request only.
 	 */
 	protected bool $lastEulaError = false;
+
+	/**
+	 * Memoized iThenticate error manager (see getErrorManager()). Stateless, so a single
+	 * per-request instance is shared across the plugin, its controllers and its forms.
+	 */
+	protected ?PlagiarismErrorManager $errorManager = null;
 
 	/**
 	 * Determine if running application is OPS or not
@@ -262,7 +268,33 @@ class PlagiarismPlugin extends GenericPlugin
 					}
 				}
 			);
-            
+
+			$apiHandler->addRoute(
+				'PUT',
+				'{submissionId}/plagiarism/error/dismiss',
+				function (DismissSubmissionPlagiarismError $request) use ($apiController, $apiManager): JsonResponse {
+					$submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
+					return $apiManager->dismissError($submission, (int) $request->input('notificationId'));
+				},
+				'submission.plagiarism.error.dismiss',
+				[
+					Role::ROLE_ID_SITE_ADMIN,
+					Role::ROLE_ID_MANAGER,
+					Role::ROLE_ID_SUB_EDITOR,
+					Role::ROLE_ID_ASSISTANT,
+				],
+				new class implements HasAuthorizationPolicy
+				{
+					public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
+					{
+						return [
+							new SubmissionAccessPolicy($request, $args, $roleAssignments),
+							new SubmissionCompletePolicy($request, $args),
+						];
+					}
+				}
+			);
+
 			return Hook::CONTINUE;
 		});
 	}
@@ -729,12 +761,18 @@ class PlagiarismPlugin extends GenericPlugin
 
 			if (!$webhookRegistered) {
 				// if webook registration failed, Still allow submission to continue but warn admin
-				$this->sendErrorMessage(
-					__(
-						'plugins.generic.plagiarism.webhook.registration.failed',
-						['contextId' => $context->getId()]
+				$this->getErrorManager()->record(
+					PlagiarismErrorManager::withDetail(
+						__(
+							'plugins.generic.plagiarism.webhook.registration.failed',
+							['contextId' => $context->getId()]
+						),
+						$ithenticate->getLastErrorSummary()
 					),
-					$submission->getId()
+					$submission->getId(),
+					null,
+					PlagiarismErrorManager::SUBMISSION_ERROR_CODE_WEBHOOK_REGISTRATION_FAILED,
+					__('plugins.generic.plagiarism.guidance.webhook.registration.failed')
 				);
 
 				error_log("Webhook registration failed for context {$context->getId()}. Submissions will upload but updates may not arrive.");
@@ -750,7 +788,13 @@ class PlagiarismPlugin extends GenericPlugin
 		if ($this->getContextEulaDetails($context, 'require_eula') != false) {
 			// not going to sent it for plagiarism check if EULA not stamped to submission or submitter
 			if (!$submission->getData('ithenticateEulaVersion') || !$user->getData('ithenticateEulaVersion')) {
-				$this->sendErrorMessage(__('plugins.generic.plagiarism.stamped.eula.missing'), $submission->getId());
+				$this->getErrorManager()->record(
+					__('plugins.generic.plagiarism.stamped.eula.missing'),
+					$submission->getId(),
+					null,
+					PlagiarismErrorManager::SUBMISSION_ERROR_CODE_STAMPED_EULA_MISSING,
+					__('plugins.generic.plagiarism.guidance.stamped.eula.missing')
+				);
 				return false;
 			}
 		}
@@ -769,8 +813,17 @@ class PlagiarismPlugin extends GenericPlugin
 
 			$submission->setData('ithenticateSubmissionCompletedAt', Core::getCurrentDate());
 		} catch (Throwable $exception) {
-			error_log('submit for plagiarism check failed with excaption ' . $exception->__toString());
-			$this->sendErrorMessage(__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'), $submission->getId());
+			error_log('submit for plagiarism check failed with exception ' . $exception->__toString());
+			$this->getErrorManager()->record(
+				PlagiarismErrorManager::withDetail(
+					__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'),
+					$exception->getMessage()
+				),
+				$submission->getId(),
+				null,
+				PlagiarismErrorManager::SUBMISSION_ERROR_CODE_UPLOAD_COMPLETE_FAILED,
+				__('plugins.generic.plagiarism.guidance.upload.complete.failed')
+			);
 			return false;
 		}
 
@@ -894,12 +947,15 @@ class PlagiarismPlugin extends GenericPlugin
 		$submission = Repo::submission()->get($submission->getId());
 
 		$publication = $submission->getCurrentPublication();
-		$author = $publication->getPrimaryAuthor();
+		$author = $publication?->getPrimaryAuthor();
 
 		if (!$author) {
-			$this->sendErrorMessage(
+			$this->getErrorManager()->record(
 				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error'),
-				$submission->getId()
+				$submission->getId(),
+				null,
+				PlagiarismErrorManager::SUBMISSION_ERROR_CODE_MISSING_PRIMARY_AUTHOR,
+				__('plugins.generic.plagiarism.guidance.missingPrimaryAuthor')
 			);
 			return false;
 		}
@@ -942,11 +998,17 @@ class PlagiarismPlugin extends GenericPlugin
 				$this->revertEulaStamps($context, $submission, $user);
 			}
 
-			$this->sendErrorMessage(
-				__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
-					'submissionFileId' => $submissionFile->getId(),
-				]),
-				$submission->getId()
+			$this->getErrorManager()->record(
+				PlagiarismErrorManager::withDetail(
+					__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
+						'submissionFileId' => $submissionFile->getId(),
+					]),
+					$ithenticate->getLastErrorSummary()
+				),
+				$submission->getId(),
+				$submissionFile,
+				PlagiarismErrorManager::FILE_ERROR_CODE_SUBMISSION_CREATE_FAILED,
+				__('plugins.generic.plagiarism.guidance.submission.create.failed')
 			);
 			return false;
 		}
@@ -975,11 +1037,17 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// Upload submission files for successfully created submission at iThenticate's end
 		if (!$uploadStatus) {
-			$this->sendErrorMessage(
-				__('plugins.generic.plagiarism.ithenticate.file.upload.failed', [
-					'submissionFileId' => $submissionFile->getId(),
-				]), 
-				$submission->getId()
+			$this->getErrorManager()->record(
+				PlagiarismErrorManager::withDetail(
+					__('plugins.generic.plagiarism.ithenticate.file.upload.failed', [
+						'submissionFileId' => $submissionFile->getId(),
+					]),
+					$ithenticate->getLastErrorSummary()
+				),
+				$submission->getId(),
+				$submissionFile,
+				PlagiarismErrorManager::FILE_ERROR_CODE_UPLOAD_FAILED,
+				__('plugins.generic.plagiarism.guidance.file.upload.failed')
 			);
 			return false;
 		}
@@ -1362,43 +1430,11 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Send the editor an error message
-	 * 
-	 * @param string 	$message 		The error/exception message to set as notification and log in error file
-	 * @param int|null 	$submissionId 	The submission id for which error/exception has generated
+	 * Get the shared iThenticate error manager
 	 */
-	public function sendErrorMessage(string $message, ?int $submissionId = null): void
+	public function getErrorManager(): PlagiarismErrorManager
 	{
-		$request = Application::get()->getRequest(); /** @var Request $request */
-		$context = $request->getContext(); /** @var Context $context */
-		$message = $submissionId
-			? __(
-				'plugins.generic.plagiarism.errorMessage', [
-					'submissionId' => $submissionId,
-					'errorMessage' => $message
-				]
-			) : __(
-				'plugins.generic.plagiarism.general.errorMessage', [
-					'errorMessage' => $message
-				]
-			);
-		
-		$notificationManager = new NotificationManager();
-		$managers = Repo::user()
-			->getCollector()
-			->filterByContextIds([$context->getId()])
-			->filterByRoleIds([Role::ROLE_ID_MANAGER])
-			->getMany();
-
-		foreach ($managers as $manager) {
-			$notificationManager->createTrivialNotification(
-				$manager->getId(),
-				Notification::NOTIFICATION_TYPE_ERROR,
-				['contents' => $message]
-			);
-		}
-
-		error_log("iThenticate submission {$submissionId} failed: {$message}");
+		return $this->errorManager ??= new PlagiarismErrorManager();
 	}
 
 	/**
@@ -1462,15 +1498,17 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Get the proper workflow stage id for iThenticate actions
+	 * Get the proper workflow stage id for iThenticate actions.
 	 */
-	protected function getStageId(PKPRequest $request): int
+	protected function getStageId(PKPRequest $request): ?int
 	{
 		if (static::isOPS()) {
 			return WORKFLOW_STAGE_ID_PRODUCTION;
 		}
 
-		return $request->getUserVar('stageId');
+		$stageId = $request->getUserVar('stageId');
+
+		return $stageId ? (int) $stageId : null;
 	}
 
 	/**

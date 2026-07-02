@@ -1,7 +1,7 @@
 <template>
     <PkpTableCell>
         <span
-            v-if="fileStatus?.ithenticateSimilarityResult" 
+            v-if="fileStatus?.ithenticateSimilarityResult"
             class="plagiarism-similarity-score"
         >
             <a
@@ -9,13 +9,14 @@
                 target="_blank"
                 :title="t('plugins.generic.plagiarism.similarity.action.launch.viewer.title')"
             >
-                <img 
+                <img
                     :alt="t('plugins.generic.plagiarism.similarity.match.title')"
-                    :src="fileStatus.ithenticateLogo" 
+                    :src="fileStatus.ithenticateLogo"
                 />
             </a>
             <span>{{ fileStatus.ithenticateSimilarityResult }} % </span>
         </span>
+
         <span class="plagiarism-status" v-else-if="fileStatus?.ithenticateId">
             <icon icon="InProgress" class="h-6 w-6"></icon>
             <span class="tooltip">
@@ -29,7 +30,7 @@
         </span>
     </PkpTableCell>
 </template>
-  
+
 <script setup>
 
     import { computed } from "vue";
@@ -37,7 +38,7 @@
 
     const { useApp } = pkp.modules.useApp;
 
-    const props = defineProps({ 
+    const props = defineProps({
         file: { type: Object, required: false },
         galley: { type: Object, required: false },
         fileStageNamespace : { type: String, required: false },
@@ -121,4 +122,3 @@
         border-color: #333 transparent transparent transparent;
     }
 </style>
-  

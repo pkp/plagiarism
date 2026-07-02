@@ -930,6 +930,37 @@ class IThenticate
     }
 
     /**
+     * Summarise the last API failure into a short, human-readable "why" for a user-facing error —
+     * the HTTP status + reason phrase, plus a `message`/`error` field from a JSON error body when
+     * present. Reads only the already-captured lastResponseDetails (no new request).
+     */
+    public function getLastErrorSummary(): ?string
+    {
+        if (!$this->lastResponseDetails) {
+            return null;
+        }
+
+        $status = $this->lastResponseDetails['status_code'] ?? null;
+        $reason = $this->lastResponseDetails['reason'] ?? null;
+
+        $bodyMessage = null;
+        $body = $this->lastResponseDetails['body'] ?? null;
+        if (is_string($body) && $body !== '') {
+            $decoded = json_decode($body);
+            if (is_object($decoded)) {
+                $bodyMessage = $decoded->message ?? $decoded->error ?? null;
+            }
+        }
+
+        $summary = trim(($status !== null ? "HTTP {$status}" : '') . ($reason ? " {$reason}" : ''));
+        if ($bodyMessage) {
+            $summary = $summary === '' ? $bodyMessage : "{$summary} — {$bodyMessage}";
+        }
+
+        return $summary === '' ? null : $summary;
+    }
+
+    /**
      * Whether the most recent makeApiRequest() response indicated an iThenticate
      * EULA-mismatch (the cached EULA version is no longer accepted at the API).
      *

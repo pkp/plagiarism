@@ -116,6 +116,7 @@ class PlagiarismSettingsForm extends Form
 			'ithenticateApiUrl',
 			'ithenticateApiKey',
 			'disableAutoSubmission',
+			'clearIthenticateDiagnostics',
 			], array_keys($this->_plugin->similaritySettings))
 		);
 	}
@@ -126,7 +127,19 @@ class PlagiarismSettingsForm extends Form
 	public function fetch($request, $template = null, $display = false)
 	{
 		$templateMgr = TemplateManager::getManager($request);
-		$templateMgr->assign('pluginName', $this->_plugin->getName());
+
+		// A read failure must not 500 the whole settings form over the secondary diagnostics panel
+		try {
+			$configDiagnostics = $this->_plugin->getErrorManager()->getConfigDiagnostics($this->_context->getId());
+		} catch (\Throwable $exception) {
+			error_log('Plagiarism: could not load configuration diagnostics for the settings page: ' . $exception->getMessage());
+			$configDiagnostics = [];
+		}
+
+		$templateMgr->assign([
+			'pluginName' => $this->_plugin->getName(),
+			'ithenticateConfigDiagnostics' => $configDiagnostics,
+		]);
 		return parent::fetch($request, $template, $display);
 	}
 
@@ -171,6 +184,11 @@ class PlagiarismSettingsForm extends Form
 		}
 
 		$this->_plugin->updateSetting($this->_context->getId(), 'disableAutoSubmission', $this->getData('disableAutoSubmission'), 'bool');
+
+		// Clear the iThenticate configuration diagnostics if the manager opted to on save.
+		if ($this->getData('clearIthenticateDiagnostics')) {
+			$this->_plugin->getErrorManager()->clearConfigDiagnostics($this->_context->getId());
+		}
 
 		foreach($this->_plugin->similaritySettings as $settingName => $settingValueType) {
 			$this->_plugin->updateSetting(

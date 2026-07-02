@@ -1,6 +1,8 @@
 import ithenticateSimilarityScoreCell from "./Components/ithenticateSimilarityScoreCell.vue";
+import IthenticateWorkflowErrorToasts from "./Components/IthenticateWorkflowErrorToasts.vue";
 
 pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
+pkp.registry.registerComponent("IthenticateWorkflowErrorToasts", IthenticateWorkflowErrorToasts);
 
 const { useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
@@ -116,6 +118,21 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
         return newColumns;
     });
+
+    // Render the persistent submission-level error toasts once, above the primary submission
+    // files manager (and the OPS galley manager). Guarded to a single namespace so the fixed
+    // toast container is not mounted multiple times when several file managers are on screen.
+    if (stageNamespace === 'fileManager_SUBMISSION_FILES' || stageNamespace === 'galleyManager') {
+        fileStore.extender.extendFn('getTopItems', (topItems) => ([
+            ...topItems,
+            {
+                component: 'IthenticateWorkflowErrorToasts',
+                props: {
+                    fileStageNamespace: stageNamespace,
+                },
+            },
+        ]));
+    }
 
     function getLabel(userStatus, submissionStatus, fileStatus)
     {

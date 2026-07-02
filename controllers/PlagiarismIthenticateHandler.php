@@ -282,7 +282,7 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		$publication = $submission->getCurrentPublication();
-		$author = $publication->getPrimaryAuthor();
+		$author = $publication?->getPrimaryAuthor();
 
 		if (!$author) {
 			return $this->getSubmitSubmissionResponse(
@@ -495,17 +495,19 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 	{
 		if ($this->_plugin::isOPS()) {
 			$submission = Repo::submission()->get($submissionFile->getData("submissionId"));
-			$publication = $submission->getCurrentPublication();
+			$publication = $submission?->getCurrentPublication();
 
-			$galley = Repo::galley()
-				->getCollector()
-				->filterByPublicationIds([$publication->getId()])
-				->getMany()
-				->filter(fn ($gallye) => $gallye->getData("submissionFileId") == $submissionFile->getId())
-				->first();
-			
-			if ($galley) {
-				return DAO::getDataChangedEvent($galley->getId());
+			if ($publication) {
+				$galley = Repo::galley()
+					->getCollector()
+					->filterByPublicationIds([$publication->getId()])
+					->getMany()
+					->filter(fn ($gallye) => $gallye->getData("submissionFileId") == $submissionFile->getId())
+					->first();
+
+				if ($galley) {
+					return DAO::getDataChangedEvent($galley->getId());
+				}
 			}
 		}
 
