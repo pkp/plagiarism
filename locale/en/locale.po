@@ -62,13 +62,13 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr "iThenticate processing error for submission {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
-msgstr "The uploaded filetype is not supported."
+msgstr "The uploaded file's type is not supported by iThenticate to generate a Similarity Report."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
-msgstr "An unspecified error occurred while processing the submissions."
+msgstr "An unspecified error occurred at iThenticate while processing the submission, so a Similarity Report could not be generated. This is usually a temporary problem with the iThenticate service."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
-msgstr "The submission does not contain text to generate a Similarity Report or the word count of the submission is 0."
+msgstr "iThenticate could not extract any readable text from the submission to generate a Similarity Report. The file may be scanned or image-only, or its word count is 0."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
 msgstr "The submission does not have enough text to generate a Similarity Report. A submission must contain at least 20 words."
@@ -80,10 +80,10 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
 msgstr "The submission has too many pages to generate a Similarity Report. A submission cannot contain more than 800 pages."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
-msgstr "The uploaded file requires a password in order to be opened."
+msgstr "The uploaded file is password-protected, so iThenticate could not open it to generate a Similarity Report."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
-msgstr "The uploaded file appears to be corrupt."
+msgstr "The uploaded file appears to be corrupt, so iThenticate could not read it to generate a Similarity Report."
 
 msgid "plugins.generic.plagiarism.general.errorMessage"
 msgstr "Request processing error: {$errorMessage}"
@@ -356,3 +356,49 @@ msgstr "Webhook ID mismatch: database has {$dbId} but iThenticate API has {$apiI
 
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note: Validated webhook {$validatedId} (from API) differs from database record ({$dbId})."
+
+# Accessible labels for the in-workflow error surfaces
+msgid "plugins.generic.plagiarism.similarity.error.ariaLabel"
+msgstr "Plagiarism check error for this file. Activate to read the details."
+
+msgid "plugins.generic.plagiarism.workflow.errorToasts.region"
+msgstr "Plagiarism check notices for this submission"
+
+# Wraps a base error message with an actionable "why" detail (HTTP status/reason from iThenticate, or a caught exception message)
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"
+
+# Actionable guidance shown alongside the stored error messages
+msgid "plugins.generic.plagiarism.guidance.missingPrimaryAuthor"
+msgstr "Add a primary author to the submission's contributor list, then re-run the plagiarism check."
+
+msgid "plugins.generic.plagiarism.guidance.submission.create.failed"
+msgstr "The file could not be registered with iThenticate. Re-run the plagiarism check from the file's actions; if it keeps failing, verify the iThenticate service credentials."
+
+msgid "plugins.generic.plagiarism.guidance.file.upload.failed"
+msgstr "The file could not be uploaded to iThenticate. Re-run the plagiarism check from the file's actions; if it keeps failing, verify the file is a supported, non-empty document."
+
+msgid "plugins.generic.plagiarism.guidance.similarity.schedule.failure"
+msgstr "Scheduling the similarity report failed. Use the file's actions to schedule the report again."
+
+msgid "plugins.generic.plagiarism.guidance.webhook.registration.failed"
+msgstr "The iThenticate webhook could not be registered, so similarity updates may not arrive automatically. Re-save the plugin settings to retry the registration."
+
+msgid "plugins.generic.plagiarism.guidance.stamped.eula.missing"
+msgstr "The iThenticate End User License Agreement has not been accepted for this submission. Open the file's actions and accept the EULA, then submit for the plagiarism check."
+
+msgid "plugins.generic.plagiarism.guidance.upload.complete.failed"
+msgstr "Not all files were uploaded to iThenticate. Re-run the plagiarism check from the affected file's actions."
+
+# Plugin settings configuration diagnostics panel
+msgid "plugins.generic.plagiarism.diagnostics.title"
+msgstr "Configuration diagnostics"
+
+msgid "plugins.generic.plagiarism.diagnostics.description"
+msgstr "These configuration or service errors prevented one or more plagiarism checks from running. They are not tied to a specific submission. Resolve the underlying cause (for example the API credentials or webhook setup), then clear them."
+
+msgid "plugins.generic.plagiarism.diagnostics.occurrence"
+msgstr "Seen {$occurrences} time(s), most recently at {$lastOccurredAt}."
+
+msgid "plugins.generic.plagiarism.diagnostics.clear"
+msgstr "Clear these diagnostics on save"
