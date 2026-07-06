@@ -217,10 +217,8 @@ class PlagiarismApiActionManager
             ])
             : null;
 
-        // This status feeds the editorial-workflow file grid and the SSE stream; a failure reading the
-        // stored errors must not blank the grid — degrade to an empty list and log.
         try {
-            $processingErrors = $errorManager->getSubmissionErrors($submission->getId());
+            $processingErrors = $errorManager->getErrors($submission->getId());
         } catch (\Throwable $exception) {
             error_log('Plagiarism: could not load submission processing errors for the workflow status: ' . $exception->getMessage());
             $processingErrors = [];
@@ -253,11 +251,11 @@ class PlagiarismApiActionManager
     }
 
     /**
-     * Dismiss a single submission-level plagiarism error by marking the stored notification read.
+     * Dismiss a single submission-level plagiarism error by deleting the stored notification.
      */
     public function dismissError(Submission $submission, int $notificationId): JsonResponse
     {
-        $this->plugin->getErrorManager()->dismissSubmissionError($submission->getId(), $notificationId);
+        $this->plugin->getErrorManager()->dismissError($submission->getId(), $notificationId);
 
         return response()->json(['dismissed' => true], Response::HTTP_OK);
     }

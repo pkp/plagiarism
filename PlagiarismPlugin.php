@@ -26,7 +26,6 @@ use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\classes\api\formRequests\SubmissionPlagiarismStatus;
-use APP\plugins\generic\plagiarism\classes\api\formRequests\DismissSubmissionPlagiarismError;
 use APP\plugins\generic\plagiarism\classes\api\PlagiarismApiActionManager;
 use APP\plugins\generic\plagiarism\classes\notification\PlagiarismErrorManager;
 use APP\API\v1\submissions\SubmissionController;
@@ -272,7 +271,7 @@ class PlagiarismPlugin extends GenericPlugin
 			$apiHandler->addRoute(
 				'PUT',
 				'{submissionId}/plagiarism/error/dismiss',
-				function (DismissSubmissionPlagiarismError $request) use ($apiController, $apiManager): JsonResponse {
+				function (\Illuminate\Http\Request $request) use ($apiController, $apiManager): JsonResponse {
 					$submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
 					return $apiManager->dismissError($submission, (int) $request->input('notificationId'));
 				},
@@ -769,10 +768,8 @@ class PlagiarismPlugin extends GenericPlugin
 						),
 						$ithenticate->getLastErrorSummary()
 					),
-					$submission->getId(),
-					null,
-					PlagiarismErrorManager::SUBMISSION_ERROR_CODE_WEBHOOK_REGISTRATION_FAILED,
-					__('plugins.generic.plagiarism.guidance.webhook.registration.failed')
+					$context->getId(),
+					$submission->getId()
 				);
 
 				error_log("Webhook registration failed for context {$context->getId()}. Submissions will upload but updates may not arrive.");
@@ -790,10 +787,8 @@ class PlagiarismPlugin extends GenericPlugin
 			if (!$submission->getData('ithenticateEulaVersion') || !$user->getData('ithenticateEulaVersion')) {
 				$this->getErrorManager()->record(
 					__('plugins.generic.plagiarism.stamped.eula.missing'),
-					$submission->getId(),
-					null,
-					PlagiarismErrorManager::SUBMISSION_ERROR_CODE_STAMPED_EULA_MISSING,
-					__('plugins.generic.plagiarism.guidance.stamped.eula.missing')
+					$context->getId(),
+					$submission->getId()
 				);
 				return false;
 			}
@@ -815,14 +810,9 @@ class PlagiarismPlugin extends GenericPlugin
 		} catch (Throwable $exception) {
 			error_log('submit for plagiarism check failed with exception ' . $exception->__toString());
 			$this->getErrorManager()->record(
-				PlagiarismErrorManager::withDetail(
-					__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'),
-					$exception->getMessage()
-				),
-				$submission->getId(),
-				null,
-				PlagiarismErrorManager::SUBMISSION_ERROR_CODE_UPLOAD_COMPLETE_FAILED,
-				__('plugins.generic.plagiarism.guidance.upload.complete.failed')
+				__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'),
+				$context->getId(),
+				$submission->getId()
 			);
 			return false;
 		}
@@ -952,10 +942,8 @@ class PlagiarismPlugin extends GenericPlugin
 		if (!$author) {
 			$this->getErrorManager()->record(
 				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error'),
-				$submission->getId(),
-				null,
-				PlagiarismErrorManager::SUBMISSION_ERROR_CODE_MISSING_PRIMARY_AUTHOR,
-				__('plugins.generic.plagiarism.guidance.missingPrimaryAuthor')
+				$context->getId(),
+				$submission->getId()
 			);
 			return false;
 		}
@@ -1005,10 +993,9 @@ class PlagiarismPlugin extends GenericPlugin
 					]),
 					$ithenticate->getLastErrorSummary()
 				),
+				$context->getId(),
 				$submission->getId(),
-				$submissionFile,
-				PlagiarismErrorManager::FILE_ERROR_CODE_SUBMISSION_CREATE_FAILED,
-				__('plugins.generic.plagiarism.guidance.submission.create.failed')
+				$submissionFile
 			);
 			return false;
 		}
@@ -1044,10 +1031,9 @@ class PlagiarismPlugin extends GenericPlugin
 					]),
 					$ithenticate->getLastErrorSummary()
 				),
+				$context->getId(),
 				$submission->getId(),
-				$submissionFile,
-				PlagiarismErrorManager::FILE_ERROR_CODE_UPLOAD_FAILED,
-				__('plugins.generic.plagiarism.guidance.file.upload.failed')
+				$submissionFile
 			);
 			return false;
 		}

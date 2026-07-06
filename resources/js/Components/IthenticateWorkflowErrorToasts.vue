@@ -25,12 +25,6 @@
                 {{ error.fileName }}
             </span>
             <span class="ithenticate-error-toasts__message">{{ error.message }}</span>
-            <span
-                v-if="error.guidance"
-                class="ithenticate-error-toasts__guidance"
-            >
-                {{ error.guidance }}
-            </span>
         </PkpNotification>
     </div>
 </template>
@@ -126,11 +120,5 @@
     .ithenticate-error-toasts__message {
         display: block;
         font: var(--font-base-bold);
-    }
-
-    .ithenticate-error-toasts__guidance {
-        display: block;
-        margin-top: .25rem;
-        font-size: .8rem;
     }
 </style>

@@ -18,7 +18,6 @@ use APP\core\Application;
 use APP\facades\Repo;
 use PKP\observers\events\SubmissionSubmitted;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
-use APP\plugins\generic\plagiarism\classes\notification\PlagiarismErrorManager;
 use Illuminate\Events\Dispatcher;
 
 class PlagiarismSubmissionSubmitListener
@@ -49,9 +48,8 @@ class PlagiarismSubmissionSubmitListener
         if (!$this->plugin->isServiceAccessAvailable($event->context)) {
             $this->plugin->getErrorManager()->record(
                 __('plugins.generic.plagiarism.manager.settings.serviceAccessInvalid'),
-                null,
-                null,
-                PlagiarismErrorManager::CONFIG_ERROR_CODE_SERVICE_ACCESS_INVALID
+                $event->context->getId(),
+                $event->submission->getId()
             );
             return;
         }

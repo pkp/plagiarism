@@ -47,15 +47,12 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
 
-		// A webhook with no resolvable context cannot be validated or routed — bail cleanly.
 		if (!$context) {
 			error_log('iThenticate webhook received with no resolvable context; ignoring.');
 			return;
 		}
 
-		// getallheaders() is only defined under some SAPIs (Apache/FastCGI); fall back to $_SERVER.
-		$rawHeaders = function_exists('getallheaders') ? (getallheaders() ?: []) : $this->serverHeaders();
-		$headers = collect(array_change_key_case($rawHeaders, CASE_LOWER));
+		$headers = collect(array_change_key_case(getallheaders(), CASE_LOWER));
 
 		$payload = file_get_contents('php://input');
 		if ($payload === false) {
@@ -63,46 +60,22 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		}
 
 		if (!$context->getData('ithenticateWebhookId') || !$context->getData('ithenticateWebhookSigningSecret')) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.configuration.missing', [
-					'contextId' => $context->getId(),
-				]),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_CONFIGURATION_MISSING
-			);
+			error_log("iThenticate webhook not configured for context {$context->getId()}; ignoring.");
 			return;
 		}
 
 		if (!$headers->has(['x-turnitin-eventtype', 'x-turnitin-signature'])) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.headers.missing'),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_HEADERS_MISSING
-			);
+			error_log("iThenticate webhook (context {$context->getId()}): missing required headers; ignoring.");
 			return;
 		}
 
 		if (!in_array($headers->get('x-turnitin-eventtype'), IThenticate::DEFAULT_WEBHOOK_EVENTS)) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.event.invalid', [
-					'event' => $headers->get('x-turnitin-eventtype'),
-				]),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_EVENT_INVALID
-			);
+			error_log("iThenticate webhook (context {$context->getId()}): invalid event type " . $headers->get('x-turnitin-eventtype') . "; ignoring.");
 			return;
 		}
 
 		if ($headers->get('x-turnitin-signature') !== hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret'))) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.signature.invalid'),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_SIGNATURE_INVALID
-			);
+			error_log("iThenticate webhook (context {$context->getId()}): signature verification failed; ignoring.");
 			return;
 		}
 
@@ -137,15 +110,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$ithenticateSubmission = $this->getIthenticateSubmission($payload->id);
 
 		if (!$ithenticateSubmission) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
-					'submissionUuid' => $payload->id,
-					'event' => $event,
-				]),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_SUBMISSION_ID_INVALID
-			);
+			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$payload->id}; ignoring.");
 			return;
 		}
 
@@ -156,15 +121,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		}
 
 		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
-					'submissionFileId' => $submissionFile->getId(),
-					'contextId' => $context->getId(),
-				]),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_SUBMISSION_FILE_ASSOCIATION_INVALID
-			);
+			error_log("iThenticate webhook ({$event}): submission file " . $submissionFile->getId() . " is not associated with context {$context->getId()}; ignoring.");
 			return;
 		}
 
@@ -179,9 +136,9 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 					'submissionFileId' => $submissionFile->getId(),
 					'error' => $errorText,
 				]),
+				$context->getId(),
 				$submissionFile->getData('submissionId'),
-				$submissionFile,
-				$payload->error_code ?? PlagiarismErrorManager::FILE_ERROR_CODE_SIMILARITY_SCHEDULE_ERROR
+				$submissionFile
 			);
 			return;
 		}
@@ -196,9 +153,9 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 				__('plugins.generic.plagiarism.webhook.similarity.schedule.previously', [
 					'submissionFileId' => $submissionFile->getId(),
 				]),
+				$context->getId(),
 				$submissionFile->getData('submissionId'),
-				$submissionFile,
-				PlagiarismErrorManager::FILE_ERROR_CODE_SIMILARITY_SCHEDULE_PREVIOUSLY
+				$submissionFile
 			);
 			return;
 		}
@@ -219,10 +176,9 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 					]),
 					$ithenticate->getLastErrorSummary()
 				),
+				$context->getId(),
 				$submissionFile->getData('submissionId'),
-				$submissionFile,
-				PlagiarismErrorManager::FILE_ERROR_CODE_SIMILARITY_SCHEDULE_FAILURE,
-				__('plugins.generic.plagiarism.guidance.similarity.schedule.failure')
+				$submissionFile
 			);
 			return;
 		}
@@ -262,15 +218,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$ithenticateSubmission = $this->getIthenticateSubmission($payload->submission_id);
 
 		if (!$ithenticateSubmission) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
-					'submissionUuid' => $payload->submission_id,
-					'event' => $event,
-				]),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_SUBMISSION_ID_INVALID
-			);
+			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$payload->submission_id}; ignoring.");
 			return;
 		}
 
@@ -281,15 +229,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		}
 
 		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
-					'submissionFileId' => $submissionFile->getId(),
-					'contextId' => $context->getId(),
-				]),
-				null,
-				null,
-				PlagiarismErrorManager::CONFIG_ERROR_CODE_WEBHOOK_SUBMISSION_FILE_ASSOCIATION_INVALID
-			);
+			error_log("iThenticate webhook ({$event}): submission file " . $submissionFile->getId() . " is not associated with context {$context->getId()}; ignoring.");
 			return;
 		}
 
@@ -305,23 +245,6 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
 
 		return (int) $submission->getData('contextId') === (int) $context->getId();
-	}
-
-	/**
-	 * Fallback header reader for SAPIs where getallheaders() is unavailable (e.g. some CLI/nginx setups).
-	 * Rebuilds header names from the $_SERVER HTTP_* entries.
-	 */
-	private function serverHeaders(): array
-	{
-		$headers = [];
-		foreach ($_SERVER as $key => $value) {
-			if (str_starts_with($key, 'HTTP_')) {
-				$name = str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($key, 5)))));
-				$headers[$name] = $value;
-			}
-		}
-
-		return $headers;
 	}
 
 	/**
