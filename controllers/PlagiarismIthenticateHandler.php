@@ -501,14 +501,20 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 	{
 		if ($this->_plugin::isOPS()) {
 			$submission = Repo::submission()->get($submissionFile->getData("submissionId"));
-			$publication = $submission?->getCurrentPublication();
 
-			if ($publication) {
+			// A submission file's galley may live on any publication version, not just the current one
+			// (OPS is versioned). Search galleys across ALL of the submission's publications so the right
+			// galley grid row refreshes regardless of which version owns the file.
+			$publicationIds = $submission
+				? $submission->getData("publications")->map(fn ($publication) => $publication->getId())->all()
+				: [];
+
+			if (!empty($publicationIds)) {
 				$galley = Repo::galley()
 					->getCollector()
-					->filterByPublicationIds([$publication->getId()])
+					->filterByPublicationIds($publicationIds)
 					->getMany()
-					->filter(fn ($gallye) => $gallye->getData("submissionFileId") == $submissionFile->getId())
+					->filter(fn ($galley) => $galley->getData("submissionFileId") == $submissionFile->getId())
 					->first();
 
 				if ($galley) {
