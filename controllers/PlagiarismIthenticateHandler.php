@@ -210,7 +210,10 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		$submissionFile->setData('ithenticateSimilarityScheduled', 1);
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
+
+		$this->_plugin->clearSubmissionErrors(Repo::submission()->get($submissionFile->getData('submissionId')));
 
 		return new JSONMessage(true, __('plugins.generic.plagiarism.action.scheduleSimilarityReport.success'));
     }
@@ -247,7 +250,10 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		$submissionFile->setData('ithenticateSimilarityResult', json_encode($similarityScoreResult));
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
+
+		$this->_plugin->clearSubmissionErrors(Repo::submission()->get($submissionFile->getData('submissionId')));
 
 		return new JSONMessage(true, __('plugins.generic.plagiarism.action.refreshSimilarityResult.success'));
     }

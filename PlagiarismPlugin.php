@@ -27,7 +27,7 @@ use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\classes\api\formRequests\SubmissionPlagiarismStatus;
 use APP\plugins\generic\plagiarism\classes\api\PlagiarismApiActionManager;
-use APP\plugins\generic\plagiarism\classes\notification\PlagiarismErrorManager;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use APP\API\v1\submissions\SubmissionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -114,12 +114,6 @@ class PlagiarismPlugin extends GenericPlugin
 	protected bool $lastEulaError = false;
 
 	/**
-	 * Memoized iThenticate error manager (see getErrorManager()). Stateless, so a single
-	 * per-request instance is shared across the plugin, its controllers and its forms.
-	 */
-	protected ?PlagiarismErrorManager $errorManager = null;
-
-	/**
 	 * Determine if running application is OPS or not
 	 */
 	public static function isOPS(): bool
@@ -167,6 +161,12 @@ class PlagiarismPlugin extends GenericPlugin
 			}
 		}
 
+		// The context webhook id/secret are written by the very settings save that first stores the
+		// iThenticate credentials — at which point service access is not yet "available" and the gate
+		// below would otherwise skip this hook, so PKPContextService::edit() would silently drop those
+		// props from <CONTEXT>_settings. The remaining schema/feature hooks MUST stay after the gate.
+		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_CONTEXT, $this->addIthenticateConfigSettingsToContextSchema(...));
+
 		if (!app()->runningInConsole()) {
 			// If iThenticate service access details not available
 			// not going to run the plugin features
@@ -187,7 +187,6 @@ class PlagiarismPlugin extends GenericPlugin
 
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION, $this->addPlagiarismCheckDataToSubmissionSchema(...));
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, $this->addPlagiarismCheckDataToSubmissionFileSchema(...));
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_CONTEXT, $this->addIthenticateConfigSettingsToContextSchema(...));
 		Hook::add('SubmissionFile::edit', $this->updateIthenticateRevisionHistory(...));
 
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_USER, $this->stampPlagiarismDataToUserSchema(...));
@@ -250,32 +249,6 @@ class PlagiarismPlugin extends GenericPlugin
 					return $apiManager->streamPlagiarismStatus($submission, $apiController->getRequest());
 				},
 				'submission.plagiarism.stream',
-				[
-					Role::ROLE_ID_SITE_ADMIN,
-					Role::ROLE_ID_MANAGER,
-					Role::ROLE_ID_SUB_EDITOR,
-					Role::ROLE_ID_ASSISTANT,
-				],
-				new class implements HasAuthorizationPolicy
-				{
-					public function getPolicies(PKPRequest $request, array &$args, array $roleAssignments): array
-					{
-						return [
-							new SubmissionAccessPolicy($request, $args, $roleAssignments),
-							new SubmissionCompletePolicy($request, $args),
-						];
-					}
-				}
-			);
-
-			$apiHandler->addRoute(
-				'PUT',
-				'{submissionId}/plagiarism/error/dismiss',
-				function (\Illuminate\Http\Request $request) use ($apiController, $apiManager): JsonResponse {
-					$submission = $apiController->getAuthorizedContextObject(Application::ASSOC_TYPE_SUBMISSION);
-					return $apiManager->dismissError($submission, (int) $request->input('notificationId'));
-				},
-				'submission.plagiarism.error.dismiss',
 				[
 					Role::ROLE_ID_SITE_ADMIN,
 					Role::ROLE_ID_MANAGER,
@@ -454,6 +427,13 @@ class PlagiarismPlugin extends GenericPlugin
 			],
 		];
 
+		$schema->properties->ithenticateProcessingErrors = (object) [
+			'type' => 'string',
+			'description' => 'JSON-encoded array of submission-level iThenticate processing errors ({message, dateOccurred}) surfaced in the editorial workflow',
+			'writeOnly' => true,
+			'validation' => ['nullable'],
+		];
+
 		return Hook::CONTINUE;
 	}
 
@@ -508,6 +488,13 @@ class PlagiarismPlugin extends GenericPlugin
 		$schema->properties->ithenticateRevisionHistory = (object) [
 			'type' => 'string',
 			'description' => 'The similarity check action history on the previous revisions of this submission file',
+			'writeOnly' => true,
+			'validation' => ['nullable'],
+		];
+
+		$schema->properties->ithenticateProcessingError = (object) [
+			'type' => 'string',
+			'description' => 'The most recent iThenticate processing error for this submission file; overwritten on a new failure and cleared on the next successful re-check',
 			'writeOnly' => true,
 			'validation' => ['nullable'],
 		];
@@ -690,6 +677,7 @@ class PlagiarismPlugin extends GenericPlugin
 		$submissionFile->setData('ithenticateSimilarityResult', null);
 		$submissionFile->setData('ithenticateSimilarityScheduled', 0);
 		$submissionFile->setData('ithenticateSubmissionAcceptedAt', null);
+		$submissionFile->setData('ithenticateProcessingError', null);
 
 		return Hook::CONTINUE;
 	}
@@ -759,19 +747,7 @@ class PlagiarismPlugin extends GenericPlugin
 			$webhookRegistered = $this->registerIthenticateWebhook($ithenticate, $context);
 
 			if (!$webhookRegistered) {
-				// if webook registration failed, Still allow submission to continue but warn admin
-				$this->getErrorManager()->record(
-					PlagiarismErrorManager::withDetail(
-						__(
-							'plugins.generic.plagiarism.webhook.registration.failed',
-							['contextId' => $context->getId()]
-						),
-						$ithenticate->getLastErrorSummary()
-					),
-					$context->getId(),
-					$submission->getId()
-				);
-
+				// If webhook registration failed, still allow the submission to continue.
 				error_log("Webhook registration failed for context {$context->getId()}. Submissions will upload but updates may not arrive.");
 			}
 		}
@@ -785,10 +761,9 @@ class PlagiarismPlugin extends GenericPlugin
 		if ($this->getContextEulaDetails($context, 'require_eula') != false) {
 			// not going to sent it for plagiarism check if EULA not stamped to submission or submitter
 			if (!$submission->getData('ithenticateEulaVersion') || !$user->getData('ithenticateEulaVersion')) {
-				$this->getErrorManager()->record(
-					__('plugins.generic.plagiarism.stamped.eula.missing'),
-					$context->getId(),
-					$submission->getId()
+				$this->recordSubmissionError(
+					$submission,
+					PlagiarismErrorFormatter::make('plugins.generic.plagiarism.stamped.eula.missing')
 				);
 				return false;
 			}
@@ -809,15 +784,14 @@ class PlagiarismPlugin extends GenericPlugin
 			$submission->setData('ithenticateSubmissionCompletedAt', Core::getCurrentDate());
 		} catch (Throwable $exception) {
 			error_log('submit for plagiarism check failed with exception ' . $exception->__toString());
-			$this->getErrorManager()->record(
-				__('plugins.generic.plagiarism.ithenticate.upload.complete.failed'),
-				$context->getId(),
-				$submission->getId()
+			$this->recordSubmissionError(
+				$submission,
+				PlagiarismErrorFormatter::make('plugins.generic.plagiarism.ithenticate.upload.complete.failed')
 			);
 			return false;
 		}
 
-		Repo::submission()->edit($submission, []);
+		Repo::submission()->edit($submission, ['ithenticateProcessingErrors' => null]);
 
 		return true;
 	}
@@ -940,10 +914,9 @@ class PlagiarismPlugin extends GenericPlugin
 		$author = $publication?->getPrimaryAuthor();
 
 		if (!$author) {
-			$this->getErrorManager()->record(
-				__('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error'),
-				$context->getId(),
-				$submission->getId()
+			$this->recordSubmissionError(
+				$submission,
+				PlagiarismErrorFormatter::make('plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error')
 			);
 			return false;
 		}
@@ -986,16 +959,13 @@ class PlagiarismPlugin extends GenericPlugin
 				$this->revertEulaStamps($context, $submission, $user);
 			}
 
-			$this->getErrorManager()->record(
-				PlagiarismErrorManager::withDetail(
-					__('plugins.generic.plagiarism.ithenticate.submission.create.failed', [
-						'submissionFileId' => $submissionFile->getId(),
-					]),
+			$this->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make(
+					'plugins.generic.plagiarism.ithenticate.submission.create.failed',
+					['submissionFileId' => $submissionFile->getId()],
 					$ithenticate->getLastErrorSummary()
-				),
-				$context->getId(),
-				$submission->getId(),
-				$submissionFile
+				)
 			);
 			return false;
 		}
@@ -1024,16 +994,13 @@ class PlagiarismPlugin extends GenericPlugin
 
 		// Upload submission files for successfully created submission at iThenticate's end
 		if (!$uploadStatus) {
-			$this->getErrorManager()->record(
-				PlagiarismErrorManager::withDetail(
-					__('plugins.generic.plagiarism.ithenticate.file.upload.failed', [
-						'submissionFileId' => $submissionFile->getId(),
-					]),
+			$this->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make(
+					'plugins.generic.plagiarism.ithenticate.file.upload.failed',
+					['submissionFileId' => $submissionFile->getId()],
 					$ithenticate->getLastErrorSummary()
-				),
-				$context->getId(),
-				$submission->getId(),
-				$submissionFile
+				)
 			);
 			return false;
 		}
@@ -1041,8 +1008,13 @@ class PlagiarismPlugin extends GenericPlugin
 		$submissionFile->setData('ithenticateId', $submissionUuid);
 		$submissionFile->setData('ithenticateFileId', $submissionFile->getData('fileId'));
 		$submissionFile->setData('ithenticateSimilarityScheduled', 0);
+		$submissionFile->setData('ithenticateProcessingError', null);
 
 		Repo::submissionFile()->edit($submissionFile, []);
+
+		// A successful create/upload proves the submission-wide preconditions are met — clear any
+		// stale submit-time submission-level errors alongside the per-file one.
+		$this->clearSubmissionErrors($submission);
 
 		return true;
 	}
@@ -1416,11 +1388,45 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Get the shared iThenticate error manager
+	 * Record a file-specific iThenticate processing error on the submission file entity.
 	 */
-	public function getErrorManager(): PlagiarismErrorManager
+	public function recordSubmissionFileError(SubmissionFile $submissionFile, array $error): void
 	{
-		return $this->errorManager ??= new PlagiarismErrorManager();
+		error_log("iThenticate plagiarism error for submission file {$submissionFile->getId()}: " . PlagiarismErrorFormatter::resolve($error));
+
+		$submissionFile->setData('ithenticateProcessingError', json_encode($error));
+		Repo::submissionFile()->edit($submissionFile, []);
+	}
+
+	/**
+	 * Record a submission-level iThenticate processing error on the submission entity.
+	 */
+	public function recordSubmissionError(Submission $submission, array $error): void
+	{
+		error_log("iThenticate plagiarism error for submission {$submission->getId()}: " . PlagiarismErrorFormatter::resolve($error));
+
+		$errors = json_decode($submission->getData('ithenticateProcessingErrors') ?? '[]', true);
+		$errors = is_array($errors) ? $errors : [];
+
+		if (!collect($errors)->contains('key', $error['key'])) {
+			$errors[] = $error + ['dateOccurred' => Core::getCurrentDate()];
+		}
+
+		Repo::submission()->edit($submission, ['ithenticateProcessingErrors' => json_encode($errors)]);
+	}
+
+	/**
+	 * Clear the submission-level iThenticate errors. Called when a submission file is successfully
+	 * processed — a success proves the submission-wide preconditions (service access, stamped EULA,
+	 * primary author) are met, so any submit-time submission-level errors are stale. No-op when empty.
+	 */
+	public function clearSubmissionErrors(Submission $submission): void
+	{
+		if (!$submission->getData('ithenticateProcessingErrors')) {
+			return;
+		}
+
+		Repo::submission()->edit($submission, ['ithenticateProcessingErrors' => null]);
 	}
 
 	/**

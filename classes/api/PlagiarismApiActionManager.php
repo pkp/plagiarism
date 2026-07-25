@@ -19,6 +19,7 @@ use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\plugins\generic\plagiarism\IThenticate;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use PKP\security\Role;
 use PKP\core\PKPRequest;
 use Illuminate\Http\Response;
@@ -177,13 +178,16 @@ class PlagiarismApiActionManager
             ->getMany();
         $fileStatuses = [];
 
-        $errorManager = $this->plugin->getErrorManager();
-
         foreach ($submissionFiles as $submissionFile) {
 
             // Guard against malformed/legacy stored JSON: only read the score when the decode is a valid array.
             $similarityRaw = $submissionFile->getData('ithenticateSimilarityResult');
             $similarityResult = $similarityRaw ? json_decode($similarityRaw, true) : null;
+
+            // Resolve the stored per-file error descriptor into a translated message at read time
+            // (in the viewer's request locale). Tolerate a legacy plain-string value.
+            $fileErrorRaw = $submissionFile->getData('ithenticateProcessingError');
+            $fileErrorDecoded = $fileErrorRaw ? json_decode($fileErrorRaw, true) : null;
 
             $fileStatuses[$submissionFile->getId()] = [
                 'ithenticateUploadAllowed' => !$this->plugin->isSubmissionFileTypeRestricted($submissionFile),
@@ -195,6 +199,9 @@ class PlagiarismApiActionManager
                     : null,
                 'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
                 'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
+                'ithenticateProcessingError' => $fileErrorRaw
+                    ? PlagiarismErrorFormatter::resolve(is_array($fileErrorDecoded) ? $fileErrorDecoded : $fileErrorRaw)
+                    : null,
                 'ithenticateLogo' => $this->plugin->getIThenticateLogoUrl(),
                 'ithenticateViewerUrl' => $this->plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
                 'ithenticateUploadUrl' => $this->plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
@@ -217,12 +224,20 @@ class PlagiarismApiActionManager
             ])
             : null;
 
-        try {
-            $processingErrors = $errorManager->getErrors($submission->getId());
-        } catch (\Throwable $exception) {
-            error_log('Plagiarism: could not load submission processing errors for the workflow status: ' . $exception->getMessage());
-            $processingErrors = [];
-        }
+        // Submission-level processing errors are stored as a JSON array on the submission entity
+        $submissionErrors = $submission->getData('ithenticateProcessingErrors');
+        $processingErrors = $submissionErrors ? json_decode($submissionErrors, true) : [];
+        $processingErrors = is_array($processingErrors) ? $processingErrors : [];
+
+        // Resolve each stored descriptor into a translated message at read time (viewer's request
+        // locale), preserving the {message, dateOccurred} shape the frontend consumes.
+        $processingErrors = array_map(
+            fn ($error) => [
+                'message' => PlagiarismErrorFormatter::resolve($error),
+                'dateOccurred' => is_array($error) ? ($error['dateOccurred'] ?? null) : null,
+            ],
+            $processingErrors
+        );
 
         return [
             'context' => [
@@ -248,15 +263,5 @@ class PlagiarismApiActionManager
             ],
             'files' => $fileStatuses,
         ];
-    }
-
-    /**
-     * Dismiss a single submission-level plagiarism error by deleting the stored notification.
-     */
-    public function dismissError(Submission $submission, int $notificationId): JsonResponse
-    {
-        $this->plugin->getErrorManager()->dismissError($submission->getId(), $notificationId);
-
-        return response()->json(['dismissed' => true], Response::HTTP_OK);
     }
 }

@@ -17,7 +17,7 @@ namespace APP\plugins\generic\plagiarism\controllers;
 use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\IThenticate;
-use APP\plugins\generic\plagiarism\classes\notification\PlagiarismErrorManager;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
 use Illuminate\Support\Facades\DB;
 use PKP\core\Core;
@@ -128,34 +128,31 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		if (($payload->status ?? null) !== 'COMPLETE') {
 			// If the status is not `COMPLETE`, then it's `ERROR`. Fall back to a generic reason when the
 			// payload carries no error_code, so the message never renders a missing-translation sentinel.
-			$errorText = isset($payload->error_code)
-				? __("plugins.generic.plagiarism.ithenticate.submission.error.{$payload->error_code}")
-				: __('plugins.generic.plagiarism.submission.status.ERROR');
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
+			$errorKey = isset($payload->error_code)
+				? "plugins.generic.plagiarism.ithenticate.submission.error.{$payload->error_code}"
+				: 'plugins.generic.plagiarism.submission.status.ERROR';
+			$this->_plugin->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
 					'submissionFileId' => $submissionFile->getId(),
-					'error' => $errorText,
-				]),
-				$context->getId(),
-				$submissionFile->getData('submissionId'),
-				$submissionFile
+					'error' => PlagiarismErrorFormatter::make($errorKey),
+				])
 			);
 			return;
 		}
 
 		$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
 		
 		$submissionFile = Repo::submissionFile()->get($submissionFile->getId());
 		
 		if ((int)$submissionFile->getData('ithenticateSimilarityScheduled')) {
-			$this->_plugin->getErrorManager()->record(
-				__('plugins.generic.plagiarism.webhook.similarity.schedule.previously', [
+			$this->_plugin->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make('plugins.generic.plagiarism.webhook.similarity.schedule.previously', [
 					'submissionFileId' => $submissionFile->getId(),
-				]),
-				$context->getId(),
-				$submissionFile->getData('submissionId'),
-				$submissionFile
+				])
 			);
 			return;
 		}
@@ -169,16 +166,13 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		);
 
 		if (!$scheduleSimilarityReport) {
-			$this->_plugin->getErrorManager()->record(
-				PlagiarismErrorManager::withDetail(
-					__('plugins.generic.plagiarism.webhook.similarity.schedule.failure', [
-						'submissionFileId' => $submissionFile->getId(),
-					]),
+			$this->_plugin->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make(
+					'plugins.generic.plagiarism.webhook.similarity.schedule.failure',
+					['submissionFileId' => $submissionFile->getId()],
 					$ithenticate->getLastErrorSummary()
-				),
-				$context->getId(),
-				$submissionFile->getData('submissionId'),
-				$submissionFile
+				)
 			);
 			return;
 		}
@@ -205,7 +199,10 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			return;
 		}
 
-		// we will not store similarity check result unless it has completed
+		// Similarity reports have only PROCESSING/COMPLETE (no ERROR state), and the webhook fires only
+		// on the transition to COMPLETE. A non-COMPLETE payload is a not-ready/unexpected event we
+		// ignore; real failures surface on the submission (handleSubmissionCompleteEvent) or the
+		// schedule call (schedule.failure), not here.
 		if (($payload->status ?? null) !== 'COMPLETE') {
 			return;
 		}
@@ -234,6 +231,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		}
 
 		$submissionFile->setData('ithenticateSimilarityResult', json_encode($payload));
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
 	}
 

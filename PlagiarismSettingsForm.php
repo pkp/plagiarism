@@ -15,6 +15,7 @@
 namespace APP\plugins\generic\plagiarism;
 
 use APP\core\Application;
+use APP\notification\NotificationManager;
 use APP\plugins\generic\plagiarism\classes\form\validation\FormValidatorIthenticateAccess;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\template\TemplateManager;
@@ -25,6 +26,7 @@ use PKP\context\Context;
 use PKP\form\validation\FormValidator;
 use PKP\form\validation\FormValidatorCSRF;
 use PKP\form\validation\FormValidatorPost;
+use PKP\notification\Notification;
 
 class PlagiarismSettingsForm extends Form
 {
@@ -143,14 +145,21 @@ class PlagiarismSettingsForm extends Form
 		if (!empty(array_filter([$ithenticateApiUrl, $ithenticateApiKey])) &&
 			!$this->_plugin->hasForcedCredentials($this->_context)) {
 
-			// access updated or new access entered, need to update webhook registration
-			if ($this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
-				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey) {
+			$credentialsChanged =
+				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
+				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey;
 
-				// Credentials changed — drop any cached EULA details so the next request
-				// re-fetches against the new tenant (could be a different EULA version/url).
-				PlagiarismPlugin::clearEulaCache($this->_context);
-				
+			// Register the webhook when the credentials change, and also self-heal a missing
+			// registration on any save (e.g. a previous attempt failed) so recovering it does not
+			// require re-entering the credentials.
+			if ($credentialsChanged || !$this->_context->getData('ithenticateWebhookId')) {
+
+				if ($credentialsChanged) {
+					// Credentials changed — drop cached EULA details so the next request
+					// re-fetches against the new tenant (possibly a different EULA version/url).
+					PlagiarismPlugin::clearEulaCache($this->_context);
+				}
+
 				$ithenticate = $this->_plugin->initIthenticate($ithenticateApiUrl, $ithenticateApiKey);
 
 				// If there is a already registered webhook for this context, need to delete it first
@@ -163,6 +172,22 @@ class PlagiarismSettingsForm extends Form
 
 				if (!$this->_plugin->registerIthenticateWebhook($ithenticate, $this->_context)) {
 					error_log("Failed to register iThenticate webhook for context {$this->_context->getId()}");
+
+					// Warn the manager saving the credentials: submissions will still upload, but
+					// similarity updates may not arrive until webhook registration succeeds. Surfaced
+					// here (rather than persisted against a submission) because it is a settings-level
+					// outcome the manager can act on by re-saving the plugin settings.
+					$currentUser = Application::get()->getRequest()->getUser();
+					if ($currentUser) {
+						(new NotificationManager())->createTrivialNotification(
+							$currentUser->getId(),
+							Notification::NOTIFICATION_TYPE_WARNING,
+							[
+								'contents' => __('plugins.generic.plagiarism.webhook.registration.failed',
+								['contextId' => $this->_context->getId()])
+							]
+						);
+					}
 				}
 			}
 

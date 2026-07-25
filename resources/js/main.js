@@ -1,8 +1,8 @@
 import ithenticateSimilarityScoreCell from "./Components/ithenticateSimilarityScoreCell.vue";
-import IthenticateWorkflowErrorToasts from "./Components/IthenticateWorkflowErrorToasts.vue";
+import IthenticateWorkflowErrorNotice from "./Components/IthenticateWorkflowErrorNotice.vue";
 
 pkp.registry.registerComponent("ithenticateSimilarityScoreCell", ithenticateSimilarityScoreCell);
-pkp.registry.registerComponent("IthenticateWorkflowErrorToasts", IthenticateWorkflowErrorToasts);
+pkp.registry.registerComponent("IthenticateWorkflowErrorNotice", IthenticateWorkflowErrorNotice);
 
 const { useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
@@ -119,24 +119,10 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         return newColumns;
     });
 
-    // Render the persistent submission-level error toasts once, above the primary submission
-    // files manager (and the OPS galley manager). Guarded to a single namespace so the fixed
-    // toast container is not mounted multiple times when several file managers are on screen.
-    if (stageNamespace === 'fileManager_SUBMISSION_FILES' || stageNamespace === 'galleyManager') {
-        fileStore.extender.extendFn('getTopItems', (topItems) => ([
-            ...topItems,
-            {
-                component: 'IthenticateWorkflowErrorToasts',
-                props: {
-                    fileStageNamespace: stageNamespace,
-                },
-            },
-        ]));
-    }
-
     function getLabel(userStatus, submissionStatus, fileStatus)
     {
-        if (!fileStatus.ithenticateId) {
+        // A fresh file, or one with a processing error (terminal), offers a re-run of the check.
+        if (!fileStatus.ithenticateId || fileStatus.ithenticateProcessingError) {
             return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title');
         }
 
@@ -149,7 +135,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     function getConfirmationMessage(fileStatus)
     {
-        if (!fileStatus.ithenticateId) {
+        if (!fileStatus.ithenticateId || fileStatus.ithenticateProcessingError) {
             return t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation');
         }
 
@@ -162,7 +148,8 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     function getActionUrl(fileStatus)
     {
-        if (!fileStatus.ithenticateId) {
+        // Errored files re-run through the upload action (createNewSubmission), which clears the error.
+        if (!fileStatus.ithenticateId || fileStatus.ithenticateProcessingError) {
             return fileStatus.ithenticateUploadUrl;
         }
 
@@ -223,9 +210,11 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         if (!status?.files) {
             return false;
         }
-        return Object.values(status.files).some(file => 
+        return Object.values(status.files).some(file =>
             file.ithenticateId !== null &&
-            file.ithenticateSimilarityResult === null
+            file.ithenticateSimilarityResult === null &&
+            // A file with a processing error is terminal — no result will arrive, so stop streaming.
+            !file.ithenticateProcessingError
         );
     }
 
@@ -269,7 +258,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     icon: "Globe",
                     actionFn: (args) => {
                         
-                        if (!fileStatus.ithenticateId && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
+                        if ((!fileStatus.ithenticateId || fileStatus.ithenticateProcessingError) && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
 
                             const {openLegacyModal} = useLegacyGridUrl({
@@ -623,4 +612,34 @@ pkp.registry.storeExtend('galleyManager', (piniaContext) => {
     }
 
     runPlagiarismAction(piniaContext, 'galleyManager');
+});
+
+pkp.registry.storeExtend('workflow', (piniaContext) => {
+    const workflowStore = piniaContext.store;
+    const { isOPS } = useApp();
+
+    // Submission-level plagiarism errors render as a full-width block in the workflow primary
+    // content, right after the Submission Files panel (OJS/OMP) or the galley manager (OPS). Scope
+    // the match by app: on OJS the standalone `GalleyManager` is the Publication > Galleys section,
+    // where the submission-files store does not exist — matching it there would insert the notice
+    // against a missing store. Placed AFTER the manager so its Pinia store exists when read.
+    workflowStore.extender.extendFn('getPrimaryItems', (items) => {
+        const index = items.findIndex((item) =>
+            isOPS()
+                ? item.component === 'GalleyManager'
+                : (item.component === 'FileManager' && item.props?.namespace === 'SUBMISSION_FILES'),
+        );
+
+        if (index === -1) {
+            return items;
+        }
+
+        const next = [...items];
+        next.splice(index + 1, 0, {
+            component: 'IthenticateWorkflowErrorNotice',
+            props: { fileStageNamespace: 'fileManager_SUBMISSION_FILES' },
+        });
+
+        return next;
+    });
 });

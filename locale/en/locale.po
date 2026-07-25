@@ -62,13 +62,13 @@ msgid "plugins.generic.plagiarism.errorMessage"
 msgstr "iThenticate processing error for submission {$submissionId}: {$errorMessage}"
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.UNSUPPORTED_FILETYPE"
-msgstr "The uploaded file's type is not supported by iThenticate to generate a Similarity Report."
+msgstr "The uploaded filetype is not supported."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.PROCESSING_ERROR"
-msgstr "An unspecified error occurred at iThenticate while processing the submission, so a Similarity Report could not be generated. This is usually a temporary problem with the iThenticate service."
+msgstr "An unspecified error occurred while processing the submissions."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CANNOT_EXTRACT_TEXT"
-msgstr "iThenticate could not extract any readable text from the submission to generate a Similarity Report. The file may be scanned or image-only, or its word count is 0."
+msgstr "The submission does not contain text to generate a Similarity Report or the word count of the submission is 0."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_LITTLE_TEXT"
 msgstr "The submission does not have enough text to generate a Similarity Report. A submission must contain at least 20 words."
@@ -80,10 +80,10 @@ msgid "plugins.generic.plagiarism.ithenticate.submission.error.TOO_MANY_PAGES"
 msgstr "The submission has too many pages to generate a Similarity Report. A submission cannot contain more than 800 pages."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.FILE_LOCKED"
-msgstr "The uploaded file is password-protected, so iThenticate could not open it to generate a Similarity Report."
+msgstr "The uploaded file requires a password in order to be opened."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.error.CORRUPT_FILE"
-msgstr "The uploaded file appears to be corrupt, so iThenticate could not read it to generate a Similarity Report."
+msgstr "The uploaded file appears to be corrupt."
 
 msgid "plugins.generic.plagiarism.general.errorMessage"
 msgstr "Request processing error: {$errorMessage}"
@@ -254,7 +254,7 @@ msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "An error occurred during submission processing."
 
 msgid "plugins.generic.plagiarism.action.submitSubmission.missingPrimaryAuthor.error"
-msgstr "Cannot run the plagiarism check: the current publication has no primary author. Add a primary author to the contributor list, then re-run the check."
+msgstr "Can not run plagiarism check on a submission with no primary author for current publication."
 
 msgid "plugins.generic.plagiarism.file.statusText.waitingOnReportSchedule"
 msgstr "Waiting to schedule similarity report generation process."
@@ -269,7 +269,7 @@ msgid "plugins.generic.plagiarism.manager.settings.serviceAccessMissing"
 msgstr "Missing required iThenticate service access API URL and API key."
 
 msgid "plugins.generic.plagiarism.webhook.registration.failed"
-msgstr "Webhook registration failed for context {$contextId}. Submissions will upload but similarity updates may not arrive. Re-save the plugin settings to retry the registration."
+msgstr "Webhook registration failed for context {$contextId}. Submissions will upload but updates may not arrive."
 
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.register.description"
 msgstr "Register webhooks for iThenticate account for a given context path"
@@ -358,7 +358,10 @@ msgstr "Note: Validated webhook {$validatedId} (from API) differs from database 
 msgid "plugins.generic.plagiarism.similarity.error.ariaLabel"
 msgstr "Plagiarism check error for this file. Activate to read the details."
 
-msgid "plugins.generic.plagiarism.workflow.errorToasts.region"
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.workflow.errorNotice.region"
 msgstr "Plagiarism check notices for this submission"
 
 msgid "plugins.generic.plagiarism.error.withDetail"
