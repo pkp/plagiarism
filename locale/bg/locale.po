@@ -145,20 +145,6 @@ msgstr "Файлът за изпращане бе качен успешно в i
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Turnitin актуализира своето лицензионно споразумение (EULA). Моля, опитайте отново, за да прегледате и приемете новите условия."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Липсват необходимите водачи на iThenticate webhook"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Невалиден тип събитие на iThenticate webhook {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Невалиден подпис на iThenticate webhook"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Даденият идентификатор на файл за изпращане: {$submissionFileId} не "
-"съществува за идентификатор: {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr ""
 "Процесът на генериране на отчет за подобие вече е планиран за файл с "
@@ -264,11 +250,6 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook не е конфигуриран за идентификатор {$contextId}."
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Невалиден iThenticate идентификатор на подаване {$submissionUuid}, даден за "
-"webhook събитие {$event}"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""

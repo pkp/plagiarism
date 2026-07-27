@@ -205,21 +205,6 @@ msgstr "Turnitin has updated its EULA. Please try again to review and accept the
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook not configured for context id {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Missing required iThenticate webhook headers"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Invalid iThenticate webhook event type {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Invalid iThenticate webhook signature"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr "Invalid iThenticate submission id {$submissionUuid} given for webhook event {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr "The given submission file id : {$submissionFileId} does not exists for context id : {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr "Unable to schedule the similarity report generation for file id {$submissionFileId} with error : {$error}"
 

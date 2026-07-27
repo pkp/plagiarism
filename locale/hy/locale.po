@@ -183,17 +183,6 @@ msgstr "Ներկայացման նիշքը հաջողությամբ վերբեռ�
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Turnitin-ը թարմացրել է իր EULA-ն: Խնդրում ենք կրկին փորձել՝ նոր պայմանները վերանայելու և ընդունելու համար:"
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Պահանջվող iThenticate վերբեռնուկ վերնախորագրերը բացակայում են"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Անվավեր iThenticate վերբեռնուկ ստորագրություն"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Տրված ներկայացման նիշքի ID-ն՝ {$submissionFileId}, գոյություն չունի "
-"համատեքստի համար՝ {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Հնարավոր չէ պլանավորել նմանության հաշվետվության ստեղծումը նիշքի id-ի համար "
@@ -311,14 +300,6 @@ msgstr ""
 
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate վեբկեռիկը կազմաձևված չէ համատեքստի id-ի համար {$contextId}:"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "iThenticate վերբեռնուկ միջոցառման անվավեր տեսակ {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Անվավեր iThenticate ներկայացման ID {$submissionUuid} տրված է վերբեռնուկ "
-"միջոցառման համար {$event}"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr ""

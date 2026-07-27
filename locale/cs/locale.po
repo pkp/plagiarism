@@ -171,20 +171,6 @@ msgstr ""
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook není nakonfigurován pro kontext id {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Chybějící požadované hlavičky webhooku iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Neplatný typ události iThenticate webhook {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Neplatný podpis webhooku iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Zadaný soubor příspěvku s id {$submissionFileId} neexistuje pro id kontextu :"
-" {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Nelze naplánovat generování zprávy o podobnosti pro id souboru "
@@ -296,11 +282,6 @@ msgstr ""
 "Příspěvek obsahuje příliš mnoho textu na to, aby bylo možné vygenerovat "
 "zprávu o podobnosti. Po převedení extrahovaného textu do UTF-8 musí "
 "příspěvek obsahovat méně než 2 MB textu."
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Neplatné id podání iThenticate {$submissionUuid} zadané pro událost webhook "
-"{$event}"
 
 msgid "plugins.generic.plagiarism.similarityCheck.settings.field.excludeSmallMatches.validation.min"
 msgstr "Musí to být celé číslo (bez zlomku) s minimální hodnotou 8"

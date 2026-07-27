@@ -227,25 +227,6 @@ msgstr "Turnitin je posodobil svojo licenčno pogodbo (EULA). Prosimo, poskusite
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate spletni dostop ni nastavljen za kontekst id {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Manjka glava obvezenega spletnega dostopa do iThenticate-a"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Neveljaven tip dogodka iThenticate spletnega dostopa {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Neveljaven podpis iThenticate spletnega dostopa"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Neveljaven iThenticate id prispevka {$submissionUuid} za spletni dogodek "
-"{$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Podani id datoteke : {$submissionFileId} ne obstaja za kontekst id : "
-"{$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Načrtovana priprava poročila o podobnosti za datoteko id {$submissionFileId} "

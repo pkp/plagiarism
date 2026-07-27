@@ -107,11 +107,6 @@ msgstr ""
 "iThenticate tekstlighedsrapporten er endnu ikke færdig for indsendelsesfilen "
 "med id : {$submissionFileId}."
 
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Det angivne indsendelsesfil-id : {$submissionFileId} eksisterer ikke for "
-"kontekst-id : {$contextId}"
-
 msgid "plugins.generic.plagiarism.action.refreshSimilarityResult.success"
 msgstr "iThenticate tekstlighedspoint blev succesfuldt opdateret."
 
@@ -119,14 +114,6 @@ msgid "plugins.generic.plagiarism.action.submitSubmission.error"
 msgstr ""
 "Ude af stand til at uploade indsendelsesfilen til iThenticate. Bemærk, at "
 "indsendelsesfilen max må have en filstørrelse på 100 MB."
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Ugyldig iThenticate 'webhook' begivenhedstype {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Ugyldig iThenticate indsendelsesid {$submissionUuid} for 'webhook' "
-"begivenhed {$event}"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr ""
@@ -225,12 +212,6 @@ msgstr "Turnitin har opdateret sin EULA. Prøv venligst igen for at gennemgå og
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "iThenticate 'webhook' er ikke konfigureret for kontekst-id {$contextId} ."
-
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Manglende påkrævet iThenticate 'webhook headers'"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Ugyldig iThenticate 'webhook' signatur"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""

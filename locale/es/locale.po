@@ -212,20 +212,6 @@ msgstr ""
 "El webhook de iThenticate no está configurado para el ID de contexto "
 "{$contextId}."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Faltan encabezados requeridos del webhook de iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Tipo de evento de webhook de iThenticate no válido {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Firma de webhook de iThenticate no válida"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Identificador de envio iThenticate {$submissionUuid} para el evento webhook "
-"{$event} no es válido"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "No se puede programar la generación del informe de similitud para el ID de "
@@ -311,11 +297,6 @@ msgid "plugins.generic.plagiarism.action.submitSubmission.error"
 msgstr ""
 "No se puede cargar el archivo de envío a iThenticate. Tenga en cuenta que el "
 "tamaño del archivo de envío debe ser como máximo de 100 MB."
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"El ID del archivo de envío proporcionado: {$submissionFileId} no existe para "
-"el ID de contexto: {$contextId}"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr ""

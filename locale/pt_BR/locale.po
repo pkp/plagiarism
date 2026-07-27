@@ -246,17 +246,6 @@ msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "Webhook do iThenticate não configurado para o ID de contexto {$contextId}."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Faltando cabeçalhos obrigatórios do webhook do iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Assinatura do webhook do iThenticate inválida"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"ID de submissão do iThenticate inválido ({$submissionUuid}) fornecido para o "
-"evento de webhook {$event}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Não foi possível agendar o relatório de similaridade para ID de arquivo "
@@ -296,9 +285,6 @@ msgstr ""
 "Correspondências de similaridade que coincidem com menos do que a quantidade "
 "especificada de palavras não serão contadas como conteúdo similar"
 
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Tipo de evento do webhook do iThenticate inválido: {$event}"
-
 msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
 msgstr "Tem certeza de que deseja gerar um Relatório de Plágio?"
 
@@ -310,11 +296,6 @@ msgid "plugins.generic.plagiarism.action.launchViewer.error"
 msgstr ""
 "A visualização do relatório não está disponível no momento, por favor, tente "
 "novamente mais tarde."
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"O ID do arquivo de submissão fornecido : {$submissionFileId} não existe para "
-"o ID de contexto : {$contextId}"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
 msgstr ""

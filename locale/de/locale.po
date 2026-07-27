@@ -102,12 +102,6 @@ msgstr "Einreichungsdatei erfolgreich bei iThenticate hochgeladen."
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Turnitin hat seine EULA aktualisiert. Bitte versuchen Sie es erneut, um die neuen Bedingungen zu prüfen und zu akzeptieren."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Fehlende benötigte iThenticate webhook header"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Ungültige iThenticate webhook Signatur"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
 msgstr ""
 "Einplanen des Ähnlichkeitsberichtes für die Datei mit der Nummer "
@@ -240,16 +234,8 @@ msgstr ""
 "Endnutzer-Lizenzvereinbarung</a> lesen und akzeptieren, bevor sie die "
 "Einreichung finalisieren können."
 
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Ungültiger iThenticate webhook Ereignistyp {$event}"
-
 msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm"
 msgstr "Ich habe die Endnutzer-Lizenzvereinbarung gelesen und akzeptiere sie."
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Ungültige iThenticate Einreichungsid {$submissionUuid} für das webhook-"
-"Ereignis {$event}"
 
 msgid "plugins.generic.plagiarism.submission.eula.acceptance.confirm.label"
 msgstr "Plagiats-Endbenutzer-Lizenzvereinbarung"
@@ -258,11 +244,6 @@ msgid "plugins.generic.plagiarism.submission.eula.acceptance.error"
 msgstr ""
 "Der Endnutzer-Lizenzvereinbarung muss zugestimmt werden, bevor fortgefahren "
 "werden kann."
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Die gewählte Einreichungsdateinummer: {$submissionFileId} existiert nicht "
-"für den Kontext Nummer {$contextId}"
 
 msgid "plugins.generic.plagiarism.submission.eula.accept.button.title"
 msgstr "Bestätigen und Fortfahren"

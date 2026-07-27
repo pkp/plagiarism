@@ -91,9 +91,6 @@ msgstr "Распоред на извештај за плагијат"
 msgid "plugins.generic.plagiarism.similarity.action.confirmEula.title"
 msgstr "Плагијат Потврда за Договор за лиценца за краен корисник"
 
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Неважечки тип на настан iThenticate webhook {$event}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Не може да се закаже генерирање извештај за сличност за ID на датотека "
@@ -260,22 +257,6 @@ msgstr "Turnitin го ажурираше својот EULA. Ве молиме о
 
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook не е конфигуриран за контекстуален ID {$contextId}."
-
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Недостасуваат потребните заглавија на веб-кука iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Неважечки потпис на веб-кука iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Даден е неважечки ID за поднесување iThenticate {$submissionUuid} за "
-"настанот на веб-кука {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Дадената идентификација на датотеката за поднесување: {$submissionFileId} не "
-"постои за идентификација на контекст: {$contextId}"
 
 #, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
