@@ -37,7 +37,7 @@ class PlagiarismSubmissionSubmitListener
     {
         $events->listen(
             SubmissionSubmitted::class,
-            [static::class, 'handle']
+            [$this, 'handle']
         );
     }
     
