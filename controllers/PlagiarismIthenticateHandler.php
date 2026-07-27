@@ -24,6 +24,7 @@ use APP\submission\Submission;
 use APP\template\TemplateManager;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use Illuminate\Support\Arr;
 use PKP\context\Context;
 use PKP\core\Core;
@@ -169,29 +170,35 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 
 			// submission has not completed yet to schedule report generation process
 			if ($submissionInfo->status !== 'COMPLETE') {
-				$similaritySchedulingError = '';
+				// Resolve the per-status reason key. A terminal ERROR uses the iThenticate error_code
+				// (falling back to a generic message when absent); CREATED/PROCESSING are transient states.
+				$reasonKey = match ($submissionInfo->status) {
+					'CREATED' => 'plugins.generic.plagiarism.submission.status.CREATED',
+					'PROCESSING' => 'plugins.generic.plagiarism.submission.status.PROCESSING',
+					'ERROR' => property_exists($submissionInfo, 'error_code')
+						? "plugins.generic.plagiarism.ithenticate.submission.error.{$submissionInfo->error_code}"
+						: 'plugins.generic.plagiarism.submission.status.ERROR',
+					default => 'plugins.generic.plagiarism.submission.status.ERROR',
+				};
 
-				switch($submissionInfo->status) {
-					case 'CREATED' :
-						$similaritySchedulingError = __('plugins.generic.plagiarism.submission.status.CREATED');
-						break;
-					case 'PROCESSING' :
-						$similaritySchedulingError = __('plugins.generic.plagiarism.submission.status.PROCESSING');
-						break;
-					case 'ERROR' :
-						$similaritySchedulingError = property_exists($submissionInfo, 'error_code')
-							? __("plugins.generic.plagiarism.ithenticate.submission.error.{$submissionInfo->error_code}")
-							: __('plugins.generic.plagiarism.submission.status.ERROR');
-						break;
+				// Build the error descriptor (locale key + params, resolved at read time)
+				$errorDescriptor = PlagiarismErrorFormatter::make(
+					'plugins.generic.plagiarism.webhook.similarity.schedule.error',
+					[
+						'submissionFileId' => $submissionFile->getId(),
+						'error' => PlagiarismErrorFormatter::make($reasonKey),
+					]
+				);
+
+				// A terminal ERROR means the file will not process as-is: persist it (as the webhook does)
+				// so the workflow surfaces the error icon and offers re-upload even where webhooks are not
+				// delivered. CREATED/PROCESSING are transient — report them but do not persist, keeping the
+				// in-progress icon so the editor can retry once processing finishes.
+				if ($submissionInfo->status === 'ERROR') {
+					$this->_plugin->recordSubmissionFileError($submissionFile, $errorDescriptor);
 				}
 
-				return new JSONMessage(
-					false, 
-					__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
-						'submissionFileId' => $submissionFile->getId(),
-						'error' => $similaritySchedulingError,
-					])
-				);
+				return new JSONMessage(false, PlagiarismErrorFormatter::resolve($errorDescriptor));
 			}
 
 			$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
