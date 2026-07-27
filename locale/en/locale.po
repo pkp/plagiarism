@@ -205,21 +205,6 @@ msgstr "Turnitin has updated its EULA. Please try again to review and accept the
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate webhook not configured for context id {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Missing required iThenticate webhook headers"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Invalid iThenticate webhook event type {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Invalid iThenticate webhook signature"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr "Invalid iThenticate submission id {$submissionUuid} given for webhook event {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr "The given submission file id : {$submissionFileId} does not exists for context id : {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr "Unable to schedule the similarity report generation for file id {$submissionFileId} with error : {$error}"
 
@@ -230,9 +215,7 @@ msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
 msgstr "Failed to schedule the similarity report generation process for submission file id {$submissionFileId}"
 
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
-msgstr ""
-"The stamped EULA information is missing for the submission or submitting "
-"user."
+msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
 
 msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
 msgstr "Unable to complete the uploading of all files at iThenticate service for plagiarism check."
@@ -356,3 +339,9 @@ msgstr "Webhook ID mismatch: database has {$dbId} but iThenticate API has {$apiI
 
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note: Validated webhook {$validatedId} (from API) differs from database record ({$dbId})."
+
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

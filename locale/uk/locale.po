@@ -158,15 +158,6 @@ msgstr "Файл подання успішно завантажено в iThenti
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Turnitin оновив свою ліцензійну угоду (EULA). Будь ласка, спробуйте ще раз, щоб переглянути та прийняти нові умови."
 
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Недійсний тип події вебхука iThenticate {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Недійсний підпис вебхука iThenticate"
-
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Відсутні необхідні заголовки вебхука iThenticate"
-
 msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "Під час оброблення подання сталася помилка."
 
@@ -211,21 +202,12 @@ msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "Вебхук iThenticate не налаштовано для ідентифікатора контексту {$contextId}."
 
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Недійсний ідентифікатор подання iThenticate {$submissionUuid} надано для "
-"події вебхука {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Ідентифікатор зазначеного файлу подання: {$submissionFileId} не існує для "
-"ідентифікатора контексту: {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr ""
 "Процес генерування звіту про схожість уже заплановано для файлу подання з "
 "ідентифікатором {$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Відсутня інформація про ліцензійну угоду для подання або користувача, який "
@@ -440,3 +422,10 @@ msgstr "Невідповідність ID вебхука: у базі даних
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Примітка: перевірений вебхук {$validatedId} (з API) відрізняється від запису в базі даних ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

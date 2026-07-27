@@ -186,15 +186,6 @@ msgstr "Turnitin telah memperbarui EULA-nya. Silakan coba lagi untuk meninjau da
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "Webhook iThenticate tidak dikonfigurasi untuk konteks id {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Header webhook iThenticate yang diperlukan tidak dapat ditemukan"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Tipe event webhook iThenticate {$event} tidak valid"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Kode unik webhook iThenticate tidak valid"
-
 msgid "plugins.generic.plagiarism.similarity.action.generateReport.confirmation"
 msgstr "Apakah anda yakin untuk menampilkan laporan Plagiarisme?"
 
@@ -251,11 +242,6 @@ msgstr "File telah diunggah dan pengiriman masih dalam proses"
 msgid "plugins.generic.plagiarism.similarity.action.column.score.title"
 msgstr "Skor plagiarisme/Tindakan"
 
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"ID pengiriman iThenticate {$submissionUuid} yang tidak valid diberikan untuk "
-"webhook event {$event}"
-
 msgid "plugins.generic.plagiarism.similarity.score.column.overall_match_percentage"
 msgstr "Persentase Kecocokan Secara Keseluruhan"
 
@@ -263,11 +249,6 @@ msgid "plugins.generic.plagiarism.action.submitSubmission.error"
 msgstr ""
 "Tidak dapat mengunggah file naskah ke iThenticate. Harap diperhatikan bahwa "
 "ukuran maksimal file naskah adalah 100 MB."
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"File ID pengiriman yang diberikan : {$submissionFileId} tidak ada untuk "
-"konteks ID : {$contextId}"
 
 msgid "plugins.generic.plagiarism.similarity.action.generateReport.title"
 msgstr "Jadwalkan Laporan Plagiarisme"
@@ -286,6 +267,7 @@ msgstr ""
 "Gagal menjadwalkan proses pembuatan laporan kesamaan untuk naskah file id "
 "{$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Informasi EULA yang dicap tidak ada pada saat pengiriman atau pengguna yang "
@@ -446,3 +428,10 @@ msgstr "Ketidakcocokan ID webhook: basis data memiliki {$dbId} tetapi API iThent
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Catatan: Webhook yang divalidasi {$validatedId} (dari API) berbeda dari catatan basis data ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

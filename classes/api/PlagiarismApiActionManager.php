@@ -19,6 +19,7 @@ use APP\facades\Repo;
 use APP\submission\Submission;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\plugins\generic\plagiarism\IThenticate;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use PKP\security\Role;
 use PKP\core\PKPRequest;
 use Illuminate\Http\Response;
@@ -179,16 +180,28 @@ class PlagiarismApiActionManager
 
         foreach ($submissionFiles as $submissionFile) {
 
+            // Guard against malformed/legacy stored JSON: only read the score when the decode is a valid array.
+            $similarityRaw = $submissionFile->getData('ithenticateSimilarityResult');
+            $similarityResult = $similarityRaw ? json_decode($similarityRaw, true) : null;
+
+            // Resolve the stored per-file error descriptor into a translated message at read time
+            // (in the viewer's request locale). Tolerate a legacy plain-string value.
+            $fileErrorRaw = $submissionFile->getData('ithenticateProcessingError');
+            $fileErrorDecoded = $fileErrorRaw ? json_decode($fileErrorRaw, true) : null;
+
             $fileStatuses[$submissionFile->getId()] = [
                 'ithenticateUploadAllowed' => !$this->plugin->isSubmissionFileTypeRestricted($submissionFile),
                 'ithenticateFileId' => $submissionFile->getData('ithenticateFileId'),
                 'ithenticateId' => $submissionFile->getData('ithenticateId'),
                 'ithenticateSimilarityScheduled' => (bool)$submissionFile->getData('ithenticateSimilarityScheduled'),
-                'ithenticateSimilarityResult' => $submissionFile->getData('ithenticateSimilarityResult')
-                    ? json_decode($submissionFile->getData('ithenticateSimilarityResult'), true)['overall_match_percentage']
+                'ithenticateSimilarityResult' => is_array($similarityResult)
+                    ? ($similarityResult['overall_match_percentage'] ?? null)
                     : null,
                 'ithenticateSubmissionAcceptedAt' => $submissionFile->getData('ithenticateSubmissionAcceptedAt'),
                 'ithenticateRevisionHistory' => $submissionFile->getData('ithenticateRevisionHistory'),
+                'ithenticateProcessingError' => $fileErrorRaw
+                    ? PlagiarismErrorFormatter::resolve(is_array($fileErrorDecoded) ? $fileErrorDecoded : $fileErrorRaw)
+                    : null,
                 'ithenticateLogo' => $this->plugin->getIThenticateLogoUrl(),
                 'ithenticateViewerUrl' => $this->plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
                 'ithenticateUploadUrl' => $this->plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
@@ -196,7 +209,7 @@ class PlagiarismApiActionManager
                 'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
             ];
         }
-        
+
         $eulaRequired = (bool)$this->plugin->getContextEulaDetails($context, 'require_eula');
 
         // Resolve the locale-specific EULA URL from the cache (single source of truth —
@@ -211,6 +224,21 @@ class PlagiarismApiActionManager
             ])
             : null;
 
+        // Submission-level processing errors are stored as a JSON array on the submission entity
+        $submissionErrors = $submission->getData('ithenticateProcessingErrors');
+        $processingErrors = $submissionErrors ? json_decode($submissionErrors, true) : [];
+        $processingErrors = is_array($processingErrors) ? $processingErrors : [];
+
+        // Resolve each stored descriptor into a translated message at read time (viewer's request
+        // locale), preserving the {message, dateOccurred} shape the frontend consumes.
+        $processingErrors = array_map(
+            fn ($error) => [
+                'message' => PlagiarismErrorFormatter::resolve($error),
+                'dateOccurred' => is_array($error) ? ($error['dateOccurred'] ?? null) : null,
+            ],
+            $processingErrors
+        );
+
         return [
             'context' => [
                 'eulaRequired' => $eulaRequired,
@@ -221,6 +249,7 @@ class PlagiarismApiActionManager
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
                 'ithenticateSubmissionCompletedAt' => $submission->getData('ithenticateSubmissionCompletedAt'),
                 'ithenticateEulaUrl' => $submission->getData('ithenticateEulaUrl'),
+                'ithenticateProcessingErrors' => $processingErrors,
             ],
             'user' => [
                 'ithenticateEulaVersion' => $user->getData('ithenticateEulaVersion'),

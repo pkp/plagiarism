@@ -341,3 +341,14 @@ msgstr "ملاحظة: الخطاف الإلكتروني الذي تم التحق
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "قامت Turnitin بتحديث اتفاقية ترخيص المستخدم النهائي. يُرجى المحاولة مرة أخرى لمراجعة الشروط الجديدة وقبولها."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

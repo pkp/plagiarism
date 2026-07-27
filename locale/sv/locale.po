@@ -156,3 +156,14 @@ msgstr "Observera: Validerad webhook {$validatedId} (från API) skiljer sig frå
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Turnitin har uppdaterat sin EULA. Försök igen för att granska och acceptera de nya villkoren."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

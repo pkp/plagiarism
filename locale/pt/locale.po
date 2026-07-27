@@ -183,3 +183,14 @@ msgstr "Nota: O webhook validado {$validatedId} (da API) difere do registo na ba
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "A Turnitin atualizou o seu EULA. Por favor, tente novamente para rever e aceitar os novos termos."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

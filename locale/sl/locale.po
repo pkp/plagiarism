@@ -227,25 +227,6 @@ msgstr "Turnitin je posodobil svojo licenčno pogodbo (EULA). Prosimo, poskusite
 msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr "iThenticate spletni dostop ni nastavljen za kontekst id {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "Manjka glava obvezenega spletnega dostopa do iThenticate-a"
-
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Neveljaven tip dogodka iThenticate spletnega dostopa {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "Neveljaven podpis iThenticate spletnega dostopa"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"Neveljaven iThenticate id prispevka {$submissionUuid} za spletni dogodek "
-"{$event}"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"Podani id datoteke : {$submissionFileId} ne obstaja za kontekst id : "
-"{$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Načrtovana priprava poročila o podobnosti za datoteko id {$submissionFileId} "
@@ -273,6 +254,7 @@ msgstr "Prišlo je do napake med obdelavo oddajanja."
 msgid "plugins.generic.plagiarism.submission.status.PROCESSING"
 msgstr "Vsebina datoteke je bila naložena in oddaja je v procesu obdelave"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr "Strinjanje z EULA manjka za prispevek ali uporabnika."
 
@@ -445,3 +427,10 @@ msgstr "Neujemanje ID webhooka: v podatkovni bazi je {$dbId}, vendar iThenticate
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Opomba: Potrjen webhook {$validatedId} (iz API) se razlikuje od zapisa v podatkovni bazi ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

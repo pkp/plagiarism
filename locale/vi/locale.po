@@ -157,3 +157,14 @@ msgstr "Lưu ý: Webhook đã xác thực {$validatedId} (từ API) khác với 
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Turnitin đã cập nhật EULA. Vui lòng thử lại để xem xét và chấp nhận các điều khoản mới."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

@@ -350,6 +350,13 @@ class TestIThenticate
 
         if (static::consumeArm('createSubmission')) {
             $this->lastEulaError = true;
+            // Mock a failure response so getLastErrorSummary() surfaces a realistic "why" in test mode.
+            $this->lastResponseDetails = [
+                'status_code' => 400,
+                'reason' => 'Bad Request',
+                'body' => '{"message":"TestIThenticate: simulated EULA 400 on createSubmission."}',
+                'headers' => [],
+            ];
             error_log("TestIThenticate: simulated EULA 400 on createSubmission for submission {$submission->getId()}");
             return null;
         }
@@ -637,6 +644,35 @@ class TestIThenticate
     public function getLastResponseBody(): ?string
     {
         return $this->lastResponseDetails['body'] ?? null;
+    }
+
+    /**
+     * @copydoc IThenticate::getLastErrorSummary()
+     */
+    public function getLastErrorSummary(): ?string
+    {
+        if (!$this->lastResponseDetails) {
+            return null;
+        }
+
+        $status = $this->lastResponseDetails['status_code'] ?? null;
+        $reason = $this->lastResponseDetails['reason'] ?? null;
+
+        $bodyMessage = null;
+        $body = $this->lastResponseDetails['body'] ?? null;
+        if (is_string($body) && $body !== '') {
+            $decoded = json_decode($body);
+            if (is_object($decoded)) {
+                $bodyMessage = $decoded->message ?? $decoded->error ?? null;
+            }
+        }
+
+        $summary = trim(($status !== null ? "HTTP {$status}" : '') . ($reason ? " {$reason}" : ''));
+        if ($bodyMessage) {
+            $summary = $summary === '' ? $bodyMessage : "{$summary} — {$bodyMessage}";
+        }
+
+        return $summary === '' ? null : $summary;
     }
 
     /**

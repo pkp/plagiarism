@@ -17,6 +17,7 @@ namespace APP\plugins\generic\plagiarism\controllers;
 use APP\core\Application;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\IThenticate;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
 use Illuminate\Support\Facades\DB;
 use PKP\core\Core;
@@ -45,30 +46,36 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	{
 		$request = Application::get()->getRequest();
 		$context = $request->getContext();
+
+		if (!$context) {
+			error_log('iThenticate webhook received with no resolvable context; ignoring.');
+			return;
+		}
+
 		$headers = collect(array_change_key_case(getallheaders(), CASE_LOWER));
+
 		$payload = file_get_contents('php://input');
+		if ($payload === false) {
+			$payload = '';
+		}
 
 		if (!$context->getData('ithenticateWebhookId') || !$context->getData('ithenticateWebhookSigningSecret')) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.configuration.missing', [
-				'contextId' => $context->getId(),
-			]));
+			error_log("iThenticate webhook not configured for context {$context->getId()}; ignoring.");
 			return;
 		}
 
 		if (!$headers->has(['x-turnitin-eventtype', 'x-turnitin-signature'])) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.headers.missing'));
+			error_log("iThenticate webhook (context {$context->getId()}): missing required headers; ignoring.");
 			return;
 		}
-		
+
 		if (!in_array($headers->get('x-turnitin-eventtype'), IThenticate::DEFAULT_WEBHOOK_EVENTS)) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.event.invalid', [
-				'event' => $headers->get('x-turnitin-eventtype'),
-			]));
+			error_log("iThenticate webhook (context {$context->getId()}): invalid event type " . $headers->get('x-turnitin-eventtype') . "; ignoring.");
 			return;
 		}
 
 		if ($headers->get('x-turnitin-signature') !== hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret'))) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.signature.invalid'));
+			error_log("iThenticate webhook (context {$context->getId()}): signature verification failed; ignoring.");
 			return;
 		}
 
@@ -95,50 +102,57 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	protected function handleSubmissionCompleteEvent(Context $context, string $payload, string $event): void
 	{
 		$payload = json_decode($payload);
+		if (!is_object($payload) || !isset($payload->id)) {
+			error_log("iThenticate webhook ({$event}): invalid or incomplete JSON payload; ignoring.");
+			return;
+		}
 
 		$ithenticateSubmission = $this->getIthenticateSubmission($payload->id);
 
 		if (!$ithenticateSubmission) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
-				'submissionUuid' => $payload->id,
-				'event' => $event,
-			]));
+			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$payload->id}; ignoring.");
 			return;
 		}
 
 		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
-
-		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
-				'submissionFileId' => $submissionFile->getId(),
-				'contextId' => $context->getId(),
-			]));
+		if (!$submissionFile) {
+			error_log("iThenticate webhook ({$event}): submission file {$ithenticateSubmission->submission_file_id} not found; ignoring.");
 			return;
 		}
 
-		if ($payload->status !== 'COMPLETE') {
-			// If the status not `COMPLETE`, then it's `ERROR`
-			$this->_plugin->sendErrorMessage(
-				__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
+		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
+			error_log("iThenticate webhook ({$event}): submission file " . $submissionFile->getId() . " is not associated with context {$context->getId()}; ignoring.");
+			return;
+		}
+
+		if (($payload->status ?? null) !== 'COMPLETE') {
+			// If the status is not `COMPLETE`, then it's `ERROR`. Fall back to a generic reason when the
+			// payload carries no error_code, so the message never renders a missing-translation sentinel.
+			$errorKey = isset($payload->error_code)
+				? "plugins.generic.plagiarism.ithenticate.submission.error.{$payload->error_code}"
+				: 'plugins.generic.plagiarism.submission.status.ERROR';
+			$this->_plugin->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
 					'submissionFileId' => $submissionFile->getId(),
-					'error' => __("plugins.generic.plagiarism.ithenticate.submission.error.{$payload->error_code}"),
-				]),
-				$submissionFile->getData('submissionId')
+					'error' => PlagiarismErrorFormatter::make($errorKey),
+				])
 			);
 			return;
 		}
 
 		$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
 		
 		$submissionFile = Repo::submissionFile()->get($submissionFile->getId());
 		
 		if ((int)$submissionFile->getData('ithenticateSimilarityScheduled')) {
-			$this->_plugin->sendErrorMessage(
-				__('plugins.generic.plagiarism.webhook.similarity.schedule.previously', [
+			$this->_plugin->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make('plugins.generic.plagiarism.webhook.similarity.schedule.previously', [
 					'submissionFileId' => $submissionFile->getId(),
-				]),
-				$submissionFile->getData('submissionId')
+				])
 			);
 			return;
 		}
@@ -152,11 +166,13 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		);
 
 		if (!$scheduleSimilarityReport) {
-			$this->_plugin->sendErrorMessage(
-				__('plugins.generic.plagiarism.webhook.similarity.schedule.failure', [
-					'submissionFileId' => $submissionFile->getId(),
-				]),
-				$submissionFile->getData('submissionId')
+			$this->_plugin->recordSubmissionFileError(
+				$submissionFile,
+				PlagiarismErrorFormatter::make(
+					'plugins.generic.plagiarism.webhook.similarity.schedule.failure',
+					['submissionFileId' => $submissionFile->getId()],
+					$ithenticate->getLastErrorSummary()
+				)
 			);
 			return;
 		}
@@ -178,33 +194,44 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	protected function storeSimilarityScore(Context $context, string $payload, string $event): void
 	{
 		$payload = json_decode($payload);
+		if (!is_object($payload)) {
+			error_log("iThenticate webhook ({$event}): invalid JSON payload; ignoring.");
+			return;
+		}
 
-		// we will not store similarity check result unless it has completed
-		if ($payload->status !== 'COMPLETE') {
+		// Similarity reports have only PROCESSING/COMPLETE (no ERROR state), and the webhook fires only
+		// on the transition to COMPLETE. A non-COMPLETE payload is a not-ready/unexpected event we
+		// ignore; real failures surface on the submission (handleSubmissionCompleteEvent) or the
+		// schedule call (schedule.failure), not here.
+		if (($payload->status ?? null) !== 'COMPLETE') {
+			return;
+		}
+
+		if (!isset($payload->submission_id)) {
+			error_log("iThenticate webhook ({$event}): payload missing submission_id; ignoring.");
 			return;
 		}
 
 		$ithenticateSubmission = $this->getIthenticateSubmission($payload->submission_id);
 
 		if (!$ithenticateSubmission) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionId.invalid', [
-				'submissionUuid' => $payload->submission_id,
-				'event' => $event,
-			]));
+			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$payload->submission_id}; ignoring.");
 			return;
 		}
 
 		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
+		if (!$submissionFile) {
+			error_log("iThenticate webhook ({$event}): submission file {$ithenticateSubmission->submission_file_id} not found; ignoring.");
+			return;
+		}
 
 		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			$this->_plugin->sendErrorMessage(__('plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid', [
-				'submissionFileId' => $submissionFile->getId(),
-				'contextId' => $context->getId(),
-			]));
+			error_log("iThenticate webhook ({$event}): submission file " . $submissionFile->getId() . " is not associated with context {$context->getId()}; ignoring.");
 			return;
 		}
 
 		$submissionFile->setData('ithenticateSimilarityResult', json_encode($payload));
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
 	}
 

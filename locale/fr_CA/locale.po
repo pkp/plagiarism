@@ -257,17 +257,6 @@ msgid "plugins.generic.plagiarism.webhook.configuration.missing"
 msgstr ""
 "Le webhook iThenticate n'est pas configuré pour le contexte {$contextId} ."
 
-msgid "plugins.generic.plagiarism.webhook.event.invalid"
-msgstr "Le type d'événement du webhook iThenticate invalide {$event}"
-
-msgid "plugins.generic.plagiarism.webhook.signature.invalid"
-msgstr "La signature du webhook iThenticate invalide"
-
-msgid "plugins.generic.plagiarism.webhook.submissionFileAssociationWithContext.invalid"
-msgstr ""
-"L'ID de fichier de soumission donné : {$submissionFileId} n'existe pas pour "
-"l'ID de contexte : {$contextId}"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.error"
 msgstr ""
 "Impossible de planifier la génération du rapport de similarité pour l'ID de "
@@ -296,19 +285,12 @@ msgstr ""
 "Le rapport de similarité iThenticate n'est pas encore terminé pour le "
 "fichier de soumission id : {$submissionFileId}."
 
-msgid "plugins.generic.plagiarism.webhook.headers.missing"
-msgstr "En-têtes requis pour le webhook iThenticate manquants"
-
-msgid "plugins.generic.plagiarism.webhook.submissionId.invalid"
-msgstr ""
-"L'ID de soumission iThenticate {$submissionUuid} donné pour l'événement du "
-"webhook {$event} n'est pas valide"
-
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr ""
 "Le processus de génération du rapport de similarité a déjà été planifié pour "
 "le fichier de soumission {$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Les informations estampillées du CLUF sont manquantes pour la soumission ou "
@@ -461,3 +443,10 @@ msgstr "Incohérence d'ID de webhook : la base de données contient {$dbId} mais
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note : Le webhook validé {$validatedId} (depuis l'API) diffère de l'enregistrement dans la base de données ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

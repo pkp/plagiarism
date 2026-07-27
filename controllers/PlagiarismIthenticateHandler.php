@@ -24,6 +24,7 @@ use APP\submission\Submission;
 use APP\template\TemplateManager;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismComponentHandler;
+use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
 use Illuminate\Support\Arr;
 use PKP\context\Context;
 use PKP\core\Core;
@@ -169,29 +170,35 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 
 			// submission has not completed yet to schedule report generation process
 			if ($submissionInfo->status !== 'COMPLETE') {
-				$similaritySchedulingError = '';
+				// Resolve the per-status reason key. A terminal ERROR uses the iThenticate error_code
+				// (falling back to a generic message when absent); CREATED/PROCESSING are transient states.
+				$reasonKey = match ($submissionInfo->status) {
+					'CREATED' => 'plugins.generic.plagiarism.submission.status.CREATED',
+					'PROCESSING' => 'plugins.generic.plagiarism.submission.status.PROCESSING',
+					'ERROR' => property_exists($submissionInfo, 'error_code')
+						? "plugins.generic.plagiarism.ithenticate.submission.error.{$submissionInfo->error_code}"
+						: 'plugins.generic.plagiarism.submission.status.ERROR',
+					default => 'plugins.generic.plagiarism.submission.status.ERROR',
+				};
 
-				switch($submissionInfo->status) {
-					case 'CREATED' :
-						$similaritySchedulingError = __('plugins.generic.plagiarism.submission.status.CREATED');
-						break;
-					case 'PROCESSING' :
-						$similaritySchedulingError = __('plugins.generic.plagiarism.submission.status.PROCESSING');
-						break;
-					case 'ERROR' :
-						$similaritySchedulingError = property_exists($submissionInfo, 'error_code')
-							? __("plugins.generic.plagiarism.ithenticate.submission.error.{$submissionInfo->error_code}")
-							: __('plugins.generic.plagiarism.submission.status.ERROR');
-						break;
+				// Build the error descriptor (locale key + params, resolved at read time)
+				$errorDescriptor = PlagiarismErrorFormatter::make(
+					'plugins.generic.plagiarism.webhook.similarity.schedule.error',
+					[
+						'submissionFileId' => $submissionFile->getId(),
+						'error' => PlagiarismErrorFormatter::make($reasonKey),
+					]
+				);
+
+				// A terminal ERROR means the file will not process as-is: persist it (as the webhook does)
+				// so the workflow surfaces the error icon and offers re-upload even where webhooks are not
+				// delivered. CREATED/PROCESSING are transient — report them but do not persist, keeping the
+				// in-progress icon so the editor can retry once processing finishes.
+				if ($submissionInfo->status === 'ERROR') {
+					$this->_plugin->recordSubmissionFileError($submissionFile, $errorDescriptor);
 				}
 
-				return new JSONMessage(
-					false, 
-					__('plugins.generic.plagiarism.webhook.similarity.schedule.error', [
-						'submissionFileId' => $submissionFile->getId(),
-						'error' => $similaritySchedulingError,
-					])
-				);
+				return new JSONMessage(false, PlagiarismErrorFormatter::resolve($errorDescriptor));
 			}
 
 			$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
@@ -210,7 +217,10 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		$submissionFile->setData('ithenticateSimilarityScheduled', 1);
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
+
+		$this->_plugin->clearSubmissionErrors(Repo::submission()->get($submissionFile->getData('submissionId')));
 
 		return new JSONMessage(true, __('plugins.generic.plagiarism.action.scheduleSimilarityReport.success'));
     }
@@ -247,7 +257,10 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		$submissionFile->setData('ithenticateSimilarityResult', json_encode($similarityScoreResult));
+		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
+
+		$this->_plugin->clearSubmissionErrors(Repo::submission()->get($submissionFile->getData('submissionId')));
 
 		return new JSONMessage(true, __('plugins.generic.plagiarism.action.refreshSimilarityResult.success'));
     }
@@ -282,7 +295,7 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 		}
 
 		$publication = $submission->getCurrentPublication();
-		$author = $publication->getPrimaryAuthor();
+		$author = $publication?->getPrimaryAuthor();
 
 		if (!$author) {
 			return $this->getSubmitSubmissionResponse(
@@ -495,17 +508,25 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 	{
 		if ($this->_plugin::isOPS()) {
 			$submission = Repo::submission()->get($submissionFile->getData("submissionId"));
-			$publication = $submission->getCurrentPublication();
 
-			$galley = Repo::galley()
-				->getCollector()
-				->filterByPublicationIds([$publication->getId()])
-				->getMany()
-				->filter(fn ($gallye) => $gallye->getData("submissionFileId") == $submissionFile->getId())
-				->first();
-			
-			if ($galley) {
-				return DAO::getDataChangedEvent($galley->getId());
+			// A submission file's galley may live on any publication version, not just the current one
+			// (OPS is versioned). Search galleys across ALL of the submission's publications so the right
+			// galley grid row refreshes regardless of which version owns the file.
+			$publicationIds = $submission
+				? $submission->getData("publications")->map(fn ($publication) => $publication->getId())->all()
+				: [];
+
+			if (!empty($publicationIds)) {
+				$galley = Repo::galley()
+					->getCollector()
+					->filterByPublicationIds($publicationIds)
+					->getMany()
+					->filter(fn ($galley) => $galley->getData("submissionFileId") == $submissionFile->getId())
+					->first();
+
+				if ($galley) {
+					return DAO::getDataChangedEvent($galley->getId());
+				}
 			}
 		}
 
