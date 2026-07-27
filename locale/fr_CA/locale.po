@@ -309,6 +309,7 @@ msgstr ""
 "Le processus de génération du rapport de similarité a déjà été planifié pour "
 "le fichier de soumission {$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Les informations estampillées du CLUF sont manquantes pour la soumission ou "
@@ -461,3 +462,10 @@ msgstr "Incohérence d'ID de webhook : la base de données contient {$dbId} mais
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note : Le webhook validé {$validatedId} (depuis l'API) diffère de l'enregistrement dans la base de données ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

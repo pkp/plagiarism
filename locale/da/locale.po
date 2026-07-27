@@ -253,6 +253,7 @@ msgstr "Indsendelsesdetaljer er utilgængelige."
 msgid "plugins.generic.plagiarism.submission.status.ERROR"
 msgstr "Der opstod en fejl under processeringen af indsendelsen."
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Information om den stemplede slutbrugerlicensaftale (EULA) mangler for "
@@ -462,3 +463,10 @@ msgstr "Webhook ID uoverensstemmelse: databasen har {$dbId}, men iThenticate API
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Bemærk: Valideret webhook {$validatedId} (fra API) adskiller sig fra databaseposten ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

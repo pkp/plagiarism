@@ -113,6 +113,7 @@ msgstr ""
 "Einplanen des Ähnlichkeitsberichtes für die Datei mit der Nummer "
 "{$submissionFileId} fehlgeschlagen"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Die bestätigte Endnutzer-Lizenzvereinbarung fehlt für die Einreichung oder "
@@ -467,3 +468,10 @@ msgstr "Webhook-ID-Abweichung: Datenbank enthält {$dbId}, aber die iThenticate-
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Hinweis: Validierter Webhook {$validatedId} (von der API) unterscheidet sich vom Datenbankeintrag ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

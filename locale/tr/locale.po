@@ -309,6 +309,7 @@ msgstr ""
 "{$submissionFileId} numaralı gönderim dosyası için benzerlik raporu "
 "oluşturma planlaması başarısız oldu"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Gönderim veya gönderen kullanıcı için damgalı Son Kullanıcı Lisans "
@@ -459,3 +460,10 @@ msgstr "Web kancası kimlik uyumsuzluğu: veritabanında {$dbId} var ancak iThen
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Not: Doğrulanan web kancası {$validatedId} (API'den) veritabanı kaydından ({$dbId}) farklıdır."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

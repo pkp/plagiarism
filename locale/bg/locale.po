@@ -280,6 +280,7 @@ msgstr ""
 "Неуспешно планиране на процеса на генериране на отчет за сходство за файл с "
 "идентификатор {$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Липсва заверената информация за EULA за подаването или подаващия потребител."
@@ -470,3 +471,10 @@ msgstr "Несъответствие на ID на webhook: базата данн
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Забележка: Валидираният webhook {$validatedId} (от API) се различава от записа в базата данни ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

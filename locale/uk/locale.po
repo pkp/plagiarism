@@ -226,6 +226,7 @@ msgstr ""
 "Процес генерування звіту про схожість уже заплановано для файлу подання з "
 "ідентифікатором {$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Відсутня інформація про ліцензійну угоду для подання або користувача, який "
@@ -440,3 +441,10 @@ msgstr "Невідповідність ID вебхука: у базі даних
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Примітка: перевірений вебхук {$validatedId} (з API) відрізняється від запису в базі даних ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

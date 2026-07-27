@@ -236,10 +236,10 @@ msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
 msgstr "Unable to complete the uploading of all files at iThenticate service for plagiarism check."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
-msgstr "Could not register submission file id {$submissionFileId} with iThenticate. Re-run the plagiarism check from the file's actions; if it keeps failing, verify the iThenticate credentials."
+msgstr "Could not create the submission at iThenticate for submission file id : {$submissionFileId}"
 
 msgid "plugins.generic.plagiarism.ithenticate.file.upload.failed"
-msgstr "Could not upload submission file id {$submissionFileId} to iThenticate. Re-run the plagiarism check from the file's actions; if it keeps failing, verify the file is a supported, non-empty document."
+msgstr "Could not complete the file upload at iThenticate for submission file id  : {$submissionFileId}"
 
 msgid "plugins.generic.plagiarism.submission.status.unavailable"
 msgstr "Submission details is unavailable."

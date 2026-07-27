@@ -325,6 +325,7 @@ msgstr ""
 "Նմանության հաշվետվության ստեղծման գործընթացն արդեն ծրագրված է ներկայացման "
 "նիշք ID {$submissionFileId} համար"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "EULA-ի կնիքով տեղեկատվությունը բացակայում է ներկայացվող կամ ներկայացնող "
@@ -470,3 +471,10 @@ msgstr "Webhook ID mismatch: database has {$dbId} but iThenticate API has {$apiI
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note: Validated webhook {$validatedId} (from API) differs from database record ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

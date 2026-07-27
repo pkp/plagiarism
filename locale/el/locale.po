@@ -158,3 +158,14 @@ msgstr "Σημείωση: Το επικυρωμένο webhook {$validatedId} (α
 #, fuzzy
 msgid "plugins.generic.plagiarism.action.submitSubmission.eulaUpdated"
 msgstr "Η Turnitin ενημέρωσε την EULA της. Παρακαλώ προσπαθήστε ξανά για να ελέγξετε και να αποδεχθείτε τους νέους όρους."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.stamped.eula.missing"
+msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

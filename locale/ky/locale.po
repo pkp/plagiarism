@@ -35,6 +35,7 @@ msgstr ""
 "{$submissionFileId} тапшыруу файлынын идентификатору үчүн окшоштук отчетун "
 "түзүү процесси пландаштырылган жок"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Тапшыруучу же тапшыруучу колдонуучу үчүн мөөрү басылган EULA маалыматы жок."
@@ -440,3 +441,10 @@ msgstr "Вебхук ID дал келбөөчүлүгү: маалымат баз
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Эскертүү: Тастыкталган вебхук {$validatedId} (API'ден) маалымат базасынын жазуусунан ({$dbId}) айырмаланат."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

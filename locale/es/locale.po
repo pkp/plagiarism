@@ -461,3 +461,10 @@ msgstr "Discrepancia de ID de webhook: la base de datos tiene {$dbId} pero la AP
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Nota: El webhook validado {$validatedId} (de la API) difiere del registro de la base de datos ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

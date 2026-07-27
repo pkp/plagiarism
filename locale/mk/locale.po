@@ -277,6 +277,7 @@ msgstr ""
 "Дадената идентификација на датотеката за поднесување: {$submissionFileId} не "
 "постои за идентификација на контекст: {$contextId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Недостасуваат печатени информации за EULA за корисникот за поднесување или "
@@ -451,3 +452,10 @@ msgstr "Несовпаѓање на webhook ID: базата на податоц
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Забелешка: Потврдениот webhook {$validatedId} (од АПИ) се разликува од записот во базата на податоци ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

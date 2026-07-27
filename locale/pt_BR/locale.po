@@ -321,6 +321,7 @@ msgstr ""
 "Falha ao agendar a geração do relatório de similaridade para o arquivo de "
 "submissão com ID {$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "As informações gravadas no Contrato de Licença do Usuário Final estão "
@@ -470,3 +471,10 @@ msgstr "Incompatibilidade de ID do webhook: o banco de dados tem {$dbId}, mas a 
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Nota: O webhook validado {$validatedId} (da API) difere do registro no banco de dados ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"

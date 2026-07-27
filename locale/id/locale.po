@@ -286,6 +286,7 @@ msgstr ""
 "Gagal menjadwalkan proses pembuatan laporan kesamaan untuk naskah file id "
 "{$submissionFileId}"
 
+#, fuzzy
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr ""
 "Informasi EULA yang dicap tidak ada pada saat pengiriman atau pengguna yang "
@@ -446,3 +447,10 @@ msgstr "Ketidakcocokan ID webhook: basis data memiliki {$dbId} tetapi API iThent
 #, fuzzy
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Catatan: Webhook yang divalidasi {$validatedId} (dari API) berbeda dari catatan basis data ({$dbId})."
+
+#, fuzzy
+msgid "plugins.generic.plagiarism.similarity.error.title"
+msgstr "Plagiarism check error"
+
+msgid "plugins.generic.plagiarism.error.withDetail"
+msgstr "{$message} ({$detail})"
