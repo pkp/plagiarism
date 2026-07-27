@@ -624,6 +624,13 @@ pkp.registry.storeExtend('workflow', (piniaContext) => {
     // where the submission-files store does not exist — matching it there would insert the notice
     // against a missing store. Placed AFTER the manager so its Pinia store exists when read.
     workflowStore.extender.extendFn('getPrimaryItems', (items) => {
+        // OPS's workflow config resolver can return a non-array (undefined) for transient/empty menu
+        // states (unlike OJS, which falls back to []). Preserve the base result untouched rather than
+        // calling findIndex on a non-array
+        if (!Array.isArray(items)) {
+            return items;
+        }
+
         const index = items.findIndex((item) =>
             isOPS()
                 ? item.component === 'GalleyManager'
