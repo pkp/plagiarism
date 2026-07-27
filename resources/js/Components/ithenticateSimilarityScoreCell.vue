@@ -21,7 +21,7 @@
             <button
                 type="button"
                 class="plagiarism-error__button"
-                :aria-label="t('plugins.generic.plagiarism.similarity.error.ariaLabel')"
+                :aria-label="t('plugins.generic.plagiarism.similarity.error.title')"
                 @click="openErrorDetails"
             >
                 <icon icon="Error" class="h-6 w-6"></icon>

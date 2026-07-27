@@ -7,9 +7,7 @@
     <div
         v-if="errors.length"
         class="ithenticate-error-notice"
-        role="region"
         aria-live="polite"
-        :aria-label="t('plugins.generic.plagiarism.workflow.errorNotice.region')"
     >
         <PkpNotification
             v-for="(error, index) in errors"

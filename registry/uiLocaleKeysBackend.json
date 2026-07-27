@@ -14,8 +14,6 @@
   "plugins.generic.plagiarism.similarity.action.refreshReport.title",
   "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.confirmation",
   "plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title",
-  "plugins.generic.plagiarism.similarity.error.ariaLabel",
   "plugins.generic.plagiarism.similarity.error.title",
-  "plugins.generic.plagiarism.similarity.match.title",
-  "plugins.generic.plagiarism.workflow.errorNotice.region"
+  "plugins.generic.plagiarism.similarity.match.title"
 ]

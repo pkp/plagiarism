@@ -227,13 +227,13 @@ msgid "plugins.generic.plagiarism.webhook.similarity.schedule.previously"
 msgstr "Similarity report generation process has already been scheduled for submission file id {$submissionFileId}"
 
 msgid "plugins.generic.plagiarism.webhook.similarity.schedule.failure"
-msgstr "Failed to schedule the similarity report for submission file id {$submissionFileId}. Use the file's actions to schedule it again."
+msgstr "Failed to schedule the similarity report generation process for submission file id {$submissionFileId}"
 
 msgid "plugins.generic.plagiarism.stamped.eula.missing"
 msgstr "The iThenticate EULA has not been accepted for this submission. Open the file's actions, accept the EULA, then submit for the plagiarism check."
 
 msgid "plugins.generic.plagiarism.ithenticate.upload.complete.failed"
-msgstr "Not all files were uploaded to iThenticate. Re-run the plagiarism check from the affected file's actions."
+msgstr "Unable to complete the uploading of all files at iThenticate service for plagiarism check."
 
 msgid "plugins.generic.plagiarism.ithenticate.submission.create.failed"
 msgstr "Could not register submission file id {$submissionFileId} with iThenticate. Re-run the plagiarism check from the file's actions; if it keeps failing, verify the iThenticate credentials."
@@ -355,14 +355,8 @@ msgstr "Webhook ID mismatch: database has {$dbId} but iThenticate API has {$apiI
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.webhook.includeApi.validateDbMismatch"
 msgstr "Note: Validated webhook {$validatedId} (from API) differs from database record ({$dbId})."
 
-msgid "plugins.generic.plagiarism.similarity.error.ariaLabel"
-msgstr "Plagiarism check error for this file. Activate to read the details."
-
 msgid "plugins.generic.plagiarism.similarity.error.title"
 msgstr "Plagiarism check error"
-
-msgid "plugins.generic.plagiarism.workflow.errorNotice.region"
-msgstr "Plagiarism check notices for this submission"
 
 msgid "plugins.generic.plagiarism.error.withDetail"
 msgstr "{$message} ({$detail})"
