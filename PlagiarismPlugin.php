@@ -1068,9 +1068,7 @@ class PlagiarismPlugin extends GenericPlugin
 		$webhookUrl = $this->getWebhookUrl($context);
 		$allowInsecure = $this->resolveWebhookAllowInsecure($webhookUrl);
 
-		// Warn only when we *derived* insecure delivery (operator did not set the flag and the
-		// webhook URL is plain http): similarity results will travel unencrypted. An explicit
-		// config value is the operator's own decision, so stay silent in that case.
+		// Warn only when we derived insecure delivery
 		if ($allowInsecure && Config::getVar('ithenticate', 'webhook_allow_insecure', null) === null) {
 			error_log(
 				"Plagiarism plugin: registering the iThenticate webhook over an insecure http URL ({$webhookUrl}) " .

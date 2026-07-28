@@ -642,7 +642,7 @@ class Webhook extends CommandLineTool
             $table->render();
 
             // Loud notice when the live webhook is delivering over plain http: similarity results
-            // travel UNENCRYPTED. The scheme is authoritative here — it's the URL Turnitin actually calls.
+            // travel UNENCRYPTED.
             if (strtolower((string) parse_url($webhookResult['url'] ?? '', PHP_URL_SCHEME)) === 'http') {
                 $this->getCommandInterface()->getOutput()->warning(
                     "This webhook URL is http ({$webhookResult['url']}); iThenticate delivers similarity results " .

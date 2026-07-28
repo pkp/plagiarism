@@ -814,8 +814,7 @@ class IThenticate
             $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 
             // Redact the webhook signing secret from the request body (registerWebhook) so it
-            // never reaches the log. Now that TLS is verified, cert failures throw here, and the
-            // registerWebhook body carries the signing_secret.
+            // never reaches the log.
             if (isset($options['json']['signing_secret'])) {
                 $options['json']['signing_secret'] = '*****************************';
             }
