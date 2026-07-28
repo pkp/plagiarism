@@ -75,6 +75,22 @@ ithenticate = On
 ; It is possible to disable auto upload at specific Journal/Server/Press level rather than globally
 ; disableAutoSubmission[Journal_or_Server_or_Press_path] = On
 
+; Verify the TLS certificate of the iThenticate API host on every outbound API request.
+; Default: On (secure). Set to Off ONLY for a local/staging box talking to a sandbox endpoint
+; that presents a self-signed or otherwise untrusted certificate.
+; verify_ssl = On
+
+; Controls the `allow_insecure` flag sent when (re-)registering the inbound webhook — i.e. whether
+; iThenticate may deliver similarity results to a non-HTTPS / untrusted-cert endpoint.
+; Default: unset — the value is then derived from the webhook URL scheme: an https base_url
+; registers secure (false); an http base_url registers insecure (true) and logs a warning that
+; results are delivered unencrypted. Set it explicitly only to override that derivation:
+;   On  = your site is served over HTTPS but with a self-signed / untrusted certificate
+;         (the scheme looks secure, but iThenticate cannot validate the cert, so it needs insecure delivery)
+;   Off = force-refuse insecure delivery even on http (iThenticate will reject the http webhook URL)
+; Takes effect only on the next webhook re-registration (php plugins/generic/plagiarism/tools/registerWebhooks.php).
+; webhook_allow_insecure = Off
+
 ; Other settings can be configured here; see README.md for all options.
 ```
 

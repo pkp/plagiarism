@@ -232,7 +232,6 @@ class IThenticate
 
         $response = $this->makeApiRequest('GET', $this->getApiPath('features-enabled'), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
             'exceptions' => false,
             'http_errors' => false,
         ]);
@@ -268,7 +267,6 @@ class IThenticate
                     'accepted_timestamp' => \Carbon\Carbon::now()->toIso8601String(),
                     'language' => $this->getApplicableLocale($context->getPrimaryLocale()),
                 ],
-                'verify' => false,
                 'exceptions' => false,
             ]
         );
@@ -337,7 +335,6 @@ class IThenticate
                     ],
 
                 ],
-                'verify' => false,
                 'exceptions' => false,
             ]
         );
@@ -371,7 +368,6 @@ class IThenticate
                     'Content-Disposition' => urlencode('inline; filename="'.$fileName.'"'),
                 ]),
                 'body' => $fileContent,
-                'verify' => false,
                 'exceptions' => false,
             ]
         );
@@ -394,7 +390,6 @@ class IThenticate
             $this->getApiPath("submissions/{$submissionUuid}"),
             [
                 'headers' => $this->getRequiredHeaders(),
-                'verify' => false,
                 'exceptions' => false,
             ]
         );
@@ -595,11 +590,12 @@ class IThenticate
      * 
      * @param string $signingSecret
      * @param string $url
+     * @param bool   $allowInsecure   Allow delivery to a non-HTTPS / untrusted-cert endpoint
      * @param array  $events
-     * 
+     *
      * @return string|null The UUID of register webhook if succeed or null if failed
      */
-    public function registerWebhook($signingSecret, $url, $events = self::DEFAULT_WEBHOOK_EVENTS) {
+    public function registerWebhook($signingSecret, $url, $allowInsecure, $events = self::DEFAULT_WEBHOOK_EVENTS) {
 
         $payload = [
             'headers' => array_merge($this->getRequiredHeaders(), [
@@ -609,9 +605,8 @@ class IThenticate
                 'signing_secret' => base64_encode($signingSecret),
                 'url' => $url,
                 'event_types' => $events,
-                'allow_insecure' => true,
+                'allow_insecure' => $allowInsecure,
             ],
-            'verify' => false,
             // exception is ignored and require the http_errors to make sure no exception is thrown
             // and the response with status code 409 can be handled
             'exceptions' => false,
@@ -663,7 +658,6 @@ class IThenticate
 
         $response = $this->makeApiRequest('GET', $this->getApiPath('webhooks'), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
             'exceptions' => false,
         ]);
 
@@ -704,7 +698,6 @@ class IThenticate
 
         $response = $this->makeApiRequest('DELETE', $this->getApiPath("webhooks/{$webhookId}"), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
             'exceptions' => false,
         ]);
 
@@ -762,6 +755,10 @@ class IThenticate
         $this->lastEulaError = false;
         $response = null;
 
+        if (!isset($options['verify'])) {
+            $options['verify'] = (bool) Config::getVar('ithenticate', 'verify_ssl', true);
+        }
+
         try {
             $response = Application::get()->getHttpClient()->request($method, $url, $options);
 
@@ -779,6 +776,12 @@ class IThenticate
 
             // Mask the sensitive Authorization Bearer token to hide API KEY before logging.
             $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+            // Redact the webhook signing secret from the request body (registerWebhook) so it
+            // never reaches the log.
+            if (isset($options['json']['signing_secret'])) {
+                $options['json']['signing_secret'] = '*****************************';
+            }
 
             // Detection on the throw path. Guzzle's default behaviour throws on
             // 4xx/5xx, so 451/400 EULA-mismatch responses land here for callers
