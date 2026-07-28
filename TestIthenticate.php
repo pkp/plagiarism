@@ -495,15 +495,17 @@ class TestIThenticate
     public function registerWebhook(
         string $signingSecret,
         string $url,
+        bool $allowInsecure,
         array $events = self::DEFAULT_WEBHOOK_EVENTS
     ): ?string
     {
         error_log(
             sprintf(
-                "Register webhook end point with singing secret : %s, url : %s and events : [%s]",
+                "Register webhook end point with singing secret : %s, url : %s, events : [%s] and allow_insecure : %s",
                 $signingSecret,
                 $url,
-                implode(', ',$events)
+                implode(', ',$events),
+                $allowInsecure ? 'true' : 'false'
             )
         );
         return Str::uuid()->__toString();

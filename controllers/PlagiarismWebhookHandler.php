@@ -74,7 +74,7 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			return;
 		}
 
-		if ($headers->get('x-turnitin-signature') !== hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret'))) {
+		if (!hash_equals(hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret')), (string) $headers->get('x-turnitin-signature'))) {
 			error_log("iThenticate webhook (context {$context->getId()}): signature verification failed; ignoring.");
 			return;
 		}
