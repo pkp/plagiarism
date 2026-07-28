@@ -848,8 +848,27 @@ class PlagiarismPlugin extends GenericPlugin {
 	}
 
 	/**
+	 * Resolve the `allow_insecure` flag for the webhook registration body.
+	 *
+	 * Honours an explicit `[ithenticate] webhook_allow_insecure` (On/Off) when set; otherwise derives
+	 * from the URL scheme (http => true, https => false), as the Turnitin TCA API requires.
+	 *
+	 * @param  string $webhookUrl
+	 *
+	 * @return bool
+	 */
+	public function resolveWebhookAllowInsecure($webhookUrl) {
+		$configured = Config::getVar('ithenticate', 'webhook_allow_insecure', null);
+		if ($configured !== null) {
+			return (bool) $configured;
+		}
+
+		return strtolower((string) parse_url($webhookUrl, PHP_URL_SCHEME)) === 'http';
+	}
+
+	/**
 	 * Register the webhook for this context
-	 * 
+	 *
 	 * @param IThenticate|TestIThenticate $ithenticate
 	 * @param Context|null 					$context
 	 * 
@@ -860,7 +879,7 @@ class PlagiarismPlugin extends GenericPlugin {
 		$request = Application::get()->getRequest();
 		$context = $context ?? $request->getContext();
 
-		$signingSecret = \Illuminate\Support\Str::random(12);
+		$signingSecret = \Illuminate\Support\Str::random(32);
 		$webhookUrl = Application::get()->getDispatcher()->url(
 			$request,
 			ROUTE_COMPONENT,
@@ -868,8 +887,18 @@ class PlagiarismPlugin extends GenericPlugin {
 			'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
 			'handle'
 		);
+		$allowInsecure = $this->resolveWebhookAllowInsecure($webhookUrl);
 
-		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
+		// Warn only when we derived insecure delivery
+		if ($allowInsecure && Config::getVar('ithenticate', 'webhook_allow_insecure', null) === null) {
+			error_log(
+				"Plagiarism plugin: registering the iThenticate webhook over an insecure http URL ({$webhookUrl}) " .
+				"for context {$context->getId()}; similarity results will be delivered UNENCRYPTED. Serve OJS over " .
+				"HTTPS, or set [ithenticate] webhook_allow_insecure explicitly in config.inc.php to silence this."
+			);
+		}
+
+		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl, $allowInsecure)) {
 			try {
 				$contextService = Services::get('context'); /** @var \PKP\Services\PKPContextService $contextService */
 				$context = $contextService->edit($context, [

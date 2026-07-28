@@ -455,13 +455,14 @@ class TestIThenticate {
     /**
      * @copydoc IThenticate::registerWebhook()
      */
-    public function registerWebhook($signingSecret, $url, $events = self::DEFAULT_WEBHOOK_EVENTS) {
+    public function registerWebhook($signingSecret, $url, $allowInsecure, $events = self::DEFAULT_WEBHOOK_EVENTS) {
         error_log(
             sprintf(
-                "Register webhook end point with singing secret : %s, url : %s and events : [%s]",
-                $signingSecret, 
-                $url, 
-                implode(', ',$events)
+                "Register webhook end point with singing secret : %s, url : %s, events : [%s] and allow_insecure : %s",
+                $signingSecret,
+                $url,
+                implode(', ',$events),
+                $allowInsecure ? 'true' : 'false'
             )
         );
         return \Illuminate\Support\Str::uuid()->__toString();
