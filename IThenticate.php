@@ -18,6 +18,7 @@ use APP\core\Application;
 use APP\submission\Submission;
 use Exception;
 use PKP\author\Author;
+use PKP\config\Config;
 use PKP\site\Site;
 use PKP\context\Context;
 use PKP\user\User;
@@ -224,8 +225,6 @@ class IThenticate
     {
         $response = $this->makeApiRequest('GET', $this->getApiPath('features-enabled'), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
-            'exceptions' => false,
             'http_errors' => false,
         ]);
 
@@ -255,8 +254,6 @@ class IThenticate
                     'accepted_timestamp' => \Carbon\Carbon::now()->toIso8601String(),
                     'language' => $this->getApplicableLocale($context->getPrimaryLocale()),
                 ],
-                'verify' => false,
-                'exceptions' => false,
             ]
         );
 
@@ -331,8 +328,6 @@ class IThenticate
                     ],
 
                 ],
-                'verify' => false,
-                'exceptions' => false,
             ]
         );
 
@@ -363,8 +358,6 @@ class IThenticate
                     'Content-Disposition' => urlencode('inline; filename="'.$fileName.'"'),
                 ]),
                 'body' => $fileContent,
-                'verify' => false,
-                'exceptions' => false,
             ]
         );
 
@@ -386,8 +379,6 @@ class IThenticate
             $this->getApiPath("submissions/{$submissionUuid}"),
             [
                 'headers' => $this->getRequiredHeaders(),
-                'verify' => false,
-                'exceptions' => false,
             ]
         );
 
@@ -452,7 +443,6 @@ class IThenticate
                         'exclude_submitted_works'           => $settings['excludeSubmittedWorks']           ?? false,
                     ],
                 ],
-                'exceptions' => false,
             ]
         );
 
@@ -472,7 +462,6 @@ class IThenticate
             $this->getApiPath("submissions/{$submissionUuid}/similarity"),
             [
                 'headers' => $this->getRequiredHeaders(),
-                'exceptions' => false,
             ]
         );
 
@@ -516,7 +505,6 @@ class IThenticate
                         ],
                     ],
                 ],
-                'exceptions' => false,
             ]
         );
         
@@ -539,7 +527,6 @@ class IThenticate
             $this->getApiPath("eula/{$version}/accept/" . $this->getGeneratedId('submitter' ,$user->getId())),
             [
                 'headers' => $this->getRequiredHeaders(),
-                'exceptions' => false,
             ]
         );
         
@@ -554,7 +541,6 @@ class IThenticate
     {
         $response = $this->makeApiRequest('GET', $this->getApiPath("eula/{$version}"), [
             'headers' => $this->getRequiredHeaders(),
-            'exceptions' => false,
         ]);
         
         if ($response && $response->getStatusCode() === 200) {
@@ -576,12 +562,15 @@ class IThenticate
      *
      * NOTE :   with same webhook url, it will return response with status code 409(HTTP_CONFLICT)
      *          So it's important to verify one before create a new one
-     * 
+     *
+     * @param bool $allowInsecure Allow delivery to a non-HTTPS / untrusted-cert endpoint. Resolved by the caller.
+     *
      * @return string|null The UUID of register webhook if succeed or null if failed
      */
     public function registerWebhook(
         string $signingSecret,
         string $url,
+        bool $allowInsecure,
         array $events = self::DEFAULT_WEBHOOK_EVENTS
     ): ?string
     {
@@ -593,12 +582,10 @@ class IThenticate
                 'signing_secret' => base64_encode($signingSecret),
                 'url' => $url,
                 'event_types' => $events,
-                'allow_insecure' => true,
+                'allow_insecure' => $allowInsecure,
             ],
-            'verify' => false,
-            // exception is ignored and require the http_errors to make sure no exception is thrown
-            // and the response with status code 409 can be handled
-            'exceptions' => false,
+            // http_errors => false so a 409 (duplicate-URL) is returned rather than thrown,
+            // and can be inspected below for the orphaned-webhook recovery.
             'http_errors' => false,
         ]);
 
@@ -629,10 +616,8 @@ class IThenticate
                         'signing_secret' => base64_encode($signingSecret),
                         'url' => $url,
                         'event_types' => $events,
-                        'allow_insecure' => true,
+                        'allow_insecure' => $allowInsecure,
                     ],
-                    'verify' => false,
-                    'exceptions' => false,
                     'http_errors' => false,
                 ]);
 
@@ -654,8 +639,6 @@ class IThenticate
     {
         $response = $this->makeApiRequest('DELETE', $this->getApiPath("webhooks/{$webhookId}"), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
-            'exceptions' => false,
         ]);
 
         return $response && $response->getStatusCode() === 204;
@@ -669,8 +652,6 @@ class IThenticate
     {
         $response = $this->makeApiRequest('GET', $this->getApiPath("webhooks/{$webhookId}"), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
-            'exceptions' => false,
         ]);
         
         if ($response && $response->getStatusCode() === 200) {
@@ -691,8 +672,6 @@ class IThenticate
     {
         $response = $this->makeApiRequest('GET', $this->getApiPath('webhooks'), [
             'headers' => $this->getRequiredHeaders(),
-            'verify' => false,
-            'exceptions' => false,
         ]);
 
         if ($response && $response->getStatusCode() === 200) {
@@ -768,6 +747,8 @@ class IThenticate
         $this->lastEulaError = false;
         $response = null;
 
+        $options['verify'] ??= (bool) Config::getVar('ithenticate', 'verify_ssl', true);
+
         try {
             $response = Application::get()->getHttpClient()->request($method, $url, $options);
 
@@ -833,6 +814,12 @@ class IThenticate
 
             // Mask the sensitive Authorization Bearer token to hide API KEY before logging.
             $options['headers']['Authorization'] = 'Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+            // Redact the webhook signing secret from the request body (registerWebhook) so it
+            // never reaches the log.
+            if (isset($options['json']['signing_secret'])) {
+                $options['json']['signing_secret'] = '*****************************';
+            }
 
             // Consolidated failure log: one entry with response side (status / reason / body)
             // plus the masked request options.

@@ -915,8 +915,24 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
+	 * Resolve the `allow_insecure` flag for the webhook registration body.
+	 *
+	 * Honours an explicit `[ithenticate] webhook_allow_insecure` (On/Off) when set; otherwise derives
+	 * from the URL scheme (http => true, https => false), as the Turnitin TCA API requires.
+	 */
+	public function resolveWebhookAllowInsecure(string $webhookUrl): bool
+	{
+		$configured = Config::getVar('ithenticate', 'webhook_allow_insecure', null);
+		if ($configured !== null) {
+			return (bool) $configured;
+		}
+
+		return strtolower((string) parse_url($webhookUrl, PHP_URL_SCHEME)) === 'http';
+	}
+
+	/**
 	 * Register the webhook for this context
-	 * 
+	 *
 	 *
 	 * Example webhook format : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
 	 */
@@ -925,10 +941,20 @@ class PlagiarismPlugin extends GenericPlugin
 		$request = Application::get()->getRequest();
 		$context ??= $request->getContext();
 
-		$signingSecret = \Illuminate\Support\Str::random(12);
+		$signingSecret = \Illuminate\Support\Str::random(32);
 		$webhookUrl = $this->getWebhookUrl($context);
+		$allowInsecure = $this->resolveWebhookAllowInsecure($webhookUrl);
 
-		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl)) {
+		// Warn only when we derived insecure delivery
+		if ($allowInsecure && Config::getVar('ithenticate', 'webhook_allow_insecure', null) === null) {
+			error_log(
+				"Plagiarism plugin: registering the iThenticate webhook over an insecure http URL ({$webhookUrl}) " .
+				"for context {$context->getId()}; similarity results will be delivered UNENCRYPTED. Serve OJS over " .
+				"HTTPS, or set [ithenticate] webhook_allow_insecure explicitly in config.inc.php to silence this."
+			);
+		}
+
+		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl, $allowInsecure)) {
 			try {
 				$contextService = Services::get('context'); /** @var \PKP\Services\PKPContextService $contextService */
 				$context = $contextService->edit($context, [
