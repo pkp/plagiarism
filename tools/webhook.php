@@ -640,6 +640,16 @@ class Webhook extends CommandLineTool
             $table->setRows($rows);
             $table->setColumnMaxWidth(1, 120);
             $table->render();
+
+            // Loud notice when the live webhook is delivering over plain http: similarity results
+            // travel UNENCRYPTED.
+            if (strtolower((string) parse_url($webhookResult['url'] ?? '', PHP_URL_SCHEME)) === 'http') {
+                $this->getCommandInterface()->getOutput()->warning(
+                    "This webhook URL is http ({$webhookResult['url']}); iThenticate delivers similarity results " .
+                    "UNENCRYPTED. Serve OJS over HTTPS to secure them, or set [ithenticate] webhook_allow_insecure " .
+                    "explicitly in config.inc.php."
+                );
+            }
         }
 
         // If validation failed, display the full API response for debugging

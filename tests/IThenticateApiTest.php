@@ -381,7 +381,7 @@ class IThenticateApiTest extends PKPTestCase
             new Response(201, [], json_encode(['id' => 'new-webhook-id', 'url' => self::WEBHOOK_URL])),
         ]);
 
-        $webhookId = $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL);
+        $webhookId = $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL, false);
 
         $this->assertSame('new-webhook-id', $webhookId);
         $this->assertSame(0, $mock->count(), 'Recovery should consume all four queued responses');
@@ -400,7 +400,7 @@ class IThenticateApiTest extends PKPTestCase
             new Response(200, [], json_encode([])), // empty list -> orphan not found
         ]);
 
-        $webhookId = $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL);
+        $webhookId = $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL, false);
 
         $this->assertNull($webhookId, 'No orphan found means registration cannot recover');
         $this->assertSame(0, $mock->count(), 'The 409 branch must reach the list call (both responses consumed)');
@@ -415,10 +415,42 @@ class IThenticateApiTest extends PKPTestCase
             new Response(201, [], json_encode(['id' => 'fresh-webhook-id', 'url' => self::WEBHOOK_URL])),
         ]);
 
-        $webhookId = $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL);
+        $webhookId = $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL, false);
 
         $this->assertSame('fresh-webhook-id', $webhookId);
         $this->assertSame(0, $mock->count());
+    }
+
+    /**
+     * The caller-resolved allow_insecure flag must land verbatim in the webhook registration
+     * body — proving the plugin-side derivation actually reaches Turnitin.
+     */
+    public function testRegisterWebhookSendsAllowInsecureFromParameter(): void
+    {
+        $mock = $this->installGuzzleQueue([
+            new Response(201, [], json_encode(['id' => 'wh-id', 'url' => self::WEBHOOK_URL])),
+        ]);
+
+        $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL, true);
+
+        $body = json_decode((string) $mock->getLastRequest()->getBody(), true);
+        $this->assertTrue($body['allow_insecure'], 'allow_insecure=true must be sent when passed');
+    }
+
+    /**
+     * A false flag is sent verbatim too — the service class carries the caller's decision without
+     * reading app config itself.
+     */
+    public function testRegisterWebhookSendsAllowInsecureFalseWhenPassed(): void
+    {
+        $mock = $this->installGuzzleQueue([
+            new Response(201, [], json_encode(['id' => 'wh-id', 'url' => self::WEBHOOK_URL])),
+        ]);
+
+        $this->ithenticate()->registerWebhook(self::SIGNING_SECRET, self::WEBHOOK_URL, false);
+
+        $body = json_decode((string) $mock->getLastRequest()->getBody(), true);
+        $this->assertFalse($body['allow_insecure'], 'allow_insecure=false must be sent when passed');
     }
 
     // ---------------------------------------------------------------------------------
@@ -431,9 +463,7 @@ class IThenticateApiTest extends PKPTestCase
         // inside Guzzle and is swallowed to null.
         $this->installGuzzleQueue([new Response(500, [], 'boom')]);
 
-        $response = $this->ithenticate()->makeApiRequest('GET', self::API_URL . '/api/v1/whatever', [
-            'exceptions' => false,
-        ]);
+        $response = $this->ithenticate()->makeApiRequest('GET', self::API_URL . '/api/v1/whatever');
 
         $this->assertNull($response);
     }
@@ -446,7 +476,7 @@ class IThenticateApiTest extends PKPTestCase
 
         $this->ithenticate()
             ->withoutSuppressingApiRequestException()
-            ->makeApiRequest('GET', self::API_URL . '/api/v1/whatever', ['exceptions' => false]);
+            ->makeApiRequest('GET', self::API_URL . '/api/v1/whatever');
     }
 
     public function testMakeApiRequestCapturesLastResponseDetailsOn200(): void
@@ -489,8 +519,7 @@ class IThenticateApiTest extends PKPTestCase
         $ithenticate = $this->ithenticate();
         $response = $ithenticate->makeApiRequest(
             'POST',
-            self::API_URL . '/api/v1/eula/v1beta/accept',
-            ['exceptions' => false]
+            self::API_URL . '/api/v1/eula/v1beta/accept'
         );
 
         $this->assertNull($response, 'the 404 is thrown then swallowed to null');
