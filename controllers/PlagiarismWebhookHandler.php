@@ -30,6 +30,9 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	/**
 	 * Authorize this request.
 	 *
+	 * Authentication is by HMAC over the raw request body, not by an session
+	 * so the request itself is always authorized to reach handle().
+	 *
 	 * @return bool
 	 */
 	public function authorize($request, &$args, $roleAssignments)
@@ -38,68 +41,118 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	}
 
 	/**
-	 * Handle the incoming webhook request from iThenticate service
+	 * Handle the incoming webhook request from iThenticate service.
 	 *
 	 * @return void
 	 */
 	public function handle()
 	{
-		$request = Application::get()->getRequest();
-		$context = $request->getContext();
-
-		if (!$context) {
-			error_log('iThenticate webhook received with no resolvable context; ignoring.');
-			return;
-		}
-
 		$headers = collect(array_change_key_case(getallheaders(), CASE_LOWER));
 
+		// Raw body, byte-exact — required for HMAC verification before any JSON decode.
 		$payload = file_get_contents('php://input');
 		if ($payload === false) {
 			$payload = '';
 		}
 
-		if (!$context->getData('ithenticateWebhookId') || !$context->getData('ithenticateWebhookSigningSecret')) {
-			error_log("iThenticate webhook not configured for context {$context->getId()}; ignoring.");
-			return;
-		}
-
 		if (!$headers->has(['x-turnitin-eventtype', 'x-turnitin-signature'])) {
-			error_log("iThenticate webhook (context {$context->getId()}): missing required headers; ignoring.");
+			error_log('iThenticate webhook: missing required headers; ignoring.');
 			return;
 		}
 
-		if (!in_array($headers->get('x-turnitin-eventtype'), IThenticate::DEFAULT_WEBHOOK_EVENTS)) {
-			error_log("iThenticate webhook (context {$context->getId()}): invalid event type " . $headers->get('x-turnitin-eventtype') . "; ignoring.");
+		$event = $headers->get('x-turnitin-eventtype');
+
+		if (!in_array($event, IThenticate::DEFAULT_WEBHOOK_EVENTS)) {
+			error_log("iThenticate webhook: invalid event type {$event}; ignoring.");
 			return;
 		}
 
-		if (!hash_equals(hash_hmac("sha256", $payload, $context->getData('ithenticateWebhookSigningSecret')), (string) $headers->get('x-turnitin-signature'))) {
-			error_log("iThenticate webhook (context {$context->getId()}): signature verification failed; ignoring.");
+		// Authenticate over the RAW body before decoding attacker-controlled JSON or touching
+		// the database. No DB read / JSON decode / mutation happens until the HMAC passes.
+		$auth = $this->authenticate($payload, (string) $headers->get('x-turnitin-signature'));
+
+		if (!$auth) {
+			error_log("iThenticate webhook ({$event}): signature verification failed against all known secrets; ignoring.");
 			return;
 		}
 
-		match ($headers->get('x-turnitin-eventtype')) {
+		match ($event) {
 			'SUBMISSION_COMPLETE'
-				=> $this->handleSubmissionCompleteEvent($context, $payload, $headers->get('x-turnitin-eventtype')),
+				=> $this->handleSubmissionCompleteEvent($auth, $payload, $event),
 			'SIMILARITY_COMPLETE', 'SIMILARITY_UPDATED'
-				=> $this->storeSimilarityScore($context, $payload, $headers->get('x-turnitin-eventtype')),
+				=> $this->storeSimilarityScore($auth, $payload, $event),
 			default
-				=> error_log("Handling the iThenticate webhook event {$headers->get('x-turnitin-eventtype')} is not implemented yet"),
+				// Authenticated but not actionable (e.g. PDF_STATUS, GROUP_ATTACHMENT_COMPLETE
+				// carry no submission UUID we act on).
+				=> null,
 		};
 	}
 
 	/**
-	 * Initiate the iThenticate similarity report generation process for given 
-	 * iThenticate submission id at receiving webhook event `SUBMISSION_COMPLETE`
+	 * Build the candidate signing-secret set and match the delivery's HMAC against it.
+	 *
+	 * @return array|null Matched descriptor ['via'=>'registry','fingerprint'=>...] or
+	 *                    ['via'=>'legacy','contextId'=>...], or null on no match.
+	 */
+	protected function authenticate(string $rawBody, string $signature): ?array
+	{
+		$candidates = [];
+
+		foreach ($this->_plugin->getWebhookManager()->getWebhookRegistry() as $fingerprint => $entry) {
+			if (!empty($entry['signingSecret'])) {
+				$candidates[] = [
+					'via' => 'registry',
+					'fingerprint' => $fingerprint,
+					'secret' => $entry['signingSecret'],
+				];
+			}
+		}
+
+		// A legacy per-context webhook still POSTs to its context path, so the request resolves
+		// to that context; honour its stored secret so existing webhooks keep authenticating.
+		$context = Application::get()->getRequest()->getContext();
+		if ($context && $context->getData('ithenticateWebhookSigningSecret')) {
+			$candidates[] = [
+				'via' => 'legacy',
+				'contextId' => (int) $context->getId(),
+				'secret' => $context->getData('ithenticateWebhookSigningSecret'),
+			];
+		}
+
+		return static::matchSigningSecret($rawBody, $signature, $candidates);
+	}
+
+	/**
+	 * Match an HMAC-SHA256 signature against a set of candidate secrets, returning on the first hit.
 	 * 
-	 * @param Context 	$context 	The current context for which the webhook request has initiated
+	 * @param array $candidates each ['via'=>..., 'secret'=>..., ...descriptor keys]
+	 *
+	 * @return array|null The matched candidate WITHOUT its 'secret' key, or null if none match.
+	 */
+	public static function matchSigningSecret(string $rawBody, string $signature, array $candidates): ?array
+	{
+		foreach ($candidates as $candidate) {
+			$expected = hash_hmac('sha256', $rawBody, (string) ($candidate['secret'] ?? ''));
+			if (hash_equals($expected, $signature)) {
+				unset($candidate['secret']);
+				return $candidate;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Initiate the iThenticate similarity report generation process for the referenced
+	 * iThenticate submission id on receiving the `SUBMISSION_COMPLETE` webhook event.
+	 *
+	 * @param array 	$auth		The authenticated scope descriptor from authenticate()
 	 * @param string 	$payload	The incoming request payload through webhook
 	 * @param string 	$event		The incoming webhook request event
 	 *
 	 * @return void
 	 */
-	protected function handleSubmissionCompleteEvent(Context $context, string $payload, string $event): void
+	protected function handleSubmissionCompleteEvent(array $auth, string $payload, string $event): void
 	{
 		$payload = json_decode($payload);
 		if (!is_object($payload) || !isset($payload->id)) {
@@ -107,21 +160,13 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			return;
 		}
 
-		$ithenticateSubmission = $this->getIthenticateSubmission($payload->id);
-
-		if (!$ithenticateSubmission) {
-			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$payload->id}; ignoring.");
-			return;
-		}
-
-		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
+		$submissionFile = $this->resolveSubmissionFile($payload->id, $event);
 		if (!$submissionFile) {
-			error_log("iThenticate webhook ({$event}): submission file {$ithenticateSubmission->submission_file_id} not found; ignoring.");
 			return;
 		}
 
-		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			error_log("iThenticate webhook ({$event}): submission file " . $submissionFile->getId() . " is not associated with context {$context->getId()}; ignoring.");
+		$context = $this->bindDeliveryToScope($auth, $submissionFile, $event);
+		if (!$context) {
 			return;
 		}
 
@@ -144,9 +189,9 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 		$submissionFile->setData('ithenticateSubmissionAcceptedAt', Core::getCurrentDate());
 		$submissionFile->setData('ithenticateProcessingError', null);
 		Repo::submissionFile()->edit($submissionFile, []);
-		
+
 		$submissionFile = Repo::submissionFile()->get($submissionFile->getId());
-		
+
 		if ((int)$submissionFile->getData('ithenticateSimilarityScheduled')) {
 			$this->_plugin->recordSubmissionFileError(
 				$submissionFile,
@@ -156,9 +201,8 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			);
 			return;
 		}
-		
-		list($apiUrl, $apiKey) = $this->_plugin->getServiceAccess($context);
-		$ithenticate = $this->_plugin->initIthenticate($apiUrl, $apiKey);
+
+		$ithenticate = $this->_plugin->initIthenticate(...$this->_plugin->getServiceAccess($context));
 
 		$scheduleSimilarityReport = $ithenticate->scheduleSimilarityReportGenerationProcess(
 			$payload->id,
@@ -184,14 +228,14 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	/**
 	 * Store or Update the result of similarity check for a submission file at receiving
 	 * the webook event `SIMILARITY_COMPLETE` or `SIMILARITY_UPDATED`
-	 * 
-	 * @param Context 	$context 	The current context for which the webhook request has initiated
+	 *
+	 * @param array 	$auth		The authenticated scope descriptor from authenticate()
 	 * @param string 	$payload	The incoming request payload through webhook
 	 * @param string 	$event		The incoming webhook request event
 	 *
 	 * @return void
 	 */
-	protected function storeSimilarityScore(Context $context, string $payload, string $event): void
+	protected function storeSimilarityScore(array $auth, string $payload, string $event): void
 	{
 		$payload = json_decode($payload);
 		if (!is_object($payload)) {
@@ -212,21 +256,12 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 			return;
 		}
 
-		$ithenticateSubmission = $this->getIthenticateSubmission($payload->submission_id);
-
-		if (!$ithenticateSubmission) {
-			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$payload->submission_id}; ignoring.");
-			return;
-		}
-
-		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
+		$submissionFile = $this->resolveSubmissionFile($payload->submission_id, $event);
 		if (!$submissionFile) {
-			error_log("iThenticate webhook ({$event}): submission file {$ithenticateSubmission->submission_file_id} not found; ignoring.");
 			return;
 		}
 
-		if (!$this->verifySubmissionFileAssociationWithContext($context, $submissionFile)) {
-			error_log("iThenticate webhook ({$event}): submission file " . $submissionFile->getId() . " is not associated with context {$context->getId()}; ignoring.");
+		if (!$this->bindDeliveryToScope($auth, $submissionFile, $event)) {
 			return;
 		}
 
@@ -236,18 +271,76 @@ class PlagiarismWebhookHandler extends PlagiarismComponentHandler
 	}
 
 	/**
-	 * Verify if the given submission file is associated with current running/set context
+	 * Resolve the submission file referenced by an iThenticate submission UUID, or null
+	 * (logging the reason) when the mapping or the file cannot be found.
 	 */
-	protected function verifySubmissionFileAssociationWithContext(Context $context, SubmissionFile $submissionFile): bool
+	protected function resolveSubmissionFile(string $ithenticateSubmissionId, string $event): ?SubmissionFile
+	{
+		$ithenticateSubmission = $this->getIthenticateSubmission($ithenticateSubmissionId);
+
+		if (!$ithenticateSubmission) {
+			error_log("iThenticate webhook ({$event}): no submission file found for iThenticate submission id {$ithenticateSubmissionId}; ignoring.");
+			return null;
+		}
+
+		$submissionFile = Repo::submissionFile()->get($ithenticateSubmission->submission_file_id);
+		if (!$submissionFile) {
+			error_log("iThenticate webhook ({$event}): submission file {$ithenticateSubmission->submission_file_id} not found; ignoring.");
+			return null;
+		}
+
+		return $submissionFile;
+	}
+
+	/**
+	 * Bind an authenticated delivery to the acting context, rejecting cross-tenant references.
+	 *
+	 *  - legacy: the acting context IS the delivering context; verify the submission file
+	 *    belongs to it
+	 *  - registry: derive the acting context from the submission, then require the authenticated
+	 *    scope fingerprint to equal the fingerprint of that context's currently-resolved
+	 *    credentials.
+	 *
+	 * @return Context|null The acting context, or null when the delivery must be rejected.
+	 */
+	protected function bindDeliveryToScope(array $auth, SubmissionFile $submissionFile, string $event): ?Context
 	{
 		$submission = Repo::submission()->get($submissionFile->getData('submissionId'));
+		if (!$submission) {
+			error_log("iThenticate webhook ({$event}): submission not found for file {$submissionFile->getId()}; ignoring.");
+			return null;
+		}
 
-		return (int) $submission->getData('contextId') === (int) $context->getId();
+		$context = app()->get('context')->get($submission->getData('contextId'));
+		if (!$context) {
+			error_log("iThenticate webhook ({$event}): context {$submission->getData('contextId')} not found for file {$submissionFile->getId()}; ignoring.");
+			return null;
+		}
+
+		// legacy: the acting context IS the delivering (authenticated) context; it must own the file.
+		if ($auth['via'] === 'legacy') {
+			if ((int) $submission->getData('contextId') !== $auth['contextId']) {
+				error_log("iThenticate webhook ({$event}): submission file {$submissionFile->getId()} is not associated with context {$auth['contextId']}; ignoring.");
+				return null;
+			}
+			return $context;
+		}
+
+		// registry: the authenticated scope fingerprint must equal the fingerprint of the file's own
+		// context's currently-resolved credentials
+		$expectedFingerprint = $this->_plugin->getWebhookManager()->credentialFingerprint(...$this->_plugin->getServiceAccess($context));
+
+		if (!hash_equals($auth['fingerprint'], $expectedFingerprint)) {
+			error_log("iThenticate webhook ({$event}): authenticated scope does not own submission file {$submissionFile->getId()}; rejecting.");
+			return null;
+		}
+
+		return $context;
 	}
 
 	/**
 	 * Get the row data as object from submission file settings table or null if none found
-	 * 
+	 *
 	 * @param string 	$id 	The given iThenticate submission id in UUID format
 	 * @return object|null
 	 */

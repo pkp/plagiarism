@@ -15,7 +15,6 @@
 
 namespace APP\plugins\generic\plagiarism\classes;
 
-use APP\core\Application;
 use APP\plugins\generic\plagiarism\TestIthenticate;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\IThenticate;
@@ -408,7 +407,7 @@ class DummyWebhookManager
 
             $response = Http::withHeaders([
                 'X-Turnitin-EventType' => 'SUBMISSION_COMPLETE',
-                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, $this->context->getData('ithenticateWebhookSigningSecret')),
+                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, (string) $this->getSigningSecret()),
                 'Content-Type' => 'application/json',
             ])->post($webhookUrl, json_decode($payload, true));
 
@@ -461,7 +460,7 @@ class DummyWebhookManager
 
             $response = Http::withHeaders([
                 'X-Turnitin-EventType' => 'SIMILARITY_COMPLETE',
-                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, $this->context->getData('ithenticateWebhookSigningSecret')),
+                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, (string) $this->getSigningSecret()),
                 'Content-Type' => 'application/json',
             ])->post($webhookUrl, json_decode($payload, true));
 
@@ -479,20 +478,36 @@ class DummyWebhookManager
     }
 
     /**
-     * Get the webhook URL for this context
+     * The site webhook registry entry for this context's credential scope
+     */
+    protected function scopeRegistryEntry(): ?array
+    {
+        return $this->plugin->getWebhookManager()->getRegistryEntryForCredentials(
+            ...$this->plugin->getServiceAccess($this->context)
+        );
+    }
+
+    /**
+     * The signing secret iThenticate would use for this delivery: the scope's registry secret
+     * (new mechanism) or, before consolidation, the legacy per-context secret.
+     */
+    protected function getSigningSecret(): ?string
+    {
+        $entry = $this->scopeRegistryEntry();
+        return $entry['signingSecret'] ?? $this->context->getData('ithenticateWebhookSigningSecret');
+    }
+
+    /**
+     * Get the webhook URL a delivery should target: the single site webhook when the scope is
+     * consolidated, otherwise the legacy per-context URL (so pre-#121 setups still simulate).
      */
     protected function getWebhookUrl(): string
     {
-        $request = Application::get()->getRequest();
-        $dispatcher = $request->getDispatcher();
+        if ($this->scopeRegistryEntry()) {
+            return $this->plugin->getWebhookManager()->getSiteWebhookUrl();
+        }
 
-        return $dispatcher->url(
-            $request,
-            Application::ROUTE_COMPONENT,
-            $this->context->getPath(),
-            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-            'handle'
-        );
+        return $this->plugin->getWebhookManager()->getWebhookUrl($this->context);
     }
 
     /**
@@ -525,18 +540,19 @@ class DummyWebhookManager
             );
         }
 
-        // Check: Context must have webhook configured
-        if (!$this->context->getData('ithenticateWebhookId')) {
+        // Check: a webhook must be configured — either the consolidated site webhook for this
+        // context's credential scope (new model) or a legacy per-context webhook
+        if (!$this->scopeRegistryEntry() && !$this->context->getData('ithenticateWebhookId')) {
             throw new Exception(
-                "Context {$this->context->getId()} does not have a webhook configured. " .
+                "No iThenticate webhook is configured for context {$this->context->getId()}'s credential scope. " .
                 "Run: php plugins/generic/plagiarism/tools/webhook.php register --context={$this->context->getPath()}"
             );
         }
 
-        // Check: Context must have webhook configured with signing secret set
-        if (!$this->context->getData('ithenticateWebhookSigningSecret')) {
+        // Check: a signing secret must be resolvable for the delivery target.
+        if (!$this->getSigningSecret()) {
             throw new Exception(
-                "Context {$this->context->getId()} does not have a webhook signing secret. " .
+                "No webhook signing secret is available for context {$this->context->getId()}. " .
                 "Run: php plugins/generic/plagiarism/tools/webhook.php register --context={$this->context->getPath()}"
             );
         }

@@ -268,6 +268,9 @@ msgstr "Validate webhooks for iThenticate account for a given context path"
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.list.description"
 msgstr "List webhooks for iThenticate account for all available and enabled contexts"
 
+msgid "plugins.generic.plagiarism.tools.registerWebhooks.reconcile.description"
+msgstr "Consolidate to one site webhook per credential scope and clean up legacy per-context webhooks (supports --dry-run and --prune)"
+
 msgid "plugins.generic.plagiarism.tools.registerWebhooks.work.description"
 msgstr "Simulate iThenticate webhooks for local testing by polling pending files (test mode only, 10 cycles default)"
 

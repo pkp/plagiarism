@@ -28,6 +28,7 @@ use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\classes\api\formRequests\SubmissionPlagiarismStatus;
 use APP\plugins\generic\plagiarism\classes\api\PlagiarismApiActionManager;
 use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
+use APP\plugins\generic\plagiarism\classes\IThenticateWebhookManager;
 use APP\API\v1\submissions\SubmissionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -101,7 +102,6 @@ class PlagiarismPlugin extends GenericPlugin
 	 * List of valid url components
 	 */
 	protected array $validRouteComponentHandlers = [
-		'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
 		'plugins.generic.plagiarism.controllers.PlagiarismIthenticateHandler',
 	];
 
@@ -112,6 +112,11 @@ class PlagiarismPlugin extends GenericPlugin
 	 * vs the generic "submission failed" text. Lives for the current request only.
 	 */
 	protected bool $lastEulaError = false;
+
+	/**
+	 * The iThenticate webhook manager, which owns all webhook lifecycle concerns
+	 */
+	protected ?IThenticateWebhookManager $ithenticateWebhookManager = null;
 
 	/**
 	 * Determine if running application is OPS or not
@@ -144,12 +149,14 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		$success = parent::register($category, $path, $mainContextId);
 
-		$this->addLocaleData();
-
 		// if plugin hasn't registered, not allow loading plugin
 		if (!$success) {
 			return false;
 		}
+
+		// Webhook endpoint is context-independent (its URL is on the site path) and must resolve
+		// regardless of whether the plugin is enabled or has service access for the CURRENT context
+		$this->getWebhookManager()->registerComponentRoute();
 
 		// Plugin has been registered but not enabled
 		// will allow to load plugin but no plugin feature will be executed
@@ -165,7 +172,7 @@ class PlagiarismPlugin extends GenericPlugin
 		// iThenticate credentials — at which point service access is not yet "available" and the gate
 		// below would otherwise skip this hook, so PKPContextService::edit() would silently drop those
 		// props from <CONTEXT>_settings. The remaining schema/feature hooks MUST stay after the gate.
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_CONTEXT, $this->addIthenticateConfigSettingsToContextSchema(...));
+		$this->getWebhookManager()->registerContextSchemaHook();
 
 		if (!app()->runningInConsole()) {
 			// If iThenticate service access details not available
@@ -200,6 +207,14 @@ class PlagiarismPlugin extends GenericPlugin
 		$this->addApiRoutes();
 
 		return $success;
+	}
+
+	/**
+	 * Get the iThenticate webhook manager (lazily instantiated)
+	 */
+	public function getWebhookManager(): IThenticateWebhookManager
+	{
+		return $this->ithenticateWebhookManager ??= new IThenticateWebhookManager($this);
 	}
 
 	/**
@@ -503,33 +518,6 @@ class PlagiarismPlugin extends GenericPlugin
 	}
 
 	/**
-	 * Add properties for this type of public identifier to the context entity's list for
-	 * storage in the database.
-	 * 
-	 * @param string $hookName `Schema::get::context`
-	 */
-	public function addIthenticateConfigSettingsToContextSchema(string $hookName, array $params): bool
-	{
-		$schema =& $params[0];
-
-		$schema->properties->ithenticateWebhookSigningSecret = (object) [
-			'type' => 'string',
-			'description' => 'The iThenticate service webook registration signing secret',
-			'writeOnly' => true,
-			'validation' => ['nullable'],
-		];
-
-		$schema->properties->ithenticateWebhookId = (object) [
-			'type' => 'string',
-			'description' => 'The iThenticate service webook id that return back after successful webhook registration',
-			'writeOnly' => true,
-			'validation' => ['nullable'],
-		];
-
-		return Hook::CONTINUE;
-	}
-
-	/**
 	 * Attach the EULA confirmation if require at the final stage of submission
 	 * 
 	 * @param string $hookName `TemplateManager::display`
@@ -699,7 +687,6 @@ class PlagiarismPlugin extends GenericPlugin
 		$componentName = last(explode('.', $component));
 
 		$componentInstance = match($componentName) {
-			'PlagiarismWebhookHandler' => new PlagiarismWebhookHandler($this),
 			'PlagiarismIthenticateHandler' => new PlagiarismIthenticateHandler($this),
 		};
 
@@ -742,14 +729,11 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$ithenticate = $this->initIthenticate(...$this->getServiceAccess($context)); /** @var IThenticate $ithenticate */
 
-		// If no webhook previously registered for this Context, register it
-		if (!$context->getData('ithenticateWebhookId')) {
-			$webhookRegistered = $this->registerIthenticateWebhook($ithenticate, $context);
-
-			if (!$webhookRegistered) {
-				// If webhook registration failed, still allow the submission to continue.
-				error_log("Webhook registration failed for context {$context->getId()}. Submissions will upload but updates may not arrive.");
-			}
+		// Ensure the single site webhook exists for this context's credential SCOPE
+		if (!$this->getWebhookManager()->ensureWebhookForContext($context)) {
+			// Non-fatal: the submission still uploads; similarity updates may lag until the
+			// site webhook registers (retried on the next submission or via the CLI).
+			error_log("Plagiarism plugin: could not ensure the iThenticate site webhook for context {$context->getId()}. Submissions will upload but updates may not arrive.");
 		}
 
 		// Only set applicable EULA if EULA required
@@ -1017,87 +1001,6 @@ class PlagiarismPlugin extends GenericPlugin
 		$this->clearSubmissionErrors($submission);
 
 		return true;
-	}
-
-	/**
-	 * Get the webhook URL for a given context
-	 *
-	 * Format: BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
-	 */
-	public function getWebhookUrl(?Context $context = null): string
-	{
-		$request = Application::get()->getRequest();
-		$context ??= $request->getContext();
-
-		return Application::get()->getDispatcher()->url(
-			$request,
-			Application::ROUTE_COMPONENT,
-			$context->getData('urlPath'),
-			'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-			'handle'
-		);
-	}
-
-	/**
-	 * Resolve the `allow_insecure` flag for the webhook registration body.
-	 *
-	 * Honours an explicit `[ithenticate] webhook_allow_insecure` (On/Off) when set; otherwise derives
-	 * from the URL scheme (http => true, https => false), as the Turnitin TCA API requires.
-	 */
-	public function resolveWebhookAllowInsecure(string $webhookUrl): bool
-	{
-		$configured = Config::getVar('ithenticate', 'webhook_allow_insecure', null);
-		if ($configured !== null) {
-			return (bool) $configured;
-		}
-
-		return strtolower((string) parse_url($webhookUrl, PHP_URL_SCHEME)) === 'http';
-	}
-
-	/**
-	 * Register the webhook for this context
-	 *
-	 * Example webhook format : BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
-	 */
-	public function registerIthenticateWebhook(IThenticate|TestIThenticate $ithenticate, ?Context $context = null): bool
-	{
-		$request = Application::get()->getRequest();
-		$context ??= $request->getContext();
-
-		$signingSecret = \Illuminate\Support\Str::random(32);
-		$webhookUrl = $this->getWebhookUrl($context);
-		$allowInsecure = $this->resolveWebhookAllowInsecure($webhookUrl);
-
-		// Warn only when we derived insecure delivery
-		if ($allowInsecure && Config::getVar('ithenticate', 'webhook_allow_insecure', null) === null) {
-			error_log(
-				"Plagiarism plugin: registering the iThenticate webhook over an insecure http URL ({$webhookUrl}) " .
-				"for context {$context->getId()}; similarity results will be delivered UNENCRYPTED. Serve OJS over " .
-				"HTTPS, or set [ithenticate] webhook_allow_insecure explicitly in config.inc.php to silence this."
-			);
-		}
-
-		if ($webhookId = $ithenticate->registerWebhook($signingSecret, $webhookUrl, $allowInsecure)) {
-			try {
-				$contextService = app()->get('context'); /** @var \PKP\Services\PKPContextService $contextService */
-				$context = $contextService->edit($context, [
-					'ithenticateWebhookSigningSecret' => $signingSecret,
-					'ithenticateWebhookId' => $webhookId
-				], $request);
-
-				return true;
-			} catch (\Throwable $e) {
-				// DB save failed after API registration succeeded — clean up orphaned webhook
-				error_log("Webhook registered at iThenticate (ID: {$webhookId}) but failed to save to DB for context {$context->getId()}: " . $e->getMessage());
-				$ithenticate->deleteWebhook($webhookId);
-
-				return false;
-			}
-		}
-
-		error_log("unable to complete the iThenticate webhook registration for context id {$context->getId()}");
-
-		return false;
 	}
 
 	/**
