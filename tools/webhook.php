@@ -648,7 +648,7 @@ class Webhook extends CommandLineTool
             if (strtolower((string) parse_url($webhookResult['url'] ?? '', PHP_URL_SCHEME)) === 'http') {
                 $this->getCommandInterface()->getOutput()->warning(
                     "This webhook URL is http ({$webhookResult['url']}); iThenticate delivers similarity results " .
-                    "UNENCRYPTED. Serve OJS over HTTPS to secure them, or set [ithenticate] webhook_allow_insecure " .
+                    "UNENCRYPTED. Serve app over HTTPS to secure them, or set [ithenticate] webhook_allow_insecure " .
                     "explicitly in config.inc.php."
                 );
             }
@@ -1124,7 +1124,7 @@ class Webhook extends CommandLineTool
         $output->writeln('  • This daemon <fg=red;options=bold>SIMULATES iThenticate webhook events</> for local testing');
         $output->writeln('  • It will <fg=red;options=bold>AUTOMATICALLY PROCESS FILES</> with pending webhook events');
         $output->writeln('  • Only works in <fg=cyan>TEST MODE</> (ithenticate.test_mode = On)');
-        $output->writeln('  • Only processes submissions with <fg=cyan>test IDs</> (' . TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '*)');
+        $output->writeln('  • Only processes submissions with <fg=cyan>test IDs</> (' . TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '*)');
         $output->writeln('  • Makes <fg=cyan>HTTP requests to webhook handler</> on this server');
         $output->newLine();
 

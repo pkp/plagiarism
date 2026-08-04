@@ -9,7 +9,7 @@
  *
  * @class PlagiarismWebhookTest
  *
- * @brief Unit tests for the "one webhook per credential scope" mechanism
+ * @brief Unit tests for the webhook store/update/re-claim/self-heal mechanism
  */
 
 namespace APP\plugins\generic\plagiarism\tests;
@@ -21,6 +21,8 @@ use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\plugins\generic\plagiarism\TestIThenticate;
 use PKP\context\Context;
+use PKP\plugins\Hook;
+use PKP\services\PKPSchemaService;
 use PKP\tests\PKPTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -296,6 +298,95 @@ class PlagiarismWebhookTest extends PKPTestCase
     }
 
     //
+    // Self healing: an install already at iThenticate's 10-webhooks-per-scope limit
+    // cannot create the site webhook (no free slot). On a full-scope create failure the manager
+    // reclaims exactly ONE of its OWN legacy webhook slots and retries once. The capacity gate
+    // (count(listWebhooks()) >= MAX) doubles as the auth/network guard, because a failed/auth-less
+    // listWebhooks() returns [] (count 0), suppressing any destructive reclaim.
+    //
+
+    private function fullScopeList(): array
+    {
+        return array_fill(0, IThenticateWebhookManager::MAX_WEBHOOKS_PER_SCOPE, ['id' => 'x', 'url' => 'u']);
+    }
+
+    public function testFullScopeReclaimsOneSlotThenRetriesAndStores(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('findWebhookIdByUrl')->willReturn(null);
+        $mock->method('listWebhooks')->willReturn($this->fullScopeList());
+        // First create fails (scope full); after reclaiming a slot the retry succeeds.
+        $mock->expects($this->exactly(2))->method('registerWebhook')
+            ->willReturnOnConsecutiveCalls(null, 'wh-after-reclaim');
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->reclaimable = [$this->createMock(Context::class), 'legacy-id-1'];
+
+        $this->assertTrue($manager->registerOrReuseWebhookForScope(self::URL, self::KEY));
+        $this->assertSame(1, $manager->deleteLegacyCalls);
+        $this->assertSame('wh-after-reclaim', $manager->getRegistryEntryForCredentials(self::URL, self::KEY)['webhookId']);
+    }
+
+    public function testFullScopeGuardSkipsReclaimWhenListBelowCapacity(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('findWebhookIdByUrl')->willReturn(null);
+        $mock->method('listWebhooks')->willReturn(array_fill(0, 3, ['id' => 'x', 'url' => 'u'])); // below capacity
+        $mock->method('registerWebhook')->willReturn(null);
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->reclaimable = [$this->createMock(Context::class), 'legacy-id-1']; // present, but gate must skip it
+
+        $this->assertFalse($manager->registerOrReuseWebhookForScope(self::URL, self::KEY));
+        $this->assertSame(0, $manager->deleteLegacyCalls); // no destructive reclaim on a non-capacity failure
+        $this->assertSame([], $manager->getWebhookRegistry());
+    }
+
+    public function testFullScopeWithNoReclaimablePluginWebhookReturnsFalse(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('findWebhookIdByUrl')->willReturn(null);
+        $mock->method('listWebhooks')->willReturn($this->fullScopeList());
+        $mock->method('registerWebhook')->willReturn(null);
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->reclaimable = null; // all slots foreign / none plugin-owned → nothing to reclaim
+
+        $this->assertFalse($manager->registerOrReuseWebhookForScope(self::URL, self::KEY));
+        $this->assertSame(0, $manager->deleteLegacyCalls);
+        $this->assertSame([], $manager->getWebhookRegistry());
+    }
+
+    public function testFullScopeGuardTreatsEmptyListAsBelowCapacity(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('findWebhookIdByUrl')->willReturn(null);
+        $mock->method('listWebhooks')->willReturn([]); // auth/network failure surfaces as an empty list
+        $mock->method('registerWebhook')->willReturn(null);
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->reclaimable = [$this->createMock(Context::class), 'legacy-id-1'];
+
+        $this->assertFalse($manager->registerOrReuseWebhookForScope(self::URL, self::KEY));
+        $this->assertSame(0, $manager->deleteLegacyCalls); // never reclaim when the scope state is unknown
+    }
+
+    public function testReclaimDeletesAtMostOneWhenRetryStillFails(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('findWebhookIdByUrl')->willReturn(null);
+        $mock->method('listWebhooks')->willReturn($this->fullScopeList());
+        $mock->expects($this->exactly(2))->method('registerWebhook')->willReturn(null); // both attempts fail
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->reclaimable = [$this->createMock(Context::class), 'legacy-id-1'];
+
+        $this->assertFalse($manager->registerOrReuseWebhookForScope(self::URL, self::KEY));
+        $this->assertSame(1, $manager->deleteLegacyCalls); // exactly one delete, no cascade
+        $this->assertSame([], $manager->getWebhookRegistry());
+    }
+
+    //
     // HMAC authentication matcher (PlagiarismWebhookHandler::matchSigningSecret): the handler
     // authenticates against BOTH the registry secrets and the delivering context's legacy secret,
     // returning on the first hash_equals hit and never leaking the matched secret.
@@ -360,6 +451,31 @@ class PlagiarismWebhookTest extends PKPTestCase
     {
         $this->assertNull(PlagiarismWebhookHandler::matchSigningSecret(self::BODY, $this->signWith('x'), []));
     }
+
+    //
+    // Webhook-critical schema wiring: the context-independent delivery loads the plugin at the site
+    // context where it MAY NOT enabled, so the submission-file schema hook must be registered
+    // unconditionally (before the enabled gate in register()). Without it, EntityDAO::fromRow skips
+    // the ithenticate settings on read and sanitize() strips them on write — the delivery returns 200
+    // while silently persisting nothing.
+    //
+
+    public function testWebhookSchemaHookExposesSubmissionFilePropsWhenPluginNotEnabled(): void
+    {
+        $plugin = new PlagiarismPluginWebhookTestDouble();
+        $plugin->registerWebhookSchemaHooks();
+
+        $schema = (object) ['properties' => new \stdClass()];
+        Hook::call('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, [&$schema]);
+
+        // The fields the webhook handler reads/writes must be present so EntityDAO::fromRow loads
+        // them and sanitize()/updateSettings persist them.
+        $this->assertObjectHasProperty('ithenticateId', $schema->properties);
+        $this->assertObjectHasProperty('ithenticateSimilarityScheduled', $schema->properties);
+        $this->assertObjectHasProperty('ithenticateSimilarityResult', $schema->properties);
+        $this->assertObjectHasProperty('ithenticateSubmissionAcceptedAt', $schema->properties);
+        $this->assertObjectHasProperty('ithenticateProcessingError', $schema->properties);
+    }
 }
 
 /**
@@ -404,6 +520,13 @@ class IThenticateWebhookManagerTestDouble extends IThenticateWebhookManager
     public string $siteUrl = '';
     public int $registerOrReuseCalls = 0;
 
+    // Reclaim seams: the real implementations enumerate contexts via the DAO and mutate
+    // context settings (DB-backed, covered by the manual e2e); the double stubs them so the
+    // capacity-gate + reclaim/retry orchestration is exercised in isolation.
+    public ?array $reclaimable = null;      // [Context, legacyWebhookId] or null
+    public int $deleteLegacyCalls = 0;
+    public bool $deleteLegacyReturn = true;
+
     public function getSiteWebhookUrl(): string
     {
         return $this->siteUrl;
@@ -413,5 +536,16 @@ class IThenticateWebhookManagerTestDouble extends IThenticateWebhookManager
     {
         $this->registerOrReuseCalls++;
         return parent::registerOrReuseWebhookForScope($apiUrl, $apiKey);
+    }
+
+    protected function findReclaimableLegacyWebhook(string $fingerprint): ?array
+    {
+        return $this->reclaimable;
+    }
+
+    protected function deleteLegacyWebhookForContext(Context $context, string $legacyId): bool
+    {
+        $this->deleteLegacyCalls++;
+        return $this->deleteLegacyReturn;
     }
 }

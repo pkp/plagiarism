@@ -16,7 +16,9 @@ namespace APP\plugins\generic\plagiarism\classes;
 
 use APP\core\Application;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
+use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
+use APP\plugins\generic\plagiarism\TestIThenticate;
 use PKP\config\Config;
 use PKP\context\Context;
 use PKP\core\Core;
@@ -37,6 +39,11 @@ class IThenticateWebhookManager
      * NO credentials are stored; those are always resolved live via the plugin's getServiceAccess().
      */
     public const WEBHOOK_REGISTRY_SETTING = 'ithenticateWebhookRegistry';
+
+    /**
+     * iThenticate's hard limit of webhooks per credential scope (one api_url + api_key pair).
+     */
+    public const MAX_WEBHOOKS_PER_SCOPE = 10;
 
     public function __construct(protected PlagiarismPlugin $plugin)
     {
@@ -129,24 +136,6 @@ class IThenticateWebhookManager
     }
 
     /**
-     * Build the context-independent SITE webhook URL.
-     *
-     * Format: BASE_URL/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
-     */
-    public function getSiteWebhookUrl(): string
-    {
-        $request = Application::get()->getRequest();
-
-        return Application::get()->getDispatcher()->url(
-            $request,
-            Application::ROUTE_COMPONENT,
-            Application::SITE_CONTEXT_PATH,
-            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-            'handle'
-        );
-    }
-
-    /**
      * Ensure the single site webhook exists for the credential scope of the given context.
      *
      * If a registry entry already exists for the resolved credentials it returns immediately
@@ -201,6 +190,16 @@ class IThenticateWebhookManager
             $this->resolveWebhookAllowInsecure($siteUrl)
         );
 
+        // An install already at iThenticate's per-scope webhook limit cannot create the site webhook
+        // for want of a free slot. Reclaim ONE of our OWN legacy per-context webhook slots and retry once.
+        if (!$webhookId && $this->reclaimOneLegacyWebhookSlotForScope($fingerprint, $ithenticate)) {
+            $webhookId = $ithenticate->registerWebhook(
+                $signingSecret,
+                $siteUrl,
+                $this->resolveWebhookAllowInsecure($siteUrl)
+            );
+        }
+
         if (!$webhookId) {
             error_log("Plagiarism plugin: unable to register the iThenticate site webhook for credential scope {$fingerprint}");
             return false;
@@ -213,6 +212,97 @@ class IThenticateWebhookManager
         ]);
 
         return true;
+    }
+
+    /**
+     * Break a full-scope registration deadlock by reclaiming ONE of the plugin's OWN legacy
+     * per-context webhook slots, so the single site webhook can be created.
+     */
+    protected function reclaimOneLegacyWebhookSlotForScope(string $fingerprint, IThenticate|TestIThenticate $ithenticate): bool
+    {
+        if (count($ithenticate->listWebhooks()) < self::MAX_WEBHOOKS_PER_SCOPE) {
+            return false;
+        }
+
+        $reclaimable = $this->findReclaimableLegacyWebhook($fingerprint);
+        if (!$reclaimable) {
+            error_log("Plagiarism plugin: credential scope {$fingerprint} is at the iThenticate webhook limit and holds no reclaimable plugin webhook; an administrator must free a slot");
+            return false;
+        }
+
+        list($context, $legacyId) = $reclaimable;
+
+        return $this->deleteLegacyWebhookForContext($context, $legacyId);
+    }
+
+    /**
+     * Find one plugin-owned legacy per-context webhook whose context resolves to $fingerprint.
+     *
+     * Only returns a webhook id the plugin itself persisted (a context's ithenticateWebhookId),
+     * so the reclaim can never touch a foreign integration's webhook. Returns [context, legacyId]
+     * or null when the scope holds no plugin-owned legacy webhook to reclaim.
+     *
+     * @return array{0: Context, 1: string}|null
+     */
+    protected function findReclaimableLegacyWebhook(string $fingerprint): ?array
+    {
+        $contexts = Application::getContextDAO()->getAll(true);
+        while ($context = $contexts->next()) { /** @var Context $context */
+            list($apiUrl, $apiKey) = $this->plugin->getServiceAccess($context);
+            if (empty($apiUrl) || empty($apiKey) || $this->credentialFingerprint($apiUrl, $apiKey) !== $fingerprint) {
+                continue;
+            }
+
+            $legacyId = $context->getData('ithenticateWebhookId');
+            if ($legacyId) {
+                return [$context, $legacyId];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Delete a plugin-owned legacy per-context webhook at the API and clear its stored fields.
+     * A 404 (already gone at the API) still counts as freed. Returns whether a slot was freed.
+     */
+    protected function deleteLegacyWebhookForContext(Context $context, string $legacyId): bool
+    {
+        $client = $this->plugin->initIthenticate(...$this->plugin->getServiceAccess($context));
+        $deleted = $client->deleteWebhook($legacyId);
+        $responseDetails = $client->getLastResponseDetails();
+        $goneAtApi = $responseDetails && ($responseDetails['status_code'] ?? 0) === 404;
+
+        if (!$deleted && !$goneAtApi) {
+            error_log("Plagiarism plugin: failed to delete legacy webhook {$legacyId} for context {$context->getPath()} while reclaiming a webhook slot");
+            return false;
+        }
+
+        $contextService = app()->get('context'); /** @var \APP\services\ContextService $contextService */
+        $contextService->edit($context, [
+            'ithenticateWebhookId' => null,
+            'ithenticateWebhookSigningSecret' => null,
+        ], Application::get()->getRequest());
+
+        return true;
+    }
+
+    /**
+     * Build the context-independent SITE webhook URL.
+     *
+     * Format: BASE_URL/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
+     */
+    public function getSiteWebhookUrl(): string
+    {
+        $request = Application::get()->getRequest();
+
+        return Application::get()->getDispatcher()->url(
+            $request,
+            Application::ROUTE_COMPONENT,
+            Application::SITE_CONTEXT_PATH,
+            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
+            'handle'
+        );
     }
 
     /**

@@ -155,7 +155,7 @@ class TestIThenticate
      * Arm a one-shot EULA-error simulation that survives across HTTP requests
      * and is consumed atomically (Cache::pull) on the first matching call.
      *
-     *   \APP\plugins\generic\plagiarism\TestIthenticate::armOnce('createSubmission');
+     *   \APP\plugins\generic\plagiarism\TestIThenticate::armOnce('createSubmission');
      *
      * @param string $endpoint   One of 'confirmEula', 'createSubmission'.
      * @param int    $ttlSeconds How long the arm waits to be consumed (default 1h).

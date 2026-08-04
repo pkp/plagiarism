@@ -24,7 +24,6 @@ use APP\plugins\generic\plagiarism\PlagiarismSettingsForm;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\classes\form\component\ConfirmSubmission;
 use APP\plugins\generic\plagiarism\controllers\PlagiarismIthenticateHandler;
-use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\classes\api\formRequests\SubmissionPlagiarismStatus;
 use APP\plugins\generic\plagiarism\classes\api\PlagiarismApiActionManager;
 use APP\plugins\generic\plagiarism\classes\PlagiarismErrorFormatter;
@@ -158,6 +157,9 @@ class PlagiarismPlugin extends GenericPlugin
 		// regardless of whether the plugin is enabled or has service access for the CURRENT context
 		$this->getWebhookManager()->registerComponentRoute();
 
+		// The context-independent webhook is delivered at the site context where the plugin may NOT enabled
+		$this->registerWebhookSchemaHooks();
+
 		// Plugin has been registered but not enabled
 		// will allow to load plugin but no plugin feature will be executed
 		// This check will not execute in for the webhook CLI tool as we need to allow it to run
@@ -192,8 +194,9 @@ class PlagiarismPlugin extends GenericPlugin
 		$this->addPlagiarismStyleSheet($request, $templateManager);
 		$this->addPlagiarismJavaScript($request, $templateManager);
 
+		// Schema::get::submissionFile is registered pre-gate in registerWebhookSchemaHooks() (the
+		// webhook needs those props while the plugin is disabled); only the submission-level hook is here.
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION, $this->addPlagiarismCheckDataToSubmissionSchema(...));
-		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, $this->addPlagiarismCheckDataToSubmissionFileSchema(...));
 		Hook::add('SubmissionFile::edit', $this->updateIthenticateRevisionHistory(...));
 
 		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_USER, $this->stampPlagiarismDataToUserSchema(...));
@@ -207,6 +210,17 @@ class PlagiarismPlugin extends GenericPlugin
 		$this->addApiRoutes();
 
 		return $success;
+	}
+
+	/**
+	 * Register the submission-file schema hook the webhook handler depends on.
+	 *
+	 * MUST run unconditionally — before the enabled/service-access gates in register() as the
+	 * context-independent webhook is delivered at the site context where the plugin may not enabled;
+	 */
+	public function registerWebhookSchemaHooks(): void
+	{
+		Hook::add('Schema::get::' . PKPSchemaService::SCHEMA_SUBMISSION_FILE, $this->addPlagiarismCheckDataToSubmissionFileSchema(...));
 	}
 
 	/**
@@ -374,7 +388,7 @@ class PlagiarismPlugin extends GenericPlugin
 		if (Config::getVar('ithenticate', 'ithenticate') && !parent::getEnabled($contextId)) {
 			$this->setEnabled(true);
 		}
-		
+
 		return parent::getEnabled($contextId) || Config::getVar('ithenticate', 'ithenticate');
 	}
 

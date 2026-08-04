@@ -15,7 +15,7 @@
 
 namespace APP\plugins\generic\plagiarism\classes;
 
-use APP\plugins\generic\plagiarism\TestIthenticate;
+use APP\plugins\generic\plagiarism\TestIThenticate;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
@@ -43,7 +43,7 @@ class DummyWebhookManager
     /**
      * The iThenticate service instance
      */
-    protected IThenticate|TestIthenticate $ithenticate;
+    protected IThenticate|TestIThenticate $ithenticate;
 
     /**
      * @var callable Output callback for logging
@@ -85,13 +85,13 @@ class DummyWebhookManager
      *
      * @param Context $context The context to process webhooks for
      * @param PlagiarismPlugin $plugin The plugin instance
-     * @param IThenticate|TestIthenticate $ithenticate The iThenticate service instance
+     * @param IThenticate|TestIThenticate $ithenticate The iThenticate service instance
      * @param callable|null $outputCallback Callback for output (receives string messages)
      */
     public function __construct(
         Context $context,
         PlagiarismPlugin $plugin,
-        IThenticate|TestIthenticate $ithenticate,
+        IThenticate|TestIThenticate $ithenticate,
         ?callable $outputCallback = null
     ) {
         $this->context = $context;
@@ -264,7 +264,7 @@ class DummyWebhookManager
 
             // Must have ithenticateId starting with test prefix
             ->where('sfs_id.setting_name', 'ithenticateId')
-            ->where('sfs_id.setting_value', 'LIKE', TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
+            ->where('sfs_id.setting_value', 'LIKE', TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
 
             // Must belong to this context
             ->where('s.context_id', $this->context->getId())
@@ -334,7 +334,7 @@ class DummyWebhookManager
 
             // Must have ithenticateId starting with test prefix
             ->where('sfs_id.setting_name', 'ithenticateId')
-            ->where('sfs_id.setting_value', 'LIKE', TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
+            ->where('sfs_id.setting_value', 'LIKE', TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
 
             // Must belong to this context
             ->where('s.context_id', $this->context->getId())
@@ -397,7 +397,9 @@ class DummyWebhookManager
         }
 
         try {
-            // Send webhook event to local handler
+            // Send webhook event to local handler. POST the EXACT signed bytes (withBody) rather than
+            // re-encoding a decoded array, so the body the HMAC is computed over is byte-for-byte the
+            // body the handler verifies — a faithful mimic of a real Turnitin delivery.
             $webhookUrl = $this->getWebhookUrl();
             $payload = json_encode([
                 'id' => $ithenticateId,
@@ -408,8 +410,7 @@ class DummyWebhookManager
             $response = Http::withHeaders([
                 'X-Turnitin-EventType' => 'SUBMISSION_COMPLETE',
                 'X-Turnitin-Signature' => hash_hmac('sha256', $payload, (string) $this->getSigningSecret()),
-                'Content-Type' => 'application/json',
-            ])->post($webhookUrl, json_decode($payload, true));
+            ])->withBody($payload, 'application/json')->post($webhookUrl);
 
             if ($response->successful()) {
                 $this->log("  ✓ SUBMISSION_COMPLETE event processed successfully", true);
@@ -447,7 +448,7 @@ class DummyWebhookManager
                 return;
             }
 
-            // Send webhook event to local handler
+            // Send webhook event to local handler (POST the exact signed bytes; see note above).
             $webhookUrl = $this->getWebhookUrl();
             $resultData = json_decode($similarityResult, true);
 
@@ -461,8 +462,7 @@ class DummyWebhookManager
             $response = Http::withHeaders([
                 'X-Turnitin-EventType' => 'SIMILARITY_COMPLETE',
                 'X-Turnitin-Signature' => hash_hmac('sha256', $payload, (string) $this->getSigningSecret()),
-                'Content-Type' => 'application/json',
-            ])->post($webhookUrl, json_decode($payload, true));
+            ])->withBody($payload, 'application/json')->post($webhookUrl);
 
             if ($response->successful()) {
                 $matchPercentage = $resultData['overall_match_percentage'] ?? 0;
@@ -515,8 +515,8 @@ class DummyWebhookManager
      */
     protected function isTestSubmission(string $ithenticateId): bool
     {
-        // Test IDs from TestIThenticate.php follow pattern: TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '{hash}'
-        return str_starts_with($ithenticateId, TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX);
+        // Test IDs from TestIThenticate.php follow pattern: TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '{hash}'
+        return str_starts_with($ithenticateId, TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX);
     }
 
     /**
