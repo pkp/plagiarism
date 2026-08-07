@@ -149,50 +149,36 @@ class PlagiarismSettingsForm extends Form
 				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiUrl') !== $ithenticateApiUrl ||
 				$this->_plugin->getSetting($this->_context->getId(), 'ithenticateApiKey') !== $ithenticateApiKey;
 
-			// Register the webhook when the credentials change, and also self-heal a missing
-			// registration on any save (e.g. a previous attempt failed) so recovering it does not
-			// require re-entering the credentials.
-			if ($credentialsChanged || !$this->_context->getData('ithenticateWebhookId')) {
-
-				if ($credentialsChanged) {
-					// Credentials changed — drop cached EULA details so the next request
-					// re-fetches against the new tenant (possibly a different EULA version/url).
-					PlagiarismPlugin::clearEulaCache($this->_context);
-				}
-
-				$ithenticate = $this->_plugin->initIthenticate($ithenticateApiUrl, $ithenticateApiKey);
-
-				// If there is a already registered webhook for this context, need to delete it first
-				// before creating a new one as webhook URL remains same which will return 409(HTTP_CONFLICT)
-				if ($this->_context->getData('ithenticateWebhookId')) {
-					if (!$ithenticate->deleteWebhook($this->_context->getData('ithenticateWebhookId'))) {
-						error_log("Failed to delete existing iThenticate webhook {$this->_context->getData('ithenticateWebhookId')} for context {$this->_context->getId()}");
-					}
-				}
-
-				if (!$this->_plugin->registerIthenticateWebhook($ithenticate, $this->_context)) {
-					error_log("Failed to register iThenticate webhook for context {$this->_context->getId()}");
-
-					// Warn the manager saving the credentials: submissions will still upload, but
-					// similarity updates may not arrive until webhook registration succeeds. Surfaced
-					// here (rather than persisted against a submission) because it is a settings-level
-					// outcome the manager can act on by re-saving the plugin settings.
-					$currentUser = Application::get()->getRequest()->getUser();
-					if ($currentUser) {
-						(new NotificationManager())->createTrivialNotification(
-							$currentUser->getId(),
-							Notification::NOTIFICATION_TYPE_WARNING,
-							[
-								'contents' => __('plugins.generic.plagiarism.webhook.registration.failed',
-								['contextId' => $this->_context->getId()])
-							]
-						);
-					}
-				}
-			}
-
+			// Persist the new credentials FIRST, so ensureWebhookForContext() resolves (and
+			// fingerprints) the NEW scope rather than the old one.
 			$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiUrl', $ithenticateApiUrl, 'string');
 			$this->_plugin->updateSetting($this->_context->getId(), 'ithenticateApiKey', $ithenticateApiKey, 'string');
+
+			if ($credentialsChanged) {
+				// Credentials changed — drop cached EULA details so the next request
+				// re-fetches against the new tenant (possibly a different EULA version/url).
+				PlagiarismPlugin::clearEulaCache($this->_context);
+			}
+
+			// Register or reuse the SINGLE site webhook for this credential scope. Pass revalidate=true
+			// so every save verifies the stored webhook is still valid at iThenticate and re-registers
+			// it if it has been deleted/gone — making a settings re-save a self-service webhook repair.
+			if (!$this->_plugin->getWebhookManager()->ensureWebhookForContext($this->_context, true)) {
+				error_log("Failed to ensure the iThenticate site webhook for context {$this->_context->getId()}");
+
+				// Warn the manager at failure of webhook registration
+				$currentUser = Application::get()->getRequest()->getUser();
+				if ($currentUser) {
+					(new NotificationManager())->createTrivialNotification(
+						$currentUser->getId(),
+						Notification::NOTIFICATION_TYPE_WARNING,
+						[
+							'contents' => __('plugins.generic.plagiarism.webhook.registration.failed',
+							['contextId' => $this->_context->getId()])
+						]
+					);
+				}
+			}
 		}
 
 		$this->_plugin->updateSetting($this->_context->getId(), 'disableAutoSubmission', $this->getData('disableAutoSubmission'), 'bool');

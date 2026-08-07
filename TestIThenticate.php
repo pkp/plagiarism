@@ -27,6 +27,7 @@ use PKP\config\Config;
 use PKP\context\Context;
 use PKP\site\Site;
 use PKP\user\User;
+use Throwable;
 
 class TestIThenticate
 {
@@ -37,6 +38,13 @@ class TestIThenticate
      * flow's three requests (submit → modal → accept) without re-arming.
      */
     public const ARM_CACHE_KEY = 'test_iThenticate_arm';
+
+    /**
+     * The resolved iThenticate credential scope this test client was constructed for.
+     */
+    protected string $apiUrl;
+
+    protected string $apiKey;
 
     /**
      * @copydoc IThenticate::$eulaVersion
@@ -155,7 +163,7 @@ class TestIThenticate
      * Arm a one-shot EULA-error simulation that survives across HTTP requests
      * and is consumed atomically (Cache::pull) on the first matching call.
      *
-     *   \APP\plugins\generic\plagiarism\TestIthenticate::armOnce('createSubmission');
+     *   \APP\plugins\generic\plagiarism\TestIThenticate::armOnce('createSubmission');
      *
      * @param string $endpoint   One of 'confirmEula', 'createSubmission'.
      * @param int    $ttlSeconds How long the arm waits to be consumed (default 1h).
@@ -200,6 +208,9 @@ class TestIThenticate
         ?string $eulaVersion = null
     )
     {
+        $this->apiUrl = $apiUrl;
+        $this->apiKey = $apiKey;
+
         // These following 2 conditions are to facilitate the mock the EULA requirement
         if ($eulaVersion) {
             $this->eulaVersion = $eulaVersion;
@@ -526,23 +537,34 @@ class TestIThenticate
     public function validateWebhook(string $webhookId, ?string &$result = null): bool
     {
         error_log("Validating webhook with id : {$webhookId}");
-        
-        $result = '{
-            "id": "f3852140-1264-4135-b316-ed46d60a6ca2",
-            "url": "https://my-own-test-server.com/turnitin-callbacks",
-            "description": "my webhook",
-            "created_time": "2017-10-19T16:08:00.908Z",
-            "event_types": [
-                "SIMILARITY_COMPLETE",
-                "SUBMISSION_COMPLETE",
-                "SIMILARITY_UPDATED",
-                "PDF_STATUS",
-                "GROUP_ATTACHMENT_COMPLETE"
-            ],
-            "allow_insecure": false
-        }';
+
+        $url = $this->resolveWebhookUrl($webhookId) ?? 'https://my-own-test-server.com/turnitin-callbacks';
+
+        $result = json_encode([
+            'id' => $webhookId,
+            'url' => $url,
+            'description' => 'OJS iThenticate site webhook (test mode)',
+            'created_time' => '2017-10-19T16:08:00.908Z',
+            'event_types' => static::DEFAULT_WEBHOOK_EVENTS,
+            'allow_insecure' => strtolower((string) parse_url($url, PHP_URL_SCHEME)) === 'http',
+        ]);
 
         return true;
+    }
+
+    /**
+     * Best-effort resolution of the webhook endpoint URL for this client's credential scope through
+     * the plugin's webhook manager, so test-mode validation reports a real, reachable URL.
+     */
+    protected function resolveWebhookUrl(string $webhookId): ?string
+    {
+        try {
+            return (new PlagiarismPlugin())
+                ->getWebhookManager()
+                ->resolveWebhookUrlForScope($this->apiUrl, $this->apiKey, $webhookId);
+        } catch (Throwable $exception) {
+            return null;
+        }
     }
 
     /**

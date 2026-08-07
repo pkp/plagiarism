@@ -15,8 +15,7 @@
 
 namespace APP\plugins\generic\plagiarism\classes;
 
-use APP\core\Application;
-use APP\plugins\generic\plagiarism\TestIthenticate;
+use APP\plugins\generic\plagiarism\TestIThenticate;
 use APP\facades\Repo;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
@@ -44,7 +43,7 @@ class DummyWebhookManager
     /**
      * The iThenticate service instance
      */
-    protected IThenticate|TestIthenticate $ithenticate;
+    protected IThenticate|TestIThenticate $ithenticate;
 
     /**
      * @var callable Output callback for logging
@@ -86,13 +85,13 @@ class DummyWebhookManager
      *
      * @param Context $context The context to process webhooks for
      * @param PlagiarismPlugin $plugin The plugin instance
-     * @param IThenticate|TestIthenticate $ithenticate The iThenticate service instance
+     * @param IThenticate|TestIThenticate $ithenticate The iThenticate service instance
      * @param callable|null $outputCallback Callback for output (receives string messages)
      */
     public function __construct(
         Context $context,
         PlagiarismPlugin $plugin,
-        IThenticate|TestIthenticate $ithenticate,
+        IThenticate|TestIThenticate $ithenticate,
         ?callable $outputCallback = null
     ) {
         $this->context = $context;
@@ -265,7 +264,7 @@ class DummyWebhookManager
 
             // Must have ithenticateId starting with test prefix
             ->where('sfs_id.setting_name', 'ithenticateId')
-            ->where('sfs_id.setting_value', 'LIKE', TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
+            ->where('sfs_id.setting_value', 'LIKE', TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
 
             // Must belong to this context
             ->where('s.context_id', $this->context->getId())
@@ -335,7 +334,7 @@ class DummyWebhookManager
 
             // Must have ithenticateId starting with test prefix
             ->where('sfs_id.setting_name', 'ithenticateId')
-            ->where('sfs_id.setting_value', 'LIKE', TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
+            ->where('sfs_id.setting_value', 'LIKE', TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '%')
 
             // Must belong to this context
             ->where('s.context_id', $this->context->getId())
@@ -398,7 +397,9 @@ class DummyWebhookManager
         }
 
         try {
-            // Send webhook event to local handler
+            // Send webhook event to local handler. POST the EXACT signed bytes (withBody) rather than
+            // re-encoding a decoded array, so the body the HMAC is computed over is byte-for-byte the
+            // body the handler verifies — a faithful mimic of a real Turnitin delivery.
             $webhookUrl = $this->getWebhookUrl();
             $payload = json_encode([
                 'id' => $ithenticateId,
@@ -408,9 +409,8 @@ class DummyWebhookManager
 
             $response = Http::withHeaders([
                 'X-Turnitin-EventType' => 'SUBMISSION_COMPLETE',
-                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, $this->context->getData('ithenticateWebhookSigningSecret')),
-                'Content-Type' => 'application/json',
-            ])->post($webhookUrl, json_decode($payload, true));
+                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, (string) $this->getSigningSecret()),
+            ])->withBody($payload, 'application/json')->post($webhookUrl);
 
             if ($response->successful()) {
                 $this->log("  ✓ SUBMISSION_COMPLETE event processed successfully", true);
@@ -448,7 +448,7 @@ class DummyWebhookManager
                 return;
             }
 
-            // Send webhook event to local handler
+            // Send webhook event to local handler (POST the exact signed bytes; see note above).
             $webhookUrl = $this->getWebhookUrl();
             $resultData = json_decode($similarityResult, true);
 
@@ -461,9 +461,8 @@ class DummyWebhookManager
 
             $response = Http::withHeaders([
                 'X-Turnitin-EventType' => 'SIMILARITY_COMPLETE',
-                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, $this->context->getData('ithenticateWebhookSigningSecret')),
-                'Content-Type' => 'application/json',
-            ])->post($webhookUrl, json_decode($payload, true));
+                'X-Turnitin-Signature' => hash_hmac('sha256', $payload, (string) $this->getSigningSecret()),
+            ])->withBody($payload, 'application/json')->post($webhookUrl);
 
             if ($response->successful()) {
                 $matchPercentage = $resultData['overall_match_percentage'] ?? 0;
@@ -479,20 +478,36 @@ class DummyWebhookManager
     }
 
     /**
-     * Get the webhook URL for this context
+     * The site webhook registry entry for this context's credential scope
+     */
+    protected function scopeRegistryEntry(): ?array
+    {
+        return $this->plugin->getWebhookManager()->getRegistryEntryForCredentials(
+            ...$this->plugin->getServiceAccess($this->context)
+        );
+    }
+
+    /**
+     * The signing secret iThenticate would use for this delivery: the scope's registry secret
+     * (new mechanism) or, before consolidation, the legacy per-context secret.
+     */
+    protected function getSigningSecret(): ?string
+    {
+        $entry = $this->scopeRegistryEntry();
+        return $entry['signingSecret'] ?? $this->context->getData('ithenticateWebhookSigningSecret');
+    }
+
+    /**
+     * Get the webhook URL a delivery should target: the single site webhook when the scope is
+     * consolidated, otherwise the legacy per-context URL (so pre-#121 setups still simulate).
      */
     protected function getWebhookUrl(): string
     {
-        $request = Application::get()->getRequest();
-        $dispatcher = $request->getDispatcher();
+        if ($this->scopeRegistryEntry()) {
+            return $this->plugin->getWebhookManager()->getSiteWebhookUrl();
+        }
 
-        return $dispatcher->url(
-            $request,
-            Application::ROUTE_COMPONENT,
-            $this->context->getPath(),
-            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-            'handle'
-        );
+        return $this->plugin->getWebhookManager()->getWebhookUrl($this->context);
     }
 
     /**
@@ -500,8 +515,8 @@ class DummyWebhookManager
      */
     protected function isTestSubmission(string $ithenticateId): bool
     {
-        // Test IDs from TestIThenticate.php follow pattern: TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '{hash}'
-        return str_starts_with($ithenticateId, TestIthenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX);
+        // Test IDs from TestIThenticate.php follow pattern: TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX . '{hash}'
+        return str_starts_with($ithenticateId, TestIThenticate::ITHENTICATE_SUBMISSION_UUID_PREFIX);
     }
 
     /**
@@ -525,18 +540,19 @@ class DummyWebhookManager
             );
         }
 
-        // Check: Context must have webhook configured
-        if (!$this->context->getData('ithenticateWebhookId')) {
+        // Check: a webhook must be configured — either the consolidated site webhook for this
+        // context's credential scope (new model) or a legacy per-context webhook
+        if (!$this->scopeRegistryEntry() && !$this->context->getData('ithenticateWebhookId')) {
             throw new Exception(
-                "Context {$this->context->getId()} does not have a webhook configured. " .
+                "No iThenticate webhook is configured for context {$this->context->getId()}'s credential scope. " .
                 "Run: php plugins/generic/plagiarism/tools/webhook.php register --context={$this->context->getPath()}"
             );
         }
 
-        // Check: Context must have webhook configured with signing secret set
-        if (!$this->context->getData('ithenticateWebhookSigningSecret')) {
+        // Check: a signing secret must be resolvable for the delivery target.
+        if (!$this->getSigningSecret()) {
             throw new Exception(
-                "Context {$this->context->getId()} does not have a webhook signing secret. " .
+                "No webhook signing secret is available for context {$this->context->getId()}. " .
                 "Run: php plugins/generic/plagiarism/tools/webhook.php register --context={$this->context->getPath()}"
             );
         }

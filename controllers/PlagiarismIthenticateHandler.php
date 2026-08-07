@@ -281,11 +281,9 @@ class PlagiarismIthenticateHandler extends PlagiarismComponentHandler
 			...$this->_plugin->getServiceAccess($context)
 		);
 
-		// If no webhook previously registered for this Context, register it
-		if (!$context->getData('ithenticateWebhookId')) {
-			if (!$this->_plugin->registerIthenticateWebhook($ithenticate, $context)) {
-				error_log("Webhook registration failed for context {$context->getId()} during manual submission");
-			}
+		// Ensure the single site webhook exists for this context's credential scope
+		if (!$this->_plugin->getWebhookManager()->ensureWebhookForContext($context)) {
+			error_log("Webhook registration failed for context {$context->getId()} during manual submission");
 		}
 
 		// As the submission has been already and should be stamped with an EULA at the
