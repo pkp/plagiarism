@@ -302,6 +302,40 @@ class IThenticateWebhookManager
     }
 
     /**
+     * Resolve the webhook endpoint URL for a credential scope, preferring the consolidated site
+     * webhook and falling back to the legacy per-context endpoint.
+     */
+    public function resolveWebhookUrlForScope(string $apiUrl, string $apiKey, ?string $webhookId = null): ?string
+    {
+        if ($this->getRegistryEntryForCredentials($apiUrl, $apiKey)) {
+            return $this->getSiteWebhookUrl();
+        }
+
+        $fingerprint = $this->credentialFingerprint($apiUrl, $apiKey);
+        $firstLegacyContext = null;
+        $contexts = Application::getContextDAO()->getAll(true);
+        while ($context = $contexts->next()) { /** @var Context $context */
+            list($ctxApiUrl, $ctxApiKey) = $this->plugin->getServiceAccess($context);
+            if (empty($ctxApiUrl) || empty($ctxApiKey) || $this->credentialFingerprint($ctxApiUrl, $ctxApiKey) !== $fingerprint) {
+                continue;
+            }
+
+            $legacyId = $context->getData('ithenticateWebhookId');
+            if (!$legacyId) {
+                continue;
+            }
+
+            if ($webhookId && $legacyId === $webhookId) {
+                return $this->getWebhookUrl($context);
+            }
+
+            $firstLegacyContext ??= $context;
+        }
+
+        return $firstLegacyContext ? $this->getWebhookUrl($firstLegacyContext) : null;
+    }
+
+    /**
      * Route the context-independent site webhook to its handler, unconditionally.
      *
      * @param string $hookName `LoadComponentHandler`

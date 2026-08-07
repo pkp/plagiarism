@@ -651,6 +651,14 @@ class PlagiarismWebhookTest extends PKPTestCase
         $unexpected = 'https://myinstallation.com/some/other/path';
         $this->assertSame($unexpected, $manager->exposeRestoreSiteContextSegment($unexpected, false));
     }
+
+    public function testResolveWebhookUrlForScopeReturnsSiteUrlWhenScopeRegistered(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $manager->putRegistryEntry($manager->credentialFingerprint(self::URL, self::KEY), $this->sampleEntry());
+
+        $this->assertSame(self::SITE_URL, $manager->resolveWebhookUrlForScope(self::URL, self::KEY));
+    }
 }
 
 /**
