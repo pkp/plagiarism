@@ -291,18 +291,57 @@ class IThenticateWebhookManager
      * Build the context-independent SITE webhook URL.
      *
      * Format: BASE_URL/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
+     *
+     * NOTE : When a site base-URL override (config `base_url[index]`) is set, App's component-router URL
+     * builder collapses the `index` context to null and drops BOTH the `index` segment and the
+     * `index.php` entry point — producing `{base_url[index]}/$$$call$$$/…`, whose `$$$call$$$` marker
+     * lands at path position 0. The component router requires the marker at position 1 with the
+     * site-context segment `index` at position 0 (PKPComponentRouter::_retrieveServiceEndpointParts()),
+     * so that collapsed URL never routes back to this handler. We therefore detect the override and
+     * rebuild the URL ourselves, keeping the `index` segment + entry point so the inbound PATH_INFO is
+     * `/index/$$$call$$$/…` regardless of the override's host or subdirectory. Without an override the
+     * dispatcher already emits a resolvable URL, so we delegate to it unchanged.
      */
     public function getSiteWebhookUrl(): string
     {
         $request = Application::get()->getRequest();
 
-        return Application::get()->getDispatcher()->url(
+        // The dispatcher is the single source of truth for the component/op path (handler class + op).
+        $url = Application::get()->getDispatcher()->url(
             $request,
             Application::ROUTE_COMPONENT,
             Application::SITE_CONTEXT_PATH,
             'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
             'handle'
         );
+
+        if (empty(Config::getVar('general', 'base_url[' . Application::SITE_CONTEXT_PATH . ']'))) {
+            return $url;
+        }
+
+        // if override as base_url[index] is set, restore the site-context segment for webhook
+        return $this->restoreSiteContextSegment($url, $request->isRestfulUrlsEnabled());
+    }
+
+    /**
+     * Restore the site-context segment (and entry point) that a `base_url[index]` override strips from a
+     * site component URL, keeping the URL routable without duplicating the handler path.
+     */
+    protected function restoreSiteContextSegment(string $collapsedUrl, bool $restfulUrlsEnabled): string
+    {
+        $needle = '/' . COMPONENT_ROUTER_PATHINFO_MARKER . '/';   // '/$$$call$$$/'
+        $markerPos = strpos($collapsedUrl, $needle);
+        if ($markerPos === false) {
+            return $collapsedUrl;   // unexpected shape (marker missing) — leave untouched
+        }
+
+        $base = rtrim(substr($collapsedUrl, 0, $markerPos), '/');
+        $endpoint = substr($collapsedUrl, $markerPos + 1);   // 'index'-less: $$$call$$$/plugins/…/handle
+        if (!$restfulUrlsEnabled && !str_ends_with($base, '/index.php')) {
+            $base .= '/index.php';
+        }
+
+        return $base . '/' . Application::SITE_CONTEXT_PATH . '/' . $endpoint;
     }
 
     /**

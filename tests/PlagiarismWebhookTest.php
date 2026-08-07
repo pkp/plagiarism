@@ -34,6 +34,15 @@ class PlagiarismWebhookTest extends PKPTestCase
     private const KEY = 'API-KEY-abc123';
     private const SITE_URL = 'https://site.example/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // COMPONENT_ROUTER_PATHINFO_MARKER is a file-level define() in PKPComponentRouter; ensure that file
+        // is autoloaded so restoreSiteContextSegment() can reference the marker in these isolated tests
+        // (at runtime it is always defined — getSiteWebhookUrl() calls the dispatcher first).
+        class_exists(\PKP\core\PKPComponentRouter::class);
+    }
+
     /**
      * Build an IThenticateWebhookManager backed by a PlagiarismPlugin double as an in-memory store
      *
@@ -476,6 +485,78 @@ class PlagiarismWebhookTest extends PKPTestCase
         $this->assertObjectHasProperty('ithenticateSubmissionAcceptedAt', $schema->properties);
         $this->assertObjectHasProperty('ithenticateProcessingError', $schema->properties);
     }
+
+    //
+    // Site webhook URL under a `base_url[index]` override. OJS's dispatcher collapses the `index` context
+    // and drops `/index.php` when that override is set, yielding `{override}/$$$call$$$/…` (marker at path
+    // position 0), which never routes back to the handler. restoreSiteContextSegment() takes that collapsed
+    // dispatcher output and puts the site-context segment `index` (position 0) + entry point back, so the
+    // inbound PATH_INFO is `/index/$$$call$$$/…` for a bare host or any subdirectory, in both restful modes —
+    // reusing the marker-onward suffix verbatim so the handler path is never duplicated. (Branch selection in
+    // getSiteWebhookUrl() — reading base_url[index] + restful_urls — is glue covered by the manual e2e.)
+    //
+    private const ENDPOINT = '$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle';
+
+    public function testOverriddenSiteUrlBareHostNonRestful(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $this->assertSame(
+            'https://myinstallation.com/index.php/index/' . self::ENDPOINT,
+            $manager->exposeRestoreSiteContextSegment('https://myinstallation.com/' . self::ENDPOINT, false)
+        );
+    }
+
+    public function testOverriddenSiteUrlBareHostRestful(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $this->assertSame(
+            'https://myinstallation.com/index/' . self::ENDPOINT,
+            $manager->exposeRestoreSiteContextSegment('https://myinstallation.com/' . self::ENDPOINT, true)
+        );
+    }
+
+    public function testOverriddenSiteUrlWithSubdirectoryNonRestful(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $this->assertSame(
+            'https://myinstallation.com/admin/index.php/index/' . self::ENDPOINT,
+            $manager->exposeRestoreSiteContextSegment('https://myinstallation.com/admin/' . self::ENDPOINT, false)
+        );
+    }
+
+    public function testOverriddenSiteUrlWithSubdirectoryRestful(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $this->assertSame(
+            'https://myinstallation.com/admin/index/' . self::ENDPOINT,
+            $manager->exposeRestoreSiteContextSegment('https://myinstallation.com/admin/' . self::ENDPOINT, true)
+        );
+    }
+
+    public function testOverriddenSiteUrlWithMultiSegmentSubdirectory(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $this->assertSame(
+            'https://myinstallation.com/manager/admin/index.php/index/' . self::ENDPOINT,
+            $manager->exposeRestoreSiteContextSegment('https://myinstallation.com/manager/admin/' . self::ENDPOINT, false)
+        );
+    }
+
+    public function testOverriddenSiteUrlDoesNotDoubleAppendIndexPhp(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $this->assertSame(
+            'https://myinstallation.com/index.php/index/' . self::ENDPOINT,
+            $manager->exposeRestoreSiteContextSegment('https://myinstallation.com/index.php/' . self::ENDPOINT, false)
+        );
+    }
+
+    public function testWebhookUrlWithoutMarkerIsReturnedUnchanged(): void
+    {
+        [, $manager] = $this->makeWebhookManager();
+        $unexpected = 'https://myinstallation.com/some/other/path';
+        $this->assertSame($unexpected, $manager->exposeRestoreSiteContextSegment($unexpected, false));
+    }
 }
 
 /**
@@ -530,6 +611,12 @@ class IThenticateWebhookManagerTestDouble extends IThenticateWebhookManager
     public function getSiteWebhookUrl(): string
     {
         return $this->siteUrl;
+    }
+
+    // Expose the real (protected) base_url[index] URL rebuilder for direct unit testing.
+    public function exposeRestoreSiteContextSegment(string $collapsedUrl, bool $restfulUrlsEnabled): string
+    {
+        return $this->restoreSiteContextSegment($collapsedUrl, $restfulUrlsEnabled);
     }
 
     public function registerOrReuseWebhookForScope(string $apiUrl, string $apiKey): bool
