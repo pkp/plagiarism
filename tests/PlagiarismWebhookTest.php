@@ -20,6 +20,8 @@ use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\plugins\generic\plagiarism\TestIThenticate;
+use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Facades\Crypt;
 use PKP\context\Context;
 use PKP\plugins\Hook;
 use PKP\services\PKPSchemaService;
@@ -34,6 +36,10 @@ class PlagiarismWebhookTest extends PKPTestCase
     private const KEY = 'API-KEY-abc123';
     private const SITE_URL = 'https://site.example/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle';
 
+    /** @var resource */
+    protected $tmpErrorLog;
+    protected string $originalErrorLog;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -41,6 +47,27 @@ class PlagiarismWebhookTest extends PKPTestCase
         // is autoloaded so restoreSiteContextSegment() can reference the marker in these isolated tests
         // (at runtime it is always defined — getSiteWebhookUrl() calls the dispatcher first).
         class_exists(\PKP\core\PKPComponentRouter::class);
+
+        // Redirect error_log to a throwaway file so the suite does not spam the real error log
+        $this->originalErrorLog = ini_get('error_log');
+        $this->tmpErrorLog = tmpfile();
+        ini_set('error_log', stream_get_meta_data($this->tmpErrorLog)['uri']);
+
+        // The registry-encryption assertions run real Crypt::encrypt/decrypt. Swap in a deterministic
+        // throwaway encrypter so these tests never depend on the deployment's real app_key (or on one
+        // being configured at all) — the key lives only for the duration of the test.
+        Crypt::swap(new Encrypter(str_repeat('a', 32), 'aes-256-cbc'));
+    }
+
+    protected function tearDown(): void
+    {
+        // Restore the real error_log target.
+        ini_set('error_log', $this->originalErrorLog);
+
+        // Drop the test encrypter so any later test resolves the real one from config again.
+        Crypt::clearResolvedInstance('encrypter');
+        app()->forgetInstance('encrypter');
+        parent::tearDown();
     }
 
     /**
@@ -189,7 +216,7 @@ class PlagiarismWebhookTest extends PKPTestCase
         $this->assertSame([], $manager->getWebhookRegistry());
     }
 
-    public function testSaveRegistryPersistsAsJsonString(): void
+    public function testSaveRegistryEncryptsSigningSecretAndPersistsAsJsonString(): void
     {
         [$plugin, $manager] = $this->makeWebhookManager();
         $fingerprint = $manager->credentialFingerprint(self::URL, self::KEY);
@@ -198,7 +225,35 @@ class PlagiarismWebhookTest extends PKPTestCase
 
         $raw = $plugin->store[Application::SITE_CONTEXT_ID]['ithenticateWebhookRegistry'];
         $this->assertIsString($raw);
-        $this->assertSame([$fingerprint => $this->sampleEntry()], json_decode($raw, true));
+        $stored = json_decode($raw, true);
+
+        // webhookId, updatedAt and the fingerprint key are stored readable at rest ...
+        $this->assertSame('wh-uuid-1', $stored[$fingerprint]['webhookId']);
+        $this->assertSame('2026-07-29 00:00:00', $stored[$fingerprint]['updatedAt']);
+        // ... but the signing secret is encrypted (not the plaintext) and decrypts back to it.
+        $this->assertNotSame('secret-32-chars', $stored[$fingerprint]['signingSecret']);
+        $this->assertSame('secret-32-chars', Crypt::decrypt($stored[$fingerprint]['signingSecret']));
+
+        // Reading through the manager transparently decrypts back to the original entry.
+        $this->assertSame($this->sampleEntry(), $manager->getWebhookRegistry()[$fingerprint]);
+    }
+
+    public function testEntryWithUndecryptableSecretIsDroppedOnRead(): void
+    {
+        [$plugin, $manager] = $this->makeWebhookManager();
+        $fingerprint = $manager->credentialFingerprint(self::URL, self::KEY);
+
+        // A stored entry whose signing secret is not valid ciphertext (e.g. app_key rotated or
+        // the DB restored onto a different host) is dropped on read so the scope re-registers.
+        $plugin->store[Application::SITE_CONTEXT_ID]['ithenticateWebhookRegistry'] = json_encode([
+            $fingerprint => [
+                'webhookId' => 'wh-uuid-1',
+                'signingSecret' => 'not-valid-ciphertext',
+                'updatedAt' => '2026-07-29 00:00:00',
+            ],
+        ]);
+
+        $this->assertSame([], $manager->getWebhookRegistry());
     }
 
     //
@@ -302,6 +357,45 @@ class PlagiarismWebhookTest extends PKPTestCase
         [, $manager] = $this->makeWebhookManager($mock);
 
         $this->assertTrue($manager->ensureWebhookForContext($this->createMock(Context::class)));
+        $this->assertSame(1, $manager->registerOrReuseCalls);
+        $this->assertSame('wh-new', $manager->getRegistryEntryForCredentials(self::URL, self::KEY)['webhookId']);
+    }
+
+    public function testEnsureWebhookRevalidateReusesHealthyWebhook(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('validateWebhook')->with('wh-existing')->willReturn(true);
+        $mock->expects($this->never())->method('registerWebhook');
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->putRegistryEntry(
+            $manager->credentialFingerprint(self::URL, self::KEY),
+            ['webhookId' => 'wh-existing', 'signingSecret' => 's', 'updatedAt' => 't']
+        );
+
+        // revalidate=true bypasses the entry-exists fast-path and validates the stored id at the API;
+        // a healthy webhook is reused (no re-registration).
+        $this->assertTrue($manager->ensureWebhookForContext($this->createMock(Context::class), true));
+        $this->assertSame(1, $manager->registerOrReuseCalls);
+        $this->assertSame('wh-existing', $manager->getRegistryEntryForCredentials(self::URL, self::KEY)['webhookId']);
+    }
+
+    public function testEnsureWebhookRevalidateHealsStaleWebhook(): void
+    {
+        $mock = $this->createMock(IThenticate::class);
+        $mock->method('validateWebhook')->with('wh-stale')->willReturn(false);
+        $mock->method('findWebhookIdByUrl')->willReturn('wh-listed');
+        $mock->expects($this->once())->method('deleteWebhook')->with('wh-listed')->willReturn(true);
+        $mock->expects($this->once())->method('registerWebhook')->willReturn('wh-new');
+
+        [, $manager] = $this->makeWebhookManager($mock);
+        $manager->putRegistryEntry(
+            $manager->credentialFingerprint(self::URL, self::KEY),
+            ['webhookId' => 'wh-stale', 'signingSecret' => 's', 'updatedAt' => 't']
+        );
+
+        // revalidate=true finds the stored webhook invalid at the API and re-registers it (heal).
+        $this->assertTrue($manager->ensureWebhookForContext($this->createMock(Context::class), true));
         $this->assertSame(1, $manager->registerOrReuseCalls);
         $this->assertSame('wh-new', $manager->getRegistryEntryForCredentials(self::URL, self::KEY)['webhookId']);
     }

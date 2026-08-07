@@ -19,11 +19,13 @@ use APP\plugins\generic\plagiarism\controllers\PlagiarismWebhookHandler;
 use APP\plugins\generic\plagiarism\IThenticate;
 use APP\plugins\generic\plagiarism\PlagiarismPlugin;
 use APP\plugins\generic\plagiarism\TestIThenticate;
+use Illuminate\Support\Facades\Crypt;
 use PKP\config\Config;
 use PKP\context\Context;
 use PKP\core\Core;
 use PKP\plugins\Hook;
 use PKP\services\PKPSchemaService;
+use Throwable;
 
 class IThenticateWebhookManager
 {
@@ -85,20 +87,46 @@ class IThenticateWebhookManager
     }
 
     /**
-     * Read the site-level webhook registry (fingerprint => entry). A missing or corrupt
-     * value self-heals to an empty array, so a garbled row degrades to "re-register".
+     * Read the site-level webhook registry (fingerprint => entry) with each scope's signing
+     * secret decrypted for use. A missing or corrupt value self-heals to an empty array, and
+     * an individual entry whose secret cannot be decrypted (e.g. app_key rotated or the DB was
+     * restored onto a different host) is dropped so that scope degrades to "re-register".
      */
     public function getWebhookRegistry(): array
     {
         $decoded = json_decode((string) $this->plugin->getSetting(Application::SITE_CONTEXT_ID, self::WEBHOOK_REGISTRY_SETTING), true);
-        return is_array($decoded) ? $decoded : [];
+        if (!is_array($decoded)) {
+            return [];
+        }
+
+        foreach ($decoded as $fingerprint => $entry) {
+            if (empty($entry['signingSecret'])) {
+                continue;
+            }
+            try {
+                $decoded[$fingerprint]['signingSecret'] = Crypt::decrypt($entry['signingSecret']);
+            } catch (Throwable $exception) {
+                unset($decoded[$fingerprint]);
+            }
+        }
+
+        return $decoded;
     }
 
     /**
-     * Persist the site-level webhook registry as a JSON string.
+     * Persist the site-level webhook registry as a JSON string, encrypting each scope's signing
+     * secret at rest (webhookId, updatedAt and the fingerprint key stay readable). Callers always
+     * hand us plaintext secrets (their array is sourced from getWebhookRegistry()), so each secret
+     * is encrypted exactly once. Relies on the app_key that has been required since OJS 3.5.
      */
     public function saveWebhookRegistry(array $registry): void
     {
+        foreach ($registry as $fingerprint => $entry) {
+            if (!empty($entry['signingSecret'])) {
+                $registry[$fingerprint]['signingSecret'] = Crypt::encrypt($entry['signingSecret']);
+            }
+        }
+
         $this->plugin->updateSetting(
             Application::SITE_CONTEXT_ID,
             self::WEBHOOK_REGISTRY_SETTING,
@@ -141,8 +169,12 @@ class IThenticateWebhookManager
      * If a registry entry already exists for the resolved credentials it returns immediately
      * with NO API call, preserving the per-submission performance of the previous
      * per-context guard. Only a missing entry triggers a register/reuse round-trip.
+     *
+     * Pass $revalidate = true to skip that fast-path and always run the full register/reuse,
+     * which validates the stored webhook id at the API and re-registers it if it 
+     * has become invalid/gone.
      */
-    public function ensureWebhookForContext(Context $context): bool
+    public function ensureWebhookForContext(Context $context, bool $revalidate = false): bool
     {
         list($apiUrl, $apiKey) = $this->plugin->getServiceAccess($context);
 
@@ -150,7 +182,7 @@ class IThenticateWebhookManager
             return false;
         }
 
-        if ($this->getRegistryEntryForCredentials($apiUrl, $apiKey)) {
+        if (!$revalidate && $this->getRegistryEntryForCredentials($apiUrl, $apiKey)) {
             return true;
         }
 
@@ -212,6 +244,108 @@ class IThenticateWebhookManager
         ]);
 
         return true;
+    }
+
+    /**
+     * Build the context-independent SITE webhook URL.
+     *
+     * Format: BASE_URL/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
+     *
+     * NOTE : When a site base-URL override (config `base_url[index]`) is set, App's component-router URL
+     * builder collapses the `index` context to null and drops BOTH the `index` segment and the
+     * `index.php` entry point — producing `{base_url[index]}/$$$call$$$/…`, whose `$$$call$$$` marker
+     * lands at path position 0. The component router requires the marker at position 1 with the
+     * site-context segment `index` at position 0 (PKPComponentRouter::_retrieveServiceEndpointParts()),
+     * so that collapsed URL never routes back to this handler. We therefore detect the override and
+     * rebuild the URL ourselves, keeping the `index` segment + entry point so the inbound PATH_INFO is
+     * `/index/$$$call$$$/…` regardless of the override's host or subdirectory. Without an override the
+     * dispatcher already emits a resolvable URL, so we delegate to it unchanged.
+     */
+    public function getSiteWebhookUrl(): string
+    {
+        $request = Application::get()->getRequest();
+
+        // The dispatcher is the single source of truth for the component/op path (handler class + op).
+        $url = Application::get()->getDispatcher()->url(
+            $request,
+            Application::ROUTE_COMPONENT,
+            Application::SITE_CONTEXT_PATH,
+            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
+            'handle'
+        );
+
+        if (empty(Config::getVar('general', 'base_url[' . Application::SITE_CONTEXT_PATH . ']'))) {
+            return $url;
+        }
+
+        // if override as base_url[index] is set, restore the site-context segment for webhook
+        return $this->restoreSiteContextSegment($url, $request->isRestfulUrlsEnabled());
+    }
+
+    /**
+     * Get the webhook URL for a given context (the legacy per-context endpoint). Retained for
+     * the CLI, which uses it to locate legacy per-context webhooks for reporting/cleanup.
+     *
+     * Format: BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
+     */
+    public function getWebhookUrl(Context $context): string
+    {
+        $request = Application::get()->getRequest();
+
+        return Application::get()->getDispatcher()->url(
+            $request,
+            Application::ROUTE_COMPONENT,
+            $context->getData('urlPath'),
+            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
+            'handle'
+        );
+    }
+
+    /**
+     * Route the context-independent site webhook to its handler, unconditionally.
+     *
+     * @param string $hookName `LoadComponentHandler`
+     */
+    public function handleWebhookRouteComponent(string $hookName, array $params): bool
+    {
+        $component =& $params[0]; /** @var string $component */
+        $componentInstance =& $params[2]; /** @var mixed $componentInstance */
+
+        if ($component !== 'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler') {
+            return Hook::CONTINUE;
+        }
+
+        $componentInstance = new PlagiarismWebhookHandler($this->plugin);
+
+        return Hook::ABORT;
+    }
+
+    /**
+     * Add the legacy per-context webhook properties to the context entity's schema for storage
+     * in <CONTEXT>_settings. Retained (alongside the site registry) so existing per-context
+     * webhooks keep verifying and the CLI can locate/clean them
+     *
+     * @param string $hookName `Schema::get::context`
+     */
+    public function addIthenticateConfigSettingsToContextSchema(string $hookName, array $params): bool
+    {
+        $schema =& $params[0];
+
+        $schema->properties->ithenticateWebhookSigningSecret = (object) [
+            'type' => 'string',
+            'description' => 'The iThenticate service webook registration signing secret',
+            'writeOnly' => true,
+            'validation' => ['nullable'],
+        ];
+
+        $schema->properties->ithenticateWebhookId = (object) [
+            'type' => 'string',
+            'description' => 'The iThenticate service webook id that return back after successful webhook registration',
+            'writeOnly' => true,
+            'validation' => ['nullable'],
+        ];
+
+        return Hook::CONTINUE;
     }
 
     /**
@@ -288,39 +422,19 @@ class IThenticateWebhookManager
     }
 
     /**
-     * Build the context-independent SITE webhook URL.
+     * Resolve the `allow_insecure` flag for the webhook registration body.
      *
-     * Format: BASE_URL/index.php/index/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
-     *
-     * NOTE : When a site base-URL override (config `base_url[index]`) is set, App's component-router URL
-     * builder collapses the `index` context to null and drops BOTH the `index` segment and the
-     * `index.php` entry point — producing `{base_url[index]}/$$$call$$$/…`, whose `$$$call$$$` marker
-     * lands at path position 0. The component router requires the marker at position 1 with the
-     * site-context segment `index` at position 0 (PKPComponentRouter::_retrieveServiceEndpointParts()),
-     * so that collapsed URL never routes back to this handler. We therefore detect the override and
-     * rebuild the URL ourselves, keeping the `index` segment + entry point so the inbound PATH_INFO is
-     * `/index/$$$call$$$/…` regardless of the override's host or subdirectory. Without an override the
-     * dispatcher already emits a resolvable URL, so we delegate to it unchanged.
+     * Honours an explicit `[ithenticate] webhook_allow_insecure` (On/Off) when set; otherwise derives
+     * from the URL scheme (http => true, https => false), as the Turnitin TCA API requires.
      */
-    public function getSiteWebhookUrl(): string
+    protected function resolveWebhookAllowInsecure(string $webhookUrl): bool
     {
-        $request = Application::get()->getRequest();
-
-        // The dispatcher is the single source of truth for the component/op path (handler class + op).
-        $url = Application::get()->getDispatcher()->url(
-            $request,
-            Application::ROUTE_COMPONENT,
-            Application::SITE_CONTEXT_PATH,
-            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-            'handle'
-        );
-
-        if (empty(Config::getVar('general', 'base_url[' . Application::SITE_CONTEXT_PATH . ']'))) {
-            return $url;
+        $configured = Config::getVar('ithenticate', 'webhook_allow_insecure', null);
+        if ($configured !== null) {
+            return (bool) $configured;
         }
 
-        // if override as base_url[index] is set, restore the site-context segment for webhook
-        return $this->restoreSiteContextSegment($url, $request->isRestfulUrlsEnabled());
+        return strtolower((string) parse_url($webhookUrl, PHP_URL_SCHEME)) === 'http';
     }
 
     /**
@@ -342,87 +456,5 @@ class IThenticateWebhookManager
         }
 
         return $base . '/' . Application::SITE_CONTEXT_PATH . '/' . $endpoint;
-    }
-
-    /**
-     * Get the webhook URL for a given context (the legacy per-context endpoint). Retained for
-     * the CLI, which uses it to locate legacy per-context webhooks for reporting/cleanup.
-     *
-     * Format: BASE_URL/index.php/CONTEXT_PATH/$$$call$$$/plugins/generic/plagiarism/controllers/plagiarism-webhook/handle
-     */
-    public function getWebhookUrl(Context $context): string
-    {
-        $request = Application::get()->getRequest();
-
-        return Application::get()->getDispatcher()->url(
-            $request,
-            Application::ROUTE_COMPONENT,
-            $context->getData('urlPath'),
-            'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler',
-            'handle'
-        );
-    }
-
-    /**
-     * Resolve the `allow_insecure` flag for the webhook registration body.
-     *
-     * Honours an explicit `[ithenticate] webhook_allow_insecure` (On/Off) when set; otherwise derives
-     * from the URL scheme (http => true, https => false), as the Turnitin TCA API requires.
-     */
-    protected function resolveWebhookAllowInsecure(string $webhookUrl): bool
-    {
-        $configured = Config::getVar('ithenticate', 'webhook_allow_insecure', null);
-        if ($configured !== null) {
-            return (bool) $configured;
-        }
-
-        return strtolower((string) parse_url($webhookUrl, PHP_URL_SCHEME)) === 'http';
-    }
-
-    /**
-     * Route the context-independent site webhook to its handler, unconditionally.
-     *
-     * @param string $hookName `LoadComponentHandler`
-     */
-    public function handleWebhookRouteComponent(string $hookName, array $params): bool
-    {
-        $component =& $params[0]; /** @var string $component */
-        $componentInstance =& $params[2]; /** @var mixed $componentInstance */
-
-        if ($component !== 'plugins.generic.plagiarism.controllers.PlagiarismWebhookHandler') {
-            return Hook::CONTINUE;
-        }
-
-        $componentInstance = new PlagiarismWebhookHandler($this->plugin);
-
-        return Hook::ABORT;
-    }
-
-    /**
-     * Add the legacy per-context webhook properties to the context entity's schema for storage
-     * in <CONTEXT>_settings. Retained (alongside the site registry) so existing per-context
-     * webhooks keep verifying and the CLI can locate/clean them
-     *
-     * @param string $hookName `Schema::get::context`
-     */
-    public function addIthenticateConfigSettingsToContextSchema(string $hookName, array $params): bool
-    {
-        $schema =& $params[0];
-
-        $schema->properties->ithenticateWebhookSigningSecret = (object) [
-            'type' => 'string',
-            'description' => 'The iThenticate service webook registration signing secret',
-            'writeOnly' => true,
-            'validation' => ['nullable'],
-        ];
-
-        $schema->properties->ithenticateWebhookId = (object) [
-            'type' => 'string',
-            'description' => 'The iThenticate service webook id that return back after successful webhook registration',
-            'writeOnly' => true,
-            'validation' => ['nullable'],
-        ];
-
-        return Hook::CONTINUE;
     }
 }

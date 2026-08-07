@@ -160,8 +160,10 @@ class PlagiarismSettingsForm extends Form
 				PlagiarismPlugin::clearEulaCache($this->_context);
 			}
 
-			// Register or reuse the SINGLE site webhook for this credential scope.
-			if (!$this->_plugin->getWebhookManager()->ensureWebhookForContext($this->_context)) {
+			// Register or reuse the SINGLE site webhook for this credential scope. Pass revalidate=true
+			// so every save verifies the stored webhook is still valid at iThenticate and re-registers
+			// it if it has been deleted/gone — making a settings re-save a self-service webhook repair.
+			if (!$this->_plugin->getWebhookManager()->ensureWebhookForContext($this->_context, true)) {
 				error_log("Failed to ensure the iThenticate site webhook for context {$this->_context->getId()}");
 
 				// Warn the manager at failure of webhook registration
