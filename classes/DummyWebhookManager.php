@@ -308,17 +308,11 @@ class DummyWebhookManager
             return [];
         }
 
-        // Batch load only the matched submission files
-        $submissionFiles = Repo::submissionFile()
+        return Repo::submissionFile()
             ->getCollector()
-            ->getQueryBuilder()
-            ->whereIn('sf.submission_file_id', $fileIds)
-            ->get();
-
-        // Convert to SubmissionFile objects
-        return $submissionFiles
-            ->map(fn ($row) => Repo::submissionFile()->dao->fromRow($row))
-            ->toArray();
+            ->filterBySubmissionFileIds($fileIds)
+            ->getMany()
+            ->all();
     }
 
     /**
@@ -368,17 +362,11 @@ class DummyWebhookManager
             return [];
         }
 
-        // Batch load only the matched submission files
-        $submissionFiles = Repo::submissionFile()
+        return Repo::submissionFile()
             ->getCollector()
-            ->getQueryBuilder()
-            ->whereIn('sf.submission_file_id', $fileIds)
-            ->get();
-
-        // Convert to SubmissionFile objects
-        return $submissionFiles
-            ->map(fn ($row) => Repo::submissionFile()->dao->fromRow($row))
-            ->toArray();
+            ->filterBySubmissionFileIds($fileIds)
+            ->getMany()
+            ->all();
     }
 
     /**
