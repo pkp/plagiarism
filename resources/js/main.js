@@ -11,15 +11,392 @@ const { useCurrentUser } = pkp.modules.useCurrentUser;
 import { ref, computed, watch, onUnmounted } from "vue";
 import { deduceFileStatus, hasSimilarityScore } from "./fileStatus";
 
+/**
+ * Per-submission plagiarism sessions, shared by every file manager on the page.
+ *
+ * More than one file manager can be on screen at once: a review round renders "Revisions
+ * Uploaded" (fileManager_WORKFLOW_REVIEW_REVISIONS) directly above "Files for Review"
+ * (fileManager_EDITOR_REVIEW_FILES), both for the same submission.
+ */
+const plagiarismSessions = new Map();
+
+function createPlagiarismSession(submissionId, submissionStageId) {
+
+    const { useUrl } = pkp.modules.useUrl;
+    const { useFetch } = pkp.modules.useFetch;
+    const { t } = useLocalize();
+
+    const { isOPS } = useApp();
+    const { notify } = useNotify();
+
+    let refCount = 0;
+    let primed = false;
+
+    const eventSource = ref(null);
+    const timeoutId = ref(null);
+    const fallbackTimeoutId = ref(null);
+    const pollingIntervalId = ref(null);
+
+    const maxDuration = ref(600); // Store maxDuration from server, Default to 600 seconds
+
+    // Each participating file manager contributes a getter for the ids it renders. The server
+    // ignores fileIds entirely, but the union is what makes the request reactive to files
+    // appearing in — or disappearing from — any of the managers sharing this session.
+    const fileIdSources = ref([]);
+
+    const ithenticateRequestParams = computed(() => {
+        const fileIds = [
+            ...new Set(fileIdSources.value.flatMap((getFileIds) => getFileIds() || [])),
+        ];
+
+        return {
+            fileIds: fileIds,
+            submissionId: submissionId,
+            stageId: isOPS() ? pkp.const.WORKFLOW_STAGE_ID_PRODUCTION : submissionStageId
+        };
+    });
+
+    const { apiUrl } = useUrl(`submissions/${submissionId}/plagiarism/status`);
+
+    const {
+        fetch: fetchIthenticateStatus,
+        data: ithenticateStatus,
+    } = useFetch(
+        apiUrl, {
+            method: 'POST',
+            body: ithenticateRequestParams
+        }
+    );
+
+    function shouldStreamPlagiarismResults(status) {
+        if (!status?.files) {
+            return false;
+        }
+        return Object.values(status.files).some(file =>
+            file.ithenticateId !== null &&
+            !hasSimilarityScore(file) &&
+            // A file with a processing error is terminal — no result will arrive, so stop streaming.
+            !file.ithenticateProcessingError
+        );
+    }
+
+    // Only if require SSE streaming and no SSE stream already active, initiate new SSE stream.
+    function ensureStream() {
+        if (ithenticateStatus.value
+            && shouldStreamPlagiarismResults(ithenticateStatus.value)
+            && !eventSource.value) {
+            streamPlagiarismResults(ithenticateRequestParams.value);
+        }
+    }
+
+    watch(
+        ithenticateRequestParams,
+        async (newRequestParams) => {
+            if (newRequestParams?.fileIds?.length) {
+                try {
+                    await fetchIthenticateStatus();
+
+                    // Only if valid ithenticateStatus data available,
+                    // then should look for possibility to initiate SSE stream
+                    ensureStream();
+                } catch (error) {
+                    console.error("Error fetching ithenticateStatus:", error);
+                }
+            }
+        },
+        { deep: true }
+    );
+
+    // Initial fetch for OPS. Idempotent: the first manager to register primes the session,
+    // any later one reuses the status it already fetched.
+    async function primeInitialFetch() {
+        if (primed) {
+            return;
+        }
+        primed = true;
+
+        try {
+            await fetchIthenticateStatus();
+
+            // Only if valid ithenticateStatus data available,
+            // then should look for possibility to initiate SSE stream
+            if (ithenticateRequestParams.value?.fileIds?.length) {
+                ensureStream();
+            }
+        } catch (error) {
+            console.error("Error in initial OPS fetch:", error);
+        }
+    }
+
+    function closeEventSource() {
+        if (eventSource.value) {
+            eventSource.value.close();
+            eventSource.value = null;
+        }
+        if (timeoutId.value) {
+            clearTimeout(timeoutId.value);
+            timeoutId.value = null;
+        }
+    }
+
+    function clearFallbacks() {
+        if (fallbackTimeoutId.value) {
+            clearTimeout(fallbackTimeoutId.value);
+            fallbackTimeoutId.value = null;
+        }
+        if (pollingIntervalId.value) {
+            clearInterval(pollingIntervalId.value);
+            pollingIntervalId.value = null;
+        }
+    }
+
+    function stop() {
+        closeEventSource();
+        clearFallbacks();
+    }
+
+    // Implementation for streaming plagiarism results
+    function streamPlagiarismResults(params) {
+        closeEventSource();
+
+        if (!params?.fileIds?.length) {
+            return;
+        }
+
+        const queryParams = new URLSearchParams({
+            submissionId: params.submissionId,
+            stageId: params.stageId,
+            fileIds: params.fileIds.join(","),
+        });
+        const streamUrl = `${apiUrl.value}/stream?${queryParams.toString()}`;
+
+        let lastMessageTime = Date.now();
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        // Initialize EventSource
+        try {
+            eventSource.value = new EventSource(streamUrl);
+
+            // Fallback to polling if no SSE messages after 30 seconds
+            fallbackTimeoutId.value = setTimeout(() => {
+                if (Date.now() - lastMessageTime > 30000) {
+                    console.log("No SSE messages received, falling back to polling");
+                    closeEventSource();
+                    pollingIntervalId.value = setInterval(async () => {
+
+                        try {
+                            if (!ithenticateStatus.value && retryCount < maxRetries) {
+                                await fetchIthenticateStatus();
+                                retryCount++;
+                            } else if (shouldStreamPlagiarismResults(ithenticateStatus.value)) {
+                                await fetchIthenticateStatus();
+                                retryCount = 0; // Reset retries on successful fetch
+                            } else {
+                                clearInterval(pollingIntervalId.value);
+                                pollingIntervalId.value = null;
+                                retryCount = 0;
+                            }
+                        } catch (error) {
+                            retryCount++;
+                            if (retryCount >= maxRetries) {
+                                clearInterval(pollingIntervalId.value);
+                                pollingIntervalId.value = null;
+                                retryCount = 0;
+                            }
+                        }
+                    }, 10000);
+                }
+            }, 30000);
+
+            // Handle SSE messages
+            eventSource.value.onmessage = (event) => {
+                lastMessageTime = Date.now();
+
+                try {
+                    const data = JSON.parse(event.data);
+                    // console.log("Parsed data:", data);
+
+                    // Check for maxDuration from server
+                    if (data.maxDuration) {
+                        maxDuration.value = Number(data.maxDuration);
+
+                        // Update timeout with new maxDuration
+                        if (timeoutId.value) {
+                            clearTimeout(timeoutId.value);
+                            timeoutId.value = null;
+                        }
+
+                        timeoutId.value = setTimeout(() => {
+                            console.log(`Client-side ${maxDuration.value}-second limit reached at:`, new Date().toISOString());
+                            closeEventSource();
+                            clearFallbacks();
+                            fetchIthenticateStatus();
+                        }, maxDuration.value * 1000);
+
+                        return;
+                    }
+
+                    if (data) {
+
+                        const oldFiles = { ...ithenticateStatus.value?.files || {} };
+
+                        ithenticateStatus.value = {
+                            ...ithenticateStatus.value,
+                            ...data,
+                        };
+
+                        let hasNewSimilarityResult = false,
+                            hasNewReportScheduled = false;
+
+
+                        if (data.files && oldFiles) {
+                            Object.entries(data.files).forEach(([fileId, newFile]) => {
+                                const oldFile = oldFiles[fileId];
+                                if (oldFile && oldFile.ithenticateId !== null) {
+                                    if (!hasSimilarityScore(oldFile) && hasSimilarityScore(newFile)) {
+                                        hasNewSimilarityResult = true;
+                                    }
+
+                                    if (oldFile.ithenticateSimilarityScheduled != newFile.ithenticateSimilarityScheduled) {
+                                        hasNewReportScheduled = true;
+                                    }
+                                }
+                            });
+                        }
+
+                        if (hasNewReportScheduled) {
+                            notify(
+                                t('plugins.generic.plagiarism.action.scheduleSimilarityReport.success'),
+                                'success'
+                            );
+                        }
+
+                        if (hasNewSimilarityResult) {
+                            notify(
+                                t('plugins.generic.plagiarism.action.refreshSimilarityResult.success'),
+                                'success'
+                            );
+                        }
+
+                        if (hasNewSimilarityResult || hasNewReportScheduled) {
+                            fetchIthenticateStatus();
+                        }
+
+                        if (!shouldStreamPlagiarismResults(ithenticateStatus.value)) {
+                            // No files require further SSE streaming, close connection
+                            closeEventSource();
+                            clearFallbacks();
+
+                            fetchIthenticateStatus();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing EventSource data:", e);
+                }
+            };
+
+            // Handle custom stream_end event
+            eventSource.value.addEventListener("stream_end", () => {
+                closeEventSource();
+                clearFallbacks();
+
+                fetchIthenticateStatus();
+            });
+
+            eventSource.value.onerror = (event) => {
+                closeEventSource();
+
+                if (fallbackTimeoutId.value) {
+                    clearTimeout(fallbackTimeoutId.value);
+                    fallbackTimeoutId.value = null;
+                }
+
+                pollingIntervalId.value = setInterval(() => {
+                    if (shouldStreamPlagiarismResults(ithenticateStatus.value)) {
+                        fetchIthenticateStatus();
+                    } else {
+                        // No files require polling, stopping
+                        clearInterval(pollingIntervalId.value);
+                        pollingIntervalId.value = null;
+                    }
+                }, 10000);
+
+                fetchIthenticateStatus();
+            };
+
+            eventSource.value.onopen = () => {
+                console.log("EventSource connection opened at:", new Date().toISOString());
+            };
+
+        } catch (e) {
+            console.error("Failed to initialize EventSource:", e);
+
+            pollingIntervalId.value = setInterval(() => {
+                if (shouldStreamPlagiarismResults(ithenticateStatus.value)) {
+                    fetchIthenticateStatus();
+                } else {
+                    clearInterval(pollingIntervalId.value);
+                    pollingIntervalId.value = null;
+                }
+            }, 10000);
+        }
+
+    }
+
+    return {
+        status: ithenticateStatus,
+        params: ithenticateRequestParams,
+        fetchStatus: fetchIthenticateStatus,
+        ensureStream,
+        primeInitialFetch,
+        stop,
+        addFileIdSource(getFileIds) {
+            fileIdSources.value = [...fileIdSources.value, getFileIds];
+        },
+        retain() {
+            refCount++;
+        },
+        release() {
+            refCount--;
+
+            // The last file manager sharing this submission has gone away — drop the stream
+            // rather than leaving it holding a request open for the rest of maxDuration.
+            if (refCount <= 0) {
+                stop();
+                plagiarismSessions.delete(submissionId);
+            }
+        },
+    };
+}
+
+function acquirePlagiarismSession(submissionId, submissionStageId) {
+    let session = plagiarismSessions.get(submissionId);
+
+    if (!session) {
+        session = createPlagiarismSession(submissionId, submissionStageId);
+        plagiarismSessions.set(submissionId, session);
+    }
+
+    session.retain();
+
+    return session;
+}
+
+// One listener for the page rather than one per store: file managers are created and
+// disposed as the editor moves between stages, and each would otherwise leave one behind.
+window.addEventListener("beforeunload", () => {
+    plagiarismSessions.forEach((session) => session.stop());
+});
+
 function runPlagiarismAction(piniaContext, stageNamespace) {
-    
+
     const dashboardStore = pkp.registry.getPiniaStore("dashboard");
     if (dashboardStore.dashboardPage !== "editorialDashboard") {
         return;
     }
 
-    const { useUrl } = pkp.modules.useUrl;
-    const { useFetch } = pkp.modules.useFetch;
     const { t } = useLocalize();
 
     const { isOPS } = useApp();
@@ -29,81 +406,26 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
     const { notify } = useNotify();
 
-    const eventSource = ref(null);
-    const timeoutId = ref(null);
-    
-    const maxDuration = ref(600); // Store maxDuration from server, Default to 600 seconds
+    const session = acquirePlagiarismSession(submission.id, submissionStageId);
+    const ithenticateStatus = session.status;
 
-    const ithenticateRequestParams = computed(() => {
-        const fileIds = isOPS()
-            ? (fileStore?.galleys?.map((galley) => galley.file.id) || [])
-            : (fileStore?.files?.map((file) => file.id) || []);
-
-        return {
-            fileIds: fileIds,
-            submissionId: submission.id,
-            stageId: isOPS() ? pkp.const.WORKFLOW_STAGE_ID_PRODUCTION : submissionStageId
-        };
-    });
-
-    const { apiUrl } = useUrl(`submissions/${submission.id}/plagiarism/status`);
-    
-    const { 
-        fetch: fetchIthenticateStatus, 
-        data: ithenticateStatus,
-    } = useFetch(
-        apiUrl, { 
-            method: 'POST',
-            body: ithenticateRequestParams 
-        }
-    );
-    
-    watch(
-        ithenticateRequestParams, 
-        async (newRequestParams) => {
-            if (newRequestParams?.fileIds?.length) {
-                try {
-                    await fetchIthenticateStatus();
-                    fileStore.ithenticateStatus = ithenticateStatus;
-                    
-                    // Only if valid ithenticateStatus data available,
-                    // then should look for possibility to initiate SSE stream
-                    if (ithenticateStatus.value) {
-                        // Only if require SSE streaming and no SSE stream already active
-                        // initiate new SSE stream
-                        if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
-                            streamPlagiarismResults(newRequestParams);
-                        }
-                    }
-                } catch (error) {
-                    console.error("Error fetching ithenticateStatus:", error);
-                }
-            }
-        },
-        { deep: true }
+    // Contribute this manager's rows to the shared request.
+    session.addFileIdSource(() => isOPS()
+        ? (fileStore?.galleys?.map((galley) => galley.file.id) || [])
+        : (fileStore?.files?.map((file) => file.id) || [])
     );
 
-    // Initial fetch for OPS
+    // Expose the shared status on this store so ithenticateSimilarityScoreCell, which resolves
+    // its store by fileStageNamespace, reads the same object every other manager is reading.
+    fileStore.ithenticateStatus = ithenticateStatus;
+
     if (isOPS()) {
-        (async () => {
-            try {
-                await fetchIthenticateStatus();
-                fileStore.ithenticateStatus = ithenticateStatus;
-
-                // Only if valid ithenticateStatus data available,
-                // then should look for possibility to initiate SSE stream
-                if (ithenticateStatus.value && ithenticateRequestParams.value?.fileIds?.length) {
-                    // Only if require SSE streaming and no SSE stream already active
-                    // initiate new SSE stream
-                    if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
-                        streamPlagiarismResults(ithenticateRequestParams.value);
-                    }
-                }
-            } catch (error) {
-                console.error("Error in initial OPS fetch:", error);
-            }
-        })();
+        session.primeInitialFetch();
     }
+
+    onUnmounted(() => {
+        session.release();
+    });
 
     fileStore.extender.extendFn('getColumns', (columns, args) => {
         const newColumns = [...columns];
@@ -195,27 +517,17 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
     async function executePlagiarismAction(fileStatus)
     {
         const actionUrl = getActionUrl(fileStatus);
-        
-        const { 
-            fetch: executeIthenticateAction, 
+
+        const { useFetch } = pkp.modules.useFetch;
+
+        const {
+            fetch: executeIthenticateAction,
             data: ithenticateActionData,
         } = useFetch(actionUrl);
-        
+
         await executeIthenticateAction();
 
         return ithenticateActionData;
-    }
-
-    function shouldStreamPlagiarismResults(status) {
-        if (!status?.files) {
-            return false;
-        }
-        return Object.values(status.files).some(file =>
-            file.ithenticateId !== null &&
-            !hasSimilarityScore(file) &&
-            // A file with a processing error is terminal — no result will arrive, so stop streaming.
-            !file.ithenticateProcessingError
-        );
     }
 
     fileStore.extender.extendFn('getItemActions', (originalResult, args) => {
@@ -257,7 +569,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                     name: "conductPlagiarismCheck",
                     icon: "Globe",
                     actionFn: (args) => {
-                        
+
                         if ((!fileStatus.ithenticateId || fileStatus.ithenticateProcessingError) && isEulaConfirmationRequired(contextStatus, submissionStatus, userStatus)) {
                             const {useLegacyGridUrl} = pkp.modules.useLegacyGridUrl;
 
@@ -276,11 +588,9 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                                     title: t('plugins.generic.plagiarism.similarity.action.submitforPlagiarismCheck.title')
                                 },
                                 async () => {
-                                    await fetchIthenticateStatus();
+                                    await session.fetchStatus();
 
-                                    if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
-                                        streamPlagiarismResults(ithenticateRequestParams.value);
-                                    }
+                                    session.ensureStream();
                                 },
                             );
 
@@ -304,7 +614,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
                                         // If the server detected a stale-cache EULA mismatch it busted the
                                         // cache, reverted the stale stamps, and returned the "EULA updated"
-                                        // notification below. The fetchIthenticateStatus() call that follows
+                                        // notification below. The fetchStatus() call that follows
                                         // refreshes contextStatus.eulaVersion (and the now-null user/submission
                                         // stamps), so isEulaConfirmationRequired() naturally surfaces the EULA
                                         // modal on the user's next click — no explicit reconfirmation signal.
@@ -315,11 +625,9 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
                                             );
                                         }
 
-                                        await fetchIthenticateStatus();
+                                        await session.fetchStatus();
 
-                                        if (shouldStreamPlagiarismResults(ithenticateStatus.value) && !eventSource.value) {
-                                            streamPlagiarismResults(ithenticateRequestParams.value);
-                                        }
+                                        session.ensureStream();
                                     },
                                 },
                                 {
@@ -338,262 +646,6 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
 
         return [...originalResult];
     });
-
-    // Implementation for streaming plagiarism results
-    function streamPlagiarismResults(params) {
-        if (eventSource.value) {
-            eventSource.value.close();
-            eventSource.value = null;
-        }
-
-        if (timeoutId.value) {
-            clearTimeout(timeoutId.value);
-            timeoutId.value = null;
-        }
-
-        if (!params?.fileIds?.length) {
-            return;
-        }
-
-        const queryParams = new URLSearchParams({
-            submissionId: params.submissionId,
-            stageId: params.stageId,
-            fileIds: params.fileIds.join(","),
-        });
-        const streamUrl = `${apiUrl.value}/stream?${queryParams.toString()}`;
-
-        let lastMessageTime = Date.now();
-        let pollingInterval = null;
-        let retryCount = 0;
-        const maxRetries = 3;
-
-        // Initialize EventSource
-        try {
-            eventSource.value = new EventSource(streamUrl);
-
-            // Fallback to polling if no SSE messages after 30 seconds
-            const fallbackTimeout = setTimeout(() => {
-                if (Date.now() - lastMessageTime > 30000) {
-                    console.log("No SSE messages received, falling back to polling");
-                    if (eventSource.value) {
-                        eventSource.value.close();
-                        eventSource.value = null;
-                    }
-                    pollingInterval = setInterval(async () => {
-                        
-                        try {
-                            if (!fileStore.ithenticateStatus.value && retryCount < maxRetries) {
-                                await fetchIthenticateStatus();
-                                retryCount++;
-                            } else if (shouldStreamPlagiarismResults(ithenticateStatus.value)) {
-                                await fetchIthenticateStatus();
-                                retryCount = 0; // Reset retries on successful fetch
-                            } else {
-                                clearInterval(pollingInterval);
-                                pollingInterval = null;
-                                retryCount = 0;
-                            }
-                        } catch (error) {
-                            retryCount++;
-                            if (retryCount >= maxRetries) {
-                                clearInterval(pollingInterval);
-                                pollingInterval = null;
-                                retryCount = 0;
-                            }
-                        }
-                    }, 10000);
-                }
-            }, 30000);
-
-            // Handle SSE messages
-            eventSource.value.onmessage = (event) => {
-                lastMessageTime = Date.now();
-
-                try {
-                    const data = JSON.parse(event.data);
-                    // console.log("Parsed data:", data);
-
-                    // Check for maxDuration from server
-                    if (data.maxDuration) {
-                        maxDuration.value = Number(data.maxDuration);
-                        
-                        // Update timeout with new maxDuration
-                        if (timeoutId.value) {
-                            clearTimeout(timeoutId.value);
-                            timeoutId.value = null;
-                        }
-
-                        timeoutId.value = setTimeout(() => {
-                            console.log(`Client-side ${maxDuration.value}-second limit reached at:`, new Date().toISOString());
-                            if (eventSource.value) {
-                                eventSource.value.close();
-                                eventSource.value = null;
-                            }
-                            timeoutId.value = null;
-                            clearTimeout(fallbackTimeout);
-                            if (pollingInterval) {
-                                clearInterval(pollingInterval);
-                            }
-                            fetchIthenticateStatus();
-                        }, maxDuration.value * 1000);
-
-                        return;
-                    }
-
-                    if (data && fileStore.ithenticateStatus) {
-                        
-                        const oldFiles = { ...fileStore.ithenticateStatus.value?.files || {} };
-
-                        fileStore.ithenticateStatus.value = {
-                            ...fileStore.ithenticateStatus.value,
-                            ...data,
-                        };
-
-                        let hasNewSimilarityResult = false,
-                            hasNewReportScheduled = false;
-
-
-                        if (data.files && oldFiles) {
-                            Object.entries(data.files).forEach(([fileId, newFile]) => {
-                                const oldFile = oldFiles[fileId];
-                                if (oldFile && oldFile.ithenticateId !== null) {
-                                    if (!hasSimilarityScore(oldFile) && hasSimilarityScore(newFile)) {
-                                        hasNewSimilarityResult = true;
-                                    }
-
-                                    if (oldFile.ithenticateSimilarityScheduled != newFile.ithenticateSimilarityScheduled) {
-                                        hasNewReportScheduled = true;
-                                    }
-                                }
-                            });
-                        }
-
-                        if (hasNewReportScheduled) {
-                            notify(
-                                t('plugins.generic.plagiarism.action.scheduleSimilarityReport.success'),
-                                'success'
-                            );
-                        }
-
-                        if (hasNewSimilarityResult) {
-                            notify(
-                                t('plugins.generic.plagiarism.action.refreshSimilarityResult.success'),
-                                'success'
-                            );
-                        }
-
-                        if (hasNewSimilarityResult || hasNewReportScheduled) {
-                            fetchIthenticateStatus();
-                        }
-
-                        if (!shouldStreamPlagiarismResults(fileStore.ithenticateStatus.value)) {
-                            // No files require further SSE streaming, close connection
-                            if (eventSource.value) {
-                                eventSource.value.close();
-                                eventSource.value = null;
-                            }
-                            if (timeoutId.value) {
-                                clearTimeout(timeoutId.value);
-                                timeoutId.value = null;
-                            }
-
-                            clearTimeout(fallbackTimeout);
-                            if (pollingInterval) {
-                                clearInterval(pollingInterval);
-                            }
-
-                            fetchIthenticateStatus();
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.error("Error parsing EventSource data:", e);
-                }
-            };
-
-            // Handle custom stream_end event
-            eventSource.value.addEventListener("stream_end", () => {
-                if (eventSource.value) {
-                    eventSource.value.close();
-                    eventSource.value = null;
-                }
-                if (timeoutId.value) {
-                    clearTimeout(timeoutId.value);
-                    timeoutId.value = null;
-                }
-
-                clearTimeout(fallbackTimeout);
-                if (pollingInterval) {
-                    clearInterval(pollingInterval);
-                }
-
-                fetchIthenticateStatus();
-            });
-
-            eventSource.value.onerror = (event) => {
-                if (eventSource.value) {
-                    eventSource.value.close();
-                    eventSource.value = null;
-                }
-                if (timeoutId.value) {
-                    clearTimeout(timeoutId.value);
-                    timeoutId.value = null;
-                }
-
-                clearTimeout(fallbackTimeout);
-
-                pollingInterval = setInterval(() => {
-                    if (shouldStreamPlagiarismResults(fileStore.ithenticateStatus.value)) {
-                        fetchIthenticateStatus();
-                    } else {
-                        // No files require polling, stopping
-                        clearInterval(pollingInterval);
-                    }
-                }, 10000);
-                
-                fetchIthenticateStatus();
-            };
-
-            eventSource.value.onopen = () => {
-                console.log("EventSource connection opened at:", new Date().toISOString());
-            };
-
-        } catch (e) {
-            console.error("Failed to initialize EventSource:", e);
-            
-            pollingInterval = setInterval(() => {
-                if (shouldStreamPlagiarismResults(fileStore.ithenticateStatus.value)) {
-                    fetchIthenticateStatus();
-                } else {
-                    clearInterval(pollingInterval);
-                }
-            }, 10000);
-        }
-        
-    }
-
-    // Cleanup on component unmount or page unload
-    onUnmounted(() => {
-        if (eventSource.value) {
-            eventSource.value.close();
-            eventSource.value = null;
-        }
-        if (timeoutId.value) {
-            clearTimeout(timeoutId.value);
-            timeoutId.value = null;
-        }
-    });
-
-    window.addEventListener("beforeunload", () => {
-        if (eventSource.value) {
-            eventSource.value.close();
-            eventSource.value = null;
-        }
-        if (timeoutId.value) {
-            clearTimeout(timeoutId.value);
-            timeoutId.value = null;
-        }
-    });
 }
 
 pkp.registry.storeExtend('fileManager_SUBMISSION_FILES', (piniaContext) => {
@@ -602,6 +654,11 @@ pkp.registry.storeExtend('fileManager_SUBMISSION_FILES', (piniaContext) => {
 
 pkp.registry.storeExtend('fileManager_EDITOR_REVIEW_FILES', (piniaContext) => {
     runPlagiarismAction(piniaContext, 'fileManager_EDITOR_REVIEW_FILES');
+});
+
+
+pkp.registry.storeExtend('fileManager_WORKFLOW_REVIEW_REVISIONS', (piniaContext) => {
+    runPlagiarismAction(piniaContext, 'fileManager_WORKFLOW_REVIEW_REVISIONS');
 });
 
 pkp.registry.storeExtend('galleyManager', (piniaContext) => {
