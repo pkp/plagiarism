@@ -188,6 +188,7 @@ class PlagiarismApiActionManager
             // (in the viewer's request locale). Tolerate a legacy plain-string value.
             $fileErrorRaw = $submissionFile->getData('ithenticateProcessingError');
             $fileErrorDecoded = $fileErrorRaw ? json_decode($fileErrorRaw, true) : null;
+            $workflowStageId = $this->plugin->getStageId($request, $submissionFile);
 
             $fileStatuses[$submissionFile->getId()] = [
                 'ithenticateUploadAllowed' => !$this->plugin->isSubmissionFileTypeRestricted($submissionFile),
@@ -203,10 +204,10 @@ class PlagiarismApiActionManager
                     ? PlagiarismErrorFormatter::resolve(is_array($fileErrorDecoded) ? $fileErrorDecoded : $fileErrorRaw)
                     : null,
                 'ithenticateLogo' => $this->plugin->getIThenticateLogoUrl(),
-                'ithenticateViewerUrl' => $this->plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile),
-                'ithenticateUploadUrl' => $this->plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile),
-                'ithenticateReportScheduleUrl' => $this->plugin->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile),
-                'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile),
+                'ithenticateViewerUrl' => $this->plugin->getPlagiarismActionUrl($request, 'launchViewer', $submissionFile, $workflowStageId),
+                'ithenticateUploadUrl' => $this->plugin->getPlagiarismActionUrl($request, 'submitSubmission', $submissionFile, $workflowStageId),
+                'ithenticateReportScheduleUrl' => $this->plugin->getPlagiarismActionUrl($request, 'scheduleSimilarityReport', $submissionFile, $workflowStageId),
+                'ithenticateReportRefreshUrl' => $this->plugin->getPlagiarismActionUrl($request, 'refreshSimilarityResult', $submissionFile, $workflowStageId),
             ];
         }
 

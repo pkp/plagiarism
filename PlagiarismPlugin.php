@@ -1437,7 +1437,7 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Generate and get the iThenticate plagiarism related action url
 	 */
-	public function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile): string
+	public function getPlagiarismActionUrl(PKPRequest $request, string $op, SubmissionFile $submissionFile, ?int $workflowStageId = null): string
 	{
 		return $request->getDispatcher()->url(
 			$request,
@@ -1447,7 +1447,7 @@ class PlagiarismPlugin extends GenericPlugin
 			$op,
 			null,
 			[
-				'stageId' => $this->getStageId($request),
+				'stageId' => $workflowStageId ?? $this->getStageId($request, $submissionFile),
 				'submissionId' => $submissionFile->getData('submissionId'),
 				'submissionFileId' => $submissionFile->getId(),
 			]
@@ -1468,11 +1468,22 @@ class PlagiarismPlugin extends GenericPlugin
 
 	/**
 	 * Get the proper workflow stage id for iThenticate actions.
+	 *
+	 * When a file is given, the stage must be the one that *file* lives in — not the stage of the
+	 * page that happens to be asking.
 	 */
-	protected function getStageId(PKPRequest $request): ?int
+	public function getStageId(PKPRequest $request, ?SubmissionFile $submissionFile = null): ?int
 	{
 		if (static::isOPS()) {
 			return WORKFLOW_STAGE_ID_PRODUCTION;
+		}
+
+		$workflowStageId = $submissionFile
+			? Repo::submissionFile()->getWorkflowStageId($submissionFile)
+			: null;
+
+		if ($workflowStageId) {
+			return $workflowStageId;
 		}
 
 		$stageId = $request->getUserVar('stageId');
