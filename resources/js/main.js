@@ -8,7 +8,7 @@ const { useLocalize } = pkp.modules.useLocalize;
 const { useApp } = pkp.modules.useApp;
 const { useNotify } = pkp.modules.useNotify;
 const { useCurrentUser } = pkp.modules.useCurrentUser;
-import { ref, computed, watch, onUnmounted } from "vue";
+import { ref, computed, watch, effectScope, onScopeDispose } from "vue";
 import { deduceFileStatus, hasSimilarityScore } from "./fileStatus";
 
 /**
@@ -21,6 +21,12 @@ import { deduceFileStatus, hasSimilarityScore } from "./fileStatus";
 const plagiarismSessions = new Map();
 
 function createPlagiarismSession(submissionId, submissionStageId) {
+    const scope = effectScope(true);
+
+    return scope.run(() => buildPlagiarismSession(submissionId, submissionStageId, scope));
+}
+
+function buildPlagiarismSession(submissionId, submissionStageId, scope) {
 
     const { useUrl } = pkp.modules.useUrl;
     const { useFetch } = pkp.modules.useFetch;
@@ -153,6 +159,7 @@ function createPlagiarismSession(submissionId, submissionStageId) {
     function stop() {
         closeEventSource();
         clearFallbacks();
+        scope.stop();
     }
 
     // Implementation for streaming plagiarism results
@@ -423,7 +430,7 @@ function runPlagiarismAction(piniaContext, stageNamespace) {
         session.primeInitialFetch();
     }
 
-    onUnmounted(() => {
+    onScopeDispose(() => {
         session.release();
     });
 
