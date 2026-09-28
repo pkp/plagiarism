@@ -635,8 +635,8 @@ class TestIThenticate
         $eulaUrl = $this->eulaVersionDetails['url'];
 
         return str_replace(
-            strtolower(static::DEFAULT_EULA_LANGUAGE),
-            strtolower($applicableEulaLanguage),
+            static::DEFAULT_EULA_LANGUAGE,
+            $applicableEulaLanguage,
             $eulaUrl
         );
     }

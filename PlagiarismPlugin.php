@@ -1078,12 +1078,20 @@ class PlagiarismPlugin extends GenericPlugin
 	{
 		$eulaDetails = Cache::remember(
 			static::getEulaCacheKey($context),
-			// if running on ithenticate test mode, set the cache life time to 60 seconds
 			static::isRunningInTestMode() 
 				? (5 * 60) // 5 mins cache time in Test mode
 				: static::EULA_CACHE_LIFETIME,
 			fn () => $this->retrieveEulaDetails()
 		);
+
+		// double confirm the eula url is canonical
+		if (is_array($eulaDetails)) {
+			foreach ($eulaDetails as $localeKey => $localeEulaDetails) {
+				if (is_array($localeEulaDetails) && isset($localeEulaDetails['url'])) {
+					$eulaDetails[$localeKey]['url'] = IThenticate::canonicalizeEulaUrl($localeEulaDetails['url']);
+				}
+			}
+		}
 
 		if (!$keys) {
 			return $eulaDetails;
