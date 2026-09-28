@@ -904,12 +904,29 @@ class IThenticate
 
         $eulaUrl = $this->eulaVersionDetails['url'];
 
-        // iThenticate's locale-keyed URLs contain 'en-US' (uppercase region).
-        // strtolower-ing the search needle made this replace silently no-op
-        // and leak the default-language URL on non-en locales.
         return str_replace(
             static::DEFAULT_EULA_LANGUAGE,
-            strtolower($applicableEulaLanguage),
+            $applicableEulaLanguage,
+            $eulaUrl
+        );
+    }
+
+    /**
+     * Restore iThenticate's canonical `ll-RR` casing in an EULA url's locale segment.
+     *
+     * @param  string|null $eulaUrl
+     * @return string|null
+     */
+    public static function canonicalizeEulaUrl($eulaUrl) {
+        if (!$eulaUrl) {
+            return $eulaUrl;
+        }
+
+        return preg_replace_callback(
+            '#(?<=/)([a-z]{2,3})-([a-z]{2})(?=[/?\#]|$)#',
+            function ($matches) {
+                return $matches[1] . '-' . strtoupper($matches[2]);
+            },
             $eulaUrl
         );
     }
