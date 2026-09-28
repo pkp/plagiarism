@@ -863,12 +863,25 @@ class IThenticate
 
         $eulaUrl = $this->eulaVersionDetails['url'];
 
-        // Search side preserves case (DEFAULT_EULA_LANGUAGE = "en-US"); iThenticate
-        // URLs contain the locale segment in mixed case (e.g. ".../eula/en-US/...").
-        // Replacement is lowercased for consistency in the resulting URL.
         return str_replace(
             static::DEFAULT_EULA_LANGUAGE,
-            strtolower($applicableEulaLanguage),
+            $applicableEulaLanguage,
+            $eulaUrl
+        );
+    }
+
+    /**
+     * Restore iThenticate's canonical `ll-RR` casing in an EULA url's locale segment.
+     */
+    public static function canonicalizeEulaUrl(?string $eulaUrl): ?string
+    {
+        if (!$eulaUrl) {
+            return $eulaUrl;
+        }
+
+        return preg_replace_callback(
+            '#(?<=/)([a-z]{2,3})-([a-z]{2})(?=[/?\#]|$)#',
+            fn (array $matches) => $matches[1] . '-' . strtoupper($matches[2]),
             $eulaUrl
         );
     }
