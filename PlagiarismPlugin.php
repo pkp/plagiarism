@@ -127,6 +127,13 @@ class PlagiarismPlugin extends GenericPlugin
 	protected ?string $assetVersionQuery = null;
 
 	/**
+	 * Workflow stage id per submission file id, memoized for the lifetime of the request.
+	 *
+	 * @see static::getSubmissionFileWorkflowStageId()
+	 */
+	protected array $submissionFileWorkflowStageIds = [];
+
+	/**
 	 * Determine if running application is OPS or not
 	 */
 	public static function isOPS(): bool
@@ -1500,7 +1507,7 @@ class PlagiarismPlugin extends GenericPlugin
 		}
 
 		$workflowStageId = $submissionFile
-			? Repo::submissionFile()->getWorkflowStageId($submissionFile)
+			? $this->getSubmissionFileWorkflowStageId($submissionFile)
 			: null;
 
 		if ($workflowStageId) {
@@ -1510,6 +1517,31 @@ class PlagiarismPlugin extends GenericPlugin
 		$stageId = $request->getUserVar('stageId');
 
 		return $stageId ? (int) $stageId : null;
+	}
+
+	/**
+	 * Resolve the workflow stage a submission file lives in.
+	 *
+	 * The status payload is rebuilt for every file of the submission on every poll, and the
+	 * streaming endpoint polls within a single process for up to
+	 * `PlagiarismApiActionManager::MAX_STREAM_TIME`, so the per-file lookup is memoized instead
+	 * of repeated -- a file does not change stage within a request.
+	 */
+	protected function getSubmissionFileWorkflowStageId(SubmissionFile $submissionFile): ?int
+	{
+		$submissionFileId = $submissionFile->getId();
+
+		if (array_key_exists($submissionFileId, $this->submissionFileWorkflowStageIds)) {
+			return $this->submissionFileWorkflowStageIds[$submissionFileId];
+		}
+
+		try {
+			$workflowStageId = Repo::submissionFile()->getWorkflowStageId($submissionFile);
+		} catch (Throwable $exception) {
+			$workflowStageId = null;
+		}
+
+		return $this->submissionFileWorkflowStageIds[$submissionFileId] = $workflowStageId;
 	}
 
 	/**
