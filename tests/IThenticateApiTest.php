@@ -266,6 +266,67 @@ class IThenticateApiTest extends PKPTestCase
         $this->assertSame('v1beta', $ithenticate->getApplicableEulaVersion());
     }
 
+    /**
+     * The EULA document is served from a case-sensitive store, so the locale segment of the
+     * generated url must keep iThenticate's canonical `ll-RR` form. Lower-casing it yields an
+     * `AccessDenied` XML document instead of the agreement.
+     */
+    public function testGetApplicableEulaUrlKeepsCanonicalLocaleCasing(): void
+    {
+        $details = [
+            'version' => 'v2',
+            'url' => 'https://agreement-cf-euc1.turnitin.net/eula/en-US/0000000002/0000000000/eula.html',
+            'available_languages' => ['en-US', 'de-DE', 'pt-BR', 'zh-CN'],
+        ];
+        $ithenticate = $this->ithenticate();
+        $this->installGuzzleQueue([new Response(200, [], json_encode($details))]);
+        $this->assertTrue($ithenticate->validateEulaVersion('v2'));
+
+        // The default locale must come back untouched, not lower-cased.
+        $this->assertSame($details['url'], $ithenticate->getApplicableEulaUrl('en_US'));
+
+        // A localized url swaps the segment but keeps the canonical casing on both sides.
+        $this->assertSame(
+            'https://agreement-cf-euc1.turnitin.net/eula/pt-BR/0000000002/0000000000/eula.html',
+            $ithenticate->getApplicableEulaUrl('pt_BR')
+        );
+        $this->assertSame(
+            'https://agreement-cf-euc1.turnitin.net/eula/zh-CN/0000000002/0000000000/eula.html',
+            $ithenticate->getApplicableEulaUrl('zh_Hans')
+        );
+    }
+
+    /**
+     * Urls already persisted with a lower-cased locale segment are repaired where they are
+     * read, so no migration is needed. A correctly cased url must survive unchanged.
+     */
+    public function testCanonicalizeEulaUrlRepairsLowerCasedLocaleSegmentOnly(): void
+    {
+        $canonical = 'https://agreement-cf-euc1.turnitin.net/eula/en-US/0000000002/0000000000/eula.html';
+
+        $this->assertSame(
+            $canonical,
+            IThenticate::canonicalizeEulaUrl(
+                'https://agreement-cf-euc1.turnitin.net/eula/en-us/0000000002/0000000000/eula.html'
+            )
+        );
+        $this->assertSame($canonical, IThenticate::canonicalizeEulaUrl($canonical), 'no-op when already canonical');
+
+        // The legacy version-prefixed shape puts the locale one segment deeper.
+        $this->assertSame(
+            'https://static.turnitin.com/eula/v1beta/de-DE/eula.html',
+            IThenticate::canonicalizeEulaUrl('https://static.turnitin.com/eula/v1beta/de-de/eula.html')
+        );
+
+        // Only a path segment is rewritten — a host that happens to look like a locale is not.
+        $this->assertSame(
+            'https://fr-fr.example.com/eula/fr-FR/eula.html',
+            IThenticate::canonicalizeEulaUrl('https://fr-fr.example.com/eula/fr-fr/eula.html')
+        );
+
+        $this->assertNull(IThenticate::canonicalizeEulaUrl(null));
+    }
+
     public function testVerifyUserEulaAcceptanceReturnsTrueOn200(): void
     {
         $this->installGuzzleQueue([new Response(200, [], json_encode(['accepted' => true]))]);
