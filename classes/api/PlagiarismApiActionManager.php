@@ -248,7 +248,7 @@ class PlagiarismApiActionManager
             'submission' => [
                 'ithenticateEulaVersion' => $submission->getData('ithenticateEulaVersion'),
                 'ithenticateSubmissionCompletedAt' => $submission->getData('ithenticateSubmissionCompletedAt'),
-                'ithenticateEulaUrl' => $submission->getData('ithenticateEulaUrl'),
+                'ithenticateEulaUrl' => IThenticate::canonicalizeEulaUrl($submission->getData('ithenticateEulaUrl')),
                 'ithenticateProcessingErrors' => $processingErrors,
             ],
             'user' => [
