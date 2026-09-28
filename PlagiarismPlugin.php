@@ -1018,6 +1018,15 @@ class PlagiarismPlugin extends GenericPlugin
 
 		$eulaDetails = $cache->get($context->getId());
 
+		// double confirm the eula url is canonical
+		if (is_array($eulaDetails)) {
+			foreach ($eulaDetails as $localeKey => $localeEulaDetails) {
+				if (is_array($localeEulaDetails) && isset($localeEulaDetails['url'])) {
+					$eulaDetails[$localeKey]['url'] = IThenticate::canonicalizeEulaUrl($localeEulaDetails['url']);
+				}
+			}
+		}
+
 		if (!$keys) {
 			return $eulaDetails;
 		}
