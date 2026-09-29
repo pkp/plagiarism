@@ -676,7 +676,12 @@ class PlagiarismPlugin extends GenericPlugin
 	/**
 	 * Add plagiarism action history for revision files.
 	 * Only contains action history for files that has been sent for plagiarism check.
-	 * 
+	 *
+	 * Moving a submission file onto a new revision archives the superseded revision's plagiarism
+	 * data here and clears it off the file. Moving it back onto one of its own earlier revisions,
+	 * which is what cancelling the upload wizard does, restores that revision's data from the
+	 * archive, so a cancelled revision upload leaves a checked file exactly as it found it.
+	 *
 	 * @param string $hookName `SubmissionFile::edit`
 	 */
 	public function updateIthenticateRevisionHistory(string $hookName, array $params): bool
@@ -695,7 +700,33 @@ class PlagiarismPlugin extends GenericPlugin
 		}
 
 		// new file revision added, so add/update itnenticate revision hisotry
-		$revisionHistory = json_decode($currentSubmissionFile->getData('ithenticateRevisionHistory') ?? '{}', true);
+		$revisionHistory = json_decode($currentSubmissionFile->getData('ithenticateRevisionHistory') ?? '[]', true) ?: [];
+
+		// The file is being pointed back at one of its own earlier revisions, so this is a cancelled
+		// revision upload rather than a new one. File ids are never reused, so an archived entry for
+		// the incoming file id can only have been written when that same revision was superseded.
+		$restorableRevisionIndex = $this->findRestorableRevisionIndex($revisionHistory, $submissionFile->getData('fileId'));
+
+		if (!is_null($restorableRevisionIndex)) {
+			$restorableRevision = $revisionHistory[$restorableRevisionIndex];
+
+			$submissionFile->setData('ithenticateFileId', $restorableRevision['ithenticateFileId']);
+			$submissionFile->setData('ithenticateId', $restorableRevision['ithenticateId'] ?? null);
+			$submissionFile->setData('ithenticateSimilarityResult', $restorableRevision['ithenticateSimilarityResult'] ?? null);
+			$submissionFile->setData('ithenticateSimilarityScheduled', $restorableRevision['ithenticateSimilarityScheduled'] ?? 0);
+			$submissionFile->setData('ithenticateSubmissionAcceptedAt', $restorableRevision['ithenticateSubmissionAcceptedAt'] ?? null);
+
+			// Entries written before this restore existed did not carry the error, in which case the
+			// abandoned revision's error is simply dropped along with the revision it belongs to.
+			$submissionFile->setData('ithenticateProcessingError', $restorableRevision['ithenticateProcessingError'] ?? null);
+
+			// Every entry above the restored one belongs to a revision the cancel discards
+			$revisionHistory = array_slice($revisionHistory, 0, $restorableRevisionIndex);
+			$submissionFile->setData('ithenticateRevisionHistory', $revisionHistory ? json_encode($revisionHistory) : null);
+
+			return Hook::CONTINUE;
+		}
+
 		$submissionFile->setData('ithenticateFileId', $submissionFile->getData('fileId'));
 
 		// If the previous file not sent schedule for plagiarism check
@@ -710,8 +741,9 @@ class PlagiarismPlugin extends GenericPlugin
 			'ithenticateSimilarityResult' => $currentSubmissionFile->getData('ithenticateSimilarityResult'),
 			'ithenticateSimilarityScheduled' => $currentSubmissionFile->getData('ithenticateSimilarityScheduled'),
 			'ithenticateSubmissionAcceptedAt' => $currentSubmissionFile->getData('ithenticateSubmissionAcceptedAt'),
+			'ithenticateProcessingError' => $currentSubmissionFile->getData('ithenticateProcessingError'),
 		]);
-		
+
 		$submissionFile->setData('ithenticateRevisionHistory', json_encode($revisionHistory));
 		$submissionFile->setData('ithenticateId', null);
 		$submissionFile->setData('ithenticateSimilarityResult', null);
@@ -1517,6 +1549,30 @@ class PlagiarismPlugin extends GenericPlugin
 		$stageId = $request->getUserVar('stageId');
 
 		return $stageId ? (int) $stageId : null;
+	}
+
+	/**
+	 * Find the plagiarism revision history entry that describes the given file id.
+	 *
+	 * Searched newest first: history written before the restore existed can hold the same file id
+	 * more than once, as a cancelled upload used to leave the score behind and the restored file
+	 * could then be checked and superseded again. The newest entry is the state to come back to.
+	 *
+	 * @return ?int The index in $revisionHistory, or null when the file id was never archived
+	 */
+	protected function findRestorableRevisionIndex(array $revisionHistory, mixed $fileId): ?int
+	{
+		if (is_null($fileId)) {
+			return null;
+		}
+
+		foreach (array_reverse(array_keys($revisionHistory)) as $index) {
+			if ((int) ($revisionHistory[$index]['ithenticateFileId'] ?? 0) === (int) $fileId) {
+				return $index;
+			}
+		}
+
+		return null;
 	}
 
 	/**
