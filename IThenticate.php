@@ -314,7 +314,7 @@ class IThenticate
                                 'id' => $this->getGeneratedId('owner', $author->getId()),
                                 'given_name' => $author->getGivenName($publication->getData('locale')),
                                 'family_name' => $author->getFamilyName($publication->getData('locale')),
-                                'email' => $author->getEmail(),
+                                'email' => $author->getEmail() ?: null,
                             ]
                         ],
                         'submitter' => [
